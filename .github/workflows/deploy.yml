@@ -14,6 +14,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Debug file structure
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Directory contents:"
+        ls -la
+        echo "apps/frontend contents:"
+        ls -la apps/frontend/
+        echo "package-lock.json exists:"
+        ls -la apps/frontend/package-lock.json
+      
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -28,17 +39,15 @@ jobs:
           ${{ runner.os }}-node-
         
     - name: Install dependencies
-      run: |
-        cd apps/frontend
-        npm ci
+      working-directory: apps/frontend
+      run: npm ci
         
     - name: Build application
-      run: |
-        cd apps/frontend
-        npm run build
+      working-directory: apps/frontend
+      run: npm run build
         
     - name: Test build
+      working-directory: apps/frontend
       run: |
-        cd apps/frontend
         ls -la dist/
         echo "Build completed successfully! 🎉"
