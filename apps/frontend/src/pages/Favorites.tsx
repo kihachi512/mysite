@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { api, type FavoriteItem } from '../lib/api'
 
+const LS_KEY = 'favoriteUploads'
+
 const Favorites: React.FC = () => {
   const items = [
     { title: 'モモンガの写真', desc: 'ふわふわ滑空！' },
@@ -13,7 +15,23 @@ const Favorites: React.FC = () => {
   const [textBody, setTextBody] = useState('')
 
   useEffect(() => {
-    api.listFavorites().then(setUploads).catch(console.error)
+    api
+      .listFavorites()
+      .then(list => {
+        setUploads(list)
+        window.localStorage.setItem(LS_KEY, JSON.stringify(list))
+      })
+      .catch(err => {
+        console.error(err)
+        const cached = window.localStorage.getItem(LS_KEY)
+        if (cached) {
+          try {
+            setUploads(JSON.parse(cached))
+          } catch {
+            /* ignore */
+          }
+        }
+      })
   }, [])
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +44,19 @@ const Favorites: React.FC = () => {
         const dataUrl = reader.result as string
         try {
           const res = await api.addFavorite({ name, dataUrl, mime: file.type })
-          setUploads((prev) => [...prev, { id: res.id, name, kind: 'file', dataUrl, mime: file.type, createdAt: new Date().toISOString() }])
+          const item: FavoriteItem = {
+            id: res.id,
+            name,
+            kind: 'file',
+            dataUrl,
+            mime: file.type,
+            createdAt: new Date().toISOString(),
+          }
+          setUploads(prev => {
+            const next = [...prev, item]
+            window.localStorage.setItem(LS_KEY, JSON.stringify(next))
+            return next
+          })
         } catch (err) {
           console.error(err)
         }
@@ -42,7 +72,18 @@ const Favorites: React.FC = () => {
     const name = textName || '無題'
     try {
       const res = await api.addFavorite({ name, text: textBody })
-      setUploads((prev) => [...prev, { id: res.id, name, kind: 'text', text: textBody, createdAt: new Date().toISOString() }])
+      const item: FavoriteItem = {
+        id: res.id,
+        name,
+        kind: 'text',
+        text: textBody,
+        createdAt: new Date().toISOString(),
+      }
+      setUploads(prev => {
+        const next = [...prev, item]
+        window.localStorage.setItem(LS_KEY, JSON.stringify(next))
+        return next
+      })
       setTextName('')
       setTextBody('')
     } catch (err) {
@@ -53,7 +94,11 @@ const Favorites: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await api.deleteFavorite(id)
-      setUploads((prev) => prev.filter((item) => item.id !== id))
+      setUploads(prev => {
+        const next = prev.filter(item => item.id !== id)
+        window.localStorage.setItem(LS_KEY, JSON.stringify(next))
+        return next
+      })
     } catch (err) {
       console.error(err)
     }

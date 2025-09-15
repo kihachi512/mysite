@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { api, extractIdFromPk } from '../lib/api'
 import type { ThreadMeta, ThreadReply } from '../lib/api'
 
+const SELECTED_KEY = 'bbsSelected'
+
 const Bbs: React.FC = () => {
   const [threads, setThreads] = useState<ThreadMeta[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
 
-  const [selectedId, setSelectedId] = useState<string>('')
+  const [selectedId, setSelectedId] = useState<string>(() => window.localStorage.getItem(SELECTED_KEY) || '')
   const [detail, setDetail] = useState<{ thread: ThreadMeta; replies: ThreadReply[] } | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
@@ -19,6 +21,10 @@ const Bbs: React.FC = () => {
   const [replyName, setReplyName] = useState('')
   const [replyBody, setReplyBody] = useState('')
   const [replying, setReplying] = useState(false)
+
+  useEffect(() => {
+    window.localStorage.setItem(SELECTED_KEY, selectedId)
+  }, [selectedId])
 
   useEffect(() => {
     let cancelled = false
