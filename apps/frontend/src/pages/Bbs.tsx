@@ -54,11 +54,12 @@ const Bbs: React.FC = () => {
       const list = await api.listThreads()
       setThreads(list)
       setSelectedId(r.id)
-    } catch (e:any) {
-      alert(e?.message || '作成に失敗しました')
-    } finally {
-      setCreating(false)
-    }
+      } catch (e) {
+        const message = e instanceof Error ? e.message : '作成に失敗しました'
+        alert(message)
+      } finally {
+        setCreating(false)
+      }
   }
 
   const onReply = async (e: React.FormEvent) => {
@@ -70,11 +71,12 @@ const Bbs: React.FC = () => {
       setReplyBody('')
       const d = await api.getThread(selectedId)
       setDetail(d)
-    } catch (e:any) {
-      alert(e?.message || '返信に失敗しました')
-    } finally {
-      setReplying(false)
-    }
+      } catch (e) {
+        const message = e instanceof Error ? e.message : '返信に失敗しました'
+        alert(message)
+      } finally {
+        setReplying(false)
+      }
   }
 
   const selectedTitle = useMemo(() => {
