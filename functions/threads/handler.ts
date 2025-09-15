@@ -1,11 +1,11 @@
-﻿import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { randomBytes } from "node:crypto";
 
 type AnyEvent = any;
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}));
-const TABLE = process.env.TABLE_THREADS!;
+const TABLE = process.env.TABLE_THREADS;
 
 const json = (code: number, body: unknown) => ({
   statusCode: code,
@@ -45,6 +45,9 @@ const normId = (raw: string) => {
 
 export const handler = async (event: AnyEvent) => {
   try {
+    if (!TABLE) {
+      return json(500, { error: "misconfigured: TABLE_THREADS is not set" });
+    }
     const method = mOf(event);
     const path   = pOf(event);
 
