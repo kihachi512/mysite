@@ -26,7 +26,12 @@ const Bbs: React.FC = () => {
     setError('')
     api.listThreads()
       .then(list => { if (!cancelled) setThreads(list) })
-      .catch(e => { if (!cancelled) setError(e.message || '読み込みに失敗しました') })
+      .catch(e => {
+        if (!cancelled) {
+          const message = e instanceof Error ? e.message : '読み込みに失敗しました'
+          setError(message)
+        }
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [])
@@ -38,7 +43,12 @@ const Bbs: React.FC = () => {
     setDetailError('')
     api.getThread(selectedId)
       .then(d => { if (!cancelled) setDetail(d) })
-      .catch(e => { if (!cancelled) setDetailError(e.message || '取得に失敗しました') })
+      .catch(e => {
+        if (!cancelled) {
+          const message = e instanceof Error ? e.message : '取得に失敗しました'
+          setDetailError(message)
+        }
+      })
       .finally(() => { if (!cancelled) setDetailLoading(false) })
     return () => { cancelled = true }
   }, [selectedId])
@@ -54,11 +64,12 @@ const Bbs: React.FC = () => {
       const list = await api.listThreads()
       setThreads(list)
       setSelectedId(r.id)
-    } catch (e:any) {
-      alert(e?.message || '作成に失敗しました')
-    } finally {
-      setCreating(false)
-    }
+      } catch (e) {
+        const message = e instanceof Error ? e.message : '作成に失敗しました'
+        alert(message)
+      } finally {
+        setCreating(false)
+      }
   }
 
   const onReply = async (e: React.FormEvent) => {
@@ -70,11 +81,12 @@ const Bbs: React.FC = () => {
       setReplyBody('')
       const d = await api.getThread(selectedId)
       setDetail(d)
-    } catch (e:any) {
-      alert(e?.message || '返信に失敗しました')
-    } finally {
-      setReplying(false)
-    }
+      } catch (e) {
+        const message = e instanceof Error ? e.message : '返信に失敗しました'
+        alert(message)
+      } finally {
+        setReplying(false)
+      }
   }
 
   const selectedTitle = useMemo(() => {
