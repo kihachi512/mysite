@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Smile, Heart, Star, Zap, Sparkles } from 'lucide-react'
+import { Heart, Star, Zap, Sparkles } from 'lucide-react'
 import '../App.css'
 
 interface BouncingBall {
