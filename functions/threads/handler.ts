@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, QueryCommand, UpdateCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { randomBytes } from "node:crypto";
 
 type AnyEvent = any;
@@ -12,7 +12,7 @@ const json = (code: number, body: unknown) => ({
   headers: {
     "content-type": "application/json",
     "access-control-allow-origin": "*",
-    "access-control-allow-methods": "GET,POST,OPTIONS",
+    "access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
     "access-control-allow-headers": "Content-Type"
   },
   body: JSON.stringify(body),
@@ -122,18 +122,36 @@ export const handler = async (event: AnyEvent) => {
         return json(201, { ok:true });
       }
 
-      const title = (body.title || "").toString().trim().slice(0, 80);
+      const name = (body.name || "匿名").toString().slice(0,40);
       const text  = (body.body  || "").toString().trim().slice(0, 1000);
-      if (!title || !text) return json(400, { error: "invalid" });
+      if (!text) return json(400, { error: "empty" });
 
       const now = new Date().toISOString();
       const newId  = randomBytes(6).toString("base64url");
 
       await ddb.send(new PutCommand({
         TableName: TABLE,
-        Item: { pk:`THREAD#${newId}`, sk:"META", title, body:text, createdAt:now, updatedAt:now, GSI1PK:"THREADS", GSI1SK:now }
+        Item: { pk:`THREAD#${newId}`, sk:"META", name, body:text, createdAt:now, updatedAt:now, GSI1PK:"THREADS", GSI1SK:now }
       }));
       return json(201, { id: newId });
+    }
+
+    if (isThreadsRoute && method === "DELETE" && !isRepliesIdPath) {
+      const qid = normId(getQueryParam(event, "id"));
+      if (!qid) return json(400, { error: "invalid" });
+
+      const items = await ddb.send(new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: "pk = :pk",
+        ExpressionAttributeValues: { ":pk": `THREAD#${qid}` },
+        Limit: 200,
+      }));
+      if (!items.Items?.length) return json(404, { error: "not found" });
+
+      for (const it of items.Items) {
+        await ddb.send(new DeleteCommand({ TableName: TABLE, Key: { pk: it.pk, sk: it.sk } }));
+      }
+      return json(200, { ok: true });
     }
 
     // 旧PATH互換
