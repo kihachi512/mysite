@@ -1,32 +1,73 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { api, type FavoriteItem } from '../lib/api'
 
 const LS_KEY = 'favoriteUploads'
 
+const isFavoriteItem = (value: unknown): value is FavoriteItem => {
+  if (!value || typeof value !== 'object') return false
+  const item = value as Record<string, unknown>
+  if (typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.createdAt !== 'string') return false
+  if (item.kind === 'text') {
+    return typeof item.text === 'string'
+  }
+  if (item.kind === 'file') {
+    return typeof item.dataUrl === 'string'
+  }
+  return false
+}
+
+const readCachedFavorites = (): FavoriteItem[] => {
+  if (typeof window === 'undefined') return []
+  const raw = window.localStorage.getItem(LS_KEY)
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(isFavoriteItem)
+  } catch {
+    return []
+  }
+}
+
 const Favorites: React.FC = () => {
-  const [uploads, setUploads] = useState<FavoriteItem[]>([])
+  const [uploads, setUploads] = useState<FavoriteItem[]>(readCachedFavorites)
   const [textName, setTextName] = useState('')
   const [textBody, setTextBody] = useState('')
 
+  const updateUploads = useCallback((updater: React.SetStateAction<FavoriteItem[]>) => {
+    setUploads(prev => {
+      const next = typeof updater === 'function'
+        ? (updater as (prev: FavoriteItem[]) => FavoriteItem[])(prev)
+        : updater
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(LS_KEY, JSON.stringify(next))
+      }
+      return next
+    })
+  }, [])
+
   useEffect(() => {
+    let cancelled = false
     api
       .listFavorites()
       .then(list => {
-        setUploads(list)
-        window.localStorage.setItem(LS_KEY, JSON.stringify(list))
+        if (!cancelled) {
+          updateUploads(list)
+        }
       })
       .catch(err => {
         console.error(err)
-        const cached = window.localStorage.getItem(LS_KEY)
-        if (cached) {
-          try {
-            setUploads(JSON.parse(cached))
-          } catch {
-            /* ignore */
-          }
+        if (cancelled || typeof window === 'undefined') return
+        const cached = readCachedFavorites()
+        if (cached.length) {
+          setUploads(cached)
         }
       })
-  }, [])
+    return () => {
+      cancelled = true
+    }
+  }, [updateUploads])
+
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -46,11 +87,9 @@ const Favorites: React.FC = () => {
             mime: file.type,
             createdAt: new Date().toISOString(),
           }
-          setUploads(prev => {
-            const next = [...prev, item]
-            window.localStorage.setItem(LS_KEY, JSON.stringify(next))
-            return next
-          })
+
+          updateUploads(prev => [...prev, item])
+
         } catch (err) {
           console.error(err)
         }
@@ -73,11 +112,9 @@ const Favorites: React.FC = () => {
         text: textBody,
         createdAt: new Date().toISOString(),
       }
-      setUploads(prev => {
-        const next = [...prev, item]
-        window.localStorage.setItem(LS_KEY, JSON.stringify(next))
-        return next
-      })
+
+      updateUploads(prev => [...prev, item])
+
       setTextName('')
       setTextBody('')
     } catch (err) {
@@ -88,11 +125,9 @@ const Favorites: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await api.deleteFavorite(id)
-      setUploads(prev => {
-        const next = prev.filter(item => item.id !== id)
-        window.localStorage.setItem(LS_KEY, JSON.stringify(next))
-        return next
-      })
+
+      updateUploads(prev => prev.filter(item => item.id !== id))
+
     } catch (err) {
       console.error(err)
     }
@@ -136,6 +171,7 @@ const Favorites: React.FC = () => {
             <button onClick={() => handleDelete(item.id)} style={{ marginTop: 8 }}>
               削除
             </button>
+
           </div>
         ))}
         {uploads.map((item, i) => (
