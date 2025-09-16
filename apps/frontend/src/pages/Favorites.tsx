@@ -138,6 +138,12 @@ const Favorites: React.FC = () => {
             </button>
           </div>
         ))}
+        {uploads.map((item, i) => (
+          <div key={`u-${i}`} style={{ background: 'rgba(0,0,0,0.3)', color: 'white', padding: 16, borderRadius: 12, border: '2px solid rgba(255,255,255,0.2)' }}>
+            <h3 style={{ marginBottom: 8 }}>{item.file.name}</h3>
+            {renderPreview(item)}
+          </div>
+        ))}
       </div>
     </div>
   )

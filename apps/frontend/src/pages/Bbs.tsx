@@ -51,11 +51,7 @@ const Bbs: React.FC = () => {
       .then(d => { if (!cancelled) setDetail(d) })
       .catch(e => {
         if (!cancelled) {
-          const message = e instanceof Error
-            ? e.message.startsWith('HTTP 404')
-              ? 'スレッドが見つかりません'
-              : e.message
-            : '取得に失敗しました'
+          const message = e instanceof Error ? e.message : '取得に失敗しました'
           setDetailError(message)
         }
       })
@@ -74,6 +70,7 @@ const Bbs: React.FC = () => {
       const list = await api.listThreads()
       setThreads(list)
       setSelectedId(r.id)
+      
     } catch (e) {
       const message = e instanceof Error ? e.message : '作成に失敗しました'
       alert(message)
@@ -91,6 +88,7 @@ const Bbs: React.FC = () => {
       setReplyBody('')
       const d = await api.getThread(selectedId)
       setDetail(d)
+
     } catch (e) {
       const message = e instanceof Error ? e.message : '返信に失敗しました'
       alert(message)
