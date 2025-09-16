@@ -68,6 +68,7 @@ const Favorites: React.FC = () => {
     }
   }, [updateUploads])
 
+
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
     const files = Array.from(e.target.files)
@@ -86,7 +87,9 @@ const Favorites: React.FC = () => {
             mime: file.type,
             createdAt: new Date().toISOString(),
           }
+
           updateUploads(prev => [...prev, item])
+
         } catch (err) {
           console.error(err)
         }
@@ -109,7 +112,9 @@ const Favorites: React.FC = () => {
         text: textBody,
         createdAt: new Date().toISOString(),
       }
+
       updateUploads(prev => [...prev, item])
+
       setTextName('')
       setTextBody('')
     } catch (err) {
@@ -120,7 +125,9 @@ const Favorites: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await api.deleteFavorite(id)
+
       updateUploads(prev => prev.filter(item => item.id !== id))
+
     } catch (err) {
       console.error(err)
     }
@@ -164,6 +171,13 @@ const Favorites: React.FC = () => {
             <button onClick={() => handleDelete(item.id)} style={{ marginTop: 8 }}>
               削除
             </button>
+
+          </div>
+        ))}
+        {uploads.map((item, i) => (
+          <div key={`u-${i}`} style={{ background: 'rgba(0,0,0,0.3)', color: 'white', padding: 16, borderRadius: 12, border: '2px solid rgba(255,255,255,0.2)' }}>
+            <h3 style={{ marginBottom: 8 }}>{item.file.name}</h3>
+            {renderPreview(item)}
           </div>
         ))}
       </div>
