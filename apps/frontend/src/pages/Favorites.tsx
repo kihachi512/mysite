@@ -152,7 +152,7 @@ const Favorites: React.FC = () => {
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 style={{ color: '#fff3e0', textShadow: '2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20', fontSize: '2.2rem', marginBottom: '10px', fontWeight: 'bold' }}>🌲 森の秘密基地の宝物庫 🌲</h2>
+        <h2 style={{ color: '#fff3e0', textShadow: '2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20', fontSize: '2.2rem', marginBottom: '10px', fontWeight: 'bold' }}>🌲 宝物庫 🌲</h2>
         <p style={{ color: '#c8e6c9', fontSize: '1.2rem', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>好きなファイルやテキストを保存しよう</p>
       </div>
       
