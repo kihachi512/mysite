@@ -1,4 +1,6 @@
 const DEFAULT_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const PATHS_ENV = (import.meta.env.VITE_THREADS_PATHS as string | undefined) || '/api/threads,/threads';
+const THREAD_PATH_CANDIDATES = PATHS_ENV.split(',').map(s => s.trim()).filter(Boolean);
 
 export interface ThreadMeta {
   pk: string; // THREAD#<id>
@@ -66,21 +68,35 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T
 }
 
+async function httpWithFallback<T>(relative: string, init?: RequestInit): Promise<T> {
+  const errors: string[] = [];
+  for (const basePath of THREAD_PATH_CANDIDATES) {
+    const path = relative.replace('__PATH__', basePath);
+    try {
+      return await http<T>(path, init);
+    } catch (e: any) {
+      errors.push(String(e?.message || e));
+      continue;
+    }
+  }
+  throw new Error(errors.join(' | '));
+}
+
 export const api = {
   listThreads(): Promise<ThreadMeta[]> {
-    return http<ThreadMeta[]>('/api/threads');
+    return httpWithFallback<ThreadMeta[]>('__PATH__');
   },
   getThread(id: string): Promise<ThreadDetailResponse> {
-    return http<ThreadDetailResponse>(`/api/threads?id=${encodeURIComponent(id)}`);
+    return httpWithFallback<ThreadDetailResponse>(`__PATH__?id=${encodeURIComponent(id)}`);
   },
-  createThread(input: { name?: string; body: string }): Promise<{ id: string }> {
-    return http<{ id: string }>(`/api/threads`, {
+  createThread(input: { title: string; body: string }): Promise<{ id: string }> {
+    return httpWithFallback<{ id: string }>(`__PATH__`, {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
   addReply(id: string, input: { name?: string; body: string }): Promise<{ ok: boolean }> {
-    return http<{ ok: boolean }>(`/api/threads?id=${encodeURIComponent(id)}`, {
+    return httpWithFallback<{ ok: boolean }>(`__PATH__?id=${encodeURIComponent(id)}`, {
       method: 'POST',
       body: JSON.stringify(input),
     });
