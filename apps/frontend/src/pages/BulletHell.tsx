@@ -19,25 +19,28 @@ const BulletHell: React.FC = () => {
     const onDown = (e: KeyboardEvent) => { keysRef.current[e.key] = true }
     const onUp = (e: KeyboardEvent) => { keysRef.current[e.key] = false }
     
-    // Touch controls for mobile
+    // Touch controls for mobile - only on canvas
     const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault()
-      const touch = e.touches[0]
-      const rect = canvasRef.current?.getBoundingClientRect()
-      if (!rect) return
-      
-      const x = touch.clientX - rect.left
-      const y = touch.clientY - rect.top
-      
-      // Determine direction based on touch position relative to player
-      const playerX = playerRef.current.x
-      const playerY = playerRef.current.y
-      
-      if (x < playerX - 20) keysRef.current['ArrowLeft'] = true
-      else if (x > playerX + 20) keysRef.current['ArrowRight'] = true
-      
-      if (y < playerY - 20) keysRef.current['ArrowUp'] = true
-      else if (y > playerY + 20) keysRef.current['ArrowDown'] = true
+      // Only prevent default if touching the canvas
+      if (e.target === canvasRef.current) {
+        e.preventDefault()
+        const touch = e.touches[0]
+        const rect = canvasRef.current?.getBoundingClientRect()
+        if (!rect) return
+        
+        const x = touch.clientX - rect.left
+        const y = touch.clientY - rect.top
+        
+        // Determine direction based on touch position relative to player
+        const playerX = playerRef.current.x
+        const playerY = playerRef.current.y
+        
+        if (x < playerX - 20) keysRef.current['ArrowLeft'] = true
+        else if (x > playerX + 20) keysRef.current['ArrowRight'] = true
+        
+        if (y < playerY - 20) keysRef.current['ArrowUp'] = true
+        else if (y > playerY + 20) keysRef.current['ArrowDown'] = true
+      }
     }
     
     const handleTouchEnd = () => {
@@ -49,7 +52,7 @@ const BulletHell: React.FC = () => {
     
     window.addEventListener('keydown', onDown)
     window.addEventListener('keyup', onUp)
-    window.addEventListener('touchstart', handleTouchStart, { passive: false })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
     window.addEventListener('touchend', handleTouchEnd)
     
     return () => { 
@@ -156,15 +159,15 @@ const BulletHell: React.FC = () => {
 
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
-      <div style={{ color: 'white', textAlign: 'center' }}>
-        <div>残機: {lives}</div>
-        <div style={{ fontSize: '0.9rem', marginTop: 4 }}>矢印キーで移動 / スペースでショット / スマホはタップで移動</div>
+      <div style={{ color: '#fff3e0', textAlign: 'center' }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', textShadow: '2px 2px 0px #2e7d32' }}>残機: {lives}</div>
+        <div style={{ fontSize: '0.9rem', marginTop: 4, color: '#c8e6c9' }}>矢印キーで移動 / スペースでショット / スマホはタップで移動</div>
       </div>
       <canvas ref={canvasRef} width={400} height={280} style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} onClick={shoot} />
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={start} disabled={running} style={{ padding: '8px 12px', borderRadius: 6, border: 'none', background: running ? '#666' : '#4ECDC4', color: 'white' }}>{running ? 'プレイ中' : 'スタート'}</button>
-        <button onClick={() => setRunning(false)} style={{ padding: '8px 12px', borderRadius: 6, border: 'none', background: '#FF6B6B', color: 'white' }}>停止</button>
-        <button onClick={shoot} disabled={!running} style={{ padding: '8px 12px', borderRadius: 6, border: 'none', background: !running ? '#666' : '#45B7D1', color: 'white' }}>ショット</button>
+        <button onClick={start} disabled={running} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #8bc34a', background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>{running ? 'プレイ中' : 'スタート'}</button>
+        <button onClick={() => setRunning(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #ff6b6b', background: 'linear-gradient(45deg, #ff6b6b, #f44336)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>停止</button>
+        <button onClick={shoot} disabled={!running} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #8bc34a', background: !running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>ショット</button>
       </div>
     </div>
   )
