@@ -11,11 +11,14 @@ const isFavoriteItem = (value: unknown): value is FavoriteItem => {
     return typeof item.text === 'string'
   }
   if (item.kind === 'file') {
+
     if (typeof item.dataUrl !== 'string') return false
     return item.mime == null || typeof item.mime === 'string'
+
   }
   return false
 }
+
 
 const parseIso = (value: string) => {
   const time = Date.parse(value)
@@ -34,6 +37,7 @@ const readCachedFavorites = (): FavoriteItem[] => {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
     return orderByCreatedAtDesc(parsed.filter(isFavoriteItem))
+
   } catch {
     return []
   }
@@ -46,10 +50,12 @@ const Favorites: React.FC = () => {
 
   const updateUploads = useCallback((updater: React.SetStateAction<FavoriteItem[]>) => {
     setUploads(prev => {
+
       const nextRaw = typeof updater === 'function'
         ? (updater as (prev: FavoriteItem[]) => FavoriteItem[])(prev)
         : updater
       const next = orderByCreatedAtDesc(nextRaw.filter(isFavoriteItem))
+
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(LS_KEY, JSON.stringify(next))
       }
@@ -71,7 +77,9 @@ const Favorites: React.FC = () => {
         if (cancelled || typeof window === 'undefined') return
         const cached = readCachedFavorites()
         if (cached.length) {
+
           updateUploads(cached)
+
         }
       })
     return () => {
@@ -98,6 +106,7 @@ const Favorites: React.FC = () => {
             createdAt: new Date().toISOString(),
           }
           updateUploads(prev => [...prev, item])
+
         } catch (err) {
           console.error(err)
         }
@@ -120,7 +129,9 @@ const Favorites: React.FC = () => {
         text: textBody,
         createdAt: new Date().toISOString(),
       }
+
       updateUploads(prev => [...prev, item])
+
       setTextName('')
       setTextBody('')
     } catch (err) {
@@ -131,13 +142,16 @@ const Favorites: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await api.deleteFavorite(id)
+
       updateUploads(prev => prev.filter(item => item.id !== id))
+
     } catch (err) {
       console.error(err)
     }
   }
 
   const renderPreview = (item: FavoriteItem) => {
+
     if (item.kind === 'text') {
       return <p style={{ whiteSpace: 'pre-wrap' }}>{item.text}</p>
     }
@@ -176,6 +190,7 @@ const Favorites: React.FC = () => {
             <button onClick={() => handleDelete(item.id)} style={{ marginTop: 8 }}>
               削除
             </button>
+
           </div>
         ))}
       </div>

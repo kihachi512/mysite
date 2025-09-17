@@ -13,6 +13,7 @@ const Bbs: React.FC = () => {
     if (typeof window === 'undefined') return ''
     return window.localStorage.getItem(SELECTED_KEY) || ''
   })
+
   const [detail, setDetail] = useState<{ thread: ThreadMeta; replies: ThreadReply[] } | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
@@ -59,6 +60,7 @@ const Bbs: React.FC = () => {
               ? 'スレッドが見つかりません'
               : e.message
             : '取得に失敗しました'
+
           setDetailError(message)
         }
       })
@@ -77,6 +79,7 @@ const Bbs: React.FC = () => {
       const list = await api.listThreads()
       setThreads(list)
       setSelectedId(r.id)
+
     } catch (e) {
       const message = e instanceof Error ? e.message : '作成に失敗しました'
       alert(message)
@@ -95,6 +98,7 @@ const Bbs: React.FC = () => {
       setReplyBody('')
       const d = await api.getThread(selectedId)
       setDetail(d)
+
     } catch (e) {
       const message = e instanceof Error ? e.message : '返信に失敗しました'
       alert(message)
