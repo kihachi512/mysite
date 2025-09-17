@@ -12,6 +12,74 @@ body {
   position: relative;
 }
 
+/* Comic UI Styles */
+.comic-button {
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border-radius: 20px !important;
+  border: 3px solid !important;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+  transform: translateY(0) !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.comic-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+}
+
+.comic-button:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+}
+
+.comic-card {
+  border-radius: 20px !important;
+  border: 3px solid !important;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.comic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.comic-text {
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+  font-weight: bold !important;
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.5), 0 0 10px rgba(255,255,255,0.3) !important;
+}
+
+.comic-input {
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+  border-radius: 15px !important;
+  border: 3px solid !important;
+  box-shadow: inset 0 3px 0 rgba(0,0,0,0.2), 0 3px 0 rgba(0,0,0,0.2) !important;
+  font-weight: bold !important;
+}
+
+.comic-input:focus {
+  outline: none !important;
+  box-shadow: inset 0 3px 0 rgba(0,0,0,0.2), 0 3px 0 rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.3) !important;
+}
+
 body::before {
   content: '';
   position: fixed;
@@ -346,6 +414,11 @@ body::after {
 @keyframes heartbeat {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 /* レスポンシブデザイン */

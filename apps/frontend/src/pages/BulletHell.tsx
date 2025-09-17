@@ -9,6 +9,8 @@ const BulletHell: React.FC = () => {
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
   const [lives, setLives] = useState(5)
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
+  const [lastTap, setLastTap] = useState(0)
   const playerRef = useRef<Player>({ x: 200, y: 240, r: 6 })
   const bulletsRef = useRef<Bullet[]>([])
   const enemiesRef = useRef<Enemy[]>([])
@@ -19,9 +21,8 @@ const BulletHell: React.FC = () => {
     const onDown = (e: KeyboardEvent) => { keysRef.current[e.key] = true }
     const onUp = (e: KeyboardEvent) => { keysRef.current[e.key] = false }
     
-    // Touch controls for mobile - only on canvas
+    // Touch controls for mobile - swipe-based movement
     const handleTouchStart = (e: TouchEvent) => {
-      // Only prevent default if touching the canvas
       if (e.target === canvasRef.current) {
         e.preventDefault()
         const touch = e.touches[0]
@@ -31,37 +32,62 @@ const BulletHell: React.FC = () => {
         const x = touch.clientX - rect.left
         const y = touch.clientY - rect.top
         
-        // Determine direction based on touch position relative to player
-        const playerX = playerRef.current.x
-        const playerY = playerRef.current.y
+        setTouchStart({ x, y })
         
-        if (x < playerX - 20) keysRef.current['ArrowLeft'] = true
-        else if (x > playerX + 20) keysRef.current['ArrowRight'] = true
+        // Double tap detection for shooting
+        const now = Date.now()
+        if (now - lastTap < 300) {
+          if (running) {
+            bulletsRef.current.push({ x: playerRef.current.x, y: playerRef.current.y - 8, vx: 0, vy: -4, r: 3, from: 'player' })
+          }
+        }
+        setLastTap(now)
+      }
+    }
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.target === canvasRef.current && touchStart) {
+        e.preventDefault()
+        const touch = e.touches[0]
+        const rect = canvasRef.current?.getBoundingClientRect()
+        if (!rect) return
         
-        if (y < playerY - 20) keysRef.current['ArrowUp'] = true
-        else if (y > playerY + 20) keysRef.current['ArrowDown'] = true
+        const x = touch.clientX - rect.left
+        const y = touch.clientY - rect.top
+        
+        const deltaX = x - touchStart.x
+        const deltaY = y - touchStart.y
+        
+        // Move player based on swipe direction
+        const player = playerRef.current
+        const newX = Math.max(player.r, Math.min(400 - player.r, player.x + deltaX * 0.5))
+        const newY = Math.max(player.r, Math.min(280 - player.r, player.y + deltaY * 0.5))
+        
+        player.x = newX
+        player.y = newY
+        
+        setTouchStart({ x, y })
       }
     }
     
     const handleTouchEnd = () => {
-      keysRef.current['ArrowLeft'] = false
-      keysRef.current['ArrowRight'] = false
-      keysRef.current['ArrowUp'] = false
-      keysRef.current['ArrowDown'] = false
+      setTouchStart(null)
     }
     
     window.addEventListener('keydown', onDown)
     window.addEventListener('keyup', onUp)
     window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
     window.addEventListener('touchend', handleTouchEnd)
     
     return () => { 
       window.removeEventListener('keydown', onDown)
       window.removeEventListener('keyup', onUp)
       window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [])
+  }, [lastTap, touchStart, running])
 
   useEffect(() => {
     const canvas = canvasRef.current!
@@ -107,7 +133,7 @@ const BulletHell: React.FC = () => {
         const dx = p.x - b.x, dy = p.y - b.y
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
-          setLives(v => v - 1)
+          setLives(v => Math.max(0, v - 1))
           if (lives - 1 <= 0) setRunning(false)
         }
       }
@@ -160,14 +186,49 @@ const BulletHell: React.FC = () => {
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
-        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', textShadow: '2px 2px 0px #2e7d32' }}>残機: {lives}</div>
-        <div style={{ fontSize: '0.9rem', marginTop: 4, color: '#c8e6c9' }}>矢印キーで移動 / スペースでショット / スマホはタップで移動</div>
+        <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>残機: {lives}</div>
+        <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>矢印キーで移動 / スペースでショット / スマホはスワイプで移動・ダブルタップでショット</div>
       </div>
       <canvas ref={canvasRef} width={400} height={280} style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} onClick={shoot} />
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={start} disabled={running} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #8bc34a', background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>{running ? 'プレイ中' : 'スタート'}</button>
-        <button onClick={() => setRunning(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #ff6b6b', background: 'linear-gradient(45deg, #ff6b6b, #f44336)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>停止</button>
-        <button onClick={shoot} disabled={!running} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #8bc34a', background: !running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>ショット</button>
+        <button 
+          onClick={start} 
+          disabled={running} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+            color: 'white', 
+            borderColor: running ? '#333' : '#2e7d32'
+          }}
+        >
+          {running ? 'プレイ中' : 'スタート'}
+        </button>
+        <button 
+          onClick={() => setRunning(false)} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: 'linear-gradient(45deg, #ff6b6b, #f44336)', 
+            color: 'white', 
+            borderColor: '#d32f2f'
+          }}
+        >
+          停止
+        </button>
+        <button 
+          onClick={shoot} 
+          disabled={!running} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: !running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+            color: 'white', 
+            borderColor: !running ? '#333' : '#2e7d32'
+          }}
+        >
+          ショット
+        </button>
       </div>
     </div>
   )
