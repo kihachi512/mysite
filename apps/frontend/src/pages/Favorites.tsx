@@ -11,8 +11,10 @@ const isFavoriteItem = (value: unknown): value is FavoriteItem => {
     return typeof item.text === 'string'
   }
   if (item.kind === 'file') {
+
     if (typeof item.dataUrl !== 'string') return false
     return item.mime == null || typeof item.mime === 'string'
+
   }
   return false
 }
@@ -34,6 +36,7 @@ const readCachedFavorites = (): FavoriteItem[] => {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
     return orderByCreatedAtDesc(parsed.filter(isFavoriteItem))
+
   } catch {
     return []
   }
@@ -120,7 +123,6 @@ const Favorites: React.FC = () => {
         text: textBody,
         createdAt: new Date().toISOString(),
       }
-      updateUploads(prev => [...prev, item])
       setTextName('')
       setTextBody('')
     } catch (err) {
@@ -131,7 +133,6 @@ const Favorites: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       await api.deleteFavorite(id)
-      updateUploads(prev => prev.filter(item => item.id !== id))
     } catch (err) {
       console.error(err)
     }
