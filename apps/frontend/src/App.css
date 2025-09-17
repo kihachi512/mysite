@@ -348,6 +348,11 @@ body::after {
   50% { transform: scale(1.2); }
 }
 
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 /* レスポンシブデザイン */
 @media (max-width: 900px) {
   .playground {
