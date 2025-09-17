@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App.tsx'
 import Minigame from './pages/Minigame.tsx'
-import Bbs from './pages/Bbs.tsx'
 import Favorites from './pages/Favorites.tsx'
 import './index.css'
 
@@ -14,7 +13,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <div style={{ color: 'white' }}>ようこそ！ さすらいのモモンガカーニバル</div> },
       { path: 'minigame', element: <Minigame /> },
-      { path: 'bbs', element: <Bbs /> },
       { path: 'favorites', element: <Favorites /> },
     ],
   },

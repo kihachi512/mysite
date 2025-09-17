@@ -10,7 +10,6 @@ const App: React.FC = () => {
         <nav style={{ marginTop: 12, display: 'flex', gap: 16, justifyContent: 'center' }}>
           <Link to="/">ホーム</Link>
           <Link to="/minigame">ミニゲーム</Link>
-          <Link to="/bbs">掲示板</Link>
           <Link to="/favorites">好きなもの置き場</Link>
         </nav>
       </div>
