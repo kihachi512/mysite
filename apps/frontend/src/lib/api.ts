@@ -82,7 +82,7 @@ async function httpWithFallback<T>(relative: string, init?: RequestInit): Promis
   throw new Error(errors.join(' | '));
 }
 
-type CreateThreadInput = { title: string; body: string } & Record<string, unknown>;
+type CreateThreadInput = { title?: string; body: string } & Record<string, unknown>;
 
 export const api = {
   listThreads(): Promise<ThreadMeta[]> {
