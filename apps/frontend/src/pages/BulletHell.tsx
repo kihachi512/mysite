@@ -120,7 +120,7 @@ const BulletHell: React.FC = () => {
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: 'white' }}>残機: {lives}　（矢印キーで移動 / スペースでショット）</div>
-      <canvas ref={canvasRef} width={400} height={280} style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020' }} onClick={shoot} />
+      <canvas ref={canvasRef} width={400} height={280} style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto' }} onClick={shoot} />
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={start} disabled={running} style={{ padding: '8px 12px' }}>{running ? 'プレイ中' : 'スタート'}</button>
         <button onClick={() => setRunning(false)} style={{ padding: '8px 12px' }}>停止</button>

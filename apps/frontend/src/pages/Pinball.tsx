@@ -144,7 +144,7 @@ const Pinball: React.FC = () => {
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: 'white' }}>スコア: {score}　（← → でフリッパー）</div>
-      <canvas ref={canvasRef} width={300} height={400} style={{ border: '4px solid #333', borderRadius: 12, background: '#0e1726' }} />
+      <canvas ref={canvasRef} width={300} height={400} style={{ border: '4px solid #333', borderRadius: 12, background: '#0e1726', width: 'min(92vw, 340px)', height: 'auto' }} />
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={launch} disabled={running} style={{ padding: '8px 12px' }}>{running ? 'プレイ中' : 'スタート'}</button>
         <button onClick={() => setRunning(false)} style={{ padding: '8px 12px' }}>停止</button>
