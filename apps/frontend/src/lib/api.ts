@@ -22,15 +22,24 @@ export interface ThreadDetailResponse {
   replies: ThreadReply[];
 }
 
-export interface FavoriteItem {
+export interface FavoriteBaseItem {
   id: string;
   name: string;
-  kind: 'file' | 'text';
-  dataUrl?: string;
-  mime?: string;
-  text?: string;
   createdAt: string;
 }
+
+export interface FavoriteFileItem extends FavoriteBaseItem {
+  kind: 'file';
+  dataUrl: string;
+  mime?: string;
+}
+
+export interface FavoriteTextItem extends FavoriteBaseItem {
+  kind: 'text';
+  text: string;
+}
+
+export type FavoriteItem = FavoriteFileItem | FavoriteTextItem;
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${DEFAULT_BASE}${path}`;

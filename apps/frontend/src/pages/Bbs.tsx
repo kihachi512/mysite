@@ -9,7 +9,11 @@ const Bbs: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
 
-  const [selectedId, setSelectedId] = useState<string>(() => window.localStorage.getItem(SELECTED_KEY) || '')
+  const [selectedId, setSelectedId] = useState<string>(() => {
+    if (typeof window === 'undefined') return ''
+    return window.localStorage.getItem(SELECTED_KEY) || ''
+  })
+
   const [detail, setDetail] = useState<{ thread: ThreadMeta; replies: ThreadReply[] } | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState('')
@@ -90,6 +94,7 @@ const Bbs: React.FC = () => {
     setReplying(true)
     try {
       await api.addReply(selectedId, { name: replyName.trim() || '匿名', body: replyBody.trim() })
+      setReplyName('')
       setReplyBody('')
       const d = await api.getThread(selectedId)
       setDetail(d)

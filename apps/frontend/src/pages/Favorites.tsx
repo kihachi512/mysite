@@ -11,9 +11,22 @@ const isFavoriteItem = (value: unknown): value is FavoriteItem => {
     return typeof item.text === 'string'
   }
   if (item.kind === 'file') {
-    return typeof item.dataUrl === 'string'
+
+    if (typeof item.dataUrl !== 'string') return false
+    return item.mime == null || typeof item.mime === 'string'
+
   }
   return false
+}
+
+
+const parseIso = (value: string) => {
+  const time = Date.parse(value)
+  return Number.isFinite(time) ? time : 0
+}
+
+const orderByCreatedAtDesc = (items: FavoriteItem[]): FavoriteItem[] => {
+  return [...items].sort((a, b) => parseIso(b.createdAt) - parseIso(a.createdAt))
 }
 
 const readCachedFavorites = (): FavoriteItem[] => {
@@ -23,7 +36,8 @@ const readCachedFavorites = (): FavoriteItem[] => {
   try {
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed)) return []
-    return parsed.filter(isFavoriteItem)
+    return orderByCreatedAtDesc(parsed.filter(isFavoriteItem))
+
   } catch {
     return []
   }
@@ -36,9 +50,12 @@ const Favorites: React.FC = () => {
 
   const updateUploads = useCallback((updater: React.SetStateAction<FavoriteItem[]>) => {
     setUploads(prev => {
-      const next = typeof updater === 'function'
+
+      const nextRaw = typeof updater === 'function'
         ? (updater as (prev: FavoriteItem[]) => FavoriteItem[])(prev)
         : updater
+      const next = orderByCreatedAtDesc(nextRaw.filter(isFavoriteItem))
+
       if (typeof window !== 'undefined') {
         window.localStorage.setItem(LS_KEY, JSON.stringify(next))
       }
@@ -60,14 +77,15 @@ const Favorites: React.FC = () => {
         if (cancelled || typeof window === 'undefined') return
         const cached = readCachedFavorites()
         if (cached.length) {
-          setUploads(cached)
+
+          updateUploads(cached)
+
         }
       })
     return () => {
       cancelled = true
     }
   }, [updateUploads])
-
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -87,7 +105,6 @@ const Favorites: React.FC = () => {
             mime: file.type,
             createdAt: new Date().toISOString(),
           }
-
           updateUploads(prev => [...prev, item])
 
         } catch (err) {
@@ -134,9 +151,11 @@ const Favorites: React.FC = () => {
   }
 
   const renderPreview = (item: FavoriteItem) => {
-    if (item.kind === 'text' && item.text) {
+
+    if (item.kind === 'text') {
       return <p style={{ whiteSpace: 'pre-wrap' }}>{item.text}</p>
     }
+
     const { dataUrl, mime, name } = item
     if (mime?.startsWith('image/')) {
       return <img src={dataUrl} alt={name} style={{ maxWidth: '100%' }} />
@@ -172,12 +191,6 @@ const Favorites: React.FC = () => {
               削除
             </button>
 
-          </div>
-        ))}
-        {uploads.map((item, i) => (
-          <div key={`u-${i}`} style={{ background: 'rgba(0,0,0,0.3)', color: 'white', padding: 16, borderRadius: 12, border: '2px solid rgba(255,255,255,0.2)' }}>
-            <h3 style={{ marginBottom: 8 }}>{item.file.name}</h3>
-            {renderPreview(item)}
           </div>
         ))}
       </div>
