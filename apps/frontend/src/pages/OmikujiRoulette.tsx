@@ -38,7 +38,7 @@ const OmikujiChoice: React.FC = () => {
 
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
-      <div style={{ color: '#fff3e0', fontSize: '1.4rem', textShadow: '2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20', fontWeight: 'bold' }}>
+      <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)' }}>
         {revealedIdx === null ? '🔮 一枚選んでください 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果を確認中... 🔮'}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(60px, 1fr))', gap: 12, width: '100%', maxWidth: 600, padding: '0 12px' }}>
@@ -51,22 +51,24 @@ const OmikujiChoice: React.FC = () => {
               <button 
                 onClick={() => handleCardClick(c.id)} 
                 disabled={revealedIdx !== null} 
+                className="comic-button"
                 style={{ 
                   aspectRatio: '2 / 3', 
                   width: '100%', 
-                  borderRadius: 12, 
-                  border: isChosen ? '3px solid #ffd700' : '2px solid rgba(255,255,255,0.6)', 
+                  borderRadius: 20, 
+                  border: isChosen ? '4px solid #ffd700' : '3px solid rgba(255,255,255,0.8)', 
                   background: shouldShow ? '#fff' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%)', 
                   color: shouldShow ? '#333' : '#fff', 
                   fontWeight: 800, 
-                  fontSize: 20, 
-                  boxShadow: isChosen ? '0 0 20px rgba(255, 215, 0, 0.8), 0 8px 20px rgba(0,0,0,0.4)' : '0 6px 16px rgba(0,0,0,0.3)', 
+                  fontSize: 18, 
+                  boxShadow: isChosen ? '0 0 25px rgba(255, 215, 0, 0.9), 0 10px 25px rgba(0,0,0,0.5), inset 0 3px 0 rgba(255,255,255,0.3)' : '0 8px 0 rgba(0,0,0,0.3), inset 0 3px 0 rgba(255,255,255,0.3)', 
                   cursor: revealedIdx === null ? 'pointer' : 'default',
                   transform: shouldShow ? 'rotateY(180deg)' : 'rotateY(0deg)',
                   transition: 'all 0.6s ease-in-out',
                   transformStyle: 'preserve-3d',
                   position: 'relative',
-                  animation: isChosen ? 'pulse 2s infinite' : 'none'
+                  animation: isChosen ? 'pulse 2s infinite' : 'none',
+                  textTransform: 'none'
                 }}
               >
                 <div style={{ 
@@ -98,25 +100,35 @@ const OmikujiChoice: React.FC = () => {
         })}
       </div>
       {showAll && (
-        <div style={{ 
+        <div className="comic-card" style={{ 
           background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
-          padding: '16px 24px', 
-          borderRadius: '16px', 
-          border: '2px solid #8bc34a',
-          boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+          padding: '20px 28px', 
+          borderColor: '#8bc34a',
           textAlign: 'center',
-          marginTop: '8px'
+          marginTop: '12px'
         }}>
-          <div style={{ color: '#fff3e0', fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '8px' }}>
+          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.4rem', marginBottom: '10px' }}>
             あなたの運勢: {cards[revealedIdx!]?.fortune}
           </div>
-          <div style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>
+          <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem' }}>
             他の選択肢も確認してみてね！
           </div>
         </div>
       )}
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={reset} style={{ padding: '10px 20px', borderRadius: 12, border: '2px solid #8bc34a', background: 'linear-gradient(45deg, #66bb6a, #4caf50)', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>🔄 もう一度</button>
+        <button 
+          onClick={reset} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 24px', 
+            background: 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+            color: '#fff', 
+            fontSize: '1.2rem',
+            borderColor: '#2e7d32'
+          }}
+        >
+          🔄 もう一度
+        </button>
       </div>
     </div>
   )

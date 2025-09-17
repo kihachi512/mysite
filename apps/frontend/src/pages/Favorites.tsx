@@ -152,43 +152,43 @@ const Favorites: React.FC = () => {
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 style={{ color: '#fff3e0', textShadow: '2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20', fontSize: '2.2rem', marginBottom: '10px', fontWeight: 'bold' }}>🌲 宝物庫 🌲</h2>
-        <p style={{ color: '#c8e6c9', fontSize: '1.2rem', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>好きなファイルやテキストを保存しよう</p>
+        <h2 className="comic-text" style={{ color: '#fff3e0', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', fontSize: '2.4rem', marginBottom: '12px' }}>🌲 宝物庫 🌲</h2>
+        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>好きなファイルやテキストを保存しよう</p>
       </div>
       
-      <div style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '20px', borderRadius: '16px', border: '2px solid #8bc34a', marginBottom: '20px', boxShadow: '0 8px 16px rgba(0,0,0,0.3)' }}>
-        <h3 style={{ color: '#fff3e0', marginBottom: '15px', fontSize: '1.3rem', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>📤 ファイルをアップロード</h3>
+      <div className="comic-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '24px', borderColor: '#8bc34a', marginBottom: '24px' }}>
+        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📤 ファイルをアップロード</h3>
         <input 
           type="file" 
           multiple 
           onChange={handleUpload} 
+          className="comic-input"
           style={{ 
             width: '100%', 
-            padding: '10px', 
-            borderRadius: '8px', 
-            border: '2px dashed rgba(255,255,255,0.3)',
+            padding: '12px', 
+            borderColor: 'rgba(255,255,255,0.4)',
             background: 'rgba(255,255,255,0.05)',
             color: 'white',
-            fontSize: '1rem'
+            fontSize: '1.1rem'
           }} 
         />
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '8px' }}>画像、動画、音声、テキストファイルなど対応</p>
+        <p className="comic-text" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem', marginTop: '10px' }}>画像、動画、音声、テキストファイルなど対応</p>
       </div>
 
-      <div style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '20px', borderRadius: '16px', border: '2px solid #8bc34a', marginBottom: '20px', boxShadow: '0 8px 16px rgba(0,0,0,0.3)' }}>
-        <h3 style={{ color: '#fff3e0', marginBottom: '15px', fontSize: '1.3rem', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>📝 テキストを追加</h3>
+      <div className="comic-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '24px', borderColor: '#8bc34a', marginBottom: '24px' }}>
+        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📝 テキストを追加</h3>
         <form onSubmit={handleTextSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input 
             value={textName} 
             onChange={(e) => setTextName(e.target.value)} 
             placeholder="タイトル（任意）" 
+            className="comic-input"
             style={{
-              padding: '10px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255,255,255,0.3)',
+              padding: '12px',
+              borderColor: 'rgba(255,255,255,0.4)',
               background: 'rgba(255,255,255,0.05)',
               color: 'white',
-              fontSize: '1rem'
+              fontSize: '1.1rem'
             }}
           />
           <textarea 
@@ -196,30 +196,26 @@ const Favorites: React.FC = () => {
             onChange={(e) => setTextBody(e.target.value)} 
             placeholder="テキストを入力してください..." 
             rows={4}
+            className="comic-input"
             style={{
-              padding: '10px',
-              borderRadius: '8px',
-              border: '1px solid rgba(255,255,255,0.3)',
+              padding: '12px',
+              borderColor: 'rgba(255,255,255,0.4)',
               background: 'rgba(255,255,255,0.05)',
               color: 'white',
-              fontSize: '1rem',
+              fontSize: '1.1rem',
               resize: 'vertical'
             }}
           />
           <button 
             type="submit" 
+            className="comic-button"
             style={{
-              padding: '12px 24px',
-              borderRadius: '12px',
-              border: '2px solid #8bc34a',
+              padding: '14px 28px',
               background: 'linear-gradient(45deg, #66bb6a, #4caf50)',
               color: 'white',
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
+              fontSize: '1.2rem',
               alignSelf: 'flex-start',
-              textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+              borderColor: '#2e7d32'
             }}
           >
             ✨ テキスト追加
@@ -228,45 +224,41 @@ const Favorites: React.FC = () => {
       </div>
 
       <div style={{ marginTop: '30px' }}>
-        <h3 style={{ color: '#fff3e0', marginBottom: '20px', fontSize: '1.3rem', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>🗂️ 保存済みアイテム ({uploads.length}件)</h3>
+        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '24px', fontSize: '1.5rem' }}>🗂️ 保存済みアイテム ({uploads.length}件)</h3>
         {uploads.length === 0 ? (
-          <div style={{ 
+          <div className="comic-card" style={{ 
             textAlign: 'center', 
             color: '#c8e6c9', 
-            padding: '40px', 
+            padding: '48px', 
             background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.05))', 
-            borderRadius: '16px',
-            border: '2px dashed #8bc34a',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+            borderColor: '#8bc34a',
+            borderStyle: 'dashed'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>📦</div>
-            <div>まだ何も保存されていません</div>
-            <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>ファイルをアップロードするか、テキストを追加してください</div>
+            <div style={{ fontSize: '3.5rem', marginBottom: '12px' }}>📦</div>
+            <div className="comic-text" style={{ fontSize: '1.2rem' }}>まだ何も保存されていません</div>
+            <div className="comic-text" style={{ fontSize: '1rem', marginTop: '8px' }}>ファイルをアップロードするか、テキストを追加してください</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
             {uploads.map((item) => (
-              <div key={item.id} style={{ 
+              <div key={item.id} className="comic-card" style={{ 
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
                 color: '#fff3e0', 
-                padding: '20px', 
-                borderRadius: '16px', 
-                border: '2px solid #8bc34a',
-                position: 'relative',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.3)'
+                padding: '24px', 
+                borderColor: '#8bc34a',
+                position: 'relative'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>{item.name}</h4>
+                  <h4 className="comic-text" style={{ margin: 0, fontSize: '1.2rem' }}>{item.name}</h4>
                   <button 
                     onClick={() => handleDelete(item.id)} 
+                    className="comic-button"
                     style={{ 
-                      background: 'rgba(255,107,107,0.2)',
-                      border: '1px solid rgba(255,107,107,0.4)',
-                      color: '#ff6b6b',
-                      padding: '4px 8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      cursor: 'pointer'
+                      background: 'linear-gradient(45deg, #ff6b6b, #f44336)',
+                      color: 'white',
+                      padding: '6px 12px',
+                      fontSize: '0.9rem',
+                      borderColor: '#d32f2f'
                     }}
                   >
                     🗑️ 削除
@@ -275,11 +267,11 @@ const Favorites: React.FC = () => {
                 <div style={{ marginBottom: '8px' }}>
                   {renderPreview(item)}
                 </div>
-                <div style={{ 
-                  fontSize: '0.8rem', 
-                  color: 'rgba(255,255,255,0.6)',
-                  borderTop: '1px solid rgba(255,255,255,0.1)',
-                  paddingTop: '8px'
+                <div className="comic-text" style={{ 
+                  fontSize: '0.9rem', 
+                  color: 'rgba(255,255,255,0.7)',
+                  borderTop: '2px solid rgba(255,255,255,0.2)',
+                  paddingTop: '10px'
                 }}>
                   {new Date(item.createdAt).toLocaleString('ja-JP')}
                 </div>

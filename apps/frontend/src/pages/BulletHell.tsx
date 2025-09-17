@@ -186,14 +186,49 @@ const BulletHell: React.FC = () => {
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
-        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', textShadow: '2px 2px 0px #2e7d32' }}>残機: {lives}</div>
-        <div style={{ fontSize: '0.9rem', marginTop: 4, color: '#c8e6c9' }}>矢印キーで移動 / スペースでショット / スマホはスワイプで移動・ダブルタップでショット</div>
+        <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>残機: {lives}</div>
+        <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>矢印キーで移動 / スペースでショット / スマホはスワイプで移動・ダブルタップでショット</div>
       </div>
       <canvas ref={canvasRef} width={400} height={280} style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} onClick={shoot} />
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <button onClick={start} disabled={running} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #8bc34a', background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>{running ? 'プレイ中' : 'スタート'}</button>
-        <button onClick={() => setRunning(false)} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #ff6b6b', background: 'linear-gradient(45deg, #ff6b6b, #f44336)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>停止</button>
-        <button onClick={shoot} disabled={!running} style={{ padding: '10px 16px', borderRadius: 8, border: '2px solid #8bc34a', background: !running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', color: 'white', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>ショット</button>
+        <button 
+          onClick={start} 
+          disabled={running} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+            color: 'white', 
+            borderColor: running ? '#333' : '#2e7d32'
+          }}
+        >
+          {running ? 'プレイ中' : 'スタート'}
+        </button>
+        <button 
+          onClick={() => setRunning(false)} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: 'linear-gradient(45deg, #ff6b6b, #f44336)', 
+            color: 'white', 
+            borderColor: '#d32f2f'
+          }}
+        >
+          停止
+        </button>
+        <button 
+          onClick={shoot} 
+          disabled={!running} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: !running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+            color: 'white', 
+            borderColor: !running ? '#333' : '#2e7d32'
+          }}
+        >
+          ショット
+        </button>
       </div>
     </div>
   )
