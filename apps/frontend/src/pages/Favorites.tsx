@@ -1,5 +1,23 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { api, type FavoriteItem } from '../lib/api'
+import React, { useCallback, useState } from 'react'
+
+type FavoriteText = {
+  id: string
+  name: string
+  kind: 'text'
+  text: string
+  createdAt: string
+}
+
+type FavoriteFile = {
+  id: string
+  name: string
+  kind: 'file'
+  dataUrl: string
+  mime?: string
+  createdAt: string
+}
+
+export type FavoriteItem = FavoriteText | FavoriteFile
 
 const LS_KEY = 'favoriteUploads'
 
@@ -63,29 +81,7 @@ const Favorites: React.FC = () => {
     })
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
-    api
-      .listFavorites()
-      .then(list => {
-        if (!cancelled) {
-          updateUploads(list)
-        }
-      })
-      .catch(err => {
-        console.error(err)
-        if (cancelled || typeof window === 'undefined') return
-        const cached = readCachedFavorites()
-        if (cached.length) {
-
-          updateUploads(cached)
-
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [updateUploads])
+  const genId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -95,21 +91,15 @@ const Favorites: React.FC = () => {
       const reader = new FileReader()
       reader.onload = async () => {
         const dataUrl = reader.result as string
-        try {
-          const res = await api.addFavorite({ name, dataUrl, mime: file.type })
-          const item: FavoriteItem = {
-            id: res.id,
-            name,
-            kind: 'file',
-            dataUrl,
-            mime: file.type,
-            createdAt: new Date().toISOString(),
-          }
-          updateUploads(prev => [...prev, item])
-
-        } catch (err) {
-          console.error(err)
+        const item: FavoriteItem = {
+          id: genId(),
+          name,
+          kind: 'file',
+          dataUrl,
+          mime: file.type,
+          createdAt: new Date().toISOString(),
         }
+        updateUploads(prev => [...prev, item])
       }
       reader.readAsDataURL(file)
     })
@@ -120,34 +110,20 @@ const Favorites: React.FC = () => {
     e.preventDefault()
     if (!textBody.trim()) return
     const name = textName || '無題'
-    try {
-      const res = await api.addFavorite({ name, text: textBody })
-      const item: FavoriteItem = {
-        id: res.id,
-        name,
-        kind: 'text',
-        text: textBody,
-        createdAt: new Date().toISOString(),
-      }
-
-      updateUploads(prev => [...prev, item])
-
-      setTextName('')
-      setTextBody('')
-    } catch (err) {
-      console.error(err)
+    const item: FavoriteItem = {
+      id: genId(),
+      name,
+      kind: 'text',
+      text: textBody,
+      createdAt: new Date().toISOString(),
     }
+    updateUploads(prev => [...prev, item])
+    setTextName('')
+    setTextBody('')
   }
 
   const handleDelete = async (id: string) => {
-    try {
-      await api.deleteFavorite(id)
-
-      updateUploads(prev => prev.filter(item => item.id !== id))
-
-    } catch (err) {
-      console.error(err)
-    }
+    updateUploads(prev => prev.filter(item => item.id !== id))
   }
 
   const renderPreview = (item: FavoriteItem) => {
