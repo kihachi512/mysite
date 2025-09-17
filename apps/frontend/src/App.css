@@ -19,12 +19,12 @@ body {
 }
 
 .header {
-  background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
+  background: linear-gradient(45deg, #1f2937, #111827);
   background-size: 300% 300%;
-  animation: gradientShift 3s ease infinite;
+  animation: gradientShift 8s ease infinite;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
   z-index: 1;
@@ -64,11 +64,35 @@ body {
 
 .title {
   font-size: 3rem;
-  color: white;
-  text-shadow: 3px 3px 0px #333, 6px 6px 0px #666;
+  color: #f9fafb;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
   margin-bottom: 10px;
   position: relative;
   z-index: 1;
+}
+
+.nav {
+  display: inline-flex;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
+  padding: 8px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(6px);
+}
+
+.nav a {
+  color: #e5e7eb;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav a:hover,
+.nav a.active {
+  background: rgba(255,255,255,0.14);
+  color: #ffffff;
 }
 
 .score {
@@ -102,8 +126,8 @@ body {
 }
 
 .playground {
-  width: 800px;
-  height: 600px;
+  width: min(800px, 90vw);
+  height: min(600px, 65vh);
   background: linear-gradient(45deg, #f0f8ff, #e6f3ff);
   border: 5px solid #333;
   border-radius: 20px;
@@ -286,8 +310,8 @@ body {
 /* レスポンシブデザイン */
 @media (max-width: 900px) {
   .playground {
-    width: 90vw;
-    height: 60vh;
+    width: 94vw;
+    height: 55vh;
     max-width: 800px;
     max-height: 600px;
   }
@@ -305,6 +329,8 @@ body {
   .title {
     font-size: 1.5rem;
   }
+  .nav { gap: 6px; padding: 6px 8px; }
+  .nav a { padding: 6px 10px; }
   
   .control-btn {
     padding: 12px 24px;
