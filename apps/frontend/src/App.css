@@ -27,6 +27,7 @@ body {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 .header::before {
@@ -39,6 +40,15 @@ body {
   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 20px 20px;
   animation: float 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header nav {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+
 }
 
 @keyframes gradientShift {

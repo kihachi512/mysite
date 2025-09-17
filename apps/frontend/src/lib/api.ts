@@ -5,7 +5,7 @@ const THREAD_PATH_CANDIDATES = PATHS_ENV.split(',').map(s => s.trim()).filter(Bo
 export interface ThreadMeta {
   pk: string; // THREAD#<id>
   sk: 'META';
-  title: string;
+  name: string;
   body: string;
   createdAt: string;
   updatedAt: string;
@@ -24,6 +24,25 @@ export interface ThreadDetailResponse {
   replies: ThreadReply[];
 }
 
+export interface FavoriteBaseItem {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface FavoriteFileItem extends FavoriteBaseItem {
+  kind: 'file';
+  dataUrl: string;
+  mime?: string;
+}
+
+export interface FavoriteTextItem extends FavoriteBaseItem {
+  kind: 'text';
+  text: string;
+}
+
+export type FavoriteItem = FavoriteFileItem | FavoriteTextItem;
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${DEFAULT_BASE}${path}`;
   const res = await fetch(url, {
@@ -31,10 +50,22 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status}: ${text || res.statusText}`);
+    const ct = res.headers.get('content-type') || ''
+    let message = res.statusText
+    if (ct.includes('application/json')) {
+      try {
+        const data = (await res.json()) as { error?: string }
+        message = data?.error || message
+      } catch {
+        // ignore parse errors
+      }
+    } else {
+      const text = await res.text().catch(() => '')
+      if (text && text.length < 200 && !text.trim().startsWith('<')) message = text
+    }
+    throw new Error(`HTTP ${res.status}: ${message}`)
   }
-  return (await res.json()) as T;
+  return (await res.json()) as T
 }
 
 async function httpWithFallback<T>(relative: string, init?: RequestInit): Promise<T> {
@@ -68,6 +99,25 @@ export const api = {
     return httpWithFallback<{ ok: boolean }>(`__PATH__?id=${encodeURIComponent(id)}`, {
       method: 'POST',
       body: JSON.stringify(input),
+    });
+  },
+  deleteThread(id: string): Promise<{ ok: boolean }> {
+    return http<{ ok: boolean }>(`/api/threads?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+  },
+  listFavorites(): Promise<FavoriteItem[]> {
+    return http<FavoriteItem[]>('/api/favorites');
+  },
+  addFavorite(input: { name: string; dataUrl?: string; mime?: string; text?: string }): Promise<{ id: string }> {
+    return http<{ id: string }>('/api/favorites', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  },
+  deleteFavorite(id: string): Promise<{ ok: boolean }> {
+    return http<{ ok: boolean }>(`/api/favorites?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
     });
   },
 };
