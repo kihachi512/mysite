@@ -87,13 +87,17 @@ const Favorites: React.FC = () => {
     if (!e.target.files) return
     const files = Array.from(e.target.files)
     files.forEach((file) => {
-      const name = window.prompt('名前を入力してください', file.name) || file.name
+      const name = window.prompt('名前を入力してください（必須）', file.name)
+      if (!name || !name.trim()) {
+        alert('名前は必須です')
+        return
+      }
       const reader = new FileReader()
       reader.onload = async () => {
         const dataUrl = reader.result as string
         const item: FavoriteItem = {
           id: genId(),
-          name,
+          name: name.trim(),
           kind: 'file',
           dataUrl,
           mime: file.type,
@@ -108,11 +112,10 @@ const Favorites: React.FC = () => {
 
   const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!textBody.trim()) return
-    const name = textName || '無題'
+    if (!textBody.trim() || !textName.trim()) return
     const item: FavoriteItem = {
       id: genId(),
-      name,
+      name: textName.trim(),
       kind: 'text',
       text: textBody,
       createdAt: new Date().toISOString(),
@@ -181,7 +184,8 @@ const Favorites: React.FC = () => {
           <input 
             value={textName} 
             onChange={(e) => setTextName(e.target.value)} 
-            placeholder="タイトル（任意）" 
+            placeholder="タイトル（必須）"
+            required 
             className="comic-input"
             style={{
               padding: '12px',

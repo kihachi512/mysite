@@ -9,6 +9,9 @@ const BulletHell: React.FC = () => {
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
   const [lives, setLives] = useState(5)
+  const [score, setScore] = useState(0)
+  const [gameOver, setGameOver] = useState(false)
+  const [highScores, setHighScores] = useState<number[]>([])
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [lastTap, setLastTap] = useState(0)
   const playerRef = useRef<Player>({ x: 200, y: 240, r: 6 })
@@ -89,6 +92,27 @@ const BulletHell: React.FC = () => {
     }
   }, [lastTap, touchStart, running])
 
+  // Load high scores from localStorage
+  useEffect(() => {
+    const today = new Date().toDateString()
+    const saved = localStorage.getItem(`bullet-hell-scores-${today}`)
+    if (saved) {
+      try {
+        setHighScores(JSON.parse(saved))
+      } catch {
+        setHighScores([])
+      }
+    }
+  }, [])
+
+  // Save high scores to localStorage
+  useEffect(() => {
+    if (highScores.length > 0) {
+      const today = new Date().toDateString()
+      localStorage.setItem(`bullet-hell-scores-${today}`, JSON.stringify(highScores))
+    }
+  }, [highScores])
+
   useEffect(() => {
     const canvas = canvasRef.current!
     const ctx = canvas.getContext('2d')!
@@ -134,7 +158,15 @@ const BulletHell: React.FC = () => {
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
           setLives(v => Math.max(0, v - 1))
-          if (lives - 1 <= 0) setRunning(false)
+          if (lives - 1 <= 0) {
+            setRunning(false)
+            setGameOver(true)
+            // ハイスコアに追加
+            setHighScores(prev => {
+              const newScores = [...prev, score].sort((a, b) => b - a).slice(0, 10)
+              return newScores
+            })
+          }
         }
       }
 
@@ -145,11 +177,18 @@ const BulletHell: React.FC = () => {
           if (dx * dx + dy * dy < (e.r + b.r) * (e.r + b.r)) {
             e.hp -= 1
             bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+            setScore(prev => prev + 10) // 敵に当たると10点
             break
           }
         }
       })
       enemiesRef.current = enemiesRef.current.filter(e => e.hp > 0)
+      
+      // 敵を倒すと追加スコア
+      const killedEnemies = enemiesRef.current.filter(e => e.hp <= 0)
+      if (killedEnemies.length > 0) {
+        setScore(prev => prev + killedEnemies.length * 50) // 敵を倒すと50点
+      }
 
       // draw
       ctx.clearRect(0, 0, w, h)
@@ -162,6 +201,11 @@ const BulletHell: React.FC = () => {
       for (const b of bulletsRef.current) { ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill() }
       ctx.fillStyle = '#4ECDC4'
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill()
+      
+      // draw score
+      ctx.fillStyle = '#fff3e0'
+      ctx.font = 'bold 16px Comic Sans MS'
+      ctx.fillText(`スコア: ${score}`, 10, 25)
 
       if (running) rafRef.current = requestAnimationFrame(loop)
     }
@@ -175,6 +219,8 @@ const BulletHell: React.FC = () => {
     playerRef.current = { x: 200, y: 240, r: 6 }
     setLives(5)
     setTime(0)
+    setScore(0)
+    setGameOver(false)
     setRunning(true)
   }
 
@@ -190,6 +236,36 @@ const BulletHell: React.FC = () => {
         <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>矢印キーで移動 / スペースでショット / スマホはスワイプで移動・ダブルタップでショット</div>
       </div>
       <canvas ref={canvasRef} width={400} height={280} style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} onClick={shoot} />
+      
+      {gameOver && (
+        <div className="comic-card" style={{ 
+          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
+          padding: '24px', 
+          borderColor: '#8bc34a',
+          textAlign: 'center',
+          marginTop: '12px'
+        }}>
+          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
+          <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '16px' }}>最終スコア: {score}</div>
+          {highScores.length > 0 && (
+            <div>
+              <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem', marginBottom: '12px' }}>🏆 今日のハイスコア 🏆</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                {highScores.slice(0, 5).map((score, index) => (
+                  <div key={index} className="comic-text" style={{ 
+                    color: index === 0 ? '#ffd700' : '#c8e6c9', 
+                    fontSize: '1rem',
+                    fontWeight: index === 0 ? 'bold' : 'normal'
+                  }}>
+                    {index + 1}位: {score}点
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button 
           onClick={start} 
