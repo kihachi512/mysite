@@ -43,13 +43,21 @@ const OmikujiRoulette: React.FC = () => {
   return (
     <div style={{ display: 'grid', placeItems: 'center', gap: 16 }}>
       <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderBottom: '20px solid #333', zIndex: 2 }} />
-        <div style={{ width: 300, height: 300, borderRadius: '50%', border: '8px solid #333', position: 'relative', overflow: 'hidden', transform: `rotate(${angle}deg)`, transition: spinning ? 'none' : 'transform 0.2s' }}>
+        <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderBottom: '20px solid #fff', filter: 'drop-shadow(0 2px 0 #333)', zIndex: 2 }} />
+        <div style={{ width: 320, height: 320, borderRadius: '50%', border: '8px solid #333', position: 'relative', overflow: 'hidden', transform: `rotate(${angle}deg)`, transition: spinning ? 'none' : 'transform 0.2s', background: '#fff' }}>
           {segments.map((s, i) => (
-            <div key={i} style={{ position: 'absolute', width: '50%', height: '50%', top: '50%', left: '50%', transformOrigin: '0% 0%', transform: `rotate(${s.start}deg) skewY(${90 - degPer}deg)` , background: s.color }} />
+            <div key={i} style={{ position: 'absolute', width: '50%', height: '50%', top: '50%', left: '50%', transformOrigin: '0% 0%', transform: `rotate(${s.start}deg) skewY(${90 - degPer}deg)`, background: s.color }} />
           ))}
-          <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
-            <div style={{ textAlign: 'center', color: '#333', background: 'rgba(255,255,255,0.8)', padding: 8, borderRadius: 8 }}>モモンガ占い</div>
+          {segments.map((s, i) => {
+            const mid = s.start + degPer / 2
+            return (
+              <div key={`label-${i}`} style={{ position: 'absolute', top: '50%', left: '50%', transformOrigin: '0 0', transform: `rotate(${mid}deg) translate(80px) rotate(${-mid}deg)`, color: '#000', fontWeight: 800, textShadow: '0 1px 2px rgba(255,255,255,0.8), 0 0 3px rgba(0,0,0,0.4)' }}>
+                {s.label}
+              </div>
+            )
+          })}
+          <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', pointerEvents: 'none' }}>
+            <div style={{ textAlign: 'center', color: '#333', background: 'rgba(255,255,255,0.9)', padding: 8, borderRadius: 8, border: '1px solid #ccc' }}>モモンガ占い</div>
           </div>
         </div>
       </div>
