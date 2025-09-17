@@ -77,6 +77,7 @@ export const handler = async (event: AnyEvent) => {
         KeyConditionExpression: "pk = :pk AND sk = :meta",
         ExpressionAttributeValues: { ":pk": `THREAD#${qid}`, ":meta": "META" },
         Limit: 1,
+        ConsistentRead: true,
       }));
 
       if (!meta.Items?.length) {
@@ -99,6 +100,7 @@ export const handler = async (event: AnyEvent) => {
         ExpressionAttributeValues: { ":pk": `THREAD#${qid}`, ":r": "REPLY#" },
         ScanIndexForward: true,
         Limit: 100,
+        ConsistentRead: true,
       }));
       return json(200, { thread: meta.Items[0], replies: replies.Items ?? [] });
     }
@@ -159,14 +161,16 @@ export const handler = async (event: AnyEvent) => {
       const id = path.split("/").pop()!;
       const meta = await ddb.send(new QueryCommand({
         TableName: TABLE, KeyConditionExpression:"pk = :pk AND sk = :meta",
-        ExpressionAttributeValues:{":pk":`THREAD#${id}`,":meta":"META"}, Limit:1
+        ExpressionAttributeValues:{":pk":`THREAD#${id}`,":meta":"META"}, Limit:1,
+        ConsistentRead: true
       }));
       if (!meta.Items?.length) return json(404, { error: "not found" });
       const replies = await ddb.send(new QueryCommand({
         TableName: TABLE,
         KeyConditionExpression:"pk = :pk AND begins_with(sk, :r)",
         ExpressionAttributeValues:{":pk":`THREAD#${id}`,":r":"REPLY#"},
-        ScanIndexForward:true, Limit:100
+        ScanIndexForward:true, Limit:100,
+        ConsistentRead: true
       }));
       return json(200, { thread: meta.Items[0], replies: replies.Items ?? [] });
     }
