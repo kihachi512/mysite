@@ -2,9 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App.tsx'
-import Minigame from './pages/Minigame.tsx'
+// old Minigame removed
 import Favorites from './pages/Favorites.tsx'
 import './index.css'
+import OmikujiRoulette from './pages/OmikujiRoulette.tsx'
+import Pinball from './pages/Pinball.tsx'
+import BulletHell from './pages/BulletHell.tsx'
 
 const router = createBrowserRouter([
   {
@@ -12,7 +15,9 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <div style={{ color: 'white' }}>ようこそ！ さすらいのモモンガカーニバル</div> },
-      { path: 'minigame', element: <Minigame /> },
+      { path: 'games/omikuji', element: <OmikujiRoulette /> },
+      { path: 'games/pinball', element: <Pinball /> },
+      { path: 'games/bullet-hell', element: <BulletHell /> },
       { path: 'favorites', element: <Favorites /> },
     ],
   },
