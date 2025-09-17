@@ -6,9 +6,25 @@
 
 body {
   font-family: 'Comic Sans MS', cursive, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .app {
@@ -19,7 +35,7 @@ body {
 }
 
 .header {
-  background: linear-gradient(45deg, #1f2937, #111827);
+  background: linear-gradient(45deg, #2d3748, #1a202c, #2d3748);
   background-size: 300% 300%;
   animation: gradientShift 8s ease infinite;
   padding: 20px;
@@ -28,6 +44,7 @@ body {
   position: relative;
   overflow: hidden;
   z-index: 1;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .header::before {

@@ -150,25 +150,138 @@ const Favorites: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
-      <h2 style={{ color: 'white', textShadow: '1px 1px 2px #333' }}>好きなもの置き場</h2>
-      <input type="file" multiple onChange={handleUpload} style={{ marginTop: 12 }} />
-      <form onSubmit={handleTextSubmit} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <input value={textName} onChange={(e) => setTextName(e.target.value)} placeholder="名前" />
-        <textarea value={textBody} onChange={(e) => setTextBody(e.target.value)} placeholder="テキストを入力" />
-        <button type="submit">テキスト追加</button>
-      </form>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginTop: 12 }}>
-        {uploads.map((item) => (
-          <div key={item.id} style={{ background: 'rgba(0,0,0,0.3)', color: 'white', padding: 16, borderRadius: 12, border: '2px solid rgba(255,255,255,0.2)' }}>
-            <h3 style={{ marginBottom: 8 }}>{item.name}</h3>
-            {renderPreview(item)}
-            <button onClick={() => handleDelete(item.id)} style={{ marginTop: 8 }}>
-              削除
-            </button>
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <h2 style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)', fontSize: '2rem', marginBottom: '10px' }}>📁 秘密基地の宝物庫 📁</h2>
+        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1rem' }}>好きなファイルやテキストを保存しよう</p>
+      </div>
+      
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', marginBottom: '20px' }}>
+        <h3 style={{ color: 'white', marginBottom: '15px', fontSize: '1.2rem' }}>📤 ファイルをアップロード</h3>
+        <input 
+          type="file" 
+          multiple 
+          onChange={handleUpload} 
+          style={{ 
+            width: '100%', 
+            padding: '10px', 
+            borderRadius: '8px', 
+            border: '2px dashed rgba(255,255,255,0.3)',
+            background: 'rgba(255,255,255,0.05)',
+            color: 'white',
+            fontSize: '1rem'
+          }} 
+        />
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '8px' }}>画像、動画、音声、テキストファイルなど対応</p>
+      </div>
 
+      <div style={{ background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', marginBottom: '20px' }}>
+        <h3 style={{ color: 'white', marginBottom: '15px', fontSize: '1.2rem' }}>📝 テキストを追加</h3>
+        <form onSubmit={handleTextSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <input 
+            value={textName} 
+            onChange={(e) => setTextName(e.target.value)} 
+            placeholder="タイトル（任意）" 
+            style={{
+              padding: '10px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              background: 'rgba(255,255,255,0.05)',
+              color: 'white',
+              fontSize: '1rem'
+            }}
+          />
+          <textarea 
+            value={textBody} 
+            onChange={(e) => setTextBody(e.target.value)} 
+            placeholder="テキストを入力してください..." 
+            rows={4}
+            style={{
+              padding: '10px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255,255,255,0.3)',
+              background: 'rgba(255,255,255,0.05)',
+              color: 'white',
+              fontSize: '1rem',
+              resize: 'vertical'
+            }}
+          />
+          <button 
+            type="submit" 
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#4ECDC4',
+              color: 'white',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              alignSelf: 'flex-start'
+            }}
+          >
+            ✨ テキスト追加
+          </button>
+        </form>
+      </div>
+
+      <div style={{ marginTop: '30px' }}>
+        <h3 style={{ color: 'white', marginBottom: '20px', fontSize: '1.2rem' }}>🗂️ 保存済みアイテム ({uploads.length}件)</h3>
+        {uploads.length === 0 ? (
+          <div style={{ 
+            textAlign: 'center', 
+            color: 'rgba(255,255,255,0.6)', 
+            padding: '40px', 
+            background: 'rgba(255,255,255,0.05)', 
+            borderRadius: '12px',
+            border: '1px dashed rgba(255,255,255,0.2)'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>📦</div>
+            <div>まだ何も保存されていません</div>
+            <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>ファイルをアップロードするか、テキストを追加してください</div>
           </div>
-        ))}
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+            {uploads.map((item) => (
+              <div key={item.id} style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                color: 'white', 
+                padding: '20px', 
+                borderRadius: '12px', 
+                border: '1px solid rgba(255,255,255,0.2)',
+                position: 'relative'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>{item.name}</h4>
+                  <button 
+                    onClick={() => handleDelete(item.id)} 
+                    style={{ 
+                      background: 'rgba(255,107,107,0.2)',
+                      border: '1px solid rgba(255,107,107,0.4)',
+                      color: '#ff6b6b',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🗑️ 削除
+                  </button>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                  {renderPreview(item)}
+                </div>
+                <div style={{ 
+                  fontSize: '0.8rem', 
+                  color: 'rgba(255,255,255,0.6)',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  paddingTop: '8px'
+                }}>
+                  {new Date(item.createdAt).toLocaleString('ja-JP')}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
