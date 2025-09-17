@@ -82,6 +82,8 @@ async function httpWithFallback<T>(relative: string, init?: RequestInit): Promis
   throw new Error(errors.join(' | '));
 }
 
+type CreateThreadInput = { title: string; body: string } & Record<string, unknown>;
+
 export const api = {
   listThreads(): Promise<ThreadMeta[]> {
     return httpWithFallback<ThreadMeta[]>('__PATH__');
@@ -89,7 +91,7 @@ export const api = {
   getThread(id: string): Promise<ThreadDetailResponse> {
     return httpWithFallback<ThreadDetailResponse>(`__PATH__?id=${encodeURIComponent(id)}`);
   },
-  createThread(input: { title: string; body: string }): Promise<{ id: string }> {
+  createThread(input: CreateThreadInput): Promise<{ id: string }> {
     return httpWithFallback<{ id: string }>(`__PATH__`, {
       method: 'POST',
       body: JSON.stringify(input),
