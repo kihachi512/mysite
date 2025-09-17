@@ -6,11 +6,12 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <div className="header" style={{ padding: 20, textAlign: 'center' }}>
-        <h1 className="title">さすらいのモモンガカーニバル</h1>
+        <Link to="/" style={{ textDecoration: 'none' }}><h1 className="title">さすらいのモモンガカーニバル</h1></Link>
         <nav style={{ marginTop: 12, display: 'flex', gap: 16, justifyContent: 'center' }}>
           <Link to="/">ホーム</Link>
-          <Link to="/minigame">ミニゲーム</Link>
-          <Link to="/bbs">掲示板</Link>
+          <Link to="/games/omikuji">おみくじルーレット</Link>
+          <Link to="/games/pinball">ピンボール</Link>
+          <Link to="/games/bullet-hell">弾幕シューティング</Link>
           <Link to="/favorites">好きなもの置き場</Link>
         </nav>
       </div>
