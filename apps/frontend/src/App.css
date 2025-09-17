@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Comic Sans MS', cursive, sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 30%, #0f2818 70%, #0a1f0f 100%);
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
@@ -20,9 +20,25 @@ body::before {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 195, 74, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(102, 187, 106, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 60% 60%, rgba(56, 142, 60, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 30px 30px, 50px 50px;
   pointer-events: none;
   z-index: -1;
 }
@@ -35,16 +51,17 @@ body::before {
 }
 
 .header {
-  background: linear-gradient(45deg, #2d3748, #1a202c, #2d3748);
+  background: linear-gradient(45deg, #4caf50, #2e7d32, #1b5e20, #2e7d32, #4caf50);
   background-size: 300% 300%;
   animation: gradientShift 8s ease infinite;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
   z-index: 1;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 3px solid #8bc34a;
+  border-top: 2px solid #66bb6a;
 }
 
 .header::before {
@@ -81,35 +98,42 @@ body::before {
 
 .title {
   font-size: 3rem;
-  color: #f9fafb;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  color: #fff3e0;
+  text-shadow: 2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20, 0 0 10px rgba(139, 195, 74, 0.5);
   margin-bottom: 10px;
   position: relative;
   z-index: 1;
+  font-weight: bold;
+  letter-spacing: 2px;
 }
 
 .nav {
   display: inline-flex;
   gap: 12px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(139, 195, 74, 0.2);
   padding: 8px 12px;
   border-radius: 9999px;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 2px solid #8bc34a;
   backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .nav a {
-  color: #e5e7eb;
+  color: #fff3e0;
   text-decoration: none;
   padding: 8px 14px;
   border-radius: 9999px;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .nav a:hover,
 .nav a.active {
-  background: rgba(255,255,255,0.14);
+  background: linear-gradient(45deg, #66bb6a, #4caf50);
   color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .score {

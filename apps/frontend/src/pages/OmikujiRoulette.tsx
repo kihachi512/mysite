@@ -27,7 +27,7 @@ const OmikujiChoice: React.FC = () => {
 
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
-      <div style={{ color: 'white', fontSize: '1.2rem', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>🔮 一枚選んでください 🔮</div>
+      <div style={{ color: '#fff3e0', fontSize: '1.4rem', textShadow: '2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20', fontWeight: 'bold' }}>🔮 一枚選んでください 🔮</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(60px, 1fr))', gap: 12, width: '100%', maxWidth: 600, padding: '0 12px' }}>
         {cards.map((c) => {
           const isOpen = revealedIdx === c.id
@@ -41,7 +41,7 @@ const OmikujiChoice: React.FC = () => {
                   width: '100%', 
                   borderRadius: 12, 
                   border: '2px solid rgba(255,255,255,0.6)', 
-                  background: isOpen ? '#fff' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                  background: isOpen ? '#fff' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%)', 
                   color: isOpen ? '#333' : '#fff', 
                   fontWeight: 800, 
                   fontSize: 20, 
@@ -73,7 +73,7 @@ const OmikujiChoice: React.FC = () => {
         })}
       </div>
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={reset} style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: '#45B7D1', color: '#fff', fontSize: '1rem' }}>🔄 もう一度</button>
+        <button onClick={reset} style={{ padding: '10px 20px', borderRadius: 12, border: '2px solid #8bc34a', background: 'linear-gradient(45deg, #66bb6a, #4caf50)', color: '#fff', fontSize: '1.1rem', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0,0,0,0.5)', boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>🔄 もう一度</button>
       </div>
     </div>
   )
