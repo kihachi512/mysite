@@ -929,7 +929,7 @@ const BulletHell: React.FC = () => {
           )}
         </div>
         <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>
-          矢印キーで移動 / スペースでショット / 恵み(F:連射 P:威力 S:シールド)を取ろう！
+          矢印キーで移動 / スペースでショット / パワーアップ(F:連射 P:威力 S:シールド)を取ろう！
         </div>
         <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
           スマホ：スワイプで移動・ダブルタップでショット / 大きな青い自機の中の赤い部分が当たり判定！🎯
@@ -1316,7 +1316,7 @@ const BulletHell: React.FC = () => {
                   color: '#c8e6c9', textAlign: 'center', 
                   padding: 'min(20px, 5vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)'
                 }}>
-                  アイテムがありません。ガチャを引いて恵みを獲得しよう！🌰
+                  アイテムがありません。ガチャを引いて装備を獲得しよう！🌰
                 </div>
               ) : (
                 <div className="inventory-scroll" style={{ 
