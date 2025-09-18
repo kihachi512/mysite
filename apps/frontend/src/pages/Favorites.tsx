@@ -22,21 +22,21 @@ const Favorites: React.FC = () => {
     
     const file = e.target.files[0] // 最初のファイルのみ使用
     
-    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayを消費しますがよろしいですか？`)) {
+    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayを消費しますか？`)) {
       e.target.value = ''
       return
     }
     
-    const name = window.prompt('ファイル名を入力してください（必須）', file.name)
+    const name = window.prompt('ファイル名を入力（必須）', file.name)
     if (!name || !name.trim()) {
-      alert('名前は必須です。アップロードをキャンセルします。')
+      alert('名前は必須です。キャンセルします。')
       e.target.value = ''
       return
     }
     
     // MOMOPayを消費
     if (!spendMomoPayPoints(UPLOAD_COST)) {
-      alert('MOMOPayが不足しています。')
+      alert('MOMOPay不足。')
       e.target.value = ''
       return
     }
@@ -69,13 +69,13 @@ const Favorites: React.FC = () => {
       return
     }
     
-    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayを消費しますがよろしいですか？`)) {
+    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayを消費しますか？`)) {
       return
     }
     
     // MOMOPayを消費
     if (!spendMomoPayPoints(UPLOAD_COST)) {
-      alert('MOMOPayが不足しています。')
+      alert('MOMOPay不足。')
       return
     }
     
@@ -133,7 +133,7 @@ const Favorites: React.FC = () => {
         </div>
         {momoPayPoints < UPLOAD_COST && (
           <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
-            ⚠️ MOMOPayが不足しています。演習林でMOMOPayを稼いでください！
+            ⚠️ MOMOPay不足。演習林で稼いでください！
           </div>
         )}
       </div>
@@ -178,7 +178,7 @@ const Favorites: React.FC = () => {
           <textarea 
             value={textBody} 
             onChange={(e) => setTextBody(e.target.value)} 
-            placeholder="テキストを入力してください..." 
+            placeholder="テキストを入力..." 
             rows={4}
             className="comic-input"
             style={{
@@ -222,7 +222,7 @@ const Favorites: React.FC = () => {
           }}>
             <div style={{ fontSize: '3.5rem', marginBottom: '12px' }}>📦</div>
             <div className="comic-text" style={{ fontSize: '1.2rem' }}>まだ何も保存されていません</div>
-            <div className="comic-text" style={{ fontSize: '1rem', marginTop: '8px' }}>ファイルをアップロードするか、テキストを追加してください</div>
+            <div className="comic-text" style={{ fontSize: '1rem', marginTop: '8px' }}>ファイルアップロードかテキスト追加</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>

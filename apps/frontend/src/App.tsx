@@ -1,9 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { AppDataProvider } from './contexts/AppDataContext';
 import './App.css';
 
+// テーマ適用関数
+const applySetting = (key: string, value: boolean) => {
+  switch (key) {
+    case 'dark-mode':
+      if (value) {
+        document.body.classList.add('dark-mode')
+      } else {
+        document.body.classList.remove('dark-mode')
+      }
+      break
+    case 'premium-theme':
+      if (value) {
+        document.body.classList.add('premium-theme')
+      } else {
+        document.body.classList.remove('premium-theme')
+      }
+      break
+  }
+}
+
 const App: React.FC = () => {
+  // アプリ起動時にテーマ設定を読み込んで適用
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('app-settings')
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings)
+        // 保存された設定をすべて適用
+        Object.entries(parsedSettings).forEach(([key, value]) => {
+          if (value) {
+            applySetting(key, value as boolean)
+          }
+        })
+      } catch {
+        // 設定の読み込みに失敗した場合はデフォルトのまま
+      }
+    }
+  }, [])
+
   return (
     <AppDataProvider>
       <div className="app">

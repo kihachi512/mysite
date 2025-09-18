@@ -23,7 +23,7 @@ const ShareSettings: React.FC = () => {
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
     if (!hasSharedFeature) {
-      alert('共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。')
+      alert('共有機能は売店で購入が必要です。')
       return
     }
     
@@ -42,14 +42,14 @@ const ShareSettings: React.FC = () => {
       
       const data = {
         favorites,
-        tweets,
+        // tweets は除外（1時間で自動削除されるため）
         momoPayPoints,
         highScores,
         momoStorePurchases: parsedPurchases,
         appSettings: parsedSettings,
         bulletHellInventory: parsedInventory,
         exportDate: new Date().toISOString(),
-        version: '4.1'
+        version: '4.2'
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -80,7 +80,7 @@ const ShareSettings: React.FC = () => {
   // JSONファイルからインポート
   const importFromJson = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasSharedFeature) {
-      alert('共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。')
+      alert('共有機能は売店で購入が必要です。')
       return
     }
     
@@ -98,11 +98,11 @@ const ShareSettings: React.FC = () => {
           const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
           const purchasesInfo = jsonData.momoStorePurchases && jsonData.momoStorePurchases.length > 0 ? `\n- MOMOStore購入: ${jsonData.momoStorePurchases.length}件` : ''
           const inventoryInfo = jsonData.bulletHellInventory && jsonData.bulletHellInventory.items && jsonData.bulletHellInventory.items.length > 0 ? `\n- ゲーム装備: ${jsonData.bulletHellInventory.items.length}件` : ''
-          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
             localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
-            localStorage.setItem('tweets', JSON.stringify(jsonData.tweets))
+            // tweets は処理しない（1時間で自動削除されるため）
             
             // MOMOPayがあればインポート
             if (jsonData.momoPayPoints !== undefined) {
@@ -129,7 +129,7 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('bullet-hell-inventory', JSON.stringify(jsonData.bulletHellInventory))
             }
             
-            alert('JSONファイルからデータをインポートしました！ページを再読み込みしてください。')
+            alert('JSONファイルからデータをインポートしました！ページを再読み込みします。')
             window.location.reload()
           }
         } else {
@@ -278,8 +278,8 @@ const ShareSettings: React.FC = () => {
           lineHeight: '1.4'
         }}>
           {hasSharedFeature 
-            ? '全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元できます'
-            : '共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。'
+            ? '全データ（宝物庫・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元'
+            : '共有機能は売店で購入が必要です。'
           }
         </p>
         
@@ -290,7 +290,7 @@ const ShareSettings: React.FC = () => {
             disabled={!hasSharedFeature}
             className="comic-button"
             style={{
-              padding: 'min(12px 24px, 3vw)',
+              padding: 'min(16px 32px, 4vw 8vw)',
               background: hasSharedFeature 
                 ? 'linear-gradient(45deg, #2196f3, #1976d2)' 
                 : 'linear-gradient(45deg, #666, #555)',
@@ -355,14 +355,14 @@ const ShareSettings: React.FC = () => {
             }}>
               {hasSharedFeature 
                 ? '💡 エクスポートしたJSONファイルを選択してデータを復元できます'
-                : '🔒 共有機能を利用するには、MOMOStoreで購入が必要です'
+                : '🔒 共有機能は売店で購入が必要です'
               }
             </p>
             {!hasSharedFeature && (
               <div style={{ marginTop: '16px', textAlign: 'center' }}>
                 <Link to="/games/store" style={{ textDecoration: 'none' }}>
                   <button className="comic-button" style={{
-                    padding: 'min(8px 16px, 2vw)',
+                    padding: 'min(12px 24px, 3vw 6vw)',
                     fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     background: 'linear-gradient(45deg, #ffc107, #ffb300)',
                     color: '#000',
@@ -381,7 +381,7 @@ const ShareSettings: React.FC = () => {
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
+            padding: 'min(16px 32px, 4vw 8vw)',
             fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',

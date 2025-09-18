@@ -37,13 +37,13 @@ const OmikujiChoice: React.FC = () => {
     
     // MOMOPayをチェック
     if (momoPayPoints < OMIKUJI_COST) {
-      alert(`おみくじを引くには${OMIKUJI_COST}MOMOPay必要です。演習林でMOMOPayを稼いでください！`)
+      alert(`おみくじには${OMIKUJI_COST}MOMOPay必要です。演習林で稼いでください！`)
       return
     }
     
     // MOMOPayを消費
     if (!spendMomoPayPoints(OMIKUJI_COST)) {
-      alert('MOMOPayが不足しています。')
+      alert('MOMOPay不足。')
       return
     }
     
@@ -59,7 +59,7 @@ const OmikujiChoice: React.FC = () => {
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
       <div style={{ textAlign: 'center', marginBottom: '16px' }}>
         <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', marginBottom: '8px' }}>
-          {revealedIdx === null ? '🔮 一枚選んでください 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果を確認中... 🔮'}
+          {revealedIdx === null ? '🔮 一枚選んで 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果確認中... 🔮'}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
@@ -71,7 +71,7 @@ const OmikujiChoice: React.FC = () => {
         </div>
         {momoPayPoints < OMIKUJI_COST && (
           <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
-            ⚠️ MOMOPayが不足しています。演習林でMOMOPayを稼いでください！
+            ⚠️ MOMOPay不足。演習林で稼いでください！
           </div>
         )}
       </div>
