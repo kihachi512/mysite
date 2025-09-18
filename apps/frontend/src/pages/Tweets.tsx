@@ -64,10 +64,10 @@ const Tweets: React.FC = () => {
           fontSize: '2.4rem', 
           marginBottom: '12px' 
         }}>
-          🐦 森のつぶやき 🐦
+          🏠 森の大広間 🏠
         </h2>
         <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
-          1時間で自動削除されるつぶやき
+          1時間で自動削除されるおしゃべり
         </p>
       </div>
 
@@ -82,7 +82,7 @@ const Tweets: React.FC = () => {
           <textarea
             value={newTweet}
             onChange={(e) => setNewTweet(e.target.value)}
-            placeholder="何かつぶやいてみよう..."
+            placeholder="何かおしゃべりしてみよう..."
             rows={3}
             maxLength={280}
             required
@@ -111,7 +111,7 @@ const Tweets: React.FC = () => {
                 borderColor: '#2e7d32'
               }}
             >
-              🐦 つぶやく
+              💬 おしゃべりする
             </button>
           </div>
         </form>
@@ -129,8 +129,8 @@ const Tweets: React.FC = () => {
             borderStyle: 'dashed'
           }}>
             <div style={{ fontSize: '3.5rem', marginBottom: '12px' }}>🐦</div>
-            <div className="comic-text" style={{ fontSize: '1.2rem' }}>まだつぶやきがありません</div>
-            <div className="comic-text" style={{ fontSize: '1rem', marginTop: '8px' }}>最初のつぶやきを投稿してみよう！</div>
+            <div className="comic-text" style={{ fontSize: '1.2rem' }}>まだおしゃべりがありません</div>
+            <div className="comic-text" style={{ fontSize: '1rem', marginTop: '8px' }}>最初のおしゃべりを投稿してみよう！</div>
           </div>
         ) : (
           tweets.map((tweet) => (

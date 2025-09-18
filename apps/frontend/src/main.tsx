@@ -23,15 +23,15 @@ const router = createBrowserRouter([
           <Link to="/games" style={{ textDecoration: 'none' }}>
             <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
               <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', marginBottom: '12px' }}>🎮</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>遊戯</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>遊技場</div>
               <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>御神籤・弾幕ゲーム</div>
             </div>
           </Link>
           <Link to="/tweets" style={{ textDecoration: 'none' }}>
             <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: 'min(24px, 6vw)', borderColor: '#8bc34a', cursor: 'pointer', transition: 'all 0.3s ease' }}>
               <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', marginBottom: '12px' }}>🐦</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>つぶやき</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>気軽に投稿</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>大広間</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>みんなでおしゃべり</div>
             </div>
           </Link>
           <Link to="/favorites" style={{ textDecoration: 'none' }}>

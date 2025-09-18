@@ -13,8 +13,8 @@ const App: React.FC = () => {
           </Link>
           <nav className="nav" style={{ marginTop: 12, display: 'inline-flex' }} role="navigation" aria-label="メインナビゲーション">
             <Link to="/" aria-label="拠点ページ">拠点</Link>
-            <Link to="/games" aria-label="遊戯ページ">遊戯</Link>
-            <Link to="/tweets" aria-label="つぶやき投稿ページ">つぶやき</Link>
+            <Link to="/games" aria-label="遊技場ページ">遊技場</Link>
+            <Link to="/tweets" aria-label="大広間投稿ページ">大広間</Link>
             <Link to="/favorites" aria-label="お気に入りファイル管理">宝物庫</Link>
             <Link to="/export" aria-label="データ共有ページ">共有</Link>
           </nav>

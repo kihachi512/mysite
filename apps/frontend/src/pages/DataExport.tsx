@@ -60,7 +60,7 @@ const DataExport: React.FC = () => {
           // データの確認
           const momoPayPointsInfo = jsonData.momoPayPoints !== undefined ? `\n- MOMOPay: ${jsonData.momoPayPoints}` : ''
           const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
-          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- つぶやき: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}\n\n現在のデータは上書きされます。続行しますか？`
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
             localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
@@ -125,7 +125,7 @@ const DataExport: React.FC = () => {
           </div>
           <div>
             <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '2rem', marginBottom: '4px' }}>🐦</div>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>つぶやき</div>
+            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>大広間</div>
             <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem' }}>{tweets.length}件</div>
           </div>
           <div>
@@ -152,7 +152,7 @@ const DataExport: React.FC = () => {
       }}>
         <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📄 データのバックアップ・復元</h3>
         <p className="comic-text" style={{ color: '#c8e6c9', marginBottom: '16px', fontSize: '1rem' }}>
-          全てのデータ（宝物庫・つぶやき・MOMOPay・ハイスコア）をJSONファイルでバックアップ・復元できます
+          全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア）をJSONファイルでバックアップ・復元できます
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

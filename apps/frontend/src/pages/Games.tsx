@@ -11,7 +11,7 @@ const Games: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🎮 森の遊戯場 🎮
+        🎮 森の遊技場 🎮
       </div>
       <div className="comic-text" style={{ 
         fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', 
