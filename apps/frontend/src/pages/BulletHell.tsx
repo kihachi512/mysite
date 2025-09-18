@@ -76,7 +76,6 @@ const BulletHell: React.FC = () => {
   // 効果音設定の状態
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
-  const [audioInitialized, setAudioInitialized] = useState(false)
   
   // AudioContextを初期化する関数
   const initializeAudio = useCallback(() => {
@@ -85,7 +84,6 @@ const BulletHell: React.FC = () => {
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
       setAudioContext(ctx)
-      setAudioInitialized(true)
       
       // AudioContextが suspend 状態の場合は resume を試行
       if (ctx.state === 'suspended') {
@@ -273,7 +271,6 @@ const BulletHell: React.FC = () => {
       // 効果音が無効になった場合はAudioContextをクローズ
       audioContext.close().then(() => {
         setAudioContext(null)
-        setAudioInitialized(false)
         console.log('AudioContext closed')
       }).catch((error) => {
         console.log('Failed to close AudioContext:', error)
