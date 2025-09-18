@@ -716,46 +716,28 @@ const BulletHell: React.FC = () => {
       ctx.font = 'bold 12px Comic Sans MS'
       let yOffset = 65
       
-      // Fire rate with detailed breakdown
-      const baseFireRate = 1
+      // Fire rate - simple display
+      const totalFireRate = playerRef.current.fireRate
       const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
       const powerUpFireRateBonus = powerUpBonuses.fireRate
-      const totalFireRate = playerRef.current.fireRate
       
       if (equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0) {
-        ctx.fillStyle = '#4ecdc4' // Equipment bonus color
-        let displayText = `連射: ${baseFireRate.toFixed(1)}x`
-        if (equipmentFireRateBonus > 0) {
-          displayText += ` + ${equipmentFireRateBonus.toFixed(1)}x(装備)`
-        }
-        if (powerUpFireRateBonus > 0) {
-          displayText += ` + ${powerUpFireRateBonus.toFixed(1)}x(F)`
-        }
-        displayText += ` = ${totalFireRate.toFixed(1)}x ⚡`
-        ctx.fillText(displayText, 10, yOffset)
+        ctx.fillStyle = '#4ecdc4' // Bonus color
+        ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x ⚡`, 10, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
         ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x`, 10, yOffset)
       }
       yOffset += 15
       
-      // Power with detailed breakdown
-      const basePower = 1
+      // Power - simple display
+      const totalPower = playerRef.current.power
       const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
       const powerUpPowerBonus = powerUpBonuses.power
-      const totalPower = playerRef.current.power
       
       if (equipmentPowerBonus > 0 || powerUpPowerBonus > 0) {
-        ctx.fillStyle = '#ff6b6b' // Equipment bonus color
-        let displayText = `威力: ${basePower.toFixed(1)}x`
-        if (equipmentPowerBonus > 0) {
-          displayText += ` + ${equipmentPowerBonus.toFixed(1)}x(装備)`
-        }
-        if (powerUpPowerBonus > 0) {
-          displayText += ` + ${powerUpPowerBonus.toFixed(1)}x(P)`
-        }
-        displayText += ` = ${totalPower.toFixed(1)}x 💥`
-        ctx.fillText(displayText, 10, yOffset)
+        ctx.fillStyle = '#ff6b6b' // Bonus color
+        ctx.fillText(`威力: ${totalPower.toFixed(1)}x 💥`, 10, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
         ctx.fillText(`威力: ${totalPower.toFixed(1)}x`, 10, yOffset)
@@ -807,7 +789,7 @@ const BulletHell: React.FC = () => {
 
   // ガチャ機能
   const performGacha = useCallback(() => {
-    const gachaCost = 100 // 100MOMOPay
+    const gachaCost = 1000 // 1000MOMOPay
     if (momoPayPoints < gachaCost) {
       alert('MOMOPayが不足しています！')
       return
@@ -839,7 +821,7 @@ const BulletHell: React.FC = () => {
     }))
 
     setGachaResult(selectedItem)
-    setTimeout(() => setGachaResult(null), 3000) // 3秒後に結果を非表示
+    // 自動で閉じないように変更
   }, [momoPayPoints, addMomoPayPoints])
 
   // アイテム装備機能
@@ -1022,17 +1004,17 @@ const BulletHell: React.FC = () => {
         
         <button 
           onClick={() => setShowGacha(true)} 
-          disabled={running || momoPayPoints < 100} 
+          disabled={running || momoPayPoints < 1000} 
           className="comic-button"
           style={{ 
             padding: '12px 20px', 
-            background: (running || momoPayPoints < 100) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+            background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
             color: 'white', 
-            borderColor: (running || momoPayPoints < 100) ? '#333' : '#d32f2f'
+            borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f'
           }}
-          aria-label="ガチャを引く（100MOMOPay）"
+          aria-label="ガチャを引く（1000MOMOPay）"
         >
-          🌲 森ガチャ (100MOMOPay)
+          🌲 森ガチャ (1000MOMOPay)
         </button>
         
         <button 
@@ -1088,17 +1070,17 @@ const BulletHell: React.FC = () => {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
               <button 
                 onClick={performGacha} 
-                disabled={momoPayPoints < 100}
+                disabled={momoPayPoints < 1000}
                 className="comic-button"
                 style={{ 
                   padding: 'min(16px 24px, 4vw)', fontSize: 'clamp(1rem, 3vw, 1.2rem)',
-                  background: momoPayPoints < 100 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
-                  color: momoPayPoints < 100 ? '#ccc' : '#000', 
-                  borderColor: momoPayPoints < 100 ? '#333' : '#f57f17',
+                  background: momoPayPoints < 1000 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
+                  color: momoPayPoints < 1000 ? '#ccc' : '#000', 
+                  borderColor: momoPayPoints < 1000 ? '#333' : '#f57f17',
                   minWidth: '120px'
                 }}
               >
-                🌰 森ガチャ (100MOMOPay)
+                🌰 森ガチャ (1000MOMOPay)
               </button>
             </div>
             
@@ -1181,13 +1163,20 @@ const BulletHell: React.FC = () => {
               }}>
                 ★ {gachaResult.rarity.toUpperCase()} ★
               </div>
-              <div className="comic-text" style={{
-                color: '#c8e6c9',
-                fontSize: '0.9rem',
-                textShadow: '1px 1px 0px rgba(0,0,0,0.5)'
-              }}>
-                3秒後に自動で閉じます...
-              </div>
+              <button 
+                onClick={() => setGachaResult(null)} 
+                className="comic-button"
+                style={{ 
+                  padding: '12px 24px', 
+                  fontSize: '1rem',
+                  background: 'linear-gradient(45deg, #4caf50, #45a049)', 
+                  color: 'white', 
+                  borderColor: '#2e7d32',
+                  marginTop: '16px'
+                }}
+              >
+                閉じる
+              </button>
             </div>
           </div>
         </div>
