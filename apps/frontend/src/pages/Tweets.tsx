@@ -6,7 +6,6 @@ const TWEET_EXPIRY_HOURS = 24
 const Tweets: React.FC = () => {
   const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
   const [newTweet, setNewTweet] = useState('')
-  const [userName, setUserName] = useState('')
 
   // Auto-cleanup expired tweets every minute
   useEffect(() => {
@@ -21,7 +20,7 @@ const Tweets: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newTweet.trim() || !userName.trim()) return
+    if (!newTweet.trim()) return
 
     const now = new Date()
     const expiresAt = new Date(now.getTime() + TWEET_EXPIRY_HOURS * 60 * 60 * 1000)
@@ -94,20 +93,6 @@ const Tweets: React.FC = () => {
         marginBottom: '24px' 
       }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            placeholder="名前（必須）"
-            required
-            className="comic-input"
-            style={{
-              padding: '12px',
-              borderColor: 'rgba(255,255,255,0.4)',
-              background: 'rgba(255,255,255,0.05)',
-              color: 'white',
-              fontSize: '1.1rem'
-            }}
-          />
           <textarea
             value={newTweet}
             onChange={(e) => setNewTweet(e.target.value)}
@@ -171,7 +156,7 @@ const Tweets: React.FC = () => {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div className="comic-text" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
-                  {userName || '匿名ユーザー'}
+                  匿名ユーザー
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                   <div className="comic-text" style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>
