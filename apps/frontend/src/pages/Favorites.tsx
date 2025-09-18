@@ -34,13 +34,20 @@ const Favorites: React.FC = () => {
       return
     }
     
-    files.forEach((file) => {
-      const name = window.prompt('名前を入力してください（必須）', file.name)
+    // 事前にすべてのファイル名を確認
+    const fileNames: string[] = []
+    for (let i = 0; i < files.length; i++) {
+      const name = window.prompt(`ファイル ${i + 1}/${files.length} の名前を入力してください（必須）`, files[i].name)
       if (!name || !name.trim()) {
-        alert('名前は必須です')
+        alert('名前は必須です。アップロードをキャンセルします。')
+        e.target.value = ''
         return
       }
-      
+      fileNames.push(name.trim())
+    }
+    
+    // すべてのファイル名が確定したら、ポイントを消費してアップロード開始
+    files.forEach((file, index) => {
       // ポイントを消費
       if (!spendMomoPayPoints(UPLOAD_COST)) {
         alert('ポイントが不足しています。')
@@ -52,13 +59,18 @@ const Favorites: React.FC = () => {
         const dataUrl = reader.result as string
         const item: FavoriteItem = {
           id: genId(),
-          name: name.trim(),
+          name: fileNames[index],
           kind: 'file',
           dataUrl,
           mime: file.type,
           createdAt: new Date().toISOString(),
         }
         addFavorite(item)
+        
+        // 最後のファイルの処理が完了したら結果を表示
+        if (index === files.length - 1) {
+          alert(`${files.length}個のファイルをアップロードしました！`)
+        }
       }
       reader.readAsDataURL(file)
     })
