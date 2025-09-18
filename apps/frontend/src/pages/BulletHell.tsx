@@ -286,19 +286,6 @@ const BulletHell: React.FC = () => {
         >
           {running ? 'プレイ中' : 'スタート'}
         </button>
-        <button 
-          onClick={shoot} 
-          disabled={!running} 
-          className="comic-button"
-          style={{ 
-            padding: '12px 20px', 
-            background: !running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
-            color: 'white', 
-            borderColor: !running ? '#333' : '#2e7d32'
-          }}
-        >
-          ショット
-        </button>
       </div>
     </div>
   )
