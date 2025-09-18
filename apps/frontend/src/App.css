@@ -491,6 +491,22 @@ body::after {
   }
 }
 
+/* おみくじ専用レスポンシブ対応 */
+@media (max-width: 500px) {
+  .omikuji-grid {
+    grid-template-columns: repeat(3, minmax(70px, 1fr)) !important;
+    gap: 8px !important;
+    padding: 0 8px !important;
+  }
+}
+
+@media (max-width: 350px) {
+  .omikuji-grid {
+    grid-template-columns: repeat(2, minmax(80px, 1fr)) !important;
+    gap: 6px !important;
+  }
+}
+
 /* インベントリスクロールバーのスタイリング */
 .inventory-scroll::-webkit-scrollbar {
   width: 8px;

@@ -75,7 +75,7 @@ const OmikujiChoice: React.FC = () => {
           </div>
         )}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(60px, 1fr))', gap: 12, width: '100%', maxWidth: 600, padding: '0 12px' }}>
+      <div className="omikuji-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 12, width: '100%', maxWidth: 600, padding: '0 12px' }}>
         {cards.map((c) => {
           const isOpen = revealedIdx === c.id
           const isChosen = revealedIdx === c.id

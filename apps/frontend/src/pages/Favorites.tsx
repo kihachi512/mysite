@@ -98,7 +98,7 @@ const Favorites: React.FC = () => {
   const renderPreview = (item: FavoriteItem) => {
 
     if (item.kind === 'text') {
-      return <p style={{ whiteSpace: 'pre-wrap' }}>{item.text}</p>
+      return <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '200px', overflowY: 'auto' }}>{item.text}</p>
     }
 
     const { dataUrl, mime, name } = item
