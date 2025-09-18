@@ -287,18 +287,6 @@ const BulletHell: React.FC = () => {
           {running ? 'プレイ中' : 'スタート'}
         </button>
         <button 
-          onClick={() => setRunning(false)} 
-          className="comic-button"
-          style={{ 
-            padding: '12px 20px', 
-            background: 'linear-gradient(45deg, #ff6b6b, #f44336)', 
-            color: 'white', 
-            borderColor: '#d32f2f'
-          }}
-        >
-          停止
-        </button>
-        <button 
           onClick={shoot} 
           disabled={!running} 
           className="comic-button"
