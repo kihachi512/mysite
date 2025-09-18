@@ -21,7 +21,13 @@ const BulletHell: React.FC = () => {
   const rafRef = useRef<number | null>(null)
 
   useEffect(() => {
-    const onDown = (e: KeyboardEvent) => { keysRef.current[e.key] = true }
+    const onDown = (e: KeyboardEvent) => { 
+      keysRef.current[e.key] = true
+      if (e.key === ' ' && running) {
+        e.preventDefault()
+        shoot()
+      }
+    }
     const onUp = (e: KeyboardEvent) => { keysRef.current[e.key] = false }
     
     // Touch controls for mobile - swipe-based movement
