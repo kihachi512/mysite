@@ -29,24 +29,24 @@ type PlayerInventory = {
   equippedSpecial?: GachaItem
 }
 
-// ガチャアイテムデータ
+// ガチャアイテムデータ（森・モモンガテーマ）
 const GACHA_ITEMS: GachaItem[] = [
-  // 武器 (Weapons)
-  { id: 'w1', name: '基本レーザー', description: '連射速度+0.5', rarity: 'common', type: 'weapon', effect: { fireRate: 0.5 }, icon: '🔫' },
-  { id: 'w2', name: 'プラズマキャノン', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
-  { id: 'w3', name: 'ツインブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🚀' },
-  { id: 'w4', name: '東方マスタースパーク', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🌟' },
+  // 武器 (Weapons) - 森の武器シリーズ
+  { id: 'w1', name: 'どんぐりシューター', description: '連射速度+0.5', rarity: 'common', type: 'weapon', effect: { fireRate: 0.5 }, icon: '🌰' },
+  { id: 'w2', name: '森の雷撃砲', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
+  { id: 'w3', name: 'ツインリーフブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🍃' },
+  { id: 'w4', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
   
-  // シールド (Shields)
-  { id: 's1', name: 'エナジーバリア', description: 'シールド+20', rarity: 'common', type: 'shield', effect: { shield: 20 }, icon: '🛡️' },
-  { id: 's2', name: 'プロテクトフィールド', description: 'シールド+40', rarity: 'rare', type: 'shield', effect: { shield: 40 }, icon: '💎' },
-  { id: 's3', name: 'アブソリュートガード', description: 'シールド+80', rarity: 'epic', type: 'shield', effect: { shield: 80 }, icon: '🔰' },
-  { id: 's4', name: '無敵結界', description: 'シールド+150', rarity: 'legendary', type: 'shield', effect: { shield: 150 }, icon: '✨' },
+  // シールド (Shields) - 森の守りシリーズ
+  { id: 's1', name: '木の皮バリア', description: 'シールド+20', rarity: 'common', type: 'shield', effect: { shield: 20 }, icon: '🌳' },
+  { id: 's2', name: '森の加護', description: 'シールド+40', rarity: 'rare', type: 'shield', effect: { shield: 40 }, icon: '🌲' },
+  { id: 's3', name: '古樹の盾', description: 'シールド+80', rarity: 'epic', type: 'shield', effect: { shield: 80 }, icon: '🌿' },
+  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+150', rarity: 'legendary', type: 'shield', effect: { shield: 150 }, icon: '👑' },
   
-  // 特殊能力 (Special)
-  { id: 'sp1', name: 'スピードブースト', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '💨' },
-  { id: 'sp2', name: 'オートヒール', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '❤️' },
-  { id: 'sp3', name: 'タイムスロー', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏰' }
+  // 特殊能力 (Special) - 森の魔法シリーズ
+  { id: 'sp1', name: '風のささやき', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🍃' },
+  { id: 'sp2', name: '森の恵み', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌸' },
+  { id: 'sp3', name: 'モモンガ時間操術', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏳' }
 ]
 
 // レアリティ別確率設定
@@ -778,10 +778,10 @@ const BulletHell: React.FC = () => {
           )}
         </div>
         <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>
-          矢印キーで移動 / スペースでショット / パワーアップ(F:連射 P:威力 S:シールド)を取ろう！
+          矢印キーで移動 / スペースでショット / 森の恵み(F:連射 P:威力 S:シールド)を取ろう！
         </div>
         <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
-          スマホ：スワイプで移動・ダブルタップでショット
+          スマホ：スワイプで移動・ダブルタップでショット / 森ガチャで装備強化！🌲
         </div>
       </div>
       <canvas 
@@ -863,7 +863,7 @@ const BulletHell: React.FC = () => {
           }}
           aria-label="ガチャを引く（50ポイント）"
         >
-          🎰 ガチャ (50P)
+          🌲 森ガチャ (50P)
         </button>
         
         <button 
@@ -895,13 +895,13 @@ const BulletHell: React.FC = () => {
             textAlign: 'center'
           }}>
             <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.8rem', marginBottom: '16px' }}>
-              🎰 ガチャショップ 🎰
+              🌲 森のガチャ小屋 🐿️
             </div>
             <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '16px' }}>
               💰 現在のMOMOPay: {momoPayPoints}ポイント
             </div>
             <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1rem', marginBottom: '24px' }}>
-              🌟 レジェンダリー: 3% | ⚡ エピック: 12% | 💎 レア: 25% | 🔫 コモン: 60%
+              👑 レジェンダリー: 3% | 🌿 エピック: 12% | 🌲 レア: 25% | 🌰 コモン: 60%
             </div>
             
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
@@ -916,7 +916,7 @@ const BulletHell: React.FC = () => {
                   borderColor: momoPayPoints < 50 ? '#333' : '#f57f17'
                 }}
               >
-                🎲 ガチャを引く (50P)
+                🌰 森ガチャ (50P)
               </button>
             </div>
             
@@ -1024,7 +1024,7 @@ const BulletHell: React.FC = () => {
               </div>
               {inventory.items.length === 0 ? (
                 <div className="comic-text" style={{ color: '#c8e6c9', textAlign: 'center', padding: '20px' }}>
-                  アイテムがありません。ガチャを引いてアイテムを獲得しよう！
+                  アイテムがありません。森ガチャを引いて森の恵みを獲得しよう！🌰
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginBottom: '16px' }}>
