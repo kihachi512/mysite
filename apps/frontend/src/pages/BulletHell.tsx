@@ -73,6 +73,34 @@ const BulletHell: React.FC = () => {
   // パワーアップアイテムによる追加能力値を管理
   const [powerUpBonuses, setPowerUpBonuses] = useState({ fireRate: 0, power: 0 })
   
+  // 効果音設定の状態
+  const [soundEnabled, setSoundEnabled] = useState(false)
+  
+  // 効果音再生関数
+  const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
+    if (!soundEnabled) return
+    
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime)
+      oscillator.type = type
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration)
+      
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + duration)
+    } catch (error) {
+      // ブラウザが音声をサポートしていない場合は無視
+    }
+  }, [soundEnabled])
+  
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
   const [inventory, setInventory] = useState<PlayerInventory>({ items: [] })
@@ -177,6 +205,17 @@ const BulletHell: React.FC = () => {
         setInventory(JSON.parse(savedInventory))
       } catch {
         setInventory({ items: [] })
+      }
+    }
+    
+    // Load sound settings
+    const savedSettings = localStorage.getItem('app-settings')
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings)
+        setSoundEnabled(settings['notification-sound'] || false)
+      } catch {
+        setSoundEnabled(false)
       }
     }
   }, [])
@@ -463,6 +502,10 @@ const BulletHell: React.FC = () => {
         const dx = p.x - powerUp.x, dy = p.y - powerUp.y
         if (dx * dx + dy * dy < (p.r + powerUp.r) * (p.r + powerUp.r)) {
           powerUp.collected = true
+          
+          // パワーアップ取得音を再生
+          playSound(1200, 0.3, 'triangle')
+          
           if (powerUp.type === 'fireRate') {
             setPowerUpBonuses(prev => ({ 
               ...prev, 
@@ -485,9 +528,14 @@ const BulletHell: React.FC = () => {
         const dx = p.x - b.x, dy = p.y - b.y
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+          
           if (shield > 0) {
+            // シールドヒット音
+            playSound(400, 0.2, 'square')
             setShield(s => Math.max(0, s - 5))
           } else {
+            // ダメージ音
+            playSound(200, 0.5, 'triangle')
             setLives(v => Math.max(0, v - 1))
             if (lives - 1 <= 0) {
               setRunning(false)
@@ -513,6 +561,10 @@ const BulletHell: React.FC = () => {
             const damage = Math.floor(playerRef.current.power)
             e.hp -= damage
             bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+            
+            // 敵ヒット音
+            playSound(600, 0.1, 'sine')
+            
             setScore(prev => prev + 10 * damage) // ダメージに応じてスコア
             break
           }
@@ -532,8 +584,12 @@ const BulletHell: React.FC = () => {
         for (let i = 0; i < killedEnemyCount; i++) {
           // Assume boss if we're on a boss wave
           if ((wave + 1) % 3 === 0) {
+            // ボス撃破音
+            playSound(300, 0.8, 'square')
             bossBonus += 500 // Boss kill bonus
           } else {
+            // 敵撃破音
+            playSound(1000, 0.2, 'triangle')
             bossBonus += 50 // Normal enemy
           }
         }
@@ -543,6 +599,9 @@ const BulletHell: React.FC = () => {
 
       // ウェーブ進行チェック（30秒ごと）とボス出現
       if (time > 0 && time % 1800 === 0) {
+        // ウェーブクリア音
+        playSound(1500, 0.5, 'sine')
+        
         setWave(w => w + 1)
         setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
         
@@ -820,6 +879,17 @@ const BulletHell: React.FC = () => {
       items: [...prev.items, selectedItem]
     }))
 
+    // ガチャ結果音（レアリティに応じて変化）
+    if (selectedItem.rarity === 'legendary') {
+      playSound(2000, 1.0, 'sine')
+    } else if (selectedItem.rarity === 'epic') {
+      playSound(1500, 0.7, 'triangle')
+    } else if (selectedItem.rarity === 'rare') {
+      playSound(1200, 0.5, 'square')
+    } else {
+      playSound(800, 0.3, 'sine')
+    }
+
     setGachaResult(selectedItem)
     // 自動で閉じないように変更
   }, [momoPayPoints, addMomoPayPoints])
@@ -901,6 +971,9 @@ const BulletHell: React.FC = () => {
     
     lastShotRef.current = now
     const player = playerRef.current
+    
+    // 射撃音を再生
+    playSound(800, 0.1, 'square')
     
     // パワーに応じて複数弾を発射
     if (player.power >= 2) {
