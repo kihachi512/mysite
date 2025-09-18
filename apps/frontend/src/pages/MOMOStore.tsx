@@ -23,12 +23,12 @@ const STORE_ITEMS: StoreItem[] = [
     icon: '🌙'
   },
   {
-    id: 'auto-save',
-    name: '自動保存機能',
-    description: 'データを自動でバックアップします',
+    id: 'sharing-feature',
+    name: '共有機能利用権',
+    description: 'データのエクスポート・インポート機能を利用できます',
     price: 300,
     type: 'feature',
-    icon: '💾'
+    icon: '📤'
   },
   {
     id: 'premium-theme',
