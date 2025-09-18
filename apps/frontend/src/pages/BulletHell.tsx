@@ -58,14 +58,13 @@ const GACHA_RATES = {
 }
 
 const BulletHell: React.FC = () => {
-  const { momoPayPoints, addMomoPayPoints } = useAppData()
+  const { momoPayPoints, addMomoPayPoints, updateHighScores, highScores } = useAppData()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
   const [lives, setLives] = useState(5)
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
-  const [highScores, setHighScores] = useState<number[]>([])
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [lastTap, setLastTap] = useState(0)
   const [shield, setShield] = useState(0)
@@ -165,17 +164,6 @@ const BulletHell: React.FC = () => {
     }
   }, [lastTap, touchStart, running])
 
-  // Load high scores from localStorage (通算記録)
-  useEffect(() => {
-    const saved = localStorage.getItem('bullet-hell-all-time-scores')
-    if (saved) {
-      try {
-        setHighScores(JSON.parse(saved))
-      } catch {
-        setHighScores([])
-      }
-    }
-  }, [])
 
   // Load inventory from localStorage
   useEffect(() => {
@@ -196,12 +184,6 @@ const BulletHell: React.FC = () => {
     }
   }, [inventory])
 
-  // Save high scores to localStorage (通算記録)
-  useEffect(() => {
-    if (highScores.length > 0) {
-      localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(highScores))
-    }
-  }, [highScores])
 
   useEffect(() => {
     const canvas = canvasRef.current!
@@ -499,10 +481,7 @@ const BulletHell: React.FC = () => {
               setRunning(false)
               setGameOver(true)
               // ハイスコアに追加（TOP3のみ保持）
-              setHighScores(prev => {
-                const newScores = [...prev, score].sort((a, b) => b - a).slice(0, 3)
-                return newScores
-              })
+              updateHighScores(score)
               // スコアをMOMOPayポイントに変換（10スコア = 1ポイント）
               const earnedPoints = Math.floor(score / 10)
               if (earnedPoints > 0) {
@@ -695,7 +674,7 @@ const BulletHell: React.FC = () => {
 
   // ガチャ機能
   const performGacha = useCallback(() => {
-    const gachaCost = 50 // 50MOMOPayポイント
+    const gachaCost = 100 // 100MOMOPayポイント
     if (momoPayPoints < gachaCost) {
       alert('MOMOPayポイントが不足しています！')
       return
@@ -740,6 +719,21 @@ const BulletHell: React.FC = () => {
         newInventory.equippedShield = item
       } else if (item.type === 'special') {
         newInventory.equippedSpecial = item
+      }
+      return newInventory
+    })
+  }, [])
+
+  // アイテム装備解除機能
+  const unequipItem = useCallback((type: 'weapon' | 'shield' | 'special') => {
+    setInventory(prev => {
+      const newInventory = { ...prev }
+      if (type === 'weapon') {
+        newInventory.equippedWeapon = undefined
+      } else if (type === 'shield') {
+        newInventory.equippedShield = undefined
+      } else if (type === 'special') {
+        newInventory.equippedSpecial = undefined
       }
       return newInventory
     })
@@ -884,17 +878,17 @@ const BulletHell: React.FC = () => {
         
         <button 
           onClick={() => setShowGacha(true)} 
-          disabled={running || momoPayPoints < 50} 
+          disabled={running || momoPayPoints < 100} 
           className="comic-button"
           style={{ 
             padding: '12px 20px', 
-            background: (running || momoPayPoints < 50) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+            background: (running || momoPayPoints < 100) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
             color: 'white', 
-            borderColor: (running || momoPayPoints < 50) ? '#333' : '#d32f2f'
+            borderColor: (running || momoPayPoints < 100) ? '#333' : '#d32f2f'
           }}
-          aria-label="ガチャを引く（50ポイント）"
+          aria-label="ガチャを引く（100ポイント）"
         >
-          🌲 森ガチャ (50P)
+          🌲 森ガチャ (100P)
         </button>
         
         <button 
@@ -938,16 +932,16 @@ const BulletHell: React.FC = () => {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
               <button 
                 onClick={performGacha} 
-                disabled={momoPayPoints < 50}
+                disabled={momoPayPoints < 100}
                 className="comic-button"
                 style={{ 
                   padding: '16px 24px', fontSize: '1.2rem',
-                  background: momoPayPoints < 50 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
-                  color: momoPayPoints < 50 ? '#ccc' : '#000', 
-                  borderColor: momoPayPoints < 50 ? '#333' : '#f57f17'
+                  background: momoPayPoints < 100 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
+                  color: momoPayPoints < 100 ? '#ccc' : '#000', 
+                  borderColor: momoPayPoints < 100 ? '#333' : '#f57f17'
                 }}
               >
-                🌰 森ガチャ (50P)
+                🌰 森ガチャ (100P)
               </button>
             </div>
             
@@ -970,36 +964,73 @@ const BulletHell: React.FC = () => {
       {/* ガチャ結果表示 */}
       {gachaResult && (
         <div style={{
-          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          zIndex: 1001, animation: 'bounce 0.5s ease-in-out'
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0, 0, 0, 0.85)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1001, animation: 'fadeIn 0.3s ease-in-out'
         }}>
-          <div className="comic-card" style={{
-            background: gachaResult.rarity === 'legendary' ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 193, 7, 0.2))' :
-                      gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(142, 36, 170, 0.2))' :
-                      gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(30, 136, 229, 0.2))' :
-                      'linear-gradient(135deg, rgba(158, 158, 158, 0.3), rgba(117, 117, 117, 0.2))',
-            padding: '24px', textAlign: 'center', minWidth: '300px',
-            borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
-                        gachaResult.rarity === 'epic' ? '#9c27b0' :
-                        gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e'
+          <div style={{
+            animation: 'bounce 0.5s ease-in-out'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '8px' }}>{gachaResult.icon}</div>
-            <div className="comic-text" style={{ 
-              color: '#fff3e0', fontSize: '1.4rem', marginBottom: '8px',
-              textShadow: gachaResult.rarity === 'legendary' ? '0 0 10px #ffd700' : 'none'
+            <div className="comic-card" style={{
+              background: gachaResult.rarity === 'legendary' ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 193, 7, 0.9))' :
+                        gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.95), rgba(142, 36, 170, 0.9))' :
+                        gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(30, 136, 229, 0.9))' :
+                        'linear-gradient(135deg, rgba(158, 158, 158, 0.95), rgba(117, 117, 117, 0.9))',
+              padding: '32px', textAlign: 'center', minWidth: '350px', maxWidth: '90vw',
+              borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                          gachaResult.rarity === 'epic' ? '#9c27b0' :
+                          gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
+              borderWidth: '4px',
+              boxShadow: gachaResult.rarity === 'legendary' ? '0 0 30px rgba(255, 215, 0, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        gachaResult.rarity === 'epic' ? '0 0 30px rgba(156, 39, 176, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        gachaResult.rarity === 'rare' ? '0 0 30px rgba(33, 150, 243, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        '0 10px 30px rgba(0,0,0,0.5)'
             }}>
-              {gachaResult.name}
-            </div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem', marginBottom: '8px' }}>
-              {gachaResult.description}
-            </div>
-            <div className="comic-text" style={{ 
-              color: gachaResult.rarity === 'legendary' ? '#ffd700' :
-                    gachaResult.rarity === 'epic' ? '#9c27b0' :
-                    gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
-              fontSize: '1.1rem', fontWeight: 'bold'
-            }}>
-              {gachaResult.rarity.toUpperCase()}
+              <div style={{ 
+                fontSize: '4rem', 
+                marginBottom: '16px',
+                filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))'
+              }}>
+                {gachaResult.icon}
+              </div>
+              <div className="comic-text" style={{ 
+                color: '#ffffff', 
+                fontSize: '1.6rem', 
+                marginBottom: '12px',
+                textShadow: gachaResult.rarity === 'legendary' ? '3px 3px 0px #b8860b, 0 0 15px #ffd700' : 
+                           gachaResult.rarity === 'epic' ? '3px 3px 0px #6a1b9a, 0 0 15px #9c27b0' :
+                           gachaResult.rarity === 'rare' ? '3px 3px 0px #0d47a1, 0 0 15px #2196f3' :
+                           '3px 3px 0px rgba(0,0,0,0.8)'
+              }}>
+                {gachaResult.name}
+              </div>
+              <div className="comic-text" style={{ 
+                color: '#f0f0f0', 
+                fontSize: '1.1rem', 
+                marginBottom: '16px',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.8)'
+              }}>
+                {gachaResult.description}
+              </div>
+              <div className="comic-text" style={{ 
+                color: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                      gachaResult.rarity === 'epic' ? '#e1bee7' :
+                      gachaResult.rarity === 'rare' ? '#bbdefb' : '#e0e0e0',
+                fontSize: '1.3rem', 
+                fontWeight: 'bold',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+                marginBottom: '16px'
+              }}>
+                ★ {gachaResult.rarity.toUpperCase()} ★
+              </div>
+              <div className="comic-text" style={{
+                color: '#c8e6c9',
+                fontSize: '0.9rem',
+                textShadow: '1px 1px 0px rgba(0,0,0,0.5)'
+              }}>
+                3秒後に自動で閉じます...
+              </div>
             </div>
           </div>
         </div>
@@ -1026,24 +1057,63 @@ const BulletHell: React.FC = () => {
               <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.3rem', marginBottom: '12px' }}>
                 ⚡ 現在の装備
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
                 <div className="comic-card" style={{ padding: '12px', background: 'rgba(76, 175, 80, 0.1)', borderColor: '#4caf50' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>武器</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>武器</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
                     {inventory.equippedWeapon ? `${inventory.equippedWeapon.icon} ${inventory.equippedWeapon.name}` : '未装備'}
                   </div>
+                  {inventory.equippedWeapon && (
+                    <button 
+                      onClick={() => unequipItem('weapon')}
+                      className="comic-button"
+                      style={{ 
+                        padding: '4px 8px', fontSize: '0.8rem',
+                        background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+                        color: 'white', borderColor: '#d32f2f', width: '100%'
+                      }}
+                    >
+                      外す
+                    </button>
+                  )}
                 </div>
                 <div className="comic-card" style={{ padding: '12px', background: 'rgba(255, 193, 7, 0.1)', borderColor: '#ffc107' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>シールド</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>シールド</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
                     {inventory.equippedShield ? `${inventory.equippedShield.icon} ${inventory.equippedShield.name}` : '未装備'}
                   </div>
+                  {inventory.equippedShield && (
+                    <button 
+                      onClick={() => unequipItem('shield')}
+                      className="comic-button"
+                      style={{ 
+                        padding: '4px 8px', fontSize: '0.8rem',
+                        background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+                        color: 'white', borderColor: '#d32f2f', width: '100%'
+                      }}
+                    >
+                      外す
+                    </button>
+                  )}
                 </div>
                 <div className="comic-card" style={{ padding: '12px', background: 'rgba(156, 39, 176, 0.1)', borderColor: '#9c27b0' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>特殊</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>特殊</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
                     {inventory.equippedSpecial ? `${inventory.equippedSpecial.icon} ${inventory.equippedSpecial.name}` : '未装備'}
                   </div>
+                  {inventory.equippedSpecial && (
+                    <button 
+                      onClick={() => unequipItem('special')}
+                      className="comic-button"
+                      style={{ 
+                        padding: '4px 8px', fontSize: '0.8rem',
+                        background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+                        color: 'white', borderColor: '#d32f2f', width: '100%'
+                      }}
+                    >
+                      外す
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -1058,8 +1128,18 @@ const BulletHell: React.FC = () => {
                   アイテムがありません。森ガチャを引いて森の恵みを獲得しよう！🌰
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginBottom: '16px' }}>
-                  {inventory.items.map((item, index) => (
+                <div className="inventory-scroll" style={{ 
+                  maxHeight: '400px', 
+                  overflowY: 'auto', 
+                  overflowX: 'hidden',
+                  padding: '4px',
+                  border: '2px solid rgba(33, 150, 243, 0.3)',
+                  borderRadius: '12px',
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', padding: '8px' }}>
+                    {inventory.items.map((item, index) => (
                     <div key={`${item.id}-${index}`} className="comic-card" style={{
                       padding: '12px',
                       background: item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.1)' :
@@ -1100,7 +1180,8 @@ const BulletHell: React.FC = () => {
                         装備する
                       </button>
                     </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

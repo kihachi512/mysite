@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
 
 const DataExport: React.FC = () => {
-  const { favorites, tweets, momoPayPoints } = useAppData()
+  const { favorites, tweets, momoPayPoints, highScores } = useAppData()
   const [jsonExportSuccess, setJsonExportSuccess] = useState(false)
 
 
@@ -16,17 +16,22 @@ const DataExport: React.FC = () => {
         favorites,
         tweets,
         momoPayPoints,
+        highScores,
         exportDate: new Date().toISOString(),
-        version: '3.0'
+        version: '4.0'
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
       const blob = new Blob([jsonStr], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       
+      // 年月日時分まで含むファイル名を生成
+      const now = new Date()
+      const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5) // 2025-01-18T15-30-45
+      
       const a = document.createElement('a')
       a.href = url
-      a.download = `momonga_carnival_data_${new Date().toISOString().split('T')[0]}.json`
+      a.download = `momonga_carnival_data_${timestamp}.json`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -54,7 +59,8 @@ const DataExport: React.FC = () => {
         if (jsonData.favorites && jsonData.tweets) {
           // データの確認
           const momoPayPointsInfo = jsonData.momoPayPoints !== undefined ? `\n- MOMOPayポイント: ${jsonData.momoPayPoints}ポイント` : ''
-          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- つぶやき: ${jsonData.tweets.length}件${momoPayPointsInfo}\n\n現在のデータは上書きされます。続行しますか？`
+          const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- つぶやき: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
             localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
@@ -63,6 +69,11 @@ const DataExport: React.FC = () => {
             // MOMOPayポイントがあればインポート
             if (jsonData.momoPayPoints !== undefined) {
               localStorage.setItem('momoPayPoints', jsonData.momoPayPoints.toString())
+            }
+            
+            // ハイスコアがあればインポート
+            if (jsonData.highScores && Array.isArray(jsonData.highScores)) {
+              localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(jsonData.highScores))
             }
             
             alert('JSONファイルからデータをインポートしました！ページを再読み込みしてください。')
@@ -122,6 +133,13 @@ const DataExport: React.FC = () => {
             <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>MOMOPay</div>
             <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1rem' }}>{momoPayPoints}ポイント</div>
           </div>
+          <div>
+            <div className="comic-text" style={{ color: '#ff6b6b', fontSize: '2rem', marginBottom: '4px' }}>🏆</div>
+            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>ハイスコア</div>
+            <div className="comic-text" style={{ color: '#ff6b6b', fontSize: '1rem' }}>
+              {highScores.length > 0 ? `最高${highScores[0]}点` : '未記録'}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -134,7 +152,7 @@ const DataExport: React.FC = () => {
       }}>
         <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📄 データのバックアップ・復元</h3>
         <p className="comic-text" style={{ color: '#c8e6c9', marginBottom: '16px', fontSize: '1rem' }}>
-          全てのデータ（宝物庫・つぶやき・MOMOPayポイント）をJSONファイルでバックアップ・復元できます
+          全てのデータ（宝物庫・つぶやき・MOMOPayポイント・ハイスコア）をJSONファイルでバックアップ・復元できます
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
