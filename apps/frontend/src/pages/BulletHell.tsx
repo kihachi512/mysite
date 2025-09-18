@@ -70,6 +70,9 @@ const BulletHell: React.FC = () => {
   const [shield, setShield] = useState(0)
   const [wave, setWave] = useState(1)
   
+  // パワーアップアイテムによる追加能力値を管理
+  const [powerUpBonuses, setPowerUpBonuses] = useState({ fireRate: 0, power: 0 })
+  
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
   const [inventory, setInventory] = useState<PlayerInventory>({ items: [] })
@@ -461,9 +464,15 @@ const BulletHell: React.FC = () => {
         if (dx * dx + dy * dy < (p.r + powerUp.r) * (p.r + powerUp.r)) {
           powerUp.collected = true
           if (powerUp.type === 'fireRate') {
-            playerRef.current.fireRate = Math.min(playerRef.current.fireRate + 0.1, 2.5)
+            setPowerUpBonuses(prev => ({ 
+              ...prev, 
+              fireRate: Math.min(prev.fireRate + 0.1, 1.5) // 最大1.5のボーナス
+            }))
           } else if (powerUp.type === 'power') {
-            playerRef.current.power = Math.min(playerRef.current.power + 0.2, 2.5)
+            setPowerUpBonuses(prev => ({ 
+              ...prev, 
+              power: Math.min(prev.power + 0.2, 1.5) // 最大1.5のボーナス
+            }))
           } else if (powerUp.type === 'shield') {
             setShield(s => Math.min(s + 10, 40))
           }
@@ -707,26 +716,46 @@ const BulletHell: React.FC = () => {
       ctx.font = 'bold 12px Comic Sans MS'
       let yOffset = 65
       
-      // Fire rate with equipment bonus indicator
+      // Fire rate with detailed breakdown
       const baseFireRate = 1
       const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
+      const powerUpFireRateBonus = powerUpBonuses.fireRate
       const totalFireRate = playerRef.current.fireRate
-      if (equipmentFireRateBonus > 0) {
+      
+      if (equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0) {
         ctx.fillStyle = '#4ecdc4' // Equipment bonus color
-        ctx.fillText(`連射: ${baseFireRate.toFixed(1)}x + ${equipmentFireRateBonus.toFixed(1)}x = ${totalFireRate.toFixed(1)}x ⚡`, 10, yOffset)
+        let displayText = `連射: ${baseFireRate.toFixed(1)}x`
+        if (equipmentFireRateBonus > 0) {
+          displayText += ` + ${equipmentFireRateBonus.toFixed(1)}x(装備)`
+        }
+        if (powerUpFireRateBonus > 0) {
+          displayText += ` + ${powerUpFireRateBonus.toFixed(1)}x(F)`
+        }
+        displayText += ` = ${totalFireRate.toFixed(1)}x ⚡`
+        ctx.fillText(displayText, 10, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
         ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x`, 10, yOffset)
       }
       yOffset += 15
       
-      // Power with equipment bonus indicator
+      // Power with detailed breakdown
       const basePower = 1
       const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
+      const powerUpPowerBonus = powerUpBonuses.power
       const totalPower = playerRef.current.power
-      if (equipmentPowerBonus > 0) {
+      
+      if (equipmentPowerBonus > 0 || powerUpPowerBonus > 0) {
         ctx.fillStyle = '#ff6b6b' // Equipment bonus color
-        ctx.fillText(`威力: ${basePower.toFixed(1)}x + ${equipmentPowerBonus.toFixed(1)}x = ${totalPower.toFixed(1)}x 💥`, 10, yOffset)
+        let displayText = `威力: ${basePower.toFixed(1)}x`
+        if (equipmentPowerBonus > 0) {
+          displayText += ` + ${equipmentPowerBonus.toFixed(1)}x(装備)`
+        }
+        if (powerUpPowerBonus > 0) {
+          displayText += ` + ${powerUpPowerBonus.toFixed(1)}x(P)`
+        }
+        displayText += ` = ${totalPower.toFixed(1)}x 💥`
+        ctx.fillText(displayText, 10, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
         ctx.fillText(`威力: ${totalPower.toFixed(1)}x`, 10, yOffset)
@@ -766,6 +795,7 @@ const BulletHell: React.FC = () => {
     powerUpsRef.current = []
     playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 } // Small hitbox, much larger display for mobile
     lastShotRef.current = 0
+    setPowerUpBonuses({ fireRate: 0, power: 0 }) // パワーアップボーナスをリセット
     setLives(1)
     setTime(0)
     setScore(0)
@@ -854,6 +884,10 @@ const BulletHell: React.FC = () => {
       modifiedPlayer.power += weapon.effect.power || 0
     }
 
+    // パワーアップアイテムのボーナス効果を追加
+    modifiedPlayer.fireRate += powerUpBonuses.fireRate
+    modifiedPlayer.power += powerUpBonuses.power
+
     // シールド効果（ゲーム開始時に適用）- 装備効果も調整
     if (inventory.equippedShield && !running) {
       const shieldBonus = Math.floor((inventory.equippedShield?.effect.shield || 0) * 0.3) // 30%に減少
@@ -861,7 +895,7 @@ const BulletHell: React.FC = () => {
     }
 
     playerRef.current = modifiedPlayer
-  }, [inventory, running])
+  }, [inventory, running, powerUpBonuses])
 
   // ゲーム開始時に装備効果を適用
   useEffect(() => {
@@ -869,6 +903,13 @@ const BulletHell: React.FC = () => {
       applyEquipmentEffects()
     }
   }, [running, applyEquipmentEffects])
+
+  // パワーアップボーナスが変更されたときに装備効果を再適用
+  useEffect(() => {
+    if (running) {
+      applyEquipmentEffects()
+    }
+  }, [powerUpBonuses, applyEquipmentEffects, running])
 
   const shoot = useCallback(() => {
     if (!running) return
