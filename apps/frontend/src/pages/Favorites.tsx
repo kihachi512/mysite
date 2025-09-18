@@ -5,7 +5,7 @@ const Favorites: React.FC = () => {
   const { favorites, addFavorite, removeFavorite, momoPayPoints, spendMomoPayPoints } = useAppData()
   const [textName, setTextName] = useState('')
   const [textBody, setTextBody] = useState('')
-  const UPLOAD_COST = 100 // アップロードの費用（100ポイント）
+  const UPLOAD_COST = 100 // アップロードの費用（100MOMOPay）
 
 
   const genId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
@@ -13,16 +13,16 @@ const Favorites: React.FC = () => {
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
     
-    // MOMOPayポイントをチェック
+    // MOMOPayをチェック
     if (momoPayPoints < UPLOAD_COST) {
-      alert(`ファイルアップロードには${UPLOAD_COST}MOMOPayポイントが必要です。弾幕ゲームでポイントを稼いでください！`)
+      alert(`ファイルアップロードには${UPLOAD_COST}MOMOPayが必要です。弾幕ゲームでMOMOPayを稼いでください！`)
       e.target.value = ''
       return
     }
     
     const file = e.target.files[0] // 最初のファイルのみ使用
     
-    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayポイントを消費しますがよろしいですか？`)) {
+    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayを消費しますがよろしいですか？`)) {
       e.target.value = ''
       return
     }
@@ -34,9 +34,9 @@ const Favorites: React.FC = () => {
       return
     }
     
-    // ポイントを消費
+    // MOMOPayを消費
     if (!spendMomoPayPoints(UPLOAD_COST)) {
-      alert('ポイントが不足しています。')
+      alert('MOMOPayが不足しています。')
       e.target.value = ''
       return
     }
@@ -63,19 +63,19 @@ const Favorites: React.FC = () => {
     e.preventDefault()
     if (!textBody.trim() || !textName.trim()) return
     
-    // MOMOPayポイントをチェック
+    // MOMOPayをチェック
     if (momoPayPoints < UPLOAD_COST) {
-      alert(`テキスト追加には${UPLOAD_COST}MOMOPayポイントが必要です。弾幕ゲームでポイントを稼いでください！`)
+      alert(`テキスト追加には${UPLOAD_COST}MOMOPayが必要です。弾幕ゲームでMOMOPayを稼いでください！`)
       return
     }
     
-    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayポイントを消費しますがよろしいですか？`)) {
+    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayを消費しますがよろしいですか？`)) {
       return
     }
     
-    // ポイントを消費
+    // MOMOPayを消費
     if (!spendMomoPayPoints(UPLOAD_COST)) {
-      alert('ポイントが不足しています。')
+      alert('MOMOPayが不足しています。')
       return
     }
     
@@ -128,12 +128,12 @@ const Favorites: React.FC = () => {
             💰 MOMOPay: {momoPayPoints}
           </div>
           <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
-            アップロード費用: {UPLOAD_COST}ポイント
+            アップロード費用: {UPLOAD_COST}MOMOPay
           </div>
         </div>
         {momoPayPoints < UPLOAD_COST && (
           <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
-            ⚠️ ポイントが不足しています。弾幕ゲームでポイントを稼いでください！
+            ⚠️ MOMOPayが不足しています。弾幕ゲームでMOMOPayを稼いでください！
           </div>
         )}
       </div>

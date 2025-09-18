@@ -8,7 +8,7 @@ const OmikujiChoice: React.FC = () => {
   const [revealedIdx, setRevealedIdx] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [canPlay, setCanPlay] = useState(true)
-  const OMIKUJI_COST = 10 // おみくじの費用（10ポイント）
+  const OMIKUJI_COST = 10 // おみくじの費用（10MOMOPay）
   const [shuffled, setShuffled] = useState<string[]>(() => {
     const arr = [...allFortunes]
     for (let i = arr.length - 1; i > 0; i--) {
@@ -35,15 +35,15 @@ const OmikujiChoice: React.FC = () => {
   const handleCardClick = (cardId: number) => {
     if (revealedIdx !== null || !canPlay) return
     
-    // MOMOPayポイントをチェック
+    // MOMOPayをチェック
     if (momoPayPoints < OMIKUJI_COST) {
-      alert(`おみくじを引くには${OMIKUJI_COST}ポイント必要です。弾幕ゲームでポイントを稼いでください！`)
+      alert(`おみくじを引くには${OMIKUJI_COST}MOMOPay必要です。弾幕ゲームでMOMOPayを稼いでください！`)
       return
     }
     
-    // ポイントを消費
+    // MOMOPayを消費
     if (!spendMomoPayPoints(OMIKUJI_COST)) {
-      alert('ポイントが不足しています。')
+      alert('MOMOPayが不足しています。')
       return
     }
     
@@ -66,12 +66,12 @@ const OmikujiChoice: React.FC = () => {
             💰 MOMOPay: {momoPayPoints}
           </div>
           <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
-            費用: {OMIKUJI_COST}ポイント
+            費用: {OMIKUJI_COST}MOMOPay
           </div>
         </div>
         {momoPayPoints < OMIKUJI_COST && (
           <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
-            ⚠️ ポイントが不足しています。弾幕ゲームでポイントを稼いでください！
+            ⚠️ MOMOPayが不足しています。弾幕ゲームでMOMOPayを稼いでください！
           </div>
         )}
       </div>

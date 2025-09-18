@@ -490,7 +490,7 @@ const BulletHell: React.FC = () => {
               setGameOver(true)
               // ハイスコアに追加（TOP3のみ保持）
               updateHighScores(score)
-              // スコアをMOMOPayポイントに変換（10スコア = 1ポイント）
+              // スコアをMOMOPayに変換（10スコア = 1MOMOPay）
               const earnedPoints = Math.floor(score / 10)
               if (earnedPoints > 0) {
                 addMomoPayPoints(earnedPoints)
@@ -757,13 +757,13 @@ const BulletHell: React.FC = () => {
 
   // ガチャ機能
   const performGacha = useCallback(() => {
-    const gachaCost = 100 // 100MOMOPayポイント
+    const gachaCost = 100 // 100MOMOPay
     if (momoPayPoints < gachaCost) {
-      alert('MOMOPayポイントが不足しています！')
+      alert('MOMOPayが不足しています！')
       return
     }
 
-    // ポイント消費
+    // MOMOPay消費
     addMomoPayPoints(-gachaCost)
 
     // レアリティ抽選
@@ -914,7 +914,7 @@ const BulletHell: React.FC = () => {
           <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
           <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '8px' }}>最終スコア: {score}</div>
           <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.1rem', marginBottom: '16px' }}>
-            💰 獲得MOMOPay: {Math.floor(score / 10)}ポイント
+            💰 獲得MOMOPay: {Math.floor(score / 10)}
           </div>
           {highScores.length > 0 && (
             <div>
@@ -969,9 +969,9 @@ const BulletHell: React.FC = () => {
             color: 'white', 
             borderColor: (running || momoPayPoints < 100) ? '#333' : '#d32f2f'
           }}
-          aria-label="ガチャを引く（100ポイント）"
+          aria-label="ガチャを引く（100MOMOPay）"
         >
-          🌲 森ガチャ (100P)
+          🌲 森ガチャ (100MOMOPay)
         </button>
         
         <button 
@@ -1013,7 +1013,7 @@ const BulletHell: React.FC = () => {
               color: '#c8e6c9', fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
               marginBottom: '16px' 
             }}>
-              💰 現在のMOMOPay: {momoPayPoints}ポイント
+              💰 現在のMOMOPay: {momoPayPoints}
             </div>
             <div className="comic-text" style={{ 
               color: '#ffd93d', fontSize: 'clamp(0.8rem, 2.5vw, 1rem)', 
@@ -1037,7 +1037,7 @@ const BulletHell: React.FC = () => {
                   minWidth: '120px'
                 }}
               >
-                🌰 森ガチャ (100P)
+                🌰 森ガチャ (100MOMOPay)
               </button>
             </div>
             
