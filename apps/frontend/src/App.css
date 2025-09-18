@@ -633,3 +633,39 @@ body::after {
     display: block;
   }
 }
+
+/* ホームカードのスタイリング */
+.home-card {
+  transition: all 0.3s ease !important;
+  text-align: center !important;
+  min-height: 120px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.home-card:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  box-shadow: 0 12px 20px rgba(0,0,0,0.4), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+  border-color: #66bb6a !important;
+}
+
+.home-card:active {
+  transform: translateY(-2px) scale(1.01) !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+}
+
+@media (max-width: 768px) {
+  .home-card {
+    min-height: 100px !important;
+    padding: min(20px, 5vw) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-card {
+    min-height: 90px !important;
+    padding: 16px !important;
+  }
+}
