@@ -37,6 +37,10 @@ type AppDataContextType = {
   momoPayPoints: number
   addMomoPayPoints: (points: number) => void
   spendMomoPayPoints: (points: number) => boolean
+  
+  // High Scores
+  highScores: number[]
+  updateHighScores: (newScore: number) => void
 }
 
 // Create context
@@ -47,6 +51,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([])
   const [tweets, setTweets] = useState<Tweet[]>([])
   const [momoPayPoints, setMomoPayPoints] = useState<number>(0)
+  const [highScores, setHighScores] = useState<number[]>([])
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -84,6 +89,16 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         setMomoPayPoints(parseInt(savedPoints, 10) || 0)
       } catch {
         setMomoPayPoints(0)
+      }
+    }
+
+    // Load high scores
+    const savedHighScores = localStorage.getItem('bullet-hell-all-time-scores')
+    if (savedHighScores) {
+      try {
+        setHighScores(JSON.parse(savedHighScores))
+      } catch {
+        setHighScores([])
       }
     }
   }, [])
@@ -163,6 +178,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     return false
   }
 
+  // High scores helpers
+  const updateHighScores = (newScore: number) => {
+    const updatedScores = [...highScores, newScore].sort((a, b) => b - a).slice(0, 3)
+    setHighScores(updatedScores)
+    localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(updatedScores))
+  }
+
   const value: AppDataContextType = {
     favorites,
     addFavorite,
@@ -173,7 +195,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     cleanupExpiredTweets,
     momoPayPoints,
     addMomoPayPoints,
-    spendMomoPayPoints
+    spendMomoPayPoints,
+    highScores,
+    updateHighScores
   }
 
   return (

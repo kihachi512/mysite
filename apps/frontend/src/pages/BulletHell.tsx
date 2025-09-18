@@ -58,14 +58,13 @@ const GACHA_RATES = {
 }
 
 const BulletHell: React.FC = () => {
-  const { momoPayPoints, addMomoPayPoints } = useAppData()
+  const { momoPayPoints, addMomoPayPoints, updateHighScores, highScores } = useAppData()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
   const [lives, setLives] = useState(5)
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
-  const [highScores, setHighScores] = useState<number[]>([])
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [lastTap, setLastTap] = useState(0)
   const [shield, setShield] = useState(0)
@@ -165,17 +164,6 @@ const BulletHell: React.FC = () => {
     }
   }, [lastTap, touchStart, running])
 
-  // Load high scores from localStorage (通算記録)
-  useEffect(() => {
-    const saved = localStorage.getItem('bullet-hell-all-time-scores')
-    if (saved) {
-      try {
-        setHighScores(JSON.parse(saved))
-      } catch {
-        setHighScores([])
-      }
-    }
-  }, [])
 
   // Load inventory from localStorage
   useEffect(() => {
@@ -196,12 +184,6 @@ const BulletHell: React.FC = () => {
     }
   }, [inventory])
 
-  // Save high scores to localStorage (通算記録)
-  useEffect(() => {
-    if (highScores.length > 0) {
-      localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(highScores))
-    }
-  }, [highScores])
 
   useEffect(() => {
     const canvas = canvasRef.current!
@@ -499,10 +481,7 @@ const BulletHell: React.FC = () => {
               setRunning(false)
               setGameOver(true)
               // ハイスコアに追加（TOP3のみ保持）
-              setHighScores(prev => {
-                const newScores = [...prev, score].sort((a, b) => b - a).slice(0, 3)
-                return newScores
-              })
+              updateHighScores(score)
               // スコアをMOMOPayポイントに変換（10スコア = 1ポイント）
               const earnedPoints = Math.floor(score / 10)
               if (earnedPoints > 0) {

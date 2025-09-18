@@ -150,14 +150,16 @@ const Favorites: React.FC = () => {
           type="file" 
           multiple 
           onChange={handleUpload} 
+          disabled={momoPayPoints < UPLOAD_COST}
           className="comic-input"
           style={{ 
             width: '100%', 
             padding: '12px', 
-            borderColor: 'rgba(255,255,255,0.4)',
-            background: 'rgba(255,255,255,0.05)',
-            color: 'white',
-            fontSize: '1.1rem'
+            borderColor: momoPayPoints < UPLOAD_COST ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.4)',
+            background: momoPayPoints < UPLOAD_COST ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
+            color: momoPayPoints < UPLOAD_COST ? 'rgba(255,255,255,0.5)' : 'white',
+            fontSize: '1.1rem',
+            cursor: momoPayPoints < UPLOAD_COST ? 'not-allowed' : 'pointer'
           }} 
         />
         <p className="comic-text" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem', marginTop: '10px' }}>画像、動画、音声、テキストファイルなど対応</p>
@@ -197,17 +199,19 @@ const Favorites: React.FC = () => {
           />
           <button 
             type="submit" 
+            disabled={momoPayPoints < UPLOAD_COST}
             className="comic-button"
             style={{
               padding: '14px 28px',
-              background: 'linear-gradient(45deg, #66bb6a, #4caf50)',
-              color: 'white',
+              background: momoPayPoints < UPLOAD_COST ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)',
+              color: momoPayPoints < UPLOAD_COST ? '#ccc' : 'white',
               fontSize: '1.2rem',
               alignSelf: 'flex-start',
-              borderColor: '#2e7d32'
+              borderColor: momoPayPoints < UPLOAD_COST ? '#333' : '#2e7d32',
+              cursor: momoPayPoints < UPLOAD_COST ? 'not-allowed' : 'pointer'
             }}
           >
-            ✨ テキスト追加
+            ✨ テキスト追加 ({UPLOAD_COST}P)
           </button>
         </form>
       </div>
