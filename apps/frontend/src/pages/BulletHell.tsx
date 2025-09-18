@@ -766,13 +766,13 @@ const BulletHell: React.FC = () => {
       
       // draw UI
       ctx.fillStyle = '#fff3e0'
-      ctx.font = 'bold 16px Comic Sans MS'
+      ctx.font = 'bold 16px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       ctx.textAlign = 'left'
       ctx.fillText(`スコア: ${score}`, 10, 25)
       ctx.fillText(`ウェーブ: ${wave}`, 10, 45)
       
       // power-up status with equipment indicators
-      ctx.font = 'bold 12px Comic Sans MS'
+      ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       let yOffset = 65
       
       // Fire rate - simple display
