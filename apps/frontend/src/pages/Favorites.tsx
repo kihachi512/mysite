@@ -22,7 +22,7 @@ const Favorites: React.FC = () => {
     
     const file = e.target.files[0] // 最初のファイルのみ使用
     
-    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayを消費しますがよろしいですか？`)) {
+    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayを消費しますか？`)) {
       e.target.value = ''
       return
     }
@@ -69,7 +69,7 @@ const Favorites: React.FC = () => {
       return
     }
     
-    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayを消費しますがよろしいですか？`)) {
+    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayを消費しますか？`)) {
       return
     }
     

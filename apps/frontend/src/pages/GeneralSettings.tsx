@@ -50,7 +50,7 @@ const GeneralSettings: React.FC = () => {
 
   const updateSetting = (key: keyof AppSettings, value: boolean) => {
     if (!purchasedItems.includes(key)) {
-      alert('この設定を利用するには売店で購入する必要があります！')
+      alert('この設定は売店で購入が必要です！')
       return
     }
 
@@ -117,8 +117,8 @@ const GeneralSettings: React.FC = () => {
   }
 
   const clearAllData = () => {
-    if (confirm('全てのデータ（ゲーム進行、MOMOPay、設定等）を削除しますか？\nこの操作は取り消せません！')) {
-      if (confirm('本当によろしいですか？全てのデータが失われます！')) {
+    if (confirm('全データ（ゲーム進行、MOMOPay、設定等）を削除しますか？\nこの操作は取り消せません！')) {
+      if (confirm('本当に削除しますか？全データが失われます！')) {
         // Clear all localStorage data
         localStorage.clear()
         
@@ -134,7 +134,7 @@ const GeneralSettings: React.FC = () => {
         // Remove applied classes
         document.body.classList.remove('dark-mode', 'premium-theme')
         
-        alert('全てのデータを削除しました。ページを再読み込みします。')
+        alert('全データを削除しました。ページを再読み込みします。')
         window.location.reload()
       }
     }
@@ -262,7 +262,7 @@ const GeneralSettings: React.FC = () => {
           marginBottom: '16px',
           lineHeight: '1.4'
         }}>
-          全てのゲームデータ、設定、購入履歴を削除します
+          全ゲームデータ、設定、購入履歴を削除
         </div>
         
         <button 
@@ -276,7 +276,7 @@ const GeneralSettings: React.FC = () => {
             borderColor: '#d32f2f'
           }}
         >
-          🗑️ 全データ削除
+          🗑️ データ削除
         </button>
       </div>
 
