@@ -2,6 +2,29 @@ export interface Env {
   URL_SHORTENER: KVNamespace;
 }
 
+// ローカル開発用のKVモック
+class MockKV {
+  private storage = new Map<string, { value: string; expiration?: number }>();
+
+  async get(key: string): Promise<string | null> {
+    const item = this.storage.get(key);
+    if (!item) return null;
+    
+    // 有効期限チェック
+    if (item.expiration && Date.now() > item.expiration) {
+      this.storage.delete(key);
+      return null;
+    }
+    
+    return item.value;
+  }
+
+  async put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void> {
+    const expiration = options?.expirationTtl ? Date.now() + (options.expirationTtl * 1000) : undefined;
+    this.storage.set(key, { value, expiration });
+  }
+}
+
 interface ShortUrlRequest {
   data: string;
 }
@@ -25,8 +48,13 @@ function generateShortId(length: number = 8): string {
   return result;
 }
 
+// ローカル開発用のモックKVインスタンス
+const mockKV = new MockKV();
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    // ローカル開発時はモックKVを使用
+    const kv = env?.URL_SHORTENER || mockKV;
     const url = new URL(request.url);
     
     // CORS headers
@@ -64,10 +92,10 @@ export default {
             shortId = generateShortId(12);
             break;
           }
-        } while (await env.URL_SHORTENER.get(shortId) !== null);
+        } while (await kv.get(shortId) !== null);
 
         // データを保存（24時間の有効期限）
-        await env.URL_SHORTENER.put(shortId, body.data, {
+        await kv.put(shortId, body.data, {
           expirationTtl: 24 * 60 * 60 // 24 hours
         });
 
@@ -91,7 +119,7 @@ export default {
           });
         }
 
-        const data = await env.URL_SHORTENER.get(shortId);
+        const data = await kv.get(shortId);
         
         if (!data) {
           return new Response('Short URL not found or expired', { 
@@ -116,7 +144,7 @@ export default {
           });
         }
 
-        const data = await env.URL_SHORTENER.get(shortId);
+        const data = await kv.get(shortId);
         
         if (!data) {
           return new Response(JSON.stringify({ error: 'Short URL not found or expired' }), {

@@ -57,7 +57,7 @@ const DataExport: React.FC = () => {
       
       try {
         // URL短縮サービスのエンドポイント（環境に応じて変更）
-        const shortenerEndpoint = 'https://url-shortener.your-domain.workers.dev/shorten'
+        const shortenerEndpoint = 'http://localhost:8787/shorten'
         
         const response = await fetch(shortenerEndpoint, {
           method: 'POST',
@@ -134,7 +134,7 @@ const DataExport: React.FC = () => {
   // 短縮URLからデータを展開
   const expandShortUrl = async (shortId: string): Promise<string | null> => {
     try {
-      const shortenerEndpoint = 'https://url-shortener.your-domain.workers.dev/expand'
+      const shortenerEndpoint = 'http://localhost:8787/expand'
       const response = await fetch(`${shortenerEndpoint}/${shortId}`)
       
       if (response.ok) {
