@@ -56,7 +56,7 @@ const OmikujiChoice: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
+    <div style={{ display: 'grid', gap: 16, justifyItems: 'center', maxWidth: '100%', margin: '0 auto', padding: '0 10px' }}>
       <div style={{ textAlign: 'center', marginBottom: '16px' }}>
         <div className="comic-text" style={{ color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', marginBottom: '8px' }}>
           {revealedIdx === null ? '🔮 一枚選んで 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果確認中... 🔮'}
@@ -75,13 +75,23 @@ const OmikujiChoice: React.FC = () => {
           </div>
         )}
       </div>
-      <div className="omikuji-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 12, width: '100%', maxWidth: 600, padding: '0 12px', justifyItems: 'center', justifyContent: 'center' }}>
+      <div className="omikuji-grid" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(5, 1fr)', 
+        gap: 'min(12px, 3vw)', 
+        width: '100%', 
+        maxWidth: 'min(500px, 90vw)', 
+        padding: '0 min(12px, 3vw)', 
+        justifyItems: 'center', 
+        justifyContent: 'center', 
+        margin: '0 auto' 
+      }}>
         {cards.map((c) => {
           const isOpen = revealedIdx === c.id
           const isChosen = revealedIdx === c.id
           const shouldShow = showAll || isOpen
           return (
-            <div key={c.id} style={{ aspectRatio: '2 / 3', width: '100%', position: 'relative' }}>
+            <div key={c.id} style={{ aspectRatio: '2 / 3', width: '100%', maxWidth: '80px', position: 'relative', margin: '0 auto' }}>
               <button 
                 onClick={() => handleCardClick(c.id)} 
                 disabled={revealedIdx !== null || !canPlay || momoPayPoints < OMIKUJI_COST} 
@@ -89,12 +99,14 @@ const OmikujiChoice: React.FC = () => {
                 style={{ 
                   aspectRatio: '2 / 3', 
                   width: '100%', 
-                  borderRadius: 20, 
+                  minWidth: 'min(60px, 15vw)',
+                  maxWidth: '80px',
+                  borderRadius: 'min(20px, 5vw)', 
                   border: isChosen ? '4px solid #ffd700' : '3px solid rgba(255,255,255,0.8)', 
                         background: shouldShow ? 'linear-gradient(135deg, #ffffff 0%, #ffffff 50%, #f8f8f8 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%)',
                   color: shouldShow ? '#2e7d32' : '#fff', 
                   fontWeight: 800, 
-                  fontSize: 18, 
+                  fontSize: 'clamp(14px, 4vw, 18px)', 
                   boxShadow: isChosen ? '0 0 25px rgba(255, 215, 0, 0.9), 0 10px 25px rgba(0,0,0,0.5), inset 0 3px 0 rgba(255,255,255,0.3)' : '0 8px 0 rgba(0,0,0,0.3), inset 0 3px 0 rgba(255,255,255,0.3)', 
                   cursor: (revealedIdx === null && canPlay && momoPayPoints >= OMIKUJI_COST) ? 'pointer' : 'not-allowed',
                   opacity: (momoPayPoints < OMIKUJI_COST && revealedIdx === null) ? 0.5 : 1,
@@ -119,21 +131,21 @@ const OmikujiChoice: React.FC = () => {
                   {shouldShow ? (
                     <>
                       <div style={{ 
-                        fontSize: '24px', 
+                        fontSize: 'clamp(18px, 5vw, 24px)', 
                         fontWeight: '900', 
                         color: c.fortune === '大吉' ? '#c62828' : 
                                c.fortune === '中吉' ? '#ef6c00' : 
                                c.fortune === '小吉' ? '#2e7d32' : 
                                c.fortune === '吉' ? '#1565c0' : '#424242',
                         textShadow: '3px 3px 6px rgba(255,255,255,0.9), 2px 2px 0px rgba(0,0,0,0.5), -1px -1px 0px rgba(255,255,255,0.7)',
-                        letterSpacing: '2px',
+                        letterSpacing: 'min(2px, 0.5vw)',
                         textAlign: 'center',
                         lineHeight: '1.2'
                       }}>{c.fortune}</div>
-                      {isChosen && <div style={{ fontSize: '14px', color: '#c62828', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(255,255,255,0.9), 1px 1px 0px rgba(0,0,0,0.3)', marginTop: '2px' }}>✨ あなたの選択</div>}
+                      {isChosen && <div style={{ fontSize: 'clamp(10px, 3vw, 14px)', color: '#c62828', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(255,255,255,0.9), 1px 1px 0px rgba(0,0,0,0.3)', marginTop: '2px' }}>✨ あなたの選択</div>}
                     </>
                   ) : (
-                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>？</div>
+                    <div style={{ fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 'bold', color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>？</div>
                   )}
                 </div>
               </button>
