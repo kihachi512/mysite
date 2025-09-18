@@ -75,31 +75,71 @@ const BulletHell: React.FC = () => {
   
   // 効果音設定の状態
   const [soundEnabled, setSoundEnabled] = useState(false)
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
+  const [audioInitialized, setAudioInitialized] = useState(false)
+  
+  // AudioContextを初期化する関数
+  const initializeAudio = useCallback(() => {
+    if (audioContext || !soundEnabled) return
+    
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      setAudioContext(ctx)
+      setAudioInitialized(true)
+      
+      // AudioContextが suspend 状態の場合は resume を試行
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {
+          console.log('AudioContext resume failed, will try on next user interaction')
+        })
+      }
+    } catch (error) {
+      console.log('AudioContext creation failed:', error)
+    }
+  }, [audioContext, soundEnabled])
   
   // 効果音再生関数
   const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
-    if (!soundEnabled) return
+    if (!soundEnabled || !audioContext) return
     
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
+      // AudioContextが suspended 状態の場合は resume を試行
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          // resume 成功後に再度音声を再生
+          playActualSound(audioContext, frequency, duration, type)
+        }).catch(() => {
+          console.log('AudioContext resume failed')
+        })
+      } else if (audioContext.state === 'running') {
+        playActualSound(audioContext, frequency, duration, type)
+      }
+    } catch (error) {
+      console.log('Sound play error:', error)
+    }
+  }, [soundEnabled, audioContext])
+  
+  // 実際の音声再生処理
+  const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
+    try {
+      const oscillator = ctx.createOscillator()
+      const gainNode = ctx.createGain()
       
       oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
+      gainNode.connect(ctx.destination)
       
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime)
+      oscillator.frequency.setValueAtTime(frequency, ctx.currentTime)
       oscillator.type = type
       
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration)
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration)
       
-      oscillator.start(audioContext.currentTime)
-      oscillator.stop(audioContext.currentTime + duration)
+      oscillator.start(ctx.currentTime)
+      oscillator.stop(ctx.currentTime + duration)
     } catch (error) {
-      // ブラウザが音声をサポートしていない場合は無視
+      console.log('Actual sound play error:', error)
     }
-  }, [soundEnabled])
+  }, [])
   
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
@@ -213,12 +253,81 @@ const BulletHell: React.FC = () => {
     if (savedSettings) {
       try {
         const settings = JSON.parse(savedSettings)
-        setSoundEnabled(settings['notification-sound'] || false)
+        const soundSetting = settings['notification-sound'] || false
+        setSoundEnabled(soundSetting)
+        console.log('Sound setting loaded:', soundSetting)
       } catch {
         setSoundEnabled(false)
+        console.log('Failed to load sound settings, defaulting to false')
       }
+    } else {
+      console.log('No saved settings found, sound disabled')
     }
   }, [])
+
+  // AudioContextを効果音設定に応じて初期化
+  useEffect(() => {
+    if (soundEnabled && !audioContext) {
+      initializeAudio()
+    } else if (!soundEnabled && audioContext) {
+      // 効果音が無効になった場合はAudioContextをクローズ
+      audioContext.close().then(() => {
+        setAudioContext(null)
+        setAudioInitialized(false)
+        console.log('AudioContext closed')
+      }).catch((error) => {
+        console.log('Failed to close AudioContext:', error)
+      })
+    }
+  }, [soundEnabled, audioContext, initializeAudio])
+
+  // ユーザーインタラクション時にAudioContextをresumeする
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          console.log('AudioContext resumed after user interaction')
+        }).catch((error) => {
+          console.log('Failed to resume AudioContext:', error)
+        })
+      }
+    }
+
+    // ユーザーインタラクションイベントをリスン
+    const events = ['click', 'touchstart', 'keydown']
+    events.forEach(event => {
+      document.addEventListener(event, handleUserInteraction, { once: true })
+    })
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserInteraction)
+      })
+    }
+  }, [audioContext])
+
+  // 設定変更を監視してリアルタイムで効果音設定を更新
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'app-settings' && e.newValue) {
+        try {
+          const settings = JSON.parse(e.newValue)
+          const newSoundSetting = settings['notification-sound'] || false
+          if (newSoundSetting !== soundEnabled) {
+            setSoundEnabled(newSoundSetting)
+            console.log('Sound setting updated via storage change:', newSoundSetting)
+          }
+        } catch (error) {
+          console.log('Failed to parse updated settings:', error)
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [soundEnabled])
 
   // Save inventory to localStorage
   useEffect(() => {
@@ -771,9 +880,13 @@ const BulletHell: React.FC = () => {
       ctx.fillText(`スコア: ${score}`, 10, 25)
       ctx.fillText(`ウェーブ: ${wave}`, 10, 45)
       
+      // 効果音状態表示
+      ctx.fillStyle = soundEnabled ? (audioContext?.state === 'running' ? '#4caf50' : '#ff9800') : '#666'
+      ctx.fillText(`🔊: ${soundEnabled ? (audioContext?.state === 'running' ? 'ON' : 'WAIT') : 'OFF'}`, 10, 65)
+      
       // power-up status with equipment indicators
       ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
-      let yOffset = 65
+      let yOffset = 85
       
       // Fire rate - simple display
       const totalFireRate = playerRef.current.fireRate
@@ -831,6 +944,9 @@ const BulletHell: React.FC = () => {
   }, [running, time])
 
   const start = useCallback(() => {
+    // 効果音のテスト（ゲーム開始音）
+    playSound(440, 0.2, 'sine')
+    
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
