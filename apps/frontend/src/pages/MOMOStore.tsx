@@ -271,14 +271,14 @@ const MOMOStore: React.FC = () => {
             margin: '0 auto',
             padding: '0 10px'
           }}>
-            {inventory.items.map((item: any, index: number) => (
+            {inventory.items.map((item: any, index: number) => item ? (
               <div key={`${item.id}-${index}`} className="comic-card" style={{
                 background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(233, 30, 99, 0.1))',
                 padding: 'min(16px, 4vw)',
                 borderColor: getRarityColor(item.rarity)
               }}>
                 <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '8px' }}>
-                  {item.icon}
+                  {item?.icon || '❓'}
                 </div>
                 <div className="comic-text" style={{ 
                   fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
@@ -317,7 +317,7 @@ const MOMOStore: React.FC = () => {
                   💰 {getSellPrice(item.rarity)}MOMOPayで売却
                 </button>
               </div>
-            ))}
+            ) : null)}
           </div>
         ) : (
           <div className="comic-text" style={{ 

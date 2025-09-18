@@ -1408,7 +1408,7 @@ const BulletHell: React.FC = () => {
                     gap: 'min(8px, 2vw)', 
                     padding: 'min(8px, 2vw)' 
                   }}>
-                    {inventory.items.map((item, index) => (
+                    {inventory.items.map((item, index) => item ? (
                     <div key={`${item.id}-${index}`} className="comic-card" style={{
                       padding: 'min(12px, 3vw)',
                       background: item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.1)' :
@@ -1419,7 +1419,7 @@ const BulletHell: React.FC = () => {
                                   item.rarity === 'rare' ? '#2196f3' : '#9e9e9e'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', marginRight: '8px' }}>{item.icon}</span>
+                        <span style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', marginRight: '8px' }}>{item?.icon || '❓'}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div className="comic-text" style={{ 
                             color: '#fff3e0', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
@@ -1455,7 +1455,7 @@ const BulletHell: React.FC = () => {
                         装備する
                       </button>
                     </div>
-                    ))}
+                    ) : null)}
                   </div>
                 </div>
               )}

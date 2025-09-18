@@ -360,7 +360,7 @@ const ShareSettings: React.FC = () => {
             </p>
             {!hasSharedFeature && (
               <div style={{ marginTop: '16px', textAlign: 'center' }}>
-                <Link to="/momostore" style={{ textDecoration: 'none' }}>
+                <Link to="/games/store" style={{ textDecoration: 'none' }}>
                   <button className="comic-button" style={{
                     padding: 'min(8px 16px, 2vw)',
                     fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
