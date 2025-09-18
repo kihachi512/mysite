@@ -5,6 +5,7 @@ const DataExport: React.FC = () => {
   const { favorites, tweets } = useAppData()
   const [shareUrl, setShareUrl] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   // データをエクスポート用に準備
   const exportData = () => {
@@ -28,6 +29,30 @@ const DataExport: React.FC = () => {
     URL.revokeObjectURL(url)
   }
 
+  // データを圧縮してリンクを短縮
+  const compressData = (data: any): string => {
+    // 不要な情報を削除してデータサイズを削減
+    const compactData = {
+      f: data.favorites.map((fav: any) => ({
+        id: fav.id,
+        name: fav.name,
+        url: fav.url,
+        type: fav.type
+      })),
+      t: data.tweets.map((tweet: any) => ({
+        id: tweet.id,
+        text: tweet.text,
+        timestamp: tweet.timestamp
+      }))
+    }
+    
+    // JSONを最小化（スペース削除）
+    const jsonStr = JSON.stringify(compactData)
+    
+    // Base64エンコード
+    return btoa(unescape(encodeURIComponent(jsonStr)))
+  }
+
   // 共有リンクを生成
   const generateShareLink = async () => {
     setIsGenerating(true)
@@ -35,24 +60,24 @@ const DataExport: React.FC = () => {
     try {
       const data = {
         favorites,
-        tweets,
-        exportedAt: new Date().toISOString(),
-        version: '1.0'
+        tweets
       }
       
-      // Base64エンコードしてURLに埋め込み
-      const dataStr = JSON.stringify(data)
-      const encodedData = btoa(unescape(encodeURIComponent(dataStr)))
+      // データを圧縮
+      const encodedData = compressData(data)
       
       // 現在のサイトのURLにクエリパラメータとして追加
       const currentUrl = window.location.origin + window.location.pathname
-      const shareUrl = `${currentUrl}?import=${encodedData}`
+      const shareUrl = `${currentUrl}?d=${encodedData}`
       
       setShareUrl(shareUrl)
       
       // クリップボードにコピー
       await navigator.clipboard.writeText(shareUrl)
-      alert('共有リンクをクリップボードにコピーしました！')
+      
+      // 成功フィードバック
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 3000) // 3秒後に非表示
     } catch (error) {
       console.error('Failed to generate share link:', error)
       alert('共有リンクの生成に失敗しました')
@@ -90,16 +115,52 @@ const DataExport: React.FC = () => {
     event.target.value = ''
   }
 
+  // データを展開
+  const decompressData = (encodedData: string) => {
+    try {
+      const jsonStr = decodeURIComponent(escape(atob(encodedData)))
+      const compactData = JSON.parse(jsonStr)
+      
+      // 圧縮されたデータを元の形式に戻す
+      const data = {
+        favorites: compactData.f || [],
+        tweets: compactData.t || []
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Failed to decompress data:', error)
+      return null
+    }
+  }
+
   // URLパラメータからデータを自動インポート
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    const importData = urlParams.get('import')
     
-    if (importData) {
+    // 新しい圧縮形式（?d=）をチェック
+    let importDataParam = urlParams.get('d')
+    let isCompressed = true
+    
+    // 旧形式（?import=）もサポート
+    if (!importDataParam) {
+      importDataParam = urlParams.get('import')
+      isCompressed = false
+    }
+    
+    if (importDataParam) {
       try {
-        const data = JSON.parse(decodeURIComponent(escape(atob(importData))))
+        let data
         
-        if (data.favorites && data.tweets) {
+        if (isCompressed) {
+          // 新しい圧縮形式
+          data = decompressData(importDataParam)
+        } else {
+          // 旧形式
+          data = JSON.parse(decodeURIComponent(escape(atob(importDataParam))))
+        }
+        
+        if (data && data.favorites && data.tweets) {
           localStorage.setItem('favoriteUploads', JSON.stringify(data.favorites))
           localStorage.setItem('tweets', JSON.stringify(data.tweets))
           
