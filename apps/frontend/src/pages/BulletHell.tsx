@@ -633,43 +633,68 @@ const BulletHell: React.FC = () => {
       const displayRadius = p.displayR || p.r
       const hitboxRadius = p.r
       
-      // Pulsing effect for better visibility
-      const pulseEffect = Math.sin(time * 0.1) * 0.5 + 1
-      const effectRadius = displayRadius * pulseEffect * 0.2
+      // Enhanced pulsing effect for better mobile visibility
+      const pulseEffect = Math.sin(time * 0.15) * 0.3 + 1.2
+      const effectRadius = displayRadius * pulseEffect * 0.15
       
-      // Outer glow effect
+      // Multiple glow layers for better visibility
       ctx.shadowColor = '#4ECDC4'
-      ctx.shadowBlur = 10
-      ctx.fillStyle = `rgba(78, 205, 196, ${0.3 * pulseEffect})`
-      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + effectRadius, 0, Math.PI * 2); ctx.fill()
+      ctx.shadowBlur = 20
+      ctx.fillStyle = `rgba(78, 205, 196, ${0.2 * pulseEffect})`
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + effectRadius + 8, 0, Math.PI * 2); ctx.fill()
+      
+      ctx.shadowBlur = 15
+      ctx.fillStyle = `rgba(78, 205, 196, ${0.4 * pulseEffect})`
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + effectRadius + 4, 0, Math.PI * 2); ctx.fill()
       ctx.shadowBlur = 0
       
-      // Shield effect (around display radius)
+      // Shield effect (around display radius) - more prominent
       if (shield > 0) {
         ctx.strokeStyle = '#ffd93d'
-        ctx.lineWidth = 3
-        ctx.setLineDash([5, 5])
-        ctx.lineDashOffset = -time * 0.1
-        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 4, 0, Math.PI * 2); ctx.stroke()
+        ctx.lineWidth = 4
+        ctx.setLineDash([8, 4])
+        ctx.lineDashOffset = -time * 0.15
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 6, 0, Math.PI * 2); ctx.stroke()
+        
+        // Additional shield glow
+        ctx.shadowColor = '#ffd93d'
+        ctx.shadowBlur = 8
+        ctx.strokeStyle = `rgba(255, 217, 61, ${0.6})`
+        ctx.lineWidth = 2
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 8, 0, Math.PI * 2); ctx.stroke()
+        ctx.shadowBlur = 0
         ctx.setLineDash([])
       }
+      
+      // Outer ring for better definition
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 3
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 2, 0, Math.PI * 2); ctx.stroke()
       
       // Main player body (larger for visibility)
       ctx.fillStyle = '#4ECDC4'
       ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
       
+      // Gradient effect for depth
+      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, displayRadius)
+      gradient.addColorStop(0, '#ffffff')
+      gradient.addColorStop(0.3, '#4ECDC4')
+      gradient.addColorStop(1, '#26a69a')
+      ctx.fillStyle = gradient
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius * 0.8, 0, Math.PI * 2); ctx.fill()
+      
       // Inner core (actual hitbox indicator) - more prominent
       ctx.strokeStyle = '#ffffff'
-      ctx.lineWidth = 2
-      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.stroke()
+      ctx.lineWidth = 3
+      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius + 1, 0, Math.PI * 2); ctx.stroke()
       
       // Core highlight for better visibility
       ctx.fillStyle = '#ff6b6b'
-      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius * 0.7, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.fill()
       
-      // Center dot (precise hitbox center)
+      // Center dot (precise hitbox center) - larger and more visible
       ctx.fillStyle = '#ffffff'
-      ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill()
       
       // draw UI
       ctx.fillStyle = '#fff3e0'
@@ -739,7 +764,7 @@ const BulletHell: React.FC = () => {
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 8 } // Small hitbox, larger display
+    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 } // Small hitbox, much larger display for mobile
     lastShotRef.current = 0
     setLives(1)
     setTime(0)
@@ -819,7 +844,7 @@ const BulletHell: React.FC = () => {
 
   // 装備効果をプレイヤーに適用
   const applyEquipmentEffects = useCallback(() => {
-    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 4, fireRate: 1, power: 1, displayR: 8 }
+    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 4, fireRate: 1, power: 1, displayR: 15 }
     let modifiedPlayer = { ...basePlayer }
 
     // 武器効果
@@ -884,7 +909,7 @@ const BulletHell: React.FC = () => {
           矢印キーで移動 / スペースでショット / 森の恵み(F:連射 P:威力 S:シールド)を取ろう！
         </div>
         <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
-          スマホ：スワイプで移動・ダブルタップでショット / 赤い部分が当たり判定！🎯
+          スマホ：スワイプで移動・ダブルタップでショット / 大きな青い自機の中の赤い部分が当たり判定！🎯
         </div>
       </div>
       <canvas 
