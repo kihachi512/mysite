@@ -11,7 +11,7 @@ const Favorites: React.FC = () => {
   const genId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
+    if (!e.target.files || e.target.files.length === 0) return
     
     // MOMOPayポイントをチェック
     if (momoPayPoints < UPLOAD_COST) {
@@ -20,60 +20,42 @@ const Favorites: React.FC = () => {
       return
     }
     
-    const files = Array.from(e.target.files)
-    const totalCost = files.length * UPLOAD_COST
+    const file = e.target.files[0] // 最初のファイルのみ使用
     
-    if (momoPayPoints < totalCost) {
-      alert(`${files.length}個のファイルをアップロードするには${totalCost}MOMOPayポイントが必要です。（1ファイル${UPLOAD_COST}ポイント）`)
+    if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayポイントを消費しますがよろしいですか？`)) {
       e.target.value = ''
       return
     }
     
-    if (!confirm(`${files.length}個のファイルをアップロードします。${totalCost}MOMOPayポイントを消費しますがよろしいですか？`)) {
+    const name = window.prompt('ファイル名を入力してください（必須）', file.name)
+    if (!name || !name.trim()) {
+      alert('名前は必須です。アップロードをキャンセルします。')
       e.target.value = ''
       return
     }
     
-    // 事前にすべてのファイル名を確認
-    const fileNames: string[] = []
-    for (let i = 0; i < files.length; i++) {
-      const name = window.prompt(`ファイル ${i + 1}/${files.length} の名前を入力してください（必須）`, files[i].name)
-      if (!name || !name.trim()) {
-        alert('名前は必須です。アップロードをキャンセルします。')
-        e.target.value = ''
-        return
-      }
-      fileNames.push(name.trim())
+    // ポイントを消費
+    if (!spendMomoPayPoints(UPLOAD_COST)) {
+      alert('ポイントが不足しています。')
+      e.target.value = ''
+      return
     }
     
-    // すべてのファイル名が確定したら、ポイントを消費してアップロード開始
-    files.forEach((file, index) => {
-      // ポイントを消費
-      if (!spendMomoPayPoints(UPLOAD_COST)) {
-        alert('ポイントが不足しています。')
-        return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      const item: FavoriteItem = {
+        id: genId(),
+        name: name.trim(),
+        kind: 'file',
+        dataUrl,
+        mime: file.type,
+        createdAt: new Date().toISOString(),
       }
-      
-      const reader = new FileReader()
-      reader.onload = () => {
-        const dataUrl = reader.result as string
-        const item: FavoriteItem = {
-          id: genId(),
-          name: fileNames[index],
-          kind: 'file',
-          dataUrl,
-          mime: file.type,
-          createdAt: new Date().toISOString(),
-        }
-        addFavorite(item)
-        
-        // 最後のファイルの処理が完了したら結果を表示
-        if (index === files.length - 1) {
-          alert(`${files.length}個のファイルをアップロードしました！`)
-        }
-      }
-      reader.readAsDataURL(file)
-    })
+      addFavorite(item)
+      alert('ファイルをアップロードしました！')
+    }
+    reader.readAsDataURL(file)
     e.target.value = ''
   }
 
@@ -160,7 +142,6 @@ const Favorites: React.FC = () => {
         <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📤 ファイルをアップロード</h3>
         <input 
           type="file" 
-          multiple 
           onChange={handleUpload} 
           disabled={momoPayPoints < UPLOAD_COST}
           className="comic-input"
@@ -174,7 +155,7 @@ const Favorites: React.FC = () => {
             cursor: momoPayPoints < UPLOAD_COST ? 'not-allowed' : 'pointer'
           }} 
         />
-        <p className="comic-text" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem', marginTop: '10px' }}>画像、動画、音声、テキストファイルなど対応</p>
+        <p className="comic-text" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1rem', marginTop: '10px' }}>画像、動画、音声、テキストファイルなど対応（1ファイルずつ）</p>
       </div>
 
       <div className="comic-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '24px', borderColor: '#8bc34a', marginBottom: '24px' }}>
