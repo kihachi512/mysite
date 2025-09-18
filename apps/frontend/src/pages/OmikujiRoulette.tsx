@@ -8,7 +8,7 @@ const OmikujiChoice: React.FC = () => {
   const [revealedIdx, setRevealedIdx] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [canPlay, setCanPlay] = useState(true)
-  const OMIKUJI_COST = 50 // おみくじの費用（50ポイント）
+  const OMIKUJI_COST = 10 // おみくじの費用（10ポイント）
   const [shuffled, setShuffled] = useState<string[]>(() => {
     const arr = [...allFortunes]
     for (let i = arr.length - 1; i > 0; i--) {
