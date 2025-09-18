@@ -1,74 +1,21 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAppData, type Tweet } from '../contexts/AppDataContext'
 
-type Tweet = {
-  id: string
-  content: string
-  createdAt: string
-  likes: number
-  likedBy: string[]
-  expiresAt: string
-}
-
-const TWEETS_KEY = 'tweets'
 const TWEET_EXPIRY_HOURS = 24
 
 const Tweets: React.FC = () => {
-  const [tweets, setTweets] = useState<Tweet[]>([])
+  const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
   const [newTweet, setNewTweet] = useState('')
   const [userName, setUserName] = useState('')
-
-  // Load tweets from localStorage
-  const loadTweets = useCallback(() => {
-    if (typeof window === 'undefined') return []
-    const saved = localStorage.getItem(TWEETS_KEY)
-    if (!saved) return []
-    try {
-      const parsed = JSON.parse(saved)
-      if (!Array.isArray(parsed)) return []
-      
-      // Filter out expired tweets
-      const now = new Date().getTime()
-      const validTweets = parsed.filter((tweet: Tweet) => {
-        const expiresAt = new Date(tweet.expiresAt).getTime()
-        return expiresAt > now
-      })
-      
-      // Sort by creation time (newest first)
-      return validTweets.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    } catch {
-      return []
-    }
-  }, [])
-
-  // Save tweets to localStorage
-  const saveTweets = useCallback((tweets: Tweet[]) => {
-    if (typeof window === 'undefined') return
-    localStorage.setItem(TWEETS_KEY, JSON.stringify(tweets))
-  }, [])
-
-  // Load tweets on component mount
-  useEffect(() => {
-    setTweets(loadTweets())
-  }, [loadTweets])
 
   // Auto-cleanup expired tweets every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      setTweets(prev => {
-        const now = new Date().getTime()
-        const validTweets = prev.filter(tweet => {
-          const expiresAt = new Date(tweet.expiresAt).getTime()
-          return expiresAt > now
-        })
-        if (validTweets.length !== prev.length) {
-          saveTweets(validTweets)
-        }
-        return validTweets
-      })
+      cleanupExpiredTweets()
     }, 60000) // Check every minute
 
     return () => clearInterval(interval)
-  }, [saveTweets])
+  }, [cleanupExpiredTweets])
 
   const generateId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
@@ -88,40 +35,13 @@ const Tweets: React.FC = () => {
       expiresAt: expiresAt.toISOString()
     }
 
-    const updatedTweets = [tweet, ...tweets]
-    setTweets(updatedTweets)
-    saveTweets(updatedTweets)
+    addTweet(tweet)
     setNewTweet('')
   }
 
   const handleLike = (tweetId: string) => {
     const userKey = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    
-    setTweets(prev => {
-      const updated = prev.map(tweet => {
-        if (tweet.id === tweetId) {
-          const isLiked = tweet.likedBy.includes(userKey)
-          if (isLiked) {
-            // Unlike
-            return {
-              ...tweet,
-              likes: Math.max(0, tweet.likes - 1),
-              likedBy: tweet.likedBy.filter(id => id !== userKey)
-            }
-          } else {
-            // Like
-            return {
-              ...tweet,
-              likes: tweet.likes + 1,
-              likedBy: [...tweet.likedBy, userKey]
-            }
-          }
-        }
-        return tweet
-      })
-      saveTweets(updated)
-      return updated
-    })
+    likeTweet(tweetId, userKey)
   }
 
   const formatTimeAgo = (dateString: string) => {
