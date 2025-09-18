@@ -212,13 +212,20 @@ const BulletHell: React.FC = () => {
       // time
       setTime(t => t + 1)
 
-      // spawn enemies in formations (Touhou-style)
-      const baseSpawnRate = 180 // Much slower base spawn rate
-      const spawnRate = Math.max(120, baseSpawnRate - wave * 15)
+      // spawn enemies in formations (Touhou-style) - Much more gradual progression
+      const baseSpawnRate = 300 // Much slower initial spawn rate
+      const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
       
       if (time % spawnRate === 0) {
-        const enemyHp = Math.min(2 + Math.floor(wave / 2), 8)
-        const formationType = Math.floor(Math.random() * 4)
+        const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
+        
+        // Limit formation complexity based on wave
+        let maxFormationType = 0 // Start with single enemies only
+        if (wave >= 2) maxFormationType = 1 // Line formation from wave 2
+        if (wave >= 4) maxFormationType = 2 // V formation from wave 4
+        if (wave >= 6) maxFormationType = 3 // Wave formation from wave 6
+        
+        const formationType = Math.floor(Math.random() * (maxFormationType + 1))
         
         // Formation-based spawning
         if (formationType === 0) {
@@ -229,10 +236,10 @@ const BulletHell: React.FC = () => {
             r: 10, 
             hp: enemyHp, 
             maxHp: enemyHp,
-            pattern: Math.floor(Math.random() * Math.min(3 + Math.floor(wave / 3), 6))
+            pattern: Math.floor(Math.random() * Math.min(1 + Math.floor(wave / 2), 4)) // Limit patterns early
           })
-        } else if (formationType === 1) {
-          // Line formation (3 enemies)
+        } else if (formationType === 1 && wave >= 2) {
+          // Line formation (3 enemies) - only from wave 2
           const centerX = w / 2
           const spacing = 60
           for (let i = -1; i <= 1; i++) {
@@ -242,11 +249,11 @@ const BulletHell: React.FC = () => {
               r: 10, 
               hp: enemyHp, 
               maxHp: enemyHp,
-              pattern: Math.floor(Math.random() * Math.min(3 + Math.floor(wave / 3), 6))
+              pattern: Math.floor(Math.random() * Math.min(1 + Math.floor(wave / 2), 4))
             })
           }
-        } else if (formationType === 2) {
-          // V formation
+        } else if (formationType === 2 && wave >= 4) {
+          // V formation - only from wave 4
           const centerX = w / 2
           const positions = [
             { x: centerX, y: -10 },
@@ -260,26 +267,27 @@ const BulletHell: React.FC = () => {
               r: 10, 
               hp: enemyHp, 
               maxHp: enemyHp,
-              pattern: Math.floor(Math.random() * Math.min(3 + Math.floor(wave / 3), 6))
+              pattern: Math.floor(Math.random() * Math.min(1 + Math.floor(wave / 2), 4))
             })
           })
-        } else {
-          // Wave formation (5 enemies in a wave pattern)
-          for (let i = 0; i < 5; i++) {
+        } else if (formationType === 3 && wave >= 6) {
+          // Wave formation (3 enemies instead of 5) - only from wave 6
+          for (let i = 0; i < 3; i++) {
             enemiesRef.current.push({ 
-              x: (w / 6) * (i + 1), 
-              y: -10 - Math.sin(i * 0.8) * 20, 
+              x: (w / 4) * (i + 1), 
+              y: -10 - Math.sin(i * 0.8) * 15, 
               r: 10, 
               hp: enemyHp, 
               maxHp: enemyHp,
-              pattern: Math.floor(Math.random() * Math.min(3 + Math.floor(wave / 3), 6))
+              pattern: Math.floor(Math.random() * Math.min(1 + Math.floor(wave / 2), 4))
             })
           }
         }
       }
 
-      // spawn power-ups occasionally
-      if (time % 600 === 0 && Math.random() < 0.7) {
+      // spawn power-ups more frequently in early waves
+      const powerUpInterval = Math.max(400, 600 - wave * 30) // More frequent in early waves
+      if (time % powerUpInterval === 0 && Math.random() < 0.8) {
         const powerUpTypes: PowerUp['type'][] = ['fireRate', 'power', 'shield']
         powerUpsRef.current.push({
           x: Math.random() * (w - 40) + 20,
@@ -289,14 +297,17 @@ const BulletHell: React.FC = () => {
           collected: false
         })
       }
-      // enemies shoot with varied patterns
+      // enemies shoot with varied patterns - scaled by wave
       enemiesRef.current.forEach((e, idx) => {
-        const shootInterval = 60 + (idx % 20) // Varied shooting intervals
+        // Slower shooting in early waves
+        const baseShootInterval = 90 + (idx % 30) // Longer base interval
+        const shootInterval = Math.max(45, baseShootInterval - wave * 5) // Gradually faster
+        
         if (time % shootInterval === 0) {
-          const bulletSpeed = 1.2 // Much slower bullets for strategic dodging
+          const bulletSpeed = Math.min(0.8 + wave * 0.1, 1.5) // Slower bullets early game
           
-          if (e.pattern === 0 || e.pattern === 1) {
-            // Aimed shot
+          if (e.pattern === 0) {
+            // Simple aimed shot (pattern 0 only for early waves)
             const ang = Math.atan2(playerRef.current.y - e.y, playerRef.current.x - e.x)
             bulletsRef.current.push({ 
               x: e.x, y: e.y, 
@@ -304,8 +315,28 @@ const BulletHell: React.FC = () => {
               vy: Math.sin(ang) * bulletSpeed, 
               r: 3, from: 'enemy' 
             })
-          } else if (e.pattern === 2 || e.pattern === 3) {
-            // 3-way spread shot
+          } else if (e.pattern === 1 && wave >= 2) {
+            // Straight down shot (introduced in wave 2)
+            bulletsRef.current.push({ 
+              x: e.x, y: e.y, 
+              vx: 0, 
+              vy: bulletSpeed, 
+              r: 3, from: 'enemy' 
+            })
+          } else if (e.pattern === 2 && wave >= 3) {
+            // 2-way spread shot (reduced from 3-way, introduced in wave 3)
+            const baseAng = Math.atan2(playerRef.current.y - e.y, playerRef.current.x - e.x)
+            for (let i = -0.5; i <= 0.5; i++) {
+              const ang = baseAng + i * 0.4
+              bulletsRef.current.push({ 
+                x: e.x, y: e.y, 
+                vx: Math.cos(ang) * bulletSpeed, 
+                vy: Math.sin(ang) * bulletSpeed, 
+                r: 2.5, from: 'enemy' 
+              })
+            }
+          } else if (e.pattern === 3 && wave >= 5) {
+            // 3-way spread shot (introduced in wave 5)
             const baseAng = Math.atan2(playerRef.current.y - e.y, playerRef.current.x - e.x)
             for (let i = -1; i <= 1; i++) {
               const ang = baseAng + i * 0.3
@@ -316,41 +347,41 @@ const BulletHell: React.FC = () => {
                 r: 2.5, from: 'enemy' 
               })
             }
-          } else if (e.pattern === 4 || e.pattern === 5) {
-            // Circular pattern (danmaku style)
-            const numBullets = 8
+          } else if (e.pattern === 4 && wave >= 8) {
+            // Circular pattern (danmaku style) - reduced bullets, later waves only
+            const numBullets = Math.min(4 + wave, 8) // Start with 4, max 8
             for (let i = 0; i < numBullets; i++) {
               const ang = (time * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
               bulletsRef.current.push({ 
                 x: e.x, y: e.y, 
-                vx: Math.cos(ang) * bulletSpeed * 0.8, 
-                vy: Math.sin(ang) * bulletSpeed * 0.8, 
+                vx: Math.cos(ang) * bulletSpeed * 0.7, 
+                vy: Math.sin(ang) * bulletSpeed * 0.7, 
                 r: 2, from: 'enemy' 
               })
             }
           } else if (e.pattern === 6 && e.isBoss) {
-            // Boss patterns
+            // Boss patterns - reduced complexity
             if (e.bossPhase === 1) {
-              // Phase 1: Spiral bullets
-              const numBullets = 12
+              // Phase 1: Spiral bullets (reduced count)
+              const numBullets = Math.min(6 + Math.floor(wave / 5), 10) // Start with 6, max 10
               for (let i = 0; i < numBullets; i++) {
-                const ang = (time * 0.05 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                const ang = (time * 0.03 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                bulletsRef.current.push({ 
+                  x: e.x, y: e.y, 
+                  vx: Math.cos(ang) * bulletSpeed * 0.8, 
+                  vy: Math.sin(ang) * bulletSpeed * 0.8, 
+                  r: 3, from: 'enemy' 
+                })
+              }
+            } else if (e.bossPhase === 2) {
+              // Phase 2: Wave pattern (reduced spread)
+              for (let i = -2; i <= 2; i++) {
+                const ang = Math.PI / 2 + i * 0.15 + Math.sin(time * 0.08) * 0.3
                 bulletsRef.current.push({ 
                   x: e.x, y: e.y, 
                   vx: Math.cos(ang) * bulletSpeed, 
                   vy: Math.sin(ang) * bulletSpeed, 
                   r: 3, from: 'enemy' 
-                })
-              }
-            } else if (e.bossPhase === 2) {
-              // Phase 2: Wave pattern
-              for (let i = -3; i <= 3; i++) {
-                const ang = Math.PI / 2 + i * 0.2 + Math.sin(time * 0.1) * 0.5
-                bulletsRef.current.push({ 
-                  x: e.x, y: e.y, 
-                  vx: Math.cos(ang) * bulletSpeed * 1.2, 
-                  vy: Math.sin(ang) * bulletSpeed * 1.2, 
-                  r: 4, from: 'enemy' 
                 })
               }
             }
@@ -524,9 +555,9 @@ const BulletHell: React.FC = () => {
         setWave(w => w + 1)
         setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
         
-        // Every 3rd wave, spawn a boss
-        if ((wave + 1) % 3 === 0) {
-          const bossHp = 15 + wave * 3
+        // Boss appears every 5th wave, starting from wave 5
+        if (wave >= 5 && (wave % 5 === 0)) {
+          const bossHp = 10 + Math.floor(wave / 5) * 8 // More reasonable boss HP scaling
           enemiesRef.current.push({
             x: w / 2,
             y: 50,
@@ -651,12 +682,12 @@ const BulletHell: React.FC = () => {
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 6, fireRate: 1, power: 1 }
+    playerRef.current = { x: 200, y: 240, r: 6, fireRate: 1.2, power: 1.2 } // Slightly better starting stats
     lastShotRef.current = 0
     setLives(5)
     setTime(0)
     setScore(0)
-    setShield(0)
+    setShield(20) // Start with some shield
     setWave(1)
     setGameOver(false)
     setRunning(true)
