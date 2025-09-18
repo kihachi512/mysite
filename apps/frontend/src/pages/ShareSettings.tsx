@@ -42,14 +42,14 @@ const ShareSettings: React.FC = () => {
       
       const data = {
         favorites,
-        tweets,
+        // tweets は除外（1時間で自動削除されるため）
         momoPayPoints,
         highScores,
         momoStorePurchases: parsedPurchases,
         appSettings: parsedSettings,
         bulletHellInventory: parsedInventory,
         exportDate: new Date().toISOString(),
-        version: '4.1'
+        version: '4.2'
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -98,11 +98,11 @@ const ShareSettings: React.FC = () => {
           const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
           const purchasesInfo = jsonData.momoStorePurchases && jsonData.momoStorePurchases.length > 0 ? `\n- MOMOStore購入: ${jsonData.momoStorePurchases.length}件` : ''
           const inventoryInfo = jsonData.bulletHellInventory && jsonData.bulletHellInventory.items && jsonData.bulletHellInventory.items.length > 0 ? `\n- ゲーム装備: ${jsonData.bulletHellInventory.items.length}件` : ''
-          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
             localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
-            localStorage.setItem('tweets', JSON.stringify(jsonData.tweets))
+            // tweets は処理しない（1時間で自動削除されるため）
             
             // MOMOPayがあればインポート
             if (jsonData.momoPayPoints !== undefined) {
@@ -278,7 +278,7 @@ const ShareSettings: React.FC = () => {
           lineHeight: '1.4'
         }}>
           {hasSharedFeature 
-            ? '全データ（宝物庫・大広間・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元'
+            ? '全データ（宝物庫・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元'
             : '共有機能は売店で購入が必要です。'
           }
         </p>
