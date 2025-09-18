@@ -70,11 +70,6 @@ const BulletHell: React.FC = () => {
   const [shield, setShield] = useState(0)
   const [wave, setWave] = useState(1)
   
-  // コンボシステム用状態
-  const [combo, setCombo] = useState(0)
-  const [comboTimer, setComboTimer] = useState(0)
-  const [maxCombo, setMaxCombo] = useState(0)
-  
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
   const [inventory, setInventory] = useState<PlayerInventory>({ items: [] })

@@ -65,7 +65,7 @@ const GeneralSettings: React.FC = () => {
       case 'auto-save':
         if (value) {
           // Enable auto-save functionality
-          console.log('Auto-save enabled')
+          // Auto-save logic would be implemented here
         }
         break
       case 'premium-theme':
@@ -78,7 +78,7 @@ const GeneralSettings: React.FC = () => {
       case 'notification-sound':
         if (value) {
           // Enable notification sounds
-          console.log('Notification sound enabled')
+          // Sound customization logic would be implemented here
         }
         break
     }
