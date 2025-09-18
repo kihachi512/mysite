@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
 
-type Player = { x: number; y: number; r: number; fireRate: number; power: number }
+type Player = { x: number; y: number; r: number; fireRate: number; power: number; displayR?: number }
 type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
 type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; maxHp: number; isBoss?: boolean; bossPhase?: number }
 type PowerUp = { x: number; y: number; r: number; type: 'fireRate' | 'power' | 'shield'; collected: boolean }
@@ -134,8 +134,9 @@ const BulletHell: React.FC = () => {
         
         // より直感的な操作：タッチ位置に向かってプレイヤーを移動
         const player = playerRef.current
-        const targetX = Math.max(player.r, Math.min(400 - player.r, x))
-        const targetY = Math.max(player.r, Math.min(280 - player.r, y))
+        const boundaryRadius = player.displayR || player.r
+        const targetX = Math.max(boundaryRadius, Math.min(400 - boundaryRadius, x))
+        const targetY = Math.max(boundaryRadius, Math.min(280 - boundaryRadius, y))
         
         // スムーズな移動のため、距離に応じて移動量を調整
         const deltaX = targetX - player.x
@@ -432,8 +433,10 @@ const BulletHell: React.FC = () => {
       if (keysRef.current['ArrowRight']) p.x += moveSpeed
       if (keysRef.current['ArrowUp']) p.y -= moveSpeed
       if (keysRef.current['ArrowDown']) p.y += moveSpeed
-      p.x = Math.max(p.r, Math.min(w - p.r, p.x))
-      p.y = Math.max(p.r, Math.min(h - p.r, p.y))
+      // Use display radius for boundary checking to prevent visual clipping
+      const boundaryRadius = p.displayR || p.r
+      p.x = Math.max(boundaryRadius, Math.min(w - boundaryRadius, p.x))
+      p.y = Math.max(boundaryRadius, Math.min(h - boundaryRadius, p.y))
 
       // move bullets (with time slow effect)
       const bulletSpeedMultiplier = inventory.equippedSpecial?.effect.special === 'timeslow' ? 0.5 : 1.0
@@ -631,14 +634,47 @@ const BulletHell: React.FC = () => {
         ctx.beginPath(); ctx.arc(b.x, b.y, b.r + (playerRef.current.power - 1), 0, Math.PI * 2); ctx.fill() 
       }
       
-      // player with shield effect
+      // player with shield effect and improved visibility
+      const displayRadius = p.displayR || p.r
+      const hitboxRadius = p.r
+      
+      // Pulsing effect for better visibility
+      const pulseEffect = Math.sin(time * 0.1) * 0.5 + 1
+      const effectRadius = displayRadius * pulseEffect * 0.2
+      
+      // Outer glow effect
+      ctx.shadowColor = '#4ECDC4'
+      ctx.shadowBlur = 10
+      ctx.fillStyle = `rgba(78, 205, 196, ${0.3 * pulseEffect})`
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + effectRadius, 0, Math.PI * 2); ctx.fill()
+      ctx.shadowBlur = 0
+      
+      // Shield effect (around display radius)
       if (shield > 0) {
         ctx.strokeStyle = '#ffd93d'
         ctx.lineWidth = 3
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 8, 0, Math.PI * 2); ctx.stroke()
+        ctx.setLineDash([5, 5])
+        ctx.lineDashOffset = -time * 0.1
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 4, 0, Math.PI * 2); ctx.stroke()
+        ctx.setLineDash([])
       }
+      
+      // Main player body (larger for visibility)
       ctx.fillStyle = '#4ECDC4'
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
+      
+      // Inner core (actual hitbox indicator) - more prominent
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 2
+      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.stroke()
+      
+      // Core highlight for better visibility
+      ctx.fillStyle = '#ff6b6b'
+      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius * 0.7, 0, Math.PI * 2); ctx.fill()
+      
+      // Center dot (precise hitbox center)
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI * 2); ctx.fill()
       
       // draw UI
       ctx.fillStyle = '#fff3e0'
@@ -708,7 +744,7 @@ const BulletHell: React.FC = () => {
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 6, fireRate: 1.0, power: 1.0 } // Balanced starting stats
+    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 8 } // Small hitbox, larger display
     lastShotRef.current = 0
     setLives(1)
     setTime(0)
@@ -788,7 +824,7 @@ const BulletHell: React.FC = () => {
 
   // 装備効果をプレイヤーに適用
   const applyEquipmentEffects = useCallback(() => {
-    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 6, fireRate: 1, power: 1 }
+    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 4, fireRate: 1, power: 1, displayR: 8 }
     let modifiedPlayer = { ...basePlayer }
 
     // 武器効果
@@ -853,7 +889,7 @@ const BulletHell: React.FC = () => {
           矢印キーで移動 / スペースでショット / 森の恵み(F:連射 P:威力 S:シールド)を取ろう！
         </div>
         <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
-          スマホ：スワイプで移動・ダブルタップでショット / 森ガチャで装備強化！🌲
+          スマホ：スワイプで移動・ダブルタップでショット / 赤い部分が当たり判定！🎯
         </div>
       </div>
       <canvas 
