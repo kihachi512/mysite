@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-type Player = { x: number; y: number; r: number }
-type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy' }
-type Enemy = { x: number; y: number; r: number; hp: number; pattern: number }
+type Player = { x: number; y: number; r: number; fireRate: number; power: number }
+type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
+type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; maxHp: number }
+type PowerUp = { x: number; y: number; r: number; type: 'fireRate' | 'power' | 'shield'; collected: boolean }
 
 const BulletHell: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -14,11 +15,15 @@ const BulletHell: React.FC = () => {
   const [highScores, setHighScores] = useState<number[]>([])
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
   const [lastTap, setLastTap] = useState(0)
-  const playerRef = useRef<Player>({ x: 200, y: 240, r: 6 })
+  const [shield, setShield] = useState(0)
+  const [wave, setWave] = useState(1)
+  const playerRef = useRef<Player>({ x: 200, y: 240, r: 6, fireRate: 1, power: 1 })
   const bulletsRef = useRef<Bullet[]>([])
   const enemiesRef = useRef<Enemy[]>([])
+  const powerUpsRef = useRef<PowerUp[]>([])
   const keysRef = useRef<Record<string, boolean>>({})
   const rafRef = useRef<number | null>(null)
+  const lastShotRef = useRef<number>(0)
 
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => { 
@@ -47,7 +52,7 @@ const BulletHell: React.FC = () => {
         const now = Date.now()
         if (now - lastTap < 300) {
           if (running) {
-            bulletsRef.current.push({ x: playerRef.current.x, y: playerRef.current.y - 8, vx: 0, vy: -4, r: 3, from: 'player' })
+            shoot()
           }
         }
         setLastTap(now)
