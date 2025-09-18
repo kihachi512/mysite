@@ -87,7 +87,15 @@ const OmikujiChoice: React.FC = () => {
                 }}>
                   {shouldShow ? (
                     <>
-                      <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{c.fortune}</div>
+                      <div style={{ 
+                        fontSize: '18px', 
+                        fontWeight: 'bold', 
+                        color: c.fortune === '大吉' ? '#d32f2f' : 
+                               c.fortune === '中吉' ? '#f57c00' : 
+                               c.fortune === '小吉' ? '#388e3c' : 
+                               c.fortune === '吉' ? '#1976d2' : '#424242',
+                        textShadow: '1px 1px 2px rgba(255,255,255,0.8)'
+                      }}>{c.fortune}</div>
                       {isChosen && <div style={{ fontSize: '12px', color: '#ff6b6b', fontWeight: 'bold' }}>✨ あなたの選択</div>}
                     </>
                   ) : (
