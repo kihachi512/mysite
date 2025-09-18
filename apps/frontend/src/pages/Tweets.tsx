@@ -2,45 +2,46 @@ import React, { useState, useEffect } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
 
 const Tweets: React.FC = () => {
-  const { tweets, addTweet, likeTweet, loadingTweets, errorTweets, refreshData } = useAppData()
+  const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
   const [newTweet, setNewTweet] = useState('')
 
-  // Auto-refresh data every minute
+  // Auto-cleanup expired tweets every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      refreshData()
+      cleanupExpiredTweets()
     }, 60000) // Check every minute
 
     return () => clearInterval(interval)
-  }, [refreshData])
+  }, [cleanupExpiredTweets])
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const generateId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTweet.trim()) return
 
-    await addTweet(newTweet.trim())
+    const now = new Date()
+    const expiresAt = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour
+
+    const tweet = {
+      id: generateId(),
+      content: newTweet.trim(),
+      createdAt: now.toISOString(),
+      likes: 0,
+      likedBy: [],
+      expiresAt: expiresAt.toISOString()
+    }
+
+    addTweet(tweet)
     setNewTweet('')
   }
 
-  const handleLike = async (tweetId: string) => {
+  const handleLike = (tweetId: string) => {
     const userKey = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    await likeTweet(tweetId, userKey)
+    likeTweet(tweetId, userKey)
   }
 
-  const formatTimeAgo = (dateString: string) => {
-    const now = new Date().getTime()
-    const tweetTime = new Date(dateString).getTime()
-    const diffMs = now - tweetTime
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-    if (diffMinutes < 1) return 'たった今'
-    if (diffMinutes < 60) return `${diffMinutes}分前`
-    if (diffHours < 24) return `${diffHours}時間前`
-    return `${diffDays}日前`
-  }
 
   const formatExpiry = (expiresAt: string) => {
     const now = new Date().getTime()
@@ -66,7 +67,7 @@ const Tweets: React.FC = () => {
           🐦 森のつぶやき 🐦
         </h2>
         <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
-          24時間で自動削除されるつぶやき
+          1時間で自動削除されるつぶやき
         </p>
       </div>
 
@@ -117,36 +118,8 @@ const Tweets: React.FC = () => {
       </div>
 
       {/* Tweets List */}
-      {errorTweets && (
-        <div className="comic-card" style={{ 
-          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.1))', 
-          padding: '16px', 
-          borderColor: '#ff9800',
-          marginBottom: '16px',
-          textAlign: 'center'
-        }}>
-          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
-            ⚠️ {errorTweets}
-          </div>
-        </div>
-      )}
-
-      {loadingTweets && (
-        <div className="comic-card" style={{ 
-          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
-          padding: '16px', 
-          borderColor: '#8bc34a',
-          marginBottom: '16px',
-          textAlign: 'center'
-        }}>
-          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
-            🔄 データを読み込み中...
-          </div>
-        </div>
-      )}
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {tweets.length === 0 && !loadingTweets ? (
+        {tweets.length === 0 ? (
           <div className="comic-card" style={{ 
             textAlign: 'center', 
             color: '#c8e6c9', 
@@ -168,13 +141,8 @@ const Tweets: React.FC = () => {
               borderColor: '#8bc34a'
             }}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                  <div className="comic-text" style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>
-                    {formatTimeAgo(tweet.createdAt)}
-                  </div>
-                  <div className="comic-text" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
-                    {formatExpiry(tweet.expiresAt)}
-                  </div>
+                <div className="comic-text" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+                  {formatExpiry(tweet.expiresAt)}
                 </div>
               </div>
               
