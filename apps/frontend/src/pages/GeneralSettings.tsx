@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 type AppSettings = {
   'dark-mode': boolean
-  'auto-save': boolean
+  'sharing-feature': boolean
   'premium-theme': boolean
   'notification-sound': boolean
 }
@@ -11,7 +11,7 @@ type AppSettings = {
 const GeneralSettings: React.FC = () => {
   const [settings, setSettings] = useState<AppSettings>({
     'dark-mode': false,
-    'auto-save': false,
+    'sharing-feature': false,
     'premium-theme': false,
     'notification-sound': false
   })
@@ -62,11 +62,8 @@ const GeneralSettings: React.FC = () => {
           document.body.classList.remove('dark-mode')
         }
         break
-      case 'auto-save':
-        if (value) {
-          // Enable auto-save functionality
-          // Auto-save logic would be implemented here
-        }
+      case 'sharing-feature':
+        // 共有機能の利用権設定（実際の機能制御は各共有機能で行う）
         break
       case 'premium-theme':
         if (value) {
@@ -91,14 +88,14 @@ const GeneralSettings: React.FC = () => {
         description: '目に優しい暗いテーマに変更',
         icon: '🌙'
       },
-      'auto-save': {
-        name: '自動保存',
-        description: 'データを定期的に自動バックアップ',
-        icon: '💾'
+      'sharing-feature': {
+        name: '共有機能',
+        description: 'データのエクスポート・インポート機能',
+        icon: '📤'
       },
       'premium-theme': {
         name: 'プレミアムテーマ',
-        description: '特別な色彩テーマを適用',
+        description: 'エレガントなモノトーンテーマを適用',
         icon: '🎨'
       },
       'notification-sound': {
@@ -119,7 +116,7 @@ const GeneralSettings: React.FC = () => {
         // Reset state
         setSettings({
           'dark-mode': false,
-          'auto-save': false,
+          'sharing-feature': false,
           'premium-theme': false,
           'notification-sound': false
         })

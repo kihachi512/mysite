@@ -23,17 +23,17 @@ const STORE_ITEMS: StoreItem[] = [
     icon: '🌙'
   },
   {
-    id: 'auto-save',
-    name: '自動保存機能',
-    description: 'データを自動でバックアップします',
+    id: 'sharing-feature',
+    name: '共有機能利用権',
+    description: 'データのエクスポート・インポート機能を利用できます',
     price: 300,
     type: 'feature',
-    icon: '💾'
+    icon: '📤'
   },
   {
     id: 'premium-theme',
     name: 'プレミアムテーマ',
-    description: '特別な色彩テーマを利用できます',
+    description: 'エレガントな白黒モノトーンテーマを利用できます',
     price: 800,
     type: 'setting',
     icon: '🎨'
@@ -100,16 +100,17 @@ const MOMOStore: React.FC = () => {
       // Apply setting if it's a setting type
       if (item.type === 'setting') {
         applySettingPurchase(item.id)
+        alert(`${item.name}を購入しました！\n設定画面で有効にしてください。`)
+      } else {
+        alert(`${item.name}を購入しました！`)
       }
-      
-      alert(`${item.name}を購入しました！`)
     }
   }
 
   const applySettingPurchase = (itemId: string) => {
-    // Store the purchased setting
+    // Store the purchased setting (default to false/off)
     const settings = JSON.parse(localStorage.getItem('app-settings') || '{}')
-    settings[itemId] = true
+    settings[itemId] = false // デフォルトでオフに設定
     localStorage.setItem('app-settings', JSON.stringify(settings))
   }
 
@@ -157,7 +158,7 @@ const MOMOStore: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🏪 森の売店 (MOMOStore) 🏪
+        🏪 売店 (MOMOStore) 🏪
       </div>
       
       <div className="comic-text" style={{ 

@@ -128,7 +128,7 @@ const Favorites: React.FC = () => {
             💰 MOMOPay: {momoPayPoints}
           </div>
           <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
-            アップロード費用: {UPLOAD_COST}MOMOPay
+            費用: {UPLOAD_COST}MOMOPay
           </div>
         </div>
         {momoPayPoints < UPLOAD_COST && (

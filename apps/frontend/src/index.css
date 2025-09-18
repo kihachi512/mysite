@@ -24,7 +24,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-family: 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', cursive, fantasy, sans-serif;
 }
 
 #root {

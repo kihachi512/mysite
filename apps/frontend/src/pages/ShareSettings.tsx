@@ -1,21 +1,55 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 
 const ShareSettings: React.FC = () => {
   const { favorites, tweets, momoPayPoints, highScores } = useAppData()
   const [jsonExportSuccess, setJsonExportSuccess] = useState(false)
+  const [hasSharedFeature, setHasSharedFeature] = useState(false)
+
+  // 共有機能の利用権をチェック
+  useEffect(() => {
+    const savedPurchases = localStorage.getItem('momostore-purchases')
+    if (savedPurchases) {
+      try {
+        const purchases = JSON.parse(savedPurchases)
+        setHasSharedFeature(purchases.includes('sharing-feature'))
+      } catch {
+        setHasSharedFeature(false)
+      }
+    }
+  }, [])
 
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
+    if (!hasSharedFeature) {
+      alert('共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。')
+      return
+    }
+    
     try {
+      // MOMOStoreの購入状況を取得
+      const momoStorePurchases = localStorage.getItem('momostore-purchases')
+      const parsedPurchases = momoStorePurchases ? JSON.parse(momoStorePurchases) : []
+      
+      // アプリ設定を取得
+      const appSettings = localStorage.getItem('app-settings')
+      const parsedSettings = appSettings ? JSON.parse(appSettings) : {}
+      
+      // 弾幕ゲームのインベントリも含める
+      const bulletHellInventory = localStorage.getItem('bullet-hell-inventory')
+      const parsedInventory = bulletHellInventory ? JSON.parse(bulletHellInventory) : { items: [] }
+      
       const data = {
         favorites,
         tweets,
         momoPayPoints,
         highScores,
+        momoStorePurchases: parsedPurchases,
+        appSettings: parsedSettings,
+        bulletHellInventory: parsedInventory,
         exportDate: new Date().toISOString(),
-        version: '4.0'
+        version: '4.1'
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -45,6 +79,11 @@ const ShareSettings: React.FC = () => {
 
   // JSONファイルからインポート
   const importFromJson = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!hasSharedFeature) {
+      alert('共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。')
+      return
+    }
+    
     const file = event.target.files?.[0]
     if (!file) return
     
@@ -57,7 +96,9 @@ const ShareSettings: React.FC = () => {
           // データの確認
           const momoPayPointsInfo = jsonData.momoPayPoints !== undefined ? `\n- MOMOPay: ${jsonData.momoPayPoints}` : ''
           const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
-          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}\n\n現在のデータは上書きされます。続行しますか？`
+          const purchasesInfo = jsonData.momoStorePurchases && jsonData.momoStorePurchases.length > 0 ? `\n- MOMOStore購入: ${jsonData.momoStorePurchases.length}件` : ''
+          const inventoryInfo = jsonData.bulletHellInventory && jsonData.bulletHellInventory.items && jsonData.bulletHellInventory.items.length > 0 ? `\n- ゲーム装備: ${jsonData.bulletHellInventory.items.length}件` : ''
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
             localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
@@ -71,6 +112,21 @@ const ShareSettings: React.FC = () => {
             // ハイスコアがあればインポート
             if (jsonData.highScores && Array.isArray(jsonData.highScores)) {
               localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(jsonData.highScores))
+            }
+            
+            // MOMOStore購入状況があればインポート
+            if (jsonData.momoStorePurchases && Array.isArray(jsonData.momoStorePurchases)) {
+              localStorage.setItem('momostore-purchases', JSON.stringify(jsonData.momoStorePurchases))
+            }
+            
+            // アプリ設定があればインポート
+            if (jsonData.appSettings && typeof jsonData.appSettings === 'object') {
+              localStorage.setItem('app-settings', JSON.stringify(jsonData.appSettings))
+            }
+            
+            // 弾幕ゲームのインベントリがあればインポート
+            if (jsonData.bulletHellInventory && typeof jsonData.bulletHellInventory === 'object') {
+              localStorage.setItem('bullet-hell-inventory', JSON.stringify(jsonData.bulletHellInventory))
             }
             
             alert('JSONファイルからデータをインポートしました！ページを再読み込みしてください。')
@@ -107,7 +163,7 @@ const ShareSettings: React.FC = () => {
         color: '#c8e6c9', 
         textShadow: '2px 2px 0px rgba(0,0,0,0.5)' 
       }}>
-        あなたの森の秘密基地を他の人と共有しよう
+        あなたの秘密基地を他の人と共有しよう
       </div>
 
       {/* データ統計 */}
@@ -198,40 +254,50 @@ const ShareSettings: React.FC = () => {
 
       {/* JSONファイル形式でのエクスポート・インポート */}
       <div className="comic-card" style={{ 
-        background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
+        background: hasSharedFeature 
+          ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))' 
+          : 'linear-gradient(135deg, rgba(158, 158, 158, 0.2), rgba(117, 117, 117, 0.1))', 
         padding: 'min(24px, 6vw)', 
-        borderColor: '#8bc34a', 
+        borderColor: hasSharedFeature ? '#8bc34a' : '#666', 
         marginBottom: 'min(40px, 10vw)',
         maxWidth: '600px',
-        margin: '0 auto min(40px, 10vw) auto'
+        margin: '0 auto min(40px, 10vw) auto',
+        opacity: hasSharedFeature ? 1 : 0.7
       }}>
         <h3 className="comic-text" style={{ 
           color: '#fff3e0', 
           marginBottom: '18px', 
           fontSize: 'clamp(1.3rem, 4vw, 1.5rem)' 
         }}>
-          📄 データのバックアップ・復元
+          📄 データのバックアップ・復元 {!hasSharedFeature && '🔒'}
         </h3>
         <p className="comic-text" style={{ 
-          color: '#c8e6c9', 
+          color: hasSharedFeature ? '#c8e6c9' : '#999', 
           marginBottom: '16px', 
           fontSize: 'clamp(0.9rem, 3vw, 1rem)',
           lineHeight: '1.4'
         }}>
-          全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア）をJSONファイルでバックアップ・復元できます
+          {hasSharedFeature 
+            ? '全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元できます'
+            : '共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。'
+          }
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* JSONエクスポート */}
           <button 
             onClick={exportAsJson}
+            disabled={!hasSharedFeature}
             className="comic-button"
             style={{
               padding: 'min(12px 24px, 3vw)',
-              background: 'linear-gradient(45deg, #2196f3, #1976d2)',
-              color: 'white',
+              background: hasSharedFeature 
+                ? 'linear-gradient(45deg, #2196f3, #1976d2)' 
+                : 'linear-gradient(45deg, #666, #555)',
+              color: hasSharedFeature ? 'white' : '#ccc',
               fontSize: 'clamp(1rem, 3vw, 1.1rem)',
-              borderColor: '#0d47a1'
+              borderColor: hasSharedFeature ? '#0d47a1' : '#333',
+              cursor: hasSharedFeature ? 'pointer' : 'not-allowed'
             }}
           >
             📥 JSONファイルでエクスポート
@@ -269,24 +335,44 @@ const ShareSettings: React.FC = () => {
               type="file" 
               accept=".json"
               onChange={importFromJson}
+              disabled={!hasSharedFeature}
               className="comic-input"
               style={{ 
                 width: '100%', 
                 padding: 'min(12px, 3vw)', 
-                borderColor: 'rgba(255,255,255,0.4)',
-                background: 'rgba(255,255,255,0.05)',
-                color: 'white',
-                fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
+                borderColor: hasSharedFeature ? 'rgba(255,255,255,0.4)' : 'rgba(102,102,102,0.4)',
+                background: hasSharedFeature ? 'rgba(255,255,255,0.05)' : 'rgba(102,102,102,0.05)',
+                color: hasSharedFeature ? 'white' : '#ccc',
+                fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                cursor: hasSharedFeature ? 'pointer' : 'not-allowed'
               }} 
             />
             <p className="comic-text" style={{ 
-              color: 'rgba(255,255,255,0.7)', 
+              color: hasSharedFeature ? 'rgba(255,255,255,0.7)' : '#999', 
               fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
               marginTop: '8px',
               lineHeight: '1.4'
             }}>
-              💡 エクスポートしたJSONファイルを選択してデータを復元できます
+              {hasSharedFeature 
+                ? '💡 エクスポートしたJSONファイルを選択してデータを復元できます'
+                : '🔒 共有機能を利用するには、MOMOStoreで購入が必要です'
+              }
             </p>
+            {!hasSharedFeature && (
+              <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                <Link to="/momostore" style={{ textDecoration: 'none' }}>
+                  <button className="comic-button" style={{
+                    padding: 'min(8px 16px, 2vw)',
+                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                    background: 'linear-gradient(45deg, #ffc107, #ffb300)',
+                    color: '#000',
+                    borderColor: '#f57f17'
+                  }}>
+                    🏪 MOMOStoreで購入する
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
