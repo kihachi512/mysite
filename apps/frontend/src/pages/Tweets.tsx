@@ -1,46 +1,31 @@
 import React, { useState, useEffect } from 'react'
-import { useAppData, type Tweet } from '../contexts/AppDataContext'
-
-const TWEET_EXPIRY_HOURS = 24
+import { useAppData } from '../contexts/AppDataContext'
 
 const Tweets: React.FC = () => {
-  const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
+  const { tweets, addTweet, likeTweet, loadingTweets, errorTweets, refreshData } = useAppData()
   const [newTweet, setNewTweet] = useState('')
 
-  // Auto-cleanup expired tweets every minute
+  // Auto-refresh data every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      cleanupExpiredTweets()
+      refreshData()
     }, 60000) // Check every minute
 
     return () => clearInterval(interval)
-  }, [cleanupExpiredTweets])
+  }, [refreshData])
 
-  const generateId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTweet.trim()) return
 
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + TWEET_EXPIRY_HOURS * 60 * 60 * 1000)
-
-    const tweet: Tweet = {
-      id: generateId(),
-      content: newTweet.trim(),
-      createdAt: now.toISOString(),
-      likes: 0,
-      likedBy: [],
-      expiresAt: expiresAt.toISOString()
-    }
-
-    addTweet(tweet)
+    await addTweet(newTweet.trim())
     setNewTweet('')
   }
 
-  const handleLike = (tweetId: string) => {
+  const handleLike = async (tweetId: string) => {
     const userKey = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    likeTweet(tweetId, userKey)
+    await likeTweet(tweetId, userKey)
   }
 
   const formatTimeAgo = (dateString: string) => {
@@ -132,8 +117,36 @@ const Tweets: React.FC = () => {
       </div>
 
       {/* Tweets List */}
+      {errorTweets && (
+        <div className="comic-card" style={{ 
+          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.1))', 
+          padding: '16px', 
+          borderColor: '#ff9800',
+          marginBottom: '16px',
+          textAlign: 'center'
+        }}>
+          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+            ⚠️ {errorTweets}
+          </div>
+        </div>
+      )}
+
+      {loadingTweets && (
+        <div className="comic-card" style={{ 
+          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
+          padding: '16px', 
+          borderColor: '#8bc34a',
+          marginBottom: '16px',
+          textAlign: 'center'
+        }}>
+          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+            🔄 データを読み込み中...
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {tweets.length === 0 ? (
+        {tweets.length === 0 && !loadingTweets ? (
           <div className="comic-card" style={{ 
             textAlign: 'center', 
             color: '#c8e6c9', 

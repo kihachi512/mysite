@@ -13,7 +13,7 @@ const json = (code: number, body: unknown) => ({
   headers: {
     "content-type": "application/json",
     "access-control-allow-origin": "*",
-    "access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
+    "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
     "access-control-allow-headers": "Content-Type",
   },
   body: JSON.stringify(body),
@@ -46,6 +46,7 @@ export const handler = async (event: AnyEvent) => {
     if (method === "OPTIONS") return { statusCode: 204, headers: json(200, {}).headers, body: "" };
 
     const isFavRoute = path.includes("/api/favorites");
+    const isTweetsRoute = path.includes("/api/tweets");
 
     if (isFavRoute && method === "GET") {
       const r = await ddb.send(
@@ -59,6 +60,26 @@ export const handler = async (event: AnyEvent) => {
       );
       const items = (r.Items ?? []).map(({ pk, sk, ...rest }) => rest);
       return json(200, items);
+    }
+
+    if (isTweetsRoute && method === "GET") {
+      const r = await ddb.send(
+        new QueryCommand({
+          TableName: TABLE,
+          KeyConditionExpression: "pk = :pk",
+          ExpressionAttributeValues: { ":pk": "TWEETS" },
+          ScanIndexForward: false,
+          Limit: 100,
+        })
+      );
+      const items = (r.Items ?? []).map(({ pk, sk, ...rest }) => rest);
+      // Filter out expired tweets
+      const now = new Date().getTime();
+      const validTweets = items.filter((tweet: any) => {
+        const expiresAt = new Date(tweet.expiresAt).getTime();
+        return expiresAt > now;
+      });
+      return json(200, validTweets);
     }
 
     if (isFavRoute && method === "POST") {
@@ -87,6 +108,30 @@ export const handler = async (event: AnyEvent) => {
       return json(201, { id });
     }
 
+    if (isTweetsRoute && method === "POST") {
+      const body = JSON.parse(event.body || "{}");
+      const content = body.content?.toString().slice(0, 280);
+      if (!content) return json(400, { error: "empty content" });
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
+      const id = randomBytes(6).toString("base64url");
+      
+      const item: any = {
+        pk: "TWEETS",
+        sk: id,
+        id,
+        content,
+        createdAt: now.toISOString(),
+        likes: 0,
+        likedBy: [],
+        expiresAt: expiresAt.toISOString()
+      };
+
+      await ddb.send(new PutCommand({ TableName: TABLE, Item: item }));
+      return json(201, { id });
+    }
+
     if (isFavRoute && method === "DELETE") {
       const id = getQueryParam(event, "id");
       if (!id) return json(400, { error: "invalid" });
@@ -95,6 +140,37 @@ export const handler = async (event: AnyEvent) => {
           new DeleteCommand({
             TableName: TABLE,
             Key: { pk: "FAVORITES", sk: id },
+            ConditionExpression: "attribute_exists(pk)",
+          })
+        );
+        return json(200, { ok: true });
+      } catch (err: any) {
+        if (err?.name === "ConditionalCheckFailedException") {
+          return json(404, { error: "not found" });
+        }
+        throw err;
+      }
+    }
+
+    if (isTweetsRoute && method === "PUT") {
+      const body = JSON.parse(event.body || "{}");
+      const { id, likes, likedBy } = body;
+      if (!id || typeof likes !== "number" || !Array.isArray(likedBy)) {
+        return json(400, { error: "invalid data" });
+      }
+
+      try {
+        await ddb.send(
+          new PutCommand({
+            TableName: TABLE,
+            Item: {
+              pk: "TWEETS",
+              sk: id,
+              id,
+              likes,
+              likedBy,
+              // Keep existing data by not overwriting other fields
+            },
             ConditionExpression: "attribute_exists(pk)",
           })
         );
