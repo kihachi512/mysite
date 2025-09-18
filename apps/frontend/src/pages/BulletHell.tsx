@@ -695,7 +695,7 @@ const BulletHell: React.FC = () => {
 
   // ガチャ機能
   const performGacha = useCallback(() => {
-    const gachaCost = 50 // 50MOMOPayポイント
+    const gachaCost = 100 // 100MOMOPayポイント
     if (momoPayPoints < gachaCost) {
       alert('MOMOPayポイントが不足しています！')
       return
@@ -899,17 +899,17 @@ const BulletHell: React.FC = () => {
         
         <button 
           onClick={() => setShowGacha(true)} 
-          disabled={running || momoPayPoints < 50} 
+          disabled={running || momoPayPoints < 100} 
           className="comic-button"
           style={{ 
             padding: '12px 20px', 
-            background: (running || momoPayPoints < 50) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+            background: (running || momoPayPoints < 100) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
             color: 'white', 
-            borderColor: (running || momoPayPoints < 50) ? '#333' : '#d32f2f'
+            borderColor: (running || momoPayPoints < 100) ? '#333' : '#d32f2f'
           }}
-          aria-label="ガチャを引く（50ポイント）"
+          aria-label="ガチャを引く（100ポイント）"
         >
-          🌲 森ガチャ (50P)
+          🌲 森ガチャ (100P)
         </button>
         
         <button 
@@ -953,16 +953,16 @@ const BulletHell: React.FC = () => {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
               <button 
                 onClick={performGacha} 
-                disabled={momoPayPoints < 50}
+                disabled={momoPayPoints < 100}
                 className="comic-button"
                 style={{ 
                   padding: '16px 24px', fontSize: '1.2rem',
-                  background: momoPayPoints < 50 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
-                  color: momoPayPoints < 50 ? '#ccc' : '#000', 
-                  borderColor: momoPayPoints < 50 ? '#333' : '#f57f17'
+                  background: momoPayPoints < 100 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
+                  color: momoPayPoints < 100 ? '#ccc' : '#000', 
+                  borderColor: momoPayPoints < 100 ? '#333' : '#f57f17'
                 }}
               >
-                🌰 森ガチャ (50P)
+                🌰 森ガチャ (100P)
               </button>
             </div>
             
@@ -1041,24 +1041,63 @@ const BulletHell: React.FC = () => {
               <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.3rem', marginBottom: '12px' }}>
                 ⚡ 現在の装備
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
                 <div className="comic-card" style={{ padding: '12px', background: 'rgba(76, 175, 80, 0.1)', borderColor: '#4caf50' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>武器</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>武器</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
                     {inventory.equippedWeapon ? `${inventory.equippedWeapon.icon} ${inventory.equippedWeapon.name}` : '未装備'}
                   </div>
+                  {inventory.equippedWeapon && (
+                    <button 
+                      onClick={() => unequipItem('weapon')}
+                      className="comic-button"
+                      style={{ 
+                        padding: '4px 8px', fontSize: '0.8rem',
+                        background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+                        color: 'white', borderColor: '#d32f2f', width: '100%'
+                      }}
+                    >
+                      外す
+                    </button>
+                  )}
                 </div>
                 <div className="comic-card" style={{ padding: '12px', background: 'rgba(255, 193, 7, 0.1)', borderColor: '#ffc107' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>シールド</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>シールド</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
                     {inventory.equippedShield ? `${inventory.equippedShield.icon} ${inventory.equippedShield.name}` : '未装備'}
                   </div>
+                  {inventory.equippedShield && (
+                    <button 
+                      onClick={() => unequipItem('shield')}
+                      className="comic-button"
+                      style={{ 
+                        padding: '4px 8px', fontSize: '0.8rem',
+                        background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+                        color: 'white', borderColor: '#d32f2f', width: '100%'
+                      }}
+                    >
+                      外す
+                    </button>
+                  )}
                 </div>
                 <div className="comic-card" style={{ padding: '12px', background: 'rgba(156, 39, 176, 0.1)', borderColor: '#9c27b0' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>特殊</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>特殊</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
                     {inventory.equippedSpecial ? `${inventory.equippedSpecial.icon} ${inventory.equippedSpecial.name}` : '未装備'}
                   </div>
+                  {inventory.equippedSpecial && (
+                    <button 
+                      onClick={() => unequipItem('special')}
+                      className="comic-button"
+                      style={{ 
+                        padding: '4px 8px', fontSize: '0.8rem',
+                        background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+                        color: 'white', borderColor: '#d32f2f', width: '100%'
+                      }}
+                    >
+                      外す
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -1073,8 +1112,18 @@ const BulletHell: React.FC = () => {
                   アイテムがありません。森ガチャを引いて森の恵みを獲得しよう！🌰
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginBottom: '16px' }}>
-                  {inventory.items.map((item, index) => (
+                <div className="inventory-scroll" style={{ 
+                  maxHeight: '400px', 
+                  overflowY: 'auto', 
+                  overflowX: 'hidden',
+                  padding: '4px',
+                  border: '2px solid rgba(33, 150, 243, 0.3)',
+                  borderRadius: '12px',
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', padding: '8px' }}>
+                    {inventory.items.map((item, index) => (
                     <div key={`${item.id}-${index}`} className="comic-card" style={{
                       padding: '12px',
                       background: item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.1)' :
@@ -1115,7 +1164,8 @@ const BulletHell: React.FC = () => {
                         装備する
                       </button>
                     </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
