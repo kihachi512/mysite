@@ -442,9 +442,19 @@ body::after {
 @media (max-width: 600px) {
   .title {
     font-size: 1.5rem;
+    letter-spacing: 1px;
   }
-  .nav { gap: 6px; padding: 6px 8px; }
-  .nav a { padding: 6px 10px; }
+  .nav { 
+    gap: 6px; 
+    padding: 6px 8px; 
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a { 
+    padding: 6px 10px; 
+    font-size: 0.9rem;
+    min-width: fit-content;
+  }
   
   .control-btn {
     padding: 12px 24px;
@@ -453,5 +463,30 @@ body::after {
   
   .instructions p {
     font-size: 1rem;
+  }
+  
+  .comic-card {
+    margin: 0 8px;
+  }
+  
+  /* タッチ操作の改善 */
+  .comic-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .comic-input {
+    font-size: 16px; /* iOS のズーム防止 */
+  }
+}
+
+/* 極小画面対応 */
+@media (max-width: 400px) {
+  .title {
+    font-size: 1.3rem;
+  }
+  .nav a {
+    font-size: 0.8rem;
+    padding: 4px 8px;
   }
 }
