@@ -745,6 +745,21 @@ const BulletHell: React.FC = () => {
     })
   }, [])
 
+  // アイテム装備解除機能
+  const unequipItem = useCallback((type: 'weapon' | 'shield' | 'special') => {
+    setInventory(prev => {
+      const newInventory = { ...prev }
+      if (type === 'weapon') {
+        newInventory.equippedWeapon = undefined
+      } else if (type === 'shield') {
+        newInventory.equippedShield = undefined
+      } else if (type === 'special') {
+        newInventory.equippedSpecial = undefined
+      }
+      return newInventory
+    })
+  }, [])
+
   // 装備効果をプレイヤーに適用
   const applyEquipmentEffects = useCallback(() => {
     const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 6, fireRate: 1, power: 1 }
