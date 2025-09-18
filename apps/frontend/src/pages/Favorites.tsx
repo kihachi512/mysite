@@ -1,85 +1,10 @@
-import React, { useCallback, useState } from 'react'
-
-type FavoriteText = {
-  id: string
-  name: string
-  kind: 'text'
-  text: string
-  createdAt: string
-}
-
-type FavoriteFile = {
-  id: string
-  name: string
-  kind: 'file'
-  dataUrl: string
-  mime?: string
-  createdAt: string
-}
-
-export type FavoriteItem = FavoriteText | FavoriteFile
-
-const LS_KEY = 'favoriteUploads'
-
-const isFavoriteItem = (value: unknown): value is FavoriteItem => {
-  if (!value || typeof value !== 'object') return false
-  const item = value as Record<string, unknown>
-  if (typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.createdAt !== 'string') return false
-  if (item.kind === 'text') {
-    return typeof item.text === 'string'
-  }
-  if (item.kind === 'file') {
-
-    if (typeof item.dataUrl !== 'string') return false
-    return item.mime == null || typeof item.mime === 'string'
-
-  }
-  return false
-}
-
-
-const parseIso = (value: string) => {
-  const time = Date.parse(value)
-  return Number.isFinite(time) ? time : 0
-}
-
-const orderByCreatedAtDesc = (items: FavoriteItem[]): FavoriteItem[] => {
-  return [...items].sort((a, b) => parseIso(b.createdAt) - parseIso(a.createdAt))
-}
-
-const readCachedFavorites = (): FavoriteItem[] => {
-  if (typeof window === 'undefined') return []
-  const raw = window.localStorage.getItem(LS_KEY)
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return []
-    return orderByCreatedAtDesc(parsed.filter(isFavoriteItem))
-
-  } catch {
-    return []
-  }
-}
+import React, { useState } from 'react'
+import { useAppData, type FavoriteItem } from '../contexts/AppDataContext'
 
 const Favorites: React.FC = () => {
-  const [uploads, setUploads] = useState<FavoriteItem[]>(readCachedFavorites)
+  const { favorites, addFavorite, removeFavorite } = useAppData()
   const [textName, setTextName] = useState('')
   const [textBody, setTextBody] = useState('')
-
-  const updateUploads = useCallback((updater: React.SetStateAction<FavoriteItem[]>) => {
-    setUploads(prev => {
-
-      const nextRaw = typeof updater === 'function'
-        ? (updater as (prev: FavoriteItem[]) => FavoriteItem[])(prev)
-        : updater
-      const next = orderByCreatedAtDesc(nextRaw.filter(isFavoriteItem))
-
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(LS_KEY, JSON.stringify(next))
-      }
-      return next
-    })
-  }, [])
 
   const genId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
@@ -103,7 +28,7 @@ const Favorites: React.FC = () => {
           mime: file.type,
           createdAt: new Date().toISOString(),
         }
-        updateUploads(prev => [...prev, item])
+        addFavorite(item)
       }
       reader.readAsDataURL(file)
     })
@@ -120,13 +45,13 @@ const Favorites: React.FC = () => {
       text: textBody,
       createdAt: new Date().toISOString(),
     }
-    updateUploads(prev => [...prev, item])
+    addFavorite(item)
     setTextName('')
     setTextBody('')
   }
 
   const handleDelete = async (id: string) => {
-    updateUploads(prev => prev.filter(item => item.id !== id))
+    removeFavorite(id)
   }
 
   const renderPreview = (item: FavoriteItem) => {
@@ -228,8 +153,8 @@ const Favorites: React.FC = () => {
       </div>
 
       <div style={{ marginTop: '30px' }}>
-        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '24px', fontSize: '1.5rem' }}>🗂️ 保存済みアイテム ({uploads.length}件)</h3>
-        {uploads.length === 0 ? (
+            <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '24px', fontSize: '1.5rem' }}>🗂️ 保存済みアイテム ({favorites.length}件)</h3>
+            {favorites.length === 0 ? (
           <div className="comic-card" style={{ 
             textAlign: 'center', 
             color: '#c8e6c9', 
@@ -244,7 +169,7 @@ const Favorites: React.FC = () => {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-            {uploads.map((item) => (
+            {favorites.map((item) => (
               <div key={item.id} className="comic-card" style={{ 
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
                 color: '#fff3e0', 
