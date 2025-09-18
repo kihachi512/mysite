@@ -148,7 +148,7 @@ const ShareSettings: React.FC = () => {
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
       <div className="comic-text" style={{ 
-        fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', 
+        fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', 
         marginBottom: 'min(24px, 6vw)', 
         textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
         color: '#fff3e0', 
@@ -158,7 +158,7 @@ const ShareSettings: React.FC = () => {
       </div>
       
       <div className="comic-text" style={{ 
-        fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', 
+        fontSize: 'clamp(0.9rem, 3vw, 1.2rem)', 
         marginBottom: 'min(36px, 8vw)', 
         color: '#c8e6c9', 
         textShadow: '2px 2px 0px rgba(0,0,0,0.5)' 
@@ -178,7 +178,7 @@ const ShareSettings: React.FC = () => {
         <h3 className="comic-text" style={{ 
           color: '#fff3e0', 
           marginBottom: '16px', 
-          fontSize: 'clamp(1.3rem, 4vw, 1.5rem)' 
+          fontSize: 'clamp(1.1rem, 3.2vw, 1.3rem)' 
         }}>
           📊 データ統計
         </h3>
@@ -195,7 +195,7 @@ const ShareSettings: React.FC = () => {
             }}>📁</div>
             <div className="comic-text" style={{ 
               color: '#fff3e0', 
-              fontSize: 'clamp(1rem, 3vw, 1.2rem)' 
+              fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' 
             }}>宝物庫</div>
             <div className="comic-text" style={{ 
               color: '#c8e6c9', 

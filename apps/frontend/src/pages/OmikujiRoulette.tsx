@@ -58,7 +58,7 @@ const OmikujiChoice: React.FC = () => {
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
       <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-        <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', marginBottom: '8px' }}>
+        <div className="comic-text" style={{ color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', marginBottom: '8px' }}>
           {revealedIdx === null ? '🔮 一枚選んで 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果確認中... 🔮'}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -149,10 +149,10 @@ const OmikujiChoice: React.FC = () => {
           textAlign: 'center',
           marginTop: '12px'
         }}>
-          <div className="comic-text" style={{ color: '#ffffff', fontSize: '1.6rem', marginBottom: '10px', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.5)' }}>
+          <div className="comic-text" style={{ color: '#ffffff', fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', marginBottom: '10px', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.5)' }}>
             あなたの運勢: {cards[revealedIdx!]?.fortune}
           </div>
-          <div className="comic-text" style={{ color: '#e8f5e8', fontSize: '1.1rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
+          <div className="comic-text" style={{ color: '#e8f5e8', fontSize: 'clamp(0.9rem, 3vw, 1.1rem)', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
             他の選択肢も確認してみてね！
           </div>
         </div>

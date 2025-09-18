@@ -152,7 +152,7 @@ const MOMOStore: React.FC = () => {
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
       <div className="comic-text" style={{ 
-        fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', 
+        fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', 
         marginBottom: 'min(16px, 4vw)', 
         textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
         color: '#fff3e0', 
@@ -162,7 +162,7 @@ const MOMOStore: React.FC = () => {
       </div>
       
       <div className="comic-text" style={{ 
-        fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+        fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
         marginBottom: 'min(24px, 6vw)', 
         color: '#ffd93d'
       }}>
@@ -172,7 +172,7 @@ const MOMOStore: React.FC = () => {
       {/* 設定・機能購入セクション */}
       <div style={{ marginBottom: 'min(40px, 10vw)' }}>
         <div className="comic-text" style={{ 
-          fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', 
+          fontSize: 'clamp(1.1rem, 3.2vw, 1.3rem)', 
           marginBottom: 'min(20px, 5vw)', 
           color: '#fff3e0' 
         }}>
@@ -204,7 +204,7 @@ const MOMOStore: React.FC = () => {
                   {item.icon}
                 </div>
                 <div className="comic-text" style={{ 
-                  fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', 
+                  fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
                   color: '#fff3e0',
                   marginBottom: '8px'
                 }}>
@@ -222,7 +222,7 @@ const MOMOStore: React.FC = () => {
                 {isPurchased ? (
                   <div className="comic-text" style={{ 
                     color: '#4caf50', 
-                    fontSize: 'clamp(1rem, 3vw, 1.1rem)',
+                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     fontWeight: 'bold'
                   }}>
                     ✅ 購入済み
