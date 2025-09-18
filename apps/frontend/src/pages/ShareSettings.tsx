@@ -23,7 +23,7 @@ const ShareSettings: React.FC = () => {
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
     if (!hasSharedFeature) {
-      alert('共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。')
+      alert('共有機能は売店で購入が必要です。')
       return
     }
     
@@ -80,7 +80,7 @@ const ShareSettings: React.FC = () => {
   // JSONファイルからインポート
   const importFromJson = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!hasSharedFeature) {
-      alert('共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。')
+      alert('共有機能は売店で購入が必要です。')
       return
     }
     
@@ -129,7 +129,7 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('bullet-hell-inventory', JSON.stringify(jsonData.bulletHellInventory))
             }
             
-            alert('JSONファイルからデータをインポートしました！ページを再読み込みしてください。')
+            alert('JSONファイルからデータをインポートしました！ページを再読み込みします。')
             window.location.reload()
           }
         } else {
@@ -278,8 +278,8 @@ const ShareSettings: React.FC = () => {
           lineHeight: '1.4'
         }}>
           {hasSharedFeature 
-            ? '全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元できます'
-            : '共有機能を利用するには、MOMOStoreで「共有機能利用権」を購入してください。'
+            ? '全データ（宝物庫・大広間・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元'
+            : '共有機能は売店で購入が必要です。'
           }
         </p>
         
@@ -355,7 +355,7 @@ const ShareSettings: React.FC = () => {
             }}>
               {hasSharedFeature 
                 ? '💡 エクスポートしたJSONファイルを選択してデータを復元できます'
-                : '🔒 共有機能を利用するには、MOMOStoreで購入が必要です'
+                : '🔒 共有機能は売店で購入が必要です'
               }
             </p>
             {!hasSharedFeature && (
