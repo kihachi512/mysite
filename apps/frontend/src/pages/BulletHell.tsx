@@ -70,6 +70,11 @@ const BulletHell: React.FC = () => {
   const [shield, setShield] = useState(0)
   const [wave, setWave] = useState(1)
   
+  // コンボシステム用状態
+  const [combo, setCombo] = useState(0)
+  const [comboTimer, setComboTimer] = useState(0)
+  const [maxCombo, setMaxCombo] = useState(0)
+  
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
   const [inventory, setInventory] = useState<PlayerInventory>({ items: [] })
@@ -642,13 +647,55 @@ const BulletHell: React.FC = () => {
       ctx.fillText(`スコア: ${score}`, 10, 25)
       ctx.fillText(`ウェーブ: ${wave}`, 10, 45)
       
-      // power-up status
+      // power-up status with equipment indicators
       ctx.font = 'bold 12px Comic Sans MS'
-      ctx.fillText(`連射: ${playerRef.current.fireRate.toFixed(1)}x`, 10, 65)
-      ctx.fillText(`威力: ${playerRef.current.power.toFixed(1)}x`, 10, 80)
+      let yOffset = 65
+      
+      // Fire rate with equipment bonus indicator
+      const baseFireRate = 1
+      const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
+      const totalFireRate = playerRef.current.fireRate
+      if (equipmentFireRateBonus > 0) {
+        ctx.fillStyle = '#4ecdc4' // Equipment bonus color
+        ctx.fillText(`連射: ${baseFireRate.toFixed(1)}x + ${equipmentFireRateBonus.toFixed(1)}x = ${totalFireRate.toFixed(1)}x ⚡`, 10, yOffset)
+      } else {
+        ctx.fillStyle = '#fff3e0'
+        ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x`, 10, yOffset)
+      }
+      yOffset += 15
+      
+      // Power with equipment bonus indicator
+      const basePower = 1
+      const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
+      const totalPower = playerRef.current.power
+      if (equipmentPowerBonus > 0) {
+        ctx.fillStyle = '#ff6b6b' // Equipment bonus color
+        ctx.fillText(`威力: ${basePower.toFixed(1)}x + ${equipmentPowerBonus.toFixed(1)}x = ${totalPower.toFixed(1)}x 💥`, 10, yOffset)
+      } else {
+        ctx.fillStyle = '#fff3e0'
+        ctx.fillText(`威力: ${totalPower.toFixed(1)}x`, 10, yOffset)
+      }
+      yOffset += 15
+      
+      // Shield with equipment bonus
       if (shield > 0) {
+        const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
         ctx.fillStyle = '#ffd93d'
-        ctx.fillText(`シールド: ${shield}`, 10, 95)
+        if (equipmentShieldBonus > 0) {
+          ctx.fillText(`シールド: ${shield} (装備効果: +${equipmentShieldBonus}) 🛡️`, 10, yOffset)
+        } else {
+          ctx.fillText(`シールド: ${shield}`, 10, yOffset)
+        }
+        yOffset += 15
+      }
+      
+      // Special equipment effects
+      if (inventory.equippedSpecial) {
+        ctx.fillStyle = '#9c27b0'
+        const specialName = inventory.equippedSpecial.name
+        const specialIcon = inventory.equippedSpecial.icon
+        ctx.fillText(`特殊: ${specialIcon} ${specialName}`, 10, yOffset)
+        yOffset += 15
       }
 
       if (running) rafRef.current = requestAnimationFrame(loop)
