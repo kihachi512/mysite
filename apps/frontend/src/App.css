@@ -489,6 +489,7 @@ body::after {
   .comic-button {
     min-height: 44px;
     min-width: 44px;
+    padding: min(12px 20px, 3vw 5vw) !important;
   }
   
   .comic-input {

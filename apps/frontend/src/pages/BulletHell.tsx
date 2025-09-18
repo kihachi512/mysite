@@ -1259,7 +1259,7 @@ const BulletHell: React.FC = () => {
                 disabled={momoPayPoints < 1000}
                 className="comic-button"
                 style={{ 
-                  padding: 'min(16px 24px, 4vw)', fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+                  padding: 'min(16px 32px, 4vw 8vw)', fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                   background: momoPayPoints < 1000 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
                   color: momoPayPoints < 1000 ? '#ccc' : '#000', 
                   borderColor: momoPayPoints < 1000 ? '#333' : '#f57f17',
@@ -1274,7 +1274,7 @@ const BulletHell: React.FC = () => {
               onClick={() => setShowGacha(false)} 
               className="comic-button"
               style={{ 
-                padding: 'min(8px 16px, 2vw)', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                padding: 'min(12px 24px, 3vw 6vw)', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                 background: 'linear-gradient(45deg, #666, #555)', 
                 color: 'white', 
                 borderColor: '#333'
@@ -1421,7 +1421,7 @@ const BulletHell: React.FC = () => {
                       onClick={() => unequipItem('weapon')}
                       className="comic-button"
                       style={{ 
-                        padding: 'min(4px 8px, 2vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1449,7 +1449,7 @@ const BulletHell: React.FC = () => {
                       onClick={() => unequipItem('shield')}
                       className="comic-button"
                       style={{ 
-                        padding: 'min(4px 8px, 2vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1477,7 +1477,7 @@ const BulletHell: React.FC = () => {
                       onClick={() => unequipItem('special')}
                       className="comic-button"
                       style={{ 
-                        padding: 'min(4px 8px, 2vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}

@@ -216,7 +216,7 @@ const GeneralSettings: React.FC = () => {
                     onClick={() => updateSetting(key, !isEnabled)}
                     className="comic-button"
                     style={{ 
-                      padding: 'min(8px 16px, 2vw)', 
+                      padding: 'min(12px 24px, 3vw 6vw)', 
                       fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                       background: isEnabled 
                         ? 'linear-gradient(45deg, #ff6b6b, #ff5252)' 
@@ -269,7 +269,7 @@ const GeneralSettings: React.FC = () => {
           onClick={clearAllData}
           className="comic-button"
           style={{ 
-            padding: 'min(12px 24px, 3vw)', 
+            padding: 'min(16px 32px, 4vw 8vw)', 
             fontSize: 'clamp(1rem, 3vw, 1.1rem)',
             background: 'linear-gradient(45deg, #ff6b6b, #ff5252)',
             color: 'white',
@@ -284,7 +284,7 @@ const GeneralSettings: React.FC = () => {
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
+            padding: 'min(16px 32px, 4vw 8vw)',
             fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
@@ -296,7 +296,7 @@ const GeneralSettings: React.FC = () => {
         
         <Link to="/games/store" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
+            padding: 'min(16px 32px, 4vw 8vw)',
             fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: 'linear-gradient(45deg, #ffc107, #ffb300)',
             color: '#000',

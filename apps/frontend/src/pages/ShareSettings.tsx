@@ -290,7 +290,7 @@ const ShareSettings: React.FC = () => {
             disabled={!hasSharedFeature}
             className="comic-button"
             style={{
-              padding: 'min(12px 24px, 3vw)',
+              padding: 'min(16px 32px, 4vw 8vw)',
               background: hasSharedFeature 
                 ? 'linear-gradient(45deg, #2196f3, #1976d2)' 
                 : 'linear-gradient(45deg, #666, #555)',
@@ -362,7 +362,7 @@ const ShareSettings: React.FC = () => {
               <div style={{ marginTop: '16px', textAlign: 'center' }}>
                 <Link to="/games/store" style={{ textDecoration: 'none' }}>
                   <button className="comic-button" style={{
-                    padding: 'min(8px 16px, 2vw)',
+                    padding: 'min(12px 24px, 3vw 6vw)',
                     fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     background: 'linear-gradient(45deg, #ffc107, #ffb300)',
                     color: '#000',
@@ -381,7 +381,7 @@ const ShareSettings: React.FC = () => {
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
+            padding: 'min(16px 32px, 4vw 8vw)',
             fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
