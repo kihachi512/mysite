@@ -985,36 +985,73 @@ const BulletHell: React.FC = () => {
       {/* ガチャ結果表示 */}
       {gachaResult && (
         <div style={{
-          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          zIndex: 1001, animation: 'bounce 0.5s ease-in-out'
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0, 0, 0, 0.85)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1001, animation: 'fadeIn 0.3s ease-in-out'
         }}>
-          <div className="comic-card" style={{
-            background: gachaResult.rarity === 'legendary' ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 193, 7, 0.2))' :
-                      gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(142, 36, 170, 0.2))' :
-                      gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(30, 136, 229, 0.2))' :
-                      'linear-gradient(135deg, rgba(158, 158, 158, 0.3), rgba(117, 117, 117, 0.2))',
-            padding: '24px', textAlign: 'center', minWidth: '300px',
-            borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
-                        gachaResult.rarity === 'epic' ? '#9c27b0' :
-                        gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e'
+          <div style={{
+            animation: 'bounce 0.5s ease-in-out'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '8px' }}>{gachaResult.icon}</div>
-            <div className="comic-text" style={{ 
-              color: '#fff3e0', fontSize: '1.4rem', marginBottom: '8px',
-              textShadow: gachaResult.rarity === 'legendary' ? '0 0 10px #ffd700' : 'none'
+            <div className="comic-card" style={{
+              background: gachaResult.rarity === 'legendary' ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 193, 7, 0.9))' :
+                        gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.95), rgba(142, 36, 170, 0.9))' :
+                        gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(30, 136, 229, 0.9))' :
+                        'linear-gradient(135deg, rgba(158, 158, 158, 0.95), rgba(117, 117, 117, 0.9))',
+              padding: '32px', textAlign: 'center', minWidth: '350px', maxWidth: '90vw',
+              borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                          gachaResult.rarity === 'epic' ? '#9c27b0' :
+                          gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
+              borderWidth: '4px',
+              boxShadow: gachaResult.rarity === 'legendary' ? '0 0 30px rgba(255, 215, 0, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        gachaResult.rarity === 'epic' ? '0 0 30px rgba(156, 39, 176, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        gachaResult.rarity === 'rare' ? '0 0 30px rgba(33, 150, 243, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        '0 10px 30px rgba(0,0,0,0.5)'
             }}>
-              {gachaResult.name}
-            </div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem', marginBottom: '8px' }}>
-              {gachaResult.description}
-            </div>
-            <div className="comic-text" style={{ 
-              color: gachaResult.rarity === 'legendary' ? '#ffd700' :
-                    gachaResult.rarity === 'epic' ? '#9c27b0' :
-                    gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
-              fontSize: '1.1rem', fontWeight: 'bold'
-            }}>
-              {gachaResult.rarity.toUpperCase()}
+              <div style={{ 
+                fontSize: '4rem', 
+                marginBottom: '16px',
+                filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))'
+              }}>
+                {gachaResult.icon}
+              </div>
+              <div className="comic-text" style={{ 
+                color: '#ffffff', 
+                fontSize: '1.6rem', 
+                marginBottom: '12px',
+                textShadow: gachaResult.rarity === 'legendary' ? '3px 3px 0px #b8860b, 0 0 15px #ffd700' : 
+                           gachaResult.rarity === 'epic' ? '3px 3px 0px #6a1b9a, 0 0 15px #9c27b0' :
+                           gachaResult.rarity === 'rare' ? '3px 3px 0px #0d47a1, 0 0 15px #2196f3' :
+                           '3px 3px 0px rgba(0,0,0,0.8)'
+              }}>
+                {gachaResult.name}
+              </div>
+              <div className="comic-text" style={{ 
+                color: '#f0f0f0', 
+                fontSize: '1.1rem', 
+                marginBottom: '16px',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.8)'
+              }}>
+                {gachaResult.description}
+              </div>
+              <div className="comic-text" style={{ 
+                color: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                      gachaResult.rarity === 'epic' ? '#e1bee7' :
+                      gachaResult.rarity === 'rare' ? '#bbdefb' : '#e0e0e0',
+                fontSize: '1.3rem', 
+                fontWeight: 'bold',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+                marginBottom: '16px'
+              }}>
+                ★ {gachaResult.rarity.toUpperCase()} ★
+              </div>
+              <div className="comic-text" style={{
+                color: '#c8e6c9',
+                fontSize: '0.9rem',
+                textShadow: '1px 1px 0px rgba(0,0,0,0.5)'
+              }}>
+                3秒後に自動で閉じます...
+              </div>
             </div>
           </div>
         </div>
