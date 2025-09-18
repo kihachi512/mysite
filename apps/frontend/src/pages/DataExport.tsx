@@ -99,7 +99,11 @@ const DataExport: React.FC = () => {
       isCompressed = false
     }
     
-    if (importDataParam) {
+    // 既にインポート済みかチェック（セッションストレージを使用）
+    const importKey = `imported_${importDataParam}`
+    const alreadyImported = sessionStorage.getItem(importKey)
+    
+    if (importDataParam && !alreadyImported) {
       try {
         let data
         
@@ -115,8 +119,16 @@ const DataExport: React.FC = () => {
           localStorage.setItem('favoriteUploads', JSON.stringify(data.favorites))
           localStorage.setItem('tweets', JSON.stringify(data.tweets))
           
+          // インポート済みフラグを設定
+          sessionStorage.setItem(importKey, 'true')
+          
+          // URLパラメータをクリアしてから再読み込み
+          const url = new URL(window.location.href)
+          url.searchParams.delete('d')
+          url.searchParams.delete('import')
+          
           alert('共有されたデータをインポートしました！ページを再読み込みしてください。')
-          window.location.reload()
+          window.location.href = url.toString()
         }
       } catch (error) {
         console.error('Failed to import shared data:', error)
