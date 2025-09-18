@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App.tsx'
 // old Minigame removed
 import Favorites from './pages/Favorites.tsx'
+import Tweets from './pages/Tweets.tsx'
 import './index.css'
 import OmikujiRoulette from './pages/OmikujiRoulette.tsx'
 import BulletHell from './pages/BulletHell.tsx'
@@ -28,15 +29,21 @@ const router = createBrowserRouter([
             <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', marginTop: '6px' }}>敵を倒そう</div>
           </div>
           <div className="comic-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '24px', borderColor: '#8bc34a' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🐦</div>
+            <div className="comic-text" style={{ fontSize: '1.3rem', color: '#fff3e0' }}>つぶやき</div>
+            <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', marginTop: '6px' }}>気軽に投稿</div>
+          </div>
+          <div className="comic-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '24px', borderColor: '#8bc34a' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>📁</div>
             <div className="comic-text" style={{ fontSize: '1.3rem', color: '#fff3e0' }}>宝物庫</div>
             <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', marginTop: '6px' }}>ファイルを保存</div>
           </div>
         </div>
       </div> },
-      { path: 'games/omikuji', element: <OmikujiRoulette /> },
-      { path: 'games/bullet-hell', element: <BulletHell /> },
-      { path: 'favorites', element: <Favorites /> },
+            { path: 'games/omikuji', element: <OmikujiRoulette /> },
+            { path: 'games/bullet-hell', element: <BulletHell /> },
+            { path: 'tweets', element: <Tweets /> },
+            { path: 'favorites', element: <Favorites /> },
     ],
   },
 ])
