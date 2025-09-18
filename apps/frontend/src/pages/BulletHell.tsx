@@ -62,7 +62,7 @@ const BulletHell: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
-  const [lives, setLives] = useState(5)
+  const [lives, setLives] = useState(1)
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
@@ -448,10 +448,10 @@ const BulletHell: React.FC = () => {
       })
       bulletsRef.current = bulletsRef.current.filter(b => b.x > -10 && b.x < w + 10 && b.y > -10 && b.y < h + 10)
 
-      // Auto heal effect
-      if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 5) {
-        setLives(prev => Math.min(prev + 1, 5))
-      }
+      // Auto heal effect - disabled since lives is now 1
+      // if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 1) {
+      //   setLives(prev => Math.min(prev + 1, 1))
+      // }
 
       // move power-ups
       powerUpsRef.current.forEach(p => { p.y += 1 })
@@ -463,11 +463,11 @@ const BulletHell: React.FC = () => {
         if (dx * dx + dy * dy < (p.r + powerUp.r) * (p.r + powerUp.r)) {
           powerUp.collected = true
           if (powerUp.type === 'fireRate') {
-            playerRef.current.fireRate = Math.min(playerRef.current.fireRate + 0.3, 3)
+            playerRef.current.fireRate = Math.min(playerRef.current.fireRate + 0.1, 2.5)
           } else if (powerUp.type === 'power') {
-            playerRef.current.power = Math.min(playerRef.current.power + 0.5, 3)
+            playerRef.current.power = Math.min(playerRef.current.power + 0.2, 2.5)
           } else if (powerUp.type === 'shield') {
-            setShield(s => Math.min(s + 30, 60))
+            setShield(s => Math.min(s + 10, 40))
           }
           setScore(prev => prev + 25) // パワーアップ取得で25点
         }
@@ -479,7 +479,7 @@ const BulletHell: React.FC = () => {
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
           if (shield > 0) {
-            setShield(s => Math.max(0, s - 10))
+            setShield(s => Math.max(0, s - 5))
           } else {
             setLives(v => Math.max(0, v - 1))
             if (lives - 1 <= 0) {
@@ -708,12 +708,12 @@ const BulletHell: React.FC = () => {
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 6, fireRate: 1.2, power: 1.2 } // Slightly better starting stats
+    playerRef.current = { x: 200, y: 240, r: 6, fireRate: 1.0, power: 1.0 } // Balanced starting stats
     lastShotRef.current = 0
-    setLives(5)
+    setLives(1)
     setTime(0)
     setScore(0)
-    setShield(20) // Start with some shield
+    setShield(10) // Start with some shield
     setWave(1)
     setGameOver(false)
     setRunning(true)
@@ -798,9 +798,10 @@ const BulletHell: React.FC = () => {
       modifiedPlayer.power += weapon.effect.power || 0
     }
 
-    // シールド効果（ゲーム開始時に適用）
+    // シールド効果（ゲーム開始時に適用）- 装備効果も調整
     if (inventory.equippedShield && !running) {
-      setShield(prev => prev + (inventory.equippedShield?.effect.shield || 0))
+      const shieldBonus = Math.floor((inventory.equippedShield?.effect.shield || 0) * 0.3) // 30%に減少
+      setShield(prev => prev + shieldBonus)
     }
 
     playerRef.current = modifiedPlayer
@@ -838,7 +839,6 @@ const BulletHell: React.FC = () => {
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
-          <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>残機: {lives}</div>
           <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>ウェーブ: {wave}</div>
           <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
