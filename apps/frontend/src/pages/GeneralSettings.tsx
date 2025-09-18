@@ -91,7 +91,7 @@ const GeneralSettings: React.FC = () => {
   }
 
   const getSettingInfo = (key: keyof AppSettings) => {
-    const info = {
+    const info: Record<keyof AppSettings, { name: string; description: string; icon: string }> = {
       'dark-mode': {
         name: 'ダークモード',
         description: '目に優しい暗いテーマに変更',
@@ -104,7 +104,7 @@ const GeneralSettings: React.FC = () => {
       },
       'premium-theme': {
         name: 'プレミアムテーマ',
-        description: 'エレガントなモノトーンテーマを適用',
+        description: '完全なモノトーン（白黒）テーマを適用',
         icon: '🎨'
       },
       'notification-sound': {
@@ -113,7 +113,7 @@ const GeneralSettings: React.FC = () => {
         icon: '🔊'
       }
     }
-    return info[key] || { name: 'Unknown', description: 'Unknown setting', icon: '❓' }
+    return info[key]
   }
 
   const clearAllData = () => {
