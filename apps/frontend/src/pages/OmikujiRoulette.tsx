@@ -91,7 +91,7 @@ const OmikujiChoice: React.FC = () => {
                   width: '100%', 
                   borderRadius: 20, 
                   border: isChosen ? '4px solid #ffd700' : '3px solid rgba(255,255,255,0.8)', 
-                        background: shouldShow ? 'linear-gradient(135deg, #fff3e0 0%, #fff8e1 50%, #f3e5ab 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%)',
+                        background: shouldShow ? 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #eeeeee 100%)' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%)',
                   color: shouldShow ? '#2e7d32' : '#fff', 
                   fontWeight: 800, 
                   fontSize: 18, 
@@ -123,18 +123,19 @@ const OmikujiChoice: React.FC = () => {
                   {shouldShow ? (
                     <>
                       <div style={{ 
-                        fontSize: '18px', 
+                        fontSize: '20px', 
                         fontWeight: 'bold', 
-                        color: c.fortune === '大吉' ? '#d32f2f' : 
-                               c.fortune === '中吉' ? '#f57c00' : 
-                               c.fortune === '小吉' ? '#388e3c' : 
-                               c.fortune === '吉' ? '#1976d2' : '#424242',
-                        textShadow: '1px 1px 2px rgba(255,255,255,0.8)'
+                        color: c.fortune === '大吉' ? '#b71c1c' : 
+                               c.fortune === '中吉' ? '#e65100' : 
+                               c.fortune === '小吉' ? '#1b5e20' : 
+                               c.fortune === '吉' ? '#0d47a1' : '#212121',
+                        textShadow: '2px 2px 4px rgba(255,255,255,0.9), 1px 1px 0px rgba(0,0,0,0.3)',
+                        letterSpacing: '1px'
                       }}>{c.fortune}</div>
-                      {isChosen && <div style={{ fontSize: '12px', color: '#ff6b6b', fontWeight: 'bold' }}>✨ あなたの選択</div>}
+                      {isChosen && <div style={{ fontSize: '12px', color: '#d32f2f', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(255,255,255,0.8)' }}>✨ あなたの選択</div>}
                     </>
                   ) : (
-                    '？'
+                    <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>？</div>
                   )}
                 </div>
               </button>
