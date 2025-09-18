@@ -51,6 +51,8 @@ const router = createBrowserRouter([
             { path: 'tweets', element: <Tweets /> },
             { path: 'favorites', element: <Favorites /> },
             { path: 'export', element: <DataExport /> },
+            // 短縮URL用のルート
+            { path: 's/:shortId', element: <DataExport /> },
     ],
   },
 ])

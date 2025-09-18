@@ -39,7 +39,7 @@ const DataExport: React.FC = () => {
     return btoa(unescape(encodeURIComponent(jsonStr)))
   }
 
-  // 共有リンクを生成
+  // 共有リンクを生成（URL短縮機能付き）
   const generateShareLink = async () => {
     setIsGenerating(true)
     
@@ -52,9 +52,33 @@ const DataExport: React.FC = () => {
       // データを圧縮
       const encodedData = compressData(data)
       
-      // 現在のサイトのURLにクエリパラメータとして追加
-      const currentUrl = window.location.origin + window.location.pathname
-      const shareUrl = `${currentUrl}?d=${encodedData}`
+      // URL短縮APIを試行
+      let shareUrl: string
+      
+      try {
+        // URL短縮サービスのエンドポイント（環境に応じて変更）
+        const shortenerEndpoint = 'http://localhost:8787/shorten'
+        
+        const response = await fetch(shortenerEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: encodedData })
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
+          shareUrl = result.shortUrl
+        } else {
+          throw new Error('URL shortener service failed')
+        }
+      } catch (shortenerError) {
+        console.warn('URL shortener failed, falling back to direct link:', shortenerError)
+        // URL短縮に失敗した場合は従来の方法にフォールバック
+        const currentUrl = window.location.origin + window.location.pathname
+        shareUrl = `${currentUrl}?d=${encodedData}`
+      }
       
       setShareUrl(shareUrl)
       
@@ -107,9 +131,39 @@ const DataExport: React.FC = () => {
     }
   }
 
+  // 短縮URLからデータを展開
+  const expandShortUrl = async (shortId: string): Promise<string | null> => {
+    try {
+      const shortenerEndpoint = 'http://localhost:8787/expand'
+      const response = await fetch(`${shortenerEndpoint}/${shortId}`)
+      
+      if (response.ok) {
+        const result = await response.json()
+        return result.data
+      }
+    } catch (error) {
+      console.warn('Failed to expand short URL:', error)
+    }
+    return null
+  }
+
   // URLパラメータからデータを自動インポート
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
+    const currentPath = window.location.pathname
+    
+    // 短縮URL形式（/s/shortId）をチェック
+    const shortUrlMatch = currentPath.match(/^\/s\/(.+)$/)
+    if (shortUrlMatch) {
+      const shortId = shortUrlMatch[1]
+      expandShortUrl(shortId).then(expandedData => {
+        if (expandedData) {
+          // 短縮URLから展開したデータを処理
+          processImportData(expandedData, `short_${shortId}`)
+        }
+      })
+      return
+    }
     
     // 新しい圧縮形式（?d=）をチェック
     let importDataParam = urlParams.get('d')
@@ -121,11 +175,17 @@ const DataExport: React.FC = () => {
       isCompressed = false
     }
     
+    if (importDataParam) {
+      processImportData(importDataParam, `param_${importDataParam}`, isCompressed)
+    }
+  }, [])
+
+  // データインポート処理を共通化
+  const processImportData = (importDataParam: string, importKey: string, isCompressed: boolean = true) => {
     // 既にインポート済みかチェック（セッションストレージを使用）
-    const importKey = `imported_${importDataParam}`
     const alreadyImported = sessionStorage.getItem(importKey)
     
-    if (importDataParam && !alreadyImported) {
+    if (!alreadyImported) {
       try {
         let data
         
@@ -168,6 +228,10 @@ const DataExport: React.FC = () => {
           const url = new URL(window.location.href)
           url.searchParams.delete('d')
           url.searchParams.delete('import')
+          // 短縮URL形式の場合はルートにリダイレクト
+          if (window.location.pathname.startsWith('/s/')) {
+            url.pathname = '/'
+          }
           
           alert('共有されたデータをインポートしました！ページを再読み込みしてください。')
           window.location.href = url.toString()
@@ -176,7 +240,7 @@ const DataExport: React.FC = () => {
         console.error('Failed to import shared data:', error)
       }
     }
-  }, [])
+  }
 
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
