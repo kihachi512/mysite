@@ -61,12 +61,12 @@ const Tweets: React.FC = () => {
         <h2 className="comic-text" style={{ 
           color: '#fff3e0', 
           textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
-          fontSize: '2.4rem', 
+          fontSize: 'clamp(1.6rem, 5vw, 2.2rem)', 
           marginBottom: '12px' 
         }}>
           🏠 大広間 🏠
         </h2>
-        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
+        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
           1時間で自動削除されるおしゃべり
         </p>
       </div>

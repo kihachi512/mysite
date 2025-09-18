@@ -113,7 +113,7 @@ const GeneralSettings: React.FC = () => {
         icon: '🔊'
       }
     }
-    return info[key]
+    return info[key] || { name: '不明な設定', description: '設定の説明がありません', icon: '❓' }
   }
 
   const clearAllData = () => {
@@ -143,7 +143,7 @@ const GeneralSettings: React.FC = () => {
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
       <div className="comic-text" style={{ 
-        fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', 
+        fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', 
         marginBottom: 'min(24px, 6vw)', 
         textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
         color: '#fff3e0', 
@@ -153,7 +153,7 @@ const GeneralSettings: React.FC = () => {
       </div>
       
       <div className="comic-text" style={{ 
-        fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+        fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)', 
         marginBottom: 'min(36px, 8vw)', 
         color: '#c8e6c9'
       }}>
@@ -185,18 +185,18 @@ const GeneralSettings: React.FC = () => {
               borderColor: isPurchased ? (isEnabled ? '#4caf50' : '#2196f3') : '#666',
               opacity: isPurchased ? 1 : 0.6
             }}>
-              <div style={{ fontSize: 'clamp(2.5rem, 6vw, 3rem)', marginBottom: '12px' }}>
-                {info?.icon || '❓'}
+              <div style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', marginBottom: '12px' }}>
+                {info.icon}
               </div>
               <div className="comic-text" style={{ 
-                fontSize: 'clamp(1.2rem, 4vw, 1.4rem)', 
+                fontSize: 'clamp(1rem, 3.2vw, 1.2rem)', 
                 color: '#fff3e0',
                 marginBottom: '8px'
               }}>
                 {info.name}
               </div>
               <div className="comic-text" style={{ 
-                fontSize: 'clamp(0.9rem, 3vw, 1rem)', 
+                fontSize: 'clamp(0.8rem, 2.5vw, 0.95rem)', 
                 color: '#c8e6c9',
                 marginBottom: '16px',
                 lineHeight: '1.4'
@@ -207,7 +207,7 @@ const GeneralSettings: React.FC = () => {
               {isPurchased ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
                   <span className="comic-text" style={{ 
-                    fontSize: 'clamp(1rem, 3vw, 1.1rem)',
+                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     color: isEnabled ? '#4caf50' : '#666'
                   }}>
                     {isEnabled ? 'ON' : 'OFF'}
@@ -216,8 +216,8 @@ const GeneralSettings: React.FC = () => {
                     onClick={() => updateSetting(key, !isEnabled)}
                     className="comic-button"
                     style={{ 
-                      padding: 'min(12px 24px, 3vw 6vw)', 
-                      fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                      padding: 'min(10px 20px, 2.5vw 5vw)', 
+                      fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
                       background: isEnabled 
                         ? 'linear-gradient(45deg, #ff6b6b, #ff5252)' 
                         : 'linear-gradient(45deg, #4caf50, #45a049)',
@@ -231,7 +231,7 @@ const GeneralSettings: React.FC = () => {
               ) : (
                 <div className="comic-text" style={{ 
                   color: '#ff6b6b', 
-                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
+                  fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)'
                 }}>
                   ⚠️ 売店で購入が必要です
                 </div>
@@ -250,14 +250,14 @@ const GeneralSettings: React.FC = () => {
         margin: '0 auto min(40px, 10vw) auto'
       }}>
         <div className="comic-text" style={{ 
-          fontSize: 'clamp(1.3rem, 4vw, 1.5rem)', 
+          fontSize: 'clamp(1.1rem, 3.2vw, 1.3rem)', 
           color: '#fff3e0',
           marginBottom: '12px'
         }}>
           🗑️ データ管理
         </div>
         <div className="comic-text" style={{ 
-          fontSize: 'clamp(0.9rem, 3vw, 1rem)', 
+          fontSize: 'clamp(0.8rem, 2.5vw, 0.95rem)', 
           color: '#c8e6c9',
           marginBottom: '16px',
           lineHeight: '1.4'
@@ -269,8 +269,8 @@ const GeneralSettings: React.FC = () => {
           onClick={clearAllData}
           className="comic-button"
           style={{ 
-            padding: 'min(16px 32px, 4vw 8vw)', 
-            fontSize: 'clamp(1rem, 3vw, 1.1rem)',
+            padding: 'min(14px 28px, 3.5vw 7vw)', 
+            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
             background: 'linear-gradient(45deg, #ff6b6b, #ff5252)',
             color: 'white',
             borderColor: '#d32f2f'
@@ -284,8 +284,8 @@ const GeneralSettings: React.FC = () => {
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
-            padding: 'min(16px 32px, 4vw 8vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            padding: 'min(14px 28px, 3.5vw 7vw)',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
@@ -296,8 +296,8 @@ const GeneralSettings: React.FC = () => {
         
         <Link to="/games/store" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
-            padding: 'min(16px 32px, 4vw 8vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            padding: 'min(14px 28px, 3.5vw 7vw)',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
             background: 'linear-gradient(45deg, #ffc107, #ffb300)',
             color: '#000',
             borderColor: '#f57f17'
