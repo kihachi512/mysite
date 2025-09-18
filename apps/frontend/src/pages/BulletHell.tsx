@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
+import { useAppData } from '../contexts/AppDataContext'
 
 type Player = { x: number; y: number; r: number; fireRate: number; power: number }
 type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
@@ -6,6 +7,7 @@ type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; max
 type PowerUp = { x: number; y: number; r: number; type: 'fireRate' | 'power' | 'shield'; collected: boolean }
 
 const BulletHell: React.FC = () => {
+  const { momoPayPoints, addMomoPayPoints } = useAppData()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
@@ -229,6 +231,11 @@ const BulletHell: React.FC = () => {
                 const newScores = [...prev, score].sort((a, b) => b - a).slice(0, 3)
                 return newScores
               })
+              // スコアをMOMOPayポイントに変換（10スコア = 1ポイント）
+              const earnedPoints = Math.floor(score / 10)
+              if (earnedPoints > 0) {
+                addMomoPayPoints(earnedPoints)
+              }
             }
           }
         }
@@ -380,9 +387,12 @@ const BulletHell: React.FC = () => {
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
           <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>残機: {lives}</div>
           <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>ウェーブ: {wave}</div>
+          <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
+            💰 MOMOPay: {momoPayPoints}
+          </div>
           {shield > 0 && (
             <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
               🛡️ シールド: {shield}
@@ -416,7 +426,10 @@ const BulletHell: React.FC = () => {
           marginTop: '12px'
         }}>
           <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
-          <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '16px' }}>最終スコア: {score}</div>
+          <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '8px' }}>最終スコア: {score}</div>
+          <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.1rem', marginBottom: '16px' }}>
+            💰 獲得MOMOPay: {Math.floor(score / 10)}ポイント
+          </div>
           {highScores.length > 0 && (
             <div>
               <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem', marginBottom: '12px' }}>🏆 通算ハイスコア TOP3 🏆</div>

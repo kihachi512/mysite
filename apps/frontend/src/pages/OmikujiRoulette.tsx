@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from 'react'
+import { useAppData } from '../contexts/AppDataContext'
 
 const allFortunes = ['大吉','中吉','小吉','吉','凶']
 
 const OmikujiChoice: React.FC = () => {
+  const { momoPayPoints, spendMomoPayPoints } = useAppData()
   const [revealedIdx, setRevealedIdx] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
+  const [canPlay, setCanPlay] = useState(true)
+  const OMIKUJI_COST = 50 // おみくじの費用（50ポイント）
   const [shuffled, setShuffled] = useState<string[]>(() => {
     const arr = [...allFortunes]
     for (let i = arr.length - 1; i > 0; i--) {
@@ -25,11 +29,26 @@ const OmikujiChoice: React.FC = () => {
     setShuffled(arr)
     setRevealedIdx(null)
     setShowAll(false)
+    setCanPlay(true)
   }
 
   const handleCardClick = (cardId: number) => {
-    if (revealedIdx !== null) return
+    if (revealedIdx !== null || !canPlay) return
+    
+    // MOMOPayポイントをチェック
+    if (momoPayPoints < OMIKUJI_COST) {
+      alert(`おみくじを引くには${OMIKUJI_COST}ポイント必要です。弾幕ゲームでポイントを稼いでください！`)
+      return
+    }
+    
+    // ポイントを消費
+    if (!spendMomoPayPoints(OMIKUJI_COST)) {
+      alert('ポイントが不足しています。')
+      return
+    }
+    
     setRevealedIdx(cardId)
+    setCanPlay(false)
     // Show all cards after a short delay
     setTimeout(() => {
       setShowAll(true)
@@ -38,8 +57,23 @@ const OmikujiChoice: React.FC = () => {
 
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
-      <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)' }}>
-        {revealedIdx === null ? '🔮 一枚選んでください 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果を確認中... 🔮'}
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', marginBottom: '8px' }}>
+          {revealedIdx === null ? '🔮 一枚選んでください 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果を確認中... 🔮'}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
+            💰 MOMOPay: {momoPayPoints}
+          </div>
+          <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
+            費用: {OMIKUJI_COST}ポイント
+          </div>
+        </div>
+        {momoPayPoints < OMIKUJI_COST && (
+          <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
+            ⚠️ ポイントが不足しています。弾幕ゲームでポイントを稼いでください！
+          </div>
+        )}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(60px, 1fr))', gap: 12, width: '100%', maxWidth: 600, padding: '0 12px' }}>
         {cards.map((c) => {
@@ -50,7 +84,7 @@ const OmikujiChoice: React.FC = () => {
             <div key={c.id} style={{ aspectRatio: '2 / 3', width: '100%', position: 'relative' }}>
               <button 
                 onClick={() => handleCardClick(c.id)} 
-                disabled={revealedIdx !== null} 
+                disabled={revealedIdx !== null || !canPlay || momoPayPoints < OMIKUJI_COST} 
                 className="comic-button"
                 style={{ 
                   aspectRatio: '2 / 3', 
@@ -62,7 +96,8 @@ const OmikujiChoice: React.FC = () => {
                   fontWeight: 800, 
                   fontSize: 18, 
                   boxShadow: isChosen ? '0 0 25px rgba(255, 215, 0, 0.9), 0 10px 25px rgba(0,0,0,0.5), inset 0 3px 0 rgba(255,255,255,0.3)' : '0 8px 0 rgba(0,0,0,0.3), inset 0 3px 0 rgba(255,255,255,0.3)', 
-                  cursor: revealedIdx === null ? 'pointer' : 'default',
+                  cursor: (revealedIdx === null && canPlay && momoPayPoints >= OMIKUJI_COST) ? 'pointer' : 'not-allowed',
+                  opacity: (momoPayPoints < OMIKUJI_COST && revealedIdx === null) ? 0.5 : 1,
                   transform: shouldShow ? 'rotateY(180deg)' : 'rotateY(0deg)',
                   transition: 'all 0.6s ease-in-out',
                   transformStyle: 'preserve-3d',

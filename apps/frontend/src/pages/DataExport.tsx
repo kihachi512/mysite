@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
 
 const DataExport: React.FC = () => {
-  const { favorites, tweets } = useAppData()
+  const { favorites, tweets, momoPayPoints } = useAppData()
   const [shareUrl, setShareUrl] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)

@@ -46,6 +46,7 @@ const AppDataContext = createContext<AppDataContextType | undefined>(undefined)
 export function AppDataProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([])
   const [tweets, setTweets] = useState<Tweet[]>([])
+  const [momoPayPoints, setMomoPayPoints] = useState<number>(0)
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -73,6 +74,16 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         setTweets(validTweets)
       } catch {
         setTweets([])
+      }
+    }
+
+    // Load MOMOPay points
+    const savedPoints = localStorage.getItem('momoPayPoints')
+    if (savedPoints) {
+      try {
+        setMomoPayPoints(parseInt(savedPoints, 10) || 0)
+      } catch {
+        setMomoPayPoints(0)
       }
     }
   }, [])
@@ -135,6 +146,23 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // MOMOPay helpers
+  const addMomoPayPoints = (points: number) => {
+    const newPoints = momoPayPoints + points
+    setMomoPayPoints(newPoints)
+    localStorage.setItem('momoPayPoints', newPoints.toString())
+  }
+
+  const spendMomoPayPoints = (points: number): boolean => {
+    if (momoPayPoints >= points) {
+      const newPoints = momoPayPoints - points
+      setMomoPayPoints(newPoints)
+      localStorage.setItem('momoPayPoints', newPoints.toString())
+      return true
+    }
+    return false
+  }
+
   const value: AppDataContextType = {
     favorites,
     addFavorite,
@@ -142,7 +170,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     tweets,
     addTweet,
     likeTweet,
-    cleanupExpiredTweets
+    cleanupExpiredTweets,
+    momoPayPoints,
+    addMomoPayPoints,
+    spendMomoPayPoints
   }
 
   return (
