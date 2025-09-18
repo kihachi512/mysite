@@ -6,6 +6,57 @@ type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: '
 type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; maxHp: number; isBoss?: boolean; bossPhase?: number }
 type PowerUp = { x: number; y: number; r: number; type: 'fireRate' | 'power' | 'shield'; collected: boolean }
 
+// ガチャシステム用の型定義
+type GachaItem = {
+  id: string
+  name: string
+  description: string
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  type: 'weapon' | 'shield' | 'special'
+  effect: {
+    fireRate?: number
+    power?: number
+    shield?: number
+    special?: string
+  }
+  icon: string
+}
+
+type PlayerInventory = {
+  items: GachaItem[]
+  equippedWeapon?: GachaItem
+  equippedShield?: GachaItem
+  equippedSpecial?: GachaItem
+}
+
+// ガチャアイテムデータ
+const GACHA_ITEMS: GachaItem[] = [
+  // 武器 (Weapons)
+  { id: 'w1', name: '基本レーザー', description: '連射速度+0.5', rarity: 'common', type: 'weapon', effect: { fireRate: 0.5 }, icon: '🔫' },
+  { id: 'w2', name: 'プラズマキャノン', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
+  { id: 'w3', name: 'ツインブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🚀' },
+  { id: 'w4', name: '東方マスタースパーク', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🌟' },
+  
+  // シールド (Shields)
+  { id: 's1', name: 'エナジーバリア', description: 'シールド+20', rarity: 'common', type: 'shield', effect: { shield: 20 }, icon: '🛡️' },
+  { id: 's2', name: 'プロテクトフィールド', description: 'シールド+40', rarity: 'rare', type: 'shield', effect: { shield: 40 }, icon: '💎' },
+  { id: 's3', name: 'アブソリュートガード', description: 'シールド+80', rarity: 'epic', type: 'shield', effect: { shield: 80 }, icon: '🔰' },
+  { id: 's4', name: '無敵結界', description: 'シールド+150', rarity: 'legendary', type: 'shield', effect: { shield: 150 }, icon: '✨' },
+  
+  // 特殊能力 (Special)
+  { id: 'sp1', name: 'スピードブースト', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '💨' },
+  { id: 'sp2', name: 'オートヒール', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '❤️' },
+  { id: 'sp3', name: 'タイムスロー', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏰' }
+]
+
+// レアリティ別確率設定
+const GACHA_RATES = {
+  common: 0.6,    // 60%
+  rare: 0.25,     // 25%
+  epic: 0.12,     // 12%
+  legendary: 0.03 // 3%
+}
+
 const BulletHell: React.FC = () => {
   const { momoPayPoints, addMomoPayPoints } = useAppData()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -19,6 +70,12 @@ const BulletHell: React.FC = () => {
   const [lastTap, setLastTap] = useState(0)
   const [shield, setShield] = useState(0)
   const [wave, setWave] = useState(1)
+  
+  // ガチャシステム用状態
+  const [showGacha, setShowGacha] = useState(false)
+  const [inventory, setInventory] = useState<PlayerInventory>({ items: [] })
+  const [gachaResult, setGachaResult] = useState<GachaItem | null>(null)
+  const [showInventory, setShowInventory] = useState(false)
   const playerRef = useRef<Player>({ x: 200, y: 240, r: 6, fireRate: 1, power: 1 })
   const bulletsRef = useRef<Bullet[]>([])
   const enemiesRef = useRef<Enemy[]>([])
@@ -119,6 +176,25 @@ const BulletHell: React.FC = () => {
       }
     }
   }, [])
+
+  // Load inventory from localStorage
+  useEffect(() => {
+    const savedInventory = localStorage.getItem('bullet-hell-inventory')
+    if (savedInventory) {
+      try {
+        setInventory(JSON.parse(savedInventory))
+      } catch {
+        setInventory({ items: [] })
+      }
+    }
+  }, [])
+
+  // Save inventory to localStorage
+  useEffect(() => {
+    if (inventory.items.length > 0) {
+      localStorage.setItem('bullet-hell-inventory', JSON.stringify(inventory))
+    }
+  }, [inventory])
 
   // Save high scores to localStorage (通算記録)
   useEffect(() => {
@@ -328,19 +404,36 @@ const BulletHell: React.FC = () => {
         }
       })
 
-      // move player
+      // move player (with speed boost effect)
       const p = playerRef.current
-      const s = 3
-      if (keysRef.current['ArrowLeft']) p.x -= s
-      if (keysRef.current['ArrowRight']) p.x += s
-      if (keysRef.current['ArrowUp']) p.y -= s
-      if (keysRef.current['ArrowDown']) p.y += s
+      let moveSpeed = 3
+      if (inventory.equippedSpecial?.effect.special === 'speed') {
+        moveSpeed = 5 // スピードブースト効果
+      }
+      if (keysRef.current['ArrowLeft']) p.x -= moveSpeed
+      if (keysRef.current['ArrowRight']) p.x += moveSpeed
+      if (keysRef.current['ArrowUp']) p.y -= moveSpeed
+      if (keysRef.current['ArrowDown']) p.y += moveSpeed
       p.x = Math.max(p.r, Math.min(w - p.r, p.x))
       p.y = Math.max(p.r, Math.min(h - p.r, p.y))
 
-      // move bullets
-      bulletsRef.current.forEach(b => { b.x += b.vx; b.y += b.vy })
+      // move bullets (with time slow effect)
+      const bulletSpeedMultiplier = inventory.equippedSpecial?.effect.special === 'timeslow' ? 0.5 : 1.0
+      bulletsRef.current.forEach(b => { 
+        if (b.from === 'enemy') {
+          b.x += b.vx * bulletSpeedMultiplier
+          b.y += b.vy * bulletSpeedMultiplier
+        } else {
+          b.x += b.vx
+          b.y += b.vy
+        }
+      })
       bulletsRef.current = bulletsRef.current.filter(b => b.x > -10 && b.x < w + 10 && b.y > -10 && b.y < h + 10)
+
+      // Auto heal effect
+      if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 5) {
+        setLives(prev => Math.min(prev + 1, 5))
+      }
 
       // move power-ups
       powerUpsRef.current.forEach(p => { p.y += 1 })
@@ -569,6 +662,85 @@ const BulletHell: React.FC = () => {
     setRunning(true)
   }, [])
 
+  // ガチャ機能
+  const performGacha = useCallback(() => {
+    const gachaCost = 50 // 50MOMOPayポイント
+    if (momoPayPoints < gachaCost) {
+      alert('MOMOPayポイントが不足しています！')
+      return
+    }
+
+    // ポイント消費
+    addMomoPayPoints(-gachaCost)
+
+    // レアリティ抽選
+    const random = Math.random()
+    let selectedRarity: GachaItem['rarity'] = 'common'
+    
+    if (random < GACHA_RATES.legendary) {
+      selectedRarity = 'legendary'
+    } else if (random < GACHA_RATES.legendary + GACHA_RATES.epic) {
+      selectedRarity = 'epic'
+    } else if (random < GACHA_RATES.legendary + GACHA_RATES.epic + GACHA_RATES.rare) {
+      selectedRarity = 'rare'
+    }
+
+    // 選択されたレアリティのアイテムから抽選
+    const availableItems = GACHA_ITEMS.filter(item => item.rarity === selectedRarity)
+    const selectedItem = availableItems[Math.floor(Math.random() * availableItems.length)]
+
+    // インベントリに追加
+    setInventory(prev => ({
+      ...prev,
+      items: [...prev.items, selectedItem]
+    }))
+
+    setGachaResult(selectedItem)
+    setTimeout(() => setGachaResult(null), 3000) // 3秒後に結果を非表示
+  }, [momoPayPoints, addMomoPayPoints])
+
+  // アイテム装備機能
+  const equipItem = useCallback((item: GachaItem) => {
+    setInventory(prev => {
+      const newInventory = { ...prev }
+      if (item.type === 'weapon') {
+        newInventory.equippedWeapon = item
+      } else if (item.type === 'shield') {
+        newInventory.equippedShield = item
+      } else if (item.type === 'special') {
+        newInventory.equippedSpecial = item
+      }
+      return newInventory
+    })
+  }, [])
+
+  // 装備効果をプレイヤーに適用
+  const applyEquipmentEffects = useCallback(() => {
+    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 6, fireRate: 1, power: 1 }
+    let modifiedPlayer = { ...basePlayer }
+
+    // 武器効果
+    if (inventory.equippedWeapon) {
+      const weapon = inventory.equippedWeapon
+      modifiedPlayer.fireRate += weapon.effect.fireRate || 0
+      modifiedPlayer.power += weapon.effect.power || 0
+    }
+
+    // シールド効果（ゲーム開始時に適用）
+    if (inventory.equippedShield && !running) {
+      setShield(prev => prev + (inventory.equippedShield?.effect.shield || 0))
+    }
+
+    playerRef.current = modifiedPlayer
+  }, [inventory, running])
+
+  // ゲーム開始時に装備効果を適用
+  useEffect(() => {
+    if (running) {
+      applyEquipmentEffects()
+    }
+  }, [running, applyEquipmentEffects])
+
   const shoot = useCallback(() => {
     if (!running) return
     const now = Date.now()
@@ -678,7 +850,247 @@ const BulletHell: React.FC = () => {
         >
           {running ? 'プレイ中' : 'スタート'}
         </button>
+        
+        <button 
+          onClick={() => setShowGacha(true)} 
+          disabled={running || momoPayPoints < 50} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: (running || momoPayPoints < 50) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+            color: 'white', 
+            borderColor: (running || momoPayPoints < 50) ? '#333' : '#d32f2f'
+          }}
+          aria-label="ガチャを引く（50ポイント）"
+        >
+          🎰 ガチャ (50P)
+        </button>
+        
+        <button 
+          onClick={() => setShowInventory(true)} 
+          disabled={running} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
+            color: 'white', 
+            borderColor: running ? '#333' : '#1976d2'
+          }}
+          aria-label="インベントリを開く"
+        >
+          🎒 装備 ({inventory.items.length})
+        </button>
       </div>
+
+      {/* ガチャモーダル */}
+      {showGacha && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="comic-card" style={{
+            background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 82, 82, 0.1))',
+            padding: '32px', borderColor: '#ff5252', maxWidth: '400px', width: '90%',
+            textAlign: 'center'
+          }}>
+            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.8rem', marginBottom: '16px' }}>
+              🎰 ガチャショップ 🎰
+            </div>
+            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '16px' }}>
+              💰 現在のMOMOPay: {momoPayPoints}ポイント
+            </div>
+            <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1rem', marginBottom: '24px' }}>
+              🌟 レジェンダリー: 3% | ⚡ エピック: 12% | 💎 レア: 25% | 🔫 コモン: 60%
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
+              <button 
+                onClick={performGacha} 
+                disabled={momoPayPoints < 50}
+                className="comic-button"
+                style={{ 
+                  padding: '16px 24px', fontSize: '1.2rem',
+                  background: momoPayPoints < 50 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
+                  color: momoPayPoints < 50 ? '#ccc' : '#000', 
+                  borderColor: momoPayPoints < 50 ? '#333' : '#f57f17'
+                }}
+              >
+                🎲 ガチャを引く (50P)
+              </button>
+            </div>
+            
+            <button 
+              onClick={() => setShowGacha(false)} 
+              className="comic-button"
+              style={{ 
+                padding: '8px 16px', 
+                background: 'linear-gradient(45deg, #666, #555)', 
+                color: 'white', 
+                borderColor: '#333'
+              }}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ガチャ結果表示 */}
+      {gachaResult && (
+        <div style={{
+          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          zIndex: 1001, animation: 'bounce 0.5s ease-in-out'
+        }}>
+          <div className="comic-card" style={{
+            background: gachaResult.rarity === 'legendary' ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 193, 7, 0.2))' :
+                      gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(142, 36, 170, 0.2))' :
+                      gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(30, 136, 229, 0.2))' :
+                      'linear-gradient(135deg, rgba(158, 158, 158, 0.3), rgba(117, 117, 117, 0.2))',
+            padding: '24px', textAlign: 'center', minWidth: '300px',
+            borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                        gachaResult.rarity === 'epic' ? '#9c27b0' :
+                        gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '8px' }}>{gachaResult.icon}</div>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', fontSize: '1.4rem', marginBottom: '8px',
+              textShadow: gachaResult.rarity === 'legendary' ? '0 0 10px #ffd700' : 'none'
+            }}>
+              {gachaResult.name}
+            </div>
+            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem', marginBottom: '8px' }}>
+              {gachaResult.description}
+            </div>
+            <div className="comic-text" style={{ 
+              color: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                    gachaResult.rarity === 'epic' ? '#9c27b0' :
+                    gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
+              fontSize: '1.1rem', fontWeight: 'bold'
+            }}>
+              {gachaResult.rarity.toUpperCase()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* インベントリモーダル */}
+      {showInventory && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, overflow: 'auto'
+        }}>
+          <div className="comic-card" style={{
+            background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.2), rgba(33, 150, 243, 0.1))',
+            padding: '32px', borderColor: '#2196f3', maxWidth: '600px', width: '90%',
+            maxHeight: '80vh', overflow: 'auto'
+          }}>
+            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.8rem', marginBottom: '16px', textAlign: 'center' }}>
+              🎒 装備インベントリ
+            </div>
+            
+            {/* 現在の装備 */}
+            <div style={{ marginBottom: '24px' }}>
+              <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.3rem', marginBottom: '12px' }}>
+                ⚡ 現在の装備
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
+                <div className="comic-card" style={{ padding: '12px', background: 'rgba(76, 175, 80, 0.1)', borderColor: '#4caf50' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>武器</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                    {inventory.equippedWeapon ? `${inventory.equippedWeapon.icon} ${inventory.equippedWeapon.name}` : '未装備'}
+                  </div>
+                </div>
+                <div className="comic-card" style={{ padding: '12px', background: 'rgba(255, 193, 7, 0.1)', borderColor: '#ffc107' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>シールド</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                    {inventory.equippedShield ? `${inventory.equippedShield.icon} ${inventory.equippedShield.name}` : '未装備'}
+                  </div>
+                </div>
+                <div className="comic-card" style={{ padding: '12px', background: 'rgba(156, 39, 176, 0.1)', borderColor: '#9c27b0' }}>
+                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem' }}>特殊</div>
+                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
+                    {inventory.equippedSpecial ? `${inventory.equippedSpecial.icon} ${inventory.equippedSpecial.name}` : '未装備'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* アイテムリスト */}
+            <div>
+              <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.3rem', marginBottom: '12px' }}>
+                📦 所持アイテム ({inventory.items.length})
+              </div>
+              {inventory.items.length === 0 ? (
+                <div className="comic-text" style={{ color: '#c8e6c9', textAlign: 'center', padding: '20px' }}>
+                  アイテムがありません。ガチャを引いてアイテムを獲得しよう！
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginBottom: '16px' }}>
+                  {inventory.items.map((item, index) => (
+                    <div key={`${item.id}-${index}`} className="comic-card" style={{
+                      padding: '12px',
+                      background: item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.1)' :
+                                item.rarity === 'epic' ? 'rgba(156, 39, 176, 0.1)' :
+                                item.rarity === 'rare' ? 'rgba(33, 150, 243, 0.1)' : 'rgba(158, 158, 158, 0.1)',
+                      borderColor: item.rarity === 'legendary' ? '#ffd700' :
+                                  item.rarity === 'epic' ? '#9c27b0' :
+                                  item.rarity === 'rare' ? '#2196f3' : '#9e9e9e'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '1.5rem', marginRight: '8px' }}>{item.icon}</span>
+                        <div>
+                          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', fontWeight: 'bold' }}>
+                            {item.name}
+                          </div>
+                          <div className="comic-text" style={{ 
+                            color: item.rarity === 'legendary' ? '#ffd700' :
+                                  item.rarity === 'epic' ? '#9c27b0' :
+                                  item.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
+                            fontSize: '0.8rem'
+                          }}>
+                            {item.rarity.toUpperCase()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '8px' }}>
+                        {item.description}
+                      </div>
+                      <button 
+                        onClick={() => equipItem(item)}
+                        className="comic-button"
+                        style={{ 
+                          padding: '6px 12px', fontSize: '0.9rem',
+                          background: 'linear-gradient(45deg, #4caf50, #45a049)', 
+                          color: 'white', borderColor: '#2e7d32', width: '100%'
+                        }}
+                      >
+                        装備する
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div style={{ textAlign: 'center' }}>
+              <button 
+                onClick={() => setShowInventory(false)} 
+                className="comic-button"
+                style={{ 
+                  padding: '12px 24px', 
+                  background: 'linear-gradient(45deg, #666, #555)', 
+                  color: 'white', 
+                  borderColor: '#333'
+                }}
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
