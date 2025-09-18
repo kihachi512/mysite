@@ -98,10 +98,9 @@ const BulletHell: React.FC = () => {
     }
   }, [lastTap, touchStart, running])
 
-  // Load high scores from localStorage
+  // Load high scores from localStorage (通算記録)
   useEffect(() => {
-    const today = new Date().toDateString()
-    const saved = localStorage.getItem(`bullet-hell-scores-${today}`)
+    const saved = localStorage.getItem('bullet-hell-all-time-scores')
     if (saved) {
       try {
         setHighScores(JSON.parse(saved))
@@ -111,11 +110,10 @@ const BulletHell: React.FC = () => {
     }
   }, [])
 
-  // Save high scores to localStorage
+  // Save high scores to localStorage (通算記録)
   useEffect(() => {
     if (highScores.length > 0) {
-      const today = new Date().toDateString()
-      localStorage.setItem(`bullet-hell-scores-${today}`, JSON.stringify(highScores))
+      localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(highScores))
     }
   }, [highScores])
 
@@ -167,9 +165,9 @@ const BulletHell: React.FC = () => {
           if (lives - 1 <= 0) {
             setRunning(false)
             setGameOver(true)
-            // ハイスコアに追加
+            // ハイスコアに追加（TOP3のみ保持）
             setHighScores(prev => {
-              const newScores = [...prev, score].sort((a, b) => b - a).slice(0, 10)
+              const newScores = [...prev, score].sort((a, b) => b - a).slice(0, 3)
               return newScores
             })
           }
@@ -255,17 +253,25 @@ const BulletHell: React.FC = () => {
           <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '16px' }}>最終スコア: {score}</div>
           {highScores.length > 0 && (
             <div>
-              <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem', marginBottom: '12px' }}>🏆 今日のハイスコア 🏆</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-                {highScores.slice(0, 5).map((score, index) => (
-                  <div key={index} className="comic-text" style={{ 
-                    color: index === 0 ? '#ffd700' : '#c8e6c9', 
-                    fontSize: '1rem',
-                    fontWeight: index === 0 ? 'bold' : 'normal'
-                  }}>
-                    {index + 1}位: {score}点
-                  </div>
-                ))}
+              <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem', marginBottom: '12px' }}>🏆 通算ハイスコア TOP3 🏆</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                {highScores.map((score, index) => {
+                  const medals = ['🥇', '🥈', '🥉']
+                  const colors = ['#ffd700', '#c0c0c0', '#cd7f32']
+                  return (
+                    <div key={index} className="comic-text" style={{ 
+                      color: colors[index] || '#c8e6c9', 
+                      fontSize: index === 0 ? '1.1rem' : '1rem',
+                      fontWeight: index === 0 ? 'bold' : 'normal',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '1.2rem' }}>{medals[index]}</span>
+                      <span>{index + 1}位: {score}点</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
