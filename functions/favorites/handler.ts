@@ -12,9 +12,10 @@ const json = (code: number, body: unknown) => ({
   statusCode: code,
   headers: {
     "content-type": "application/json",
-    "access-control-allow-origin": "*",
+    "access-control-allow-origin": "*", // 本番環境では特定のドメインを指定
     "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-headers": "Content-Type,Authorization,X-Requested-With",
+    "access-control-allow-credentials": "false", // クッキーを使用しない場合
   },
   body: JSON.stringify(body),
 });
