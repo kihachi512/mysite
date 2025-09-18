@@ -32,6 +32,11 @@ type AppDataContextType = {
   addTweet: (tweet: Tweet) => void
   likeTweet: (tweetId: string, userKey: string) => void
   cleanupExpiredTweets: () => void
+  
+  // MOMOPay Points
+  momoPayPoints: number
+  addMomoPayPoints: (points: number) => void
+  spendMomoPayPoints: (points: number) => boolean
 }
 
 // Create context
