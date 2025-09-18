@@ -20,7 +20,7 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
-        <div className="comic-text" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', marginBottom: 'min(24px, 6vw)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', color: '#fff3e0', lineHeight: '1.2' }}>🌲 森の秘密基地へようこそ！ 🌲</div>
+        <div className="comic-text" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', marginBottom: 'min(24px, 6vw)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', color: '#fff3e0', lineHeight: '1.2' }}>🌲 秘密基地へようこそ！ 🌲</div>
         <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', marginBottom: 'min(36px, 8vw)', color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>さすらいのモモンガカーニバル</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '600px', margin: '0 auto', padding: '0 10px' }}>
           <Link to="/games" style={{ textDecoration: 'none' }}>

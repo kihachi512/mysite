@@ -64,7 +64,7 @@ const Tweets: React.FC = () => {
           fontSize: '2.4rem', 
           marginBottom: '12px' 
         }}>
-          🏠 森の大広間 🏠
+          🏠 大広間 🏠
         </h2>
         <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
           1時間で自動削除されるおしゃべり

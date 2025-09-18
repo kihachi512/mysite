@@ -157,7 +157,7 @@ const MOMOStore: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🏪 森の売店 (MOMOStore) 🏪
+        🏪 売店 (MOMOStore) 🏪
       </div>
       
       <div className="comic-text" style={{ 

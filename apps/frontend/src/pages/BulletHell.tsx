@@ -929,7 +929,7 @@ const BulletHell: React.FC = () => {
           )}
         </div>
         <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>
-          矢印キーで移動 / スペースでショット / 森の恵み(F:連射 P:威力 S:シールド)を取ろう！
+          矢印キーで移動 / スペースでショット / 恵み(F:連射 P:威力 S:シールド)を取ろう！
         </div>
         <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
           スマホ：スワイプで移動・ダブルタップでショット / 大きな青い自機の中の赤い部分が当たり判定！🎯
@@ -1014,7 +1014,7 @@ const BulletHell: React.FC = () => {
           }}
           aria-label="ガチャを引く（1000MOMOPay）"
         >
-          🌲 森ガチャ (1000MOMOPay)
+          🌲 ガチャ (1000MOMOPay)
         </button>
         
         <button 
@@ -1050,7 +1050,7 @@ const BulletHell: React.FC = () => {
               color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
               marginBottom: '16px' 
             }}>
-              🌲 森のガチャ小屋 🐿️
+              🌲 ガチャ小屋 🐿️
             </div>
             <div className="comic-text" style={{ 
               color: '#c8e6c9', fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
@@ -1080,7 +1080,7 @@ const BulletHell: React.FC = () => {
                   minWidth: '120px'
                 }}
               >
-                🌰 森ガチャ (1000MOMOPay)
+                🌰 ガチャ (1000MOMOPay)
               </button>
             </div>
             
@@ -1316,7 +1316,7 @@ const BulletHell: React.FC = () => {
                   color: '#c8e6c9', textAlign: 'center', 
                   padding: 'min(20px, 5vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)'
                 }}>
-                  アイテムがありません。森ガチャを引いて森の恵みを獲得しよう！🌰
+                  アイテムがありません。ガチャを引いて恵みを獲得しよう！🌰
                 </div>
               ) : (
                 <div className="inventory-scroll" style={{ 

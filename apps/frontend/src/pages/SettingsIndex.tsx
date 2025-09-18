@@ -11,7 +11,7 @@ const SettingsIndex: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        ⚙️ 森の設定 ⚙️
+        ⚙️ 設定 ⚙️
       </div>
       <div className="comic-text" style={{ 
         fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', 
@@ -96,7 +96,7 @@ const SettingsIndex: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🏠 森の秘密基地に戻る
+            🏠 秘密基地に戻る
           </button>
         </Link>
       </div>

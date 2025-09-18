@@ -107,7 +107,7 @@ const ShareSettings: React.FC = () => {
         color: '#c8e6c9', 
         textShadow: '2px 2px 0px rgba(0,0,0,0.5)' 
       }}>
-        あなたの森の秘密基地を他の人と共有しよう
+        あなたの秘密基地を他の人と共有しよう
       </div>
 
       {/* データ統計 */}

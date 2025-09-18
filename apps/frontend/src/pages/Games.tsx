@@ -11,7 +11,7 @@ const Games: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🎮 森の遊技場 🎮
+        🎮 遊技場 🎮
       </div>
       <div className="comic-text" style={{ 
         fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', 
@@ -52,7 +52,7 @@ const Games: React.FC = () => {
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              森の神様に運勢を占ってもらおう<br />
+              神様に運勢を占ってもらおう<br />
               <span style={{ color: '#ffd93d', fontSize: '0.9em' }}>費用: 10MOMOPay</span>
             </div>
           </div>
@@ -80,7 +80,7 @@ const Games: React.FC = () => {
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              森の守護者として修行を積もう<br />
+              守護者として修行を積もう<br />
               <span style={{ color: '#ffd93d', fontSize: '0.9em' }}>装備ガチャで強化！</span>
             </div>
           </div>
@@ -124,7 +124,7 @@ const Games: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🏠 森の秘密基地に戻る
+            🏠 秘密基地に戻る
           </button>
         </Link>
       </div>
