@@ -37,7 +37,7 @@ const OmikujiChoice: React.FC = () => {
     
     // MOMOPayをチェック
     if (momoPayPoints < OMIKUJI_COST) {
-      alert(`おみくじを引くには${OMIKUJI_COST}MOMOPay必要です。弾幕ゲームでMOMOPayを稼いでください！`)
+      alert(`おみくじを引くには${OMIKUJI_COST}MOMOPay必要です。演習林でMOMOPayを稼いでください！`)
       return
     }
     
@@ -71,7 +71,7 @@ const OmikujiChoice: React.FC = () => {
         </div>
         {momoPayPoints < OMIKUJI_COST && (
           <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
-            ⚠️ MOMOPayが不足しています。弾幕ゲームでMOMOPayを稼いでください！
+            ⚠️ MOMOPayが不足しています。演習林でMOMOPayを稼いでください！
           </div>
         )}
       </div>

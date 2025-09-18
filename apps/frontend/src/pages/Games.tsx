@@ -60,27 +60,27 @@ const Games: React.FC = () => {
 
         <Link to="/games/bullet-hell" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ 
-            background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(233, 30, 99, 0.2))', 
+            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))', 
             padding: 'min(32px, 8vw)', 
-            borderColor: '#f44336', 
+            borderColor: '#4caf50', 
             cursor: 'pointer', 
             transition: 'all 0.3s ease',
             minHeight: '180px'
           }}>
-            <div style={{ fontSize: 'clamp(3rem, 8vw, 4rem)', marginBottom: '16px' }}>💥</div>
+            <div style={{ fontSize: 'clamp(3rem, 8vw, 4rem)', marginBottom: '16px' }}>🌲</div>
             <div className="comic-text" style={{ 
               fontSize: 'clamp(1.3rem, 5vw, 1.8rem)', 
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              弾幕シューティング
+              演習林
             </div>
             <div className="comic-text" style={{ 
               fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              森を荒らす敵を倒してMOMOPayを稼ごう<br />
+              森の守護者として修行を積もう<br />
               <span style={{ color: '#ffd93d', fontSize: '0.9em' }}>装備ガチャで強化！</span>
             </div>
           </div>

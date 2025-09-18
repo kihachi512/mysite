@@ -899,7 +899,7 @@ const BulletHell: React.FC = () => {
         style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} 
         onClick={shoot}
         role="application"
-        aria-label="弾幕シューティングゲーム。矢印キーで移動、スペースキーで発射。"
+        aria-label="演習林での修行。矢印キーで移動、スペースキーで発射。"
         tabIndex={running ? 0 : -1}
       />
       
