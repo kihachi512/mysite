@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
 
-type Player = { x: number; y: number; r: number; fireRate: number; power: number }
+type Player = { x: number; y: number; r: number; fireRate: number; power: number; displayR?: number }
 type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
 type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; maxHp: number; isBoss?: boolean; bossPhase?: number }
 type PowerUp = { x: number; y: number; r: number; type: 'fireRate' | 'power' | 'shield'; collected: boolean }
@@ -62,7 +62,7 @@ const BulletHell: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
   const [time, setTime] = useState(0)
-  const [lives, setLives] = useState(5)
+  const [lives, setLives] = useState(1)
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null)
@@ -129,8 +129,9 @@ const BulletHell: React.FC = () => {
         
         // より直感的な操作：タッチ位置に向かってプレイヤーを移動
         const player = playerRef.current
-        const targetX = Math.max(player.r, Math.min(400 - player.r, x))
-        const targetY = Math.max(player.r, Math.min(280 - player.r, y))
+        const boundaryRadius = player.displayR || player.r
+        const targetX = Math.max(boundaryRadius, Math.min(400 - boundaryRadius, x))
+        const targetY = Math.max(boundaryRadius, Math.min(280 - boundaryRadius, y))
         
         // スムーズな移動のため、距離に応じて移動量を調整
         const deltaX = targetX - player.x
@@ -427,8 +428,10 @@ const BulletHell: React.FC = () => {
       if (keysRef.current['ArrowRight']) p.x += moveSpeed
       if (keysRef.current['ArrowUp']) p.y -= moveSpeed
       if (keysRef.current['ArrowDown']) p.y += moveSpeed
-      p.x = Math.max(p.r, Math.min(w - p.r, p.x))
-      p.y = Math.max(p.r, Math.min(h - p.r, p.y))
+      // Use display radius for boundary checking to prevent visual clipping
+      const boundaryRadius = p.displayR || p.r
+      p.x = Math.max(boundaryRadius, Math.min(w - boundaryRadius, p.x))
+      p.y = Math.max(boundaryRadius, Math.min(h - boundaryRadius, p.y))
 
       // move bullets (with time slow effect)
       const bulletSpeedMultiplier = inventory.equippedSpecial?.effect.special === 'timeslow' ? 0.5 : 1.0
@@ -443,10 +446,10 @@ const BulletHell: React.FC = () => {
       })
       bulletsRef.current = bulletsRef.current.filter(b => b.x > -10 && b.x < w + 10 && b.y > -10 && b.y < h + 10)
 
-      // Auto heal effect
-      if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 5) {
-        setLives(prev => Math.min(prev + 1, 5))
-      }
+      // Auto heal effect - disabled since lives is now 1
+      // if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 1) {
+      //   setLives(prev => Math.min(prev + 1, 1))
+      // }
 
       // move power-ups
       powerUpsRef.current.forEach(p => { p.y += 1 })
@@ -458,11 +461,11 @@ const BulletHell: React.FC = () => {
         if (dx * dx + dy * dy < (p.r + powerUp.r) * (p.r + powerUp.r)) {
           powerUp.collected = true
           if (powerUp.type === 'fireRate') {
-            playerRef.current.fireRate = Math.min(playerRef.current.fireRate + 0.3, 3)
+            playerRef.current.fireRate = Math.min(playerRef.current.fireRate + 0.1, 2.5)
           } else if (powerUp.type === 'power') {
-            playerRef.current.power = Math.min(playerRef.current.power + 0.5, 3)
+            playerRef.current.power = Math.min(playerRef.current.power + 0.2, 2.5)
           } else if (powerUp.type === 'shield') {
-            setShield(s => Math.min(s + 30, 60))
+            setShield(s => Math.min(s + 10, 40))
           }
           setScore(prev => prev + 25) // パワーアップ取得で25点
         }
@@ -474,7 +477,7 @@ const BulletHell: React.FC = () => {
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
           if (shield > 0) {
-            setShield(s => Math.max(0, s - 10))
+            setShield(s => Math.max(0, s - 5))
           } else {
             setLives(v => Math.max(0, v - 1))
             if (lives - 1 <= 0) {
@@ -482,7 +485,7 @@ const BulletHell: React.FC = () => {
               setGameOver(true)
               // ハイスコアに追加（TOP3のみ保持）
               updateHighScores(score)
-              // スコアをMOMOPayポイントに変換（10スコア = 1ポイント）
+              // スコアをMOMOPayに変換（10スコア = 1MOMOPay）
               const earnedPoints = Math.floor(score / 10)
               if (earnedPoints > 0) {
                 addMomoPayPoints(earnedPoints)
@@ -626,14 +629,47 @@ const BulletHell: React.FC = () => {
         ctx.beginPath(); ctx.arc(b.x, b.y, b.r + (playerRef.current.power - 1), 0, Math.PI * 2); ctx.fill() 
       }
       
-      // player with shield effect
+      // player with shield effect and improved visibility
+      const displayRadius = p.displayR || p.r
+      const hitboxRadius = p.r
+      
+      // Pulsing effect for better visibility
+      const pulseEffect = Math.sin(time * 0.1) * 0.5 + 1
+      const effectRadius = displayRadius * pulseEffect * 0.2
+      
+      // Outer glow effect
+      ctx.shadowColor = '#4ECDC4'
+      ctx.shadowBlur = 10
+      ctx.fillStyle = `rgba(78, 205, 196, ${0.3 * pulseEffect})`
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + effectRadius, 0, Math.PI * 2); ctx.fill()
+      ctx.shadowBlur = 0
+      
+      // Shield effect (around display radius)
       if (shield > 0) {
         ctx.strokeStyle = '#ffd93d'
         ctx.lineWidth = 3
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 8, 0, Math.PI * 2); ctx.stroke()
+        ctx.setLineDash([5, 5])
+        ctx.lineDashOffset = -time * 0.1
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 4, 0, Math.PI * 2); ctx.stroke()
+        ctx.setLineDash([])
       }
+      
+      // Main player body (larger for visibility)
       ctx.fillStyle = '#4ECDC4'
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
+      
+      // Inner core (actual hitbox indicator) - more prominent
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 2
+      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.stroke()
+      
+      // Core highlight for better visibility
+      ctx.fillStyle = '#ff6b6b'
+      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius * 0.7, 0, Math.PI * 2); ctx.fill()
+      
+      // Center dot (precise hitbox center)
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI * 2); ctx.fill()
       
       // draw UI
       ctx.fillStyle = '#fff3e0'
@@ -642,13 +678,55 @@ const BulletHell: React.FC = () => {
       ctx.fillText(`スコア: ${score}`, 10, 25)
       ctx.fillText(`ウェーブ: ${wave}`, 10, 45)
       
-      // power-up status
+      // power-up status with equipment indicators
       ctx.font = 'bold 12px Comic Sans MS'
-      ctx.fillText(`連射: ${playerRef.current.fireRate.toFixed(1)}x`, 10, 65)
-      ctx.fillText(`威力: ${playerRef.current.power.toFixed(1)}x`, 10, 80)
+      let yOffset = 65
+      
+      // Fire rate with equipment bonus indicator
+      const baseFireRate = 1
+      const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
+      const totalFireRate = playerRef.current.fireRate
+      if (equipmentFireRateBonus > 0) {
+        ctx.fillStyle = '#4ecdc4' // Equipment bonus color
+        ctx.fillText(`連射: ${baseFireRate.toFixed(1)}x + ${equipmentFireRateBonus.toFixed(1)}x = ${totalFireRate.toFixed(1)}x ⚡`, 10, yOffset)
+      } else {
+        ctx.fillStyle = '#fff3e0'
+        ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x`, 10, yOffset)
+      }
+      yOffset += 15
+      
+      // Power with equipment bonus indicator
+      const basePower = 1
+      const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
+      const totalPower = playerRef.current.power
+      if (equipmentPowerBonus > 0) {
+        ctx.fillStyle = '#ff6b6b' // Equipment bonus color
+        ctx.fillText(`威力: ${basePower.toFixed(1)}x + ${equipmentPowerBonus.toFixed(1)}x = ${totalPower.toFixed(1)}x 💥`, 10, yOffset)
+      } else {
+        ctx.fillStyle = '#fff3e0'
+        ctx.fillText(`威力: ${totalPower.toFixed(1)}x`, 10, yOffset)
+      }
+      yOffset += 15
+      
+      // Shield with equipment bonus
       if (shield > 0) {
+        const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
         ctx.fillStyle = '#ffd93d'
-        ctx.fillText(`シールド: ${shield}`, 10, 95)
+        if (equipmentShieldBonus > 0) {
+          ctx.fillText(`シールド: ${shield} (装備効果: +${equipmentShieldBonus}) 🛡️`, 10, yOffset)
+        } else {
+          ctx.fillText(`シールド: ${shield}`, 10, yOffset)
+        }
+        yOffset += 15
+      }
+      
+      // Special equipment effects
+      if (inventory.equippedSpecial) {
+        ctx.fillStyle = '#9c27b0'
+        const specialName = inventory.equippedSpecial.name
+        const specialIcon = inventory.equippedSpecial.icon
+        ctx.fillText(`特殊: ${specialIcon} ${specialName}`, 10, yOffset)
+        yOffset += 15
       }
 
       if (running) rafRef.current = requestAnimationFrame(loop)
@@ -661,12 +739,12 @@ const BulletHell: React.FC = () => {
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 6, fireRate: 1.2, power: 1.2 } // Slightly better starting stats
+    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 8 } // Small hitbox, larger display
     lastShotRef.current = 0
-    setLives(5)
+    setLives(1)
     setTime(0)
     setScore(0)
-    setShield(20) // Start with some shield
+    setShield(10) // Start with some shield
     setWave(1)
     setGameOver(false)
     setRunning(true)
@@ -674,13 +752,13 @@ const BulletHell: React.FC = () => {
 
   // ガチャ機能
   const performGacha = useCallback(() => {
-    const gachaCost = 100 // 100MOMOPayポイント
+    const gachaCost = 100 // 100MOMOPay
     if (momoPayPoints < gachaCost) {
-      alert('MOMOPayポイントが不足しています！')
+      alert('MOMOPayが不足しています！')
       return
     }
 
-    // ポイント消費
+    // MOMOPay消費
     addMomoPayPoints(-gachaCost)
 
     // レアリティ抽選
@@ -741,7 +819,7 @@ const BulletHell: React.FC = () => {
 
   // 装備効果をプレイヤーに適用
   const applyEquipmentEffects = useCallback(() => {
-    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 6, fireRate: 1, power: 1 }
+    const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 4, fireRate: 1, power: 1, displayR: 8 }
     let modifiedPlayer = { ...basePlayer }
 
     // 武器効果
@@ -751,9 +829,10 @@ const BulletHell: React.FC = () => {
       modifiedPlayer.power += weapon.effect.power || 0
     }
 
-    // シールド効果（ゲーム開始時に適用）
+    // シールド効果（ゲーム開始時に適用）- 装備効果も調整
     if (inventory.equippedShield && !running) {
-      setShield(prev => prev + (inventory.equippedShield?.effect.shield || 0))
+      const shieldBonus = Math.floor((inventory.equippedShield?.effect.shield || 0) * 0.3) // 30%に減少
+      setShield(prev => prev + shieldBonus)
     }
 
     playerRef.current = modifiedPlayer
@@ -791,7 +870,6 @@ const BulletHell: React.FC = () => {
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
-          <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>残機: {lives}</div>
           <div className="comic-text" style={{ fontSize: '1.4rem', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>ウェーブ: {wave}</div>
           <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
@@ -806,7 +884,7 @@ const BulletHell: React.FC = () => {
           矢印キーで移動 / スペースでショット / 森の恵み(F:連射 P:威力 S:シールド)を取ろう！
         </div>
         <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
-          スマホ：スワイプで移動・ダブルタップでショット / 森ガチャで装備強化！🌲
+          スマホ：スワイプで移動・ダブルタップでショット / 赤い部分が当たり判定！🎯
         </div>
       </div>
       <canvas 
@@ -816,7 +894,7 @@ const BulletHell: React.FC = () => {
         style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} 
         onClick={shoot}
         role="application"
-        aria-label="弾幕シューティングゲーム。矢印キーで移動、スペースキーで発射。"
+        aria-label="演習林での修行。矢印キーで移動、スペースキーで発射。"
         tabIndex={running ? 0 : -1}
       />
       
@@ -831,7 +909,7 @@ const BulletHell: React.FC = () => {
           <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
           <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '8px' }}>最終スコア: {score}</div>
           <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.1rem', marginBottom: '16px' }}>
-            💰 獲得MOMOPay: {Math.floor(score / 10)}ポイント
+            💰 獲得MOMOPay: {Math.floor(score / 10)}
           </div>
           {highScores.length > 0 && (
             <div>
@@ -886,9 +964,9 @@ const BulletHell: React.FC = () => {
             color: 'white', 
             borderColor: (running || momoPayPoints < 100) ? '#333' : '#d32f2f'
           }}
-          aria-label="ガチャを引く（100ポイント）"
+          aria-label="ガチャを引く（100MOMOPay）"
         >
-          🌲 森ガチャ (100P)
+          🌲 森ガチャ (100MOMOPay)
         </button>
         
         <button 
@@ -912,36 +990,49 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 1000, padding: '8px'
         }}>
-          <div className="comic-card" style={{
+          <div className="comic-card gacha-modal" style={{
             background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 82, 82, 0.1))',
-            padding: '32px', borderColor: '#ff5252', maxWidth: '400px', width: '90%',
+            padding: 'min(32px, 4vw)', borderColor: '#ff5252', 
+            maxWidth: 'min(400px, 95vw)', width: '100%',
             textAlign: 'center'
           }}>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.8rem', marginBottom: '16px' }}>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
+              marginBottom: '16px' 
+            }}>
               🌲 森のガチャ小屋 🐿️
             </div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '16px' }}>
-              💰 現在のMOMOPay: {momoPayPoints}ポイント
+            <div className="comic-text" style={{ 
+              color: '#c8e6c9', fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+              marginBottom: '16px' 
+            }}>
+              💰 現在のMOMOPay: {momoPayPoints}
             </div>
-            <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1rem', marginBottom: '24px' }}>
-              👑 レジェンダリー: 3% | 🌿 エピック: 12% | 🌲 レア: 25% | 🌰 コモン: 60%
+            <div className="comic-text" style={{ 
+              color: '#ffd93d', fontSize: 'clamp(0.8rem, 2.5vw, 1rem)', 
+              marginBottom: '24px', lineHeight: '1.4'
+            }}>
+              👑 レジェンダリー: 3%<br className="gacha-rate-break" />
+              🌿 エピック: 12% | 🌲 レア: 25%<br className="gacha-rate-break" />
+              🌰 コモン: 60%
             </div>
             
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
               <button 
                 onClick={performGacha} 
                 disabled={momoPayPoints < 100}
                 className="comic-button"
                 style={{ 
-                  padding: '16px 24px', fontSize: '1.2rem',
+                  padding: 'min(16px 24px, 4vw)', fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                   background: momoPayPoints < 100 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
                   color: momoPayPoints < 100 ? '#ccc' : '#000', 
-                  borderColor: momoPayPoints < 100 ? '#333' : '#f57f17'
+                  borderColor: momoPayPoints < 100 ? '#333' : '#f57f17',
+                  minWidth: '120px'
                 }}
               >
-                🌰 森ガチャ (100P)
+                🌰 森ガチャ (100MOMOPay)
               </button>
             </div>
             
@@ -949,7 +1040,7 @@ const BulletHell: React.FC = () => {
               onClick={() => setShowGacha(false)} 
               className="comic-button"
               style={{ 
-                padding: '8px 16px', 
+                padding: 'min(8px 16px, 2vw)', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                 background: 'linear-gradient(45deg, #666, #555)', 
                 color: 'white', 
                 borderColor: '#333'
@@ -1041,26 +1132,47 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, overflow: 'auto'
+          zIndex: 1000, overflow: 'auto', padding: '8px'
         }}>
-          <div className="comic-card" style={{
+          <div className="comic-card inventory-modal" style={{
             background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.2), rgba(33, 150, 243, 0.1))',
-            padding: '32px', borderColor: '#2196f3', maxWidth: '600px', width: '90%',
-            maxHeight: '80vh', overflow: 'auto'
+            padding: 'min(32px, 4vw)', borderColor: '#2196f3', 
+            maxWidth: 'min(600px, 95vw)', width: '100%',
+            maxHeight: 'min(90vh, 800px)', overflow: 'auto',
+            margin: 'auto'
           }}>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.8rem', marginBottom: '16px', textAlign: 'center' }}>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
+              marginBottom: '16px', textAlign: 'center' 
+            }}>
               🎒 装備インベントリ
             </div>
             
             {/* 現在の装備 */}
             <div style={{ marginBottom: '24px' }}>
-              <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.3rem', marginBottom: '12px' }}>
+              <div className="comic-text" style={{ 
+                color: '#ffd93d', fontSize: 'clamp(1rem, 3vw, 1.3rem)', 
+                marginBottom: '12px' 
+              }}>
                 ⚡ 現在の装備
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
-                <div className="comic-card" style={{ padding: '12px', background: 'rgba(76, 175, 80, 0.1)', borderColor: '#4caf50' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>武器</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
+              <div className="equipment-grid" style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 45vw), 1fr))', 
+                gap: 'min(8px, 2vw)' 
+              }}>
+                <div className="comic-card" style={{ 
+                  padding: 'min(12px, 3vw)', background: 'rgba(76, 175, 80, 0.1)', 
+                  borderColor: '#4caf50' 
+                }}>
+                  <div className="comic-text" style={{ 
+                    color: '#c8e6c9', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                    marginBottom: '4px' 
+                  }}>武器</div>
+                  <div className="comic-text" style={{ 
+                    color: '#fff3e0', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+                    marginBottom: '8px', wordBreak: 'break-word'
+                  }}>
                     {inventory.equippedWeapon ? `${inventory.equippedWeapon.icon} ${inventory.equippedWeapon.name}` : '未装備'}
                   </div>
                   {inventory.equippedWeapon && (
@@ -1068,7 +1180,7 @@ const BulletHell: React.FC = () => {
                       onClick={() => unequipItem('weapon')}
                       className="comic-button"
                       style={{ 
-                        padding: '4px 8px', fontSize: '0.8rem',
+                        padding: 'min(4px 8px, 2vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1077,9 +1189,18 @@ const BulletHell: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <div className="comic-card" style={{ padding: '12px', background: 'rgba(255, 193, 7, 0.1)', borderColor: '#ffc107' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>シールド</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
+                <div className="comic-card" style={{ 
+                  padding: 'min(12px, 3vw)', background: 'rgba(255, 193, 7, 0.1)', 
+                  borderColor: '#ffc107' 
+                }}>
+                  <div className="comic-text" style={{ 
+                    color: '#c8e6c9', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                    marginBottom: '4px' 
+                  }}>シールド</div>
+                  <div className="comic-text" style={{ 
+                    color: '#fff3e0', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+                    marginBottom: '8px', wordBreak: 'break-word'
+                  }}>
                     {inventory.equippedShield ? `${inventory.equippedShield.icon} ${inventory.equippedShield.name}` : '未装備'}
                   </div>
                   {inventory.equippedShield && (
@@ -1087,7 +1208,7 @@ const BulletHell: React.FC = () => {
                       onClick={() => unequipItem('shield')}
                       className="comic-button"
                       style={{ 
-                        padding: '4px 8px', fontSize: '0.8rem',
+                        padding: 'min(4px 8px, 2vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1096,9 +1217,18 @@ const BulletHell: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <div className="comic-card" style={{ padding: '12px', background: 'rgba(156, 39, 176, 0.1)', borderColor: '#9c27b0' }}>
-                  <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '4px' }}>特殊</div>
-                  <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', marginBottom: '8px' }}>
+                <div className="comic-card" style={{ 
+                  padding: 'min(12px, 3vw)', background: 'rgba(156, 39, 176, 0.1)', 
+                  borderColor: '#9c27b0' 
+                }}>
+                  <div className="comic-text" style={{ 
+                    color: '#c8e6c9', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                    marginBottom: '4px' 
+                  }}>特殊</div>
+                  <div className="comic-text" style={{ 
+                    color: '#fff3e0', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+                    marginBottom: '8px', wordBreak: 'break-word'
+                  }}>
                     {inventory.equippedSpecial ? `${inventory.equippedSpecial.icon} ${inventory.equippedSpecial.name}` : '未装備'}
                   </div>
                   {inventory.equippedSpecial && (
@@ -1106,7 +1236,7 @@ const BulletHell: React.FC = () => {
                       onClick={() => unequipItem('special')}
                       className="comic-button"
                       style={{ 
-                        padding: '4px 8px', fontSize: '0.8rem',
+                        padding: 'min(4px 8px, 2vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1120,28 +1250,39 @@ const BulletHell: React.FC = () => {
 
             {/* アイテムリスト */}
             <div>
-              <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.3rem', marginBottom: '12px' }}>
+              <div className="comic-text" style={{ 
+                color: '#ffd93d', fontSize: 'clamp(1rem, 3vw, 1.3rem)', 
+                marginBottom: '12px' 
+              }}>
                 📦 所持アイテム ({inventory.items.length})
               </div>
               {inventory.items.length === 0 ? (
-                <div className="comic-text" style={{ color: '#c8e6c9', textAlign: 'center', padding: '20px' }}>
+                <div className="comic-text" style={{ 
+                  color: '#c8e6c9', textAlign: 'center', 
+                  padding: 'min(20px, 5vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)'
+                }}>
                   アイテムがありません。森ガチャを引いて森の恵みを獲得しよう！🌰
                 </div>
               ) : (
                 <div className="inventory-scroll" style={{ 
-                  maxHeight: '400px', 
+                  maxHeight: 'min(400px, 50vh)', 
                   overflowY: 'auto', 
                   overflowX: 'hidden',
-                  padding: '4px',
+                  padding: 'min(4px, 1vw)',
                   border: '2px solid rgba(33, 150, 243, 0.3)',
                   borderRadius: '12px',
                   background: 'rgba(0, 0, 0, 0.2)',
                   marginBottom: '16px'
                 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', padding: '8px' }}>
+                  <div className="inventory-items-grid" style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(180px, 40vw), 1fr))', 
+                    gap: 'min(8px, 2vw)', 
+                    padding: 'min(8px, 2vw)' 
+                  }}>
                     {inventory.items.map((item, index) => (
                     <div key={`${item.id}-${index}`} className="comic-card" style={{
-                      padding: '12px',
+                      padding: 'min(12px, 3vw)',
                       background: item.rarity === 'legendary' ? 'rgba(255, 215, 0, 0.1)' :
                                 item.rarity === 'epic' ? 'rgba(156, 39, 176, 0.1)' :
                                 item.rarity === 'rare' ? 'rgba(33, 150, 243, 0.1)' : 'rgba(158, 158, 158, 0.1)',
@@ -1149,30 +1290,36 @@ const BulletHell: React.FC = () => {
                                   item.rarity === 'epic' ? '#9c27b0' :
                                   item.rarity === 'rare' ? '#2196f3' : '#9e9e9e'
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '8px' }}>{item.icon}</span>
-                        <div>
-                          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem', fontWeight: 'bold' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', marginRight: '8px' }}>{item.icon}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div className="comic-text" style={{ 
+                            color: '#fff3e0', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+                            fontWeight: 'bold', wordBreak: 'break-word'
+                          }}>
                             {item.name}
                           </div>
                           <div className="comic-text" style={{ 
                             color: item.rarity === 'legendary' ? '#ffd700' :
                                   item.rarity === 'epic' ? '#9c27b0' :
                                   item.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
-                            fontSize: '0.8rem'
+                            fontSize: 'clamp(0.7rem, 2vw, 0.8rem)'
                           }}>
                             {item.rarity.toUpperCase()}
                           </div>
                         </div>
                       </div>
-                      <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '0.9rem', marginBottom: '8px' }}>
+                      <div className="comic-text" style={{ 
+                        color: '#c8e6c9', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                        marginBottom: '8px', wordBreak: 'break-word'
+                      }}>
                         {item.description}
                       </div>
                       <button 
                         onClick={() => equipItem(item)}
                         className="comic-button"
                         style={{ 
-                          padding: '6px 12px', fontSize: '0.9rem',
+                          padding: 'min(6px 12px, 3vw)', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
                           background: 'linear-gradient(45deg, #4caf50, #45a049)', 
                           color: 'white', borderColor: '#2e7d32', width: '100%'
                         }}
@@ -1191,7 +1338,7 @@ const BulletHell: React.FC = () => {
                 onClick={() => setShowInventory(false)} 
                 className="comic-button"
                 style={{ 
-                  padding: '12px 24px', 
+                  padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
                   background: 'linear-gradient(45deg, #666, #555)', 
                   color: 'white', 
                   borderColor: '#333'
