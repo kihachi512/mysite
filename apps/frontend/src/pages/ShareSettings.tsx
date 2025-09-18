@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 
-const DataExport: React.FC = () => {
+const ShareSettings: React.FC = () => {
   const { favorites, tweets, momoPayPoints, highScores } = useAppData()
   const [jsonExportSuccess, setJsonExportSuccess] = useState(false)
-
-
-
-
 
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
@@ -93,50 +90,106 @@ const DataExport: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: '20px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 className="comic-text" style={{ 
-          color: '#fff3e0', 
-          textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
-          fontSize: '2.4rem', 
-          marginBottom: '12px' 
-        }}>
-          📤 データ共有 📤
-        </h2>
-        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
-          あなたの森の秘密基地を他の人と共有しよう
-        </p>
+    <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
+      <div className="comic-text" style={{ 
+        fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', 
+        marginBottom: 'min(24px, 6vw)', 
+        textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
+        color: '#fff3e0', 
+        lineHeight: '1.2' 
+      }}>
+        📤 データ共有 📤
+      </div>
+      
+      <div className="comic-text" style={{ 
+        fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', 
+        marginBottom: 'min(36px, 8vw)', 
+        color: '#c8e6c9', 
+        textShadow: '2px 2px 0px rgba(0,0,0,0.5)' 
+      }}>
+        あなたの森の秘密基地を他の人と共有しよう
       </div>
 
       {/* データ統計 */}
       <div className="comic-card" style={{ 
         background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
-        padding: '24px', 
+        padding: 'min(24px, 6vw)', 
         borderColor: '#8bc34a', 
-        marginBottom: '24px',
-        textAlign: 'center'
+        marginBottom: 'min(24px, 6vw)',
+        maxWidth: '600px',
+        margin: '0 auto min(24px, 6vw) auto'
       }}>
-        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '16px', fontSize: '1.5rem' }}>📊 データ統計</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
+        <h3 className="comic-text" style={{ 
+          color: '#fff3e0', 
+          marginBottom: '16px', 
+          fontSize: 'clamp(1.3rem, 4vw, 1.5rem)' 
+        }}>
+          📊 データ統計
+        </h3>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(120px, 25vw), 1fr))', 
+          gap: 'min(16px, 4vw)' 
+        }}>
           <div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '2rem', marginBottom: '4px' }}>📁</div>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>宝物庫</div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem' }}>{favorites.length}件</div>
+            <div className="comic-text" style={{ 
+              color: '#c8e6c9', 
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+              marginBottom: '4px' 
+            }}>📁</div>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', 
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)' 
+            }}>宝物庫</div>
+            <div className="comic-text" style={{ 
+              color: '#c8e6c9', 
+              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' 
+            }}>{favorites.length}件</div>
           </div>
           <div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '2rem', marginBottom: '4px' }}>🐦</div>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>大広間</div>
-            <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1rem' }}>{tweets.length}件</div>
+            <div className="comic-text" style={{ 
+              color: '#c8e6c9', 
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+              marginBottom: '4px' 
+            }}>🏠</div>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', 
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)' 
+            }}>大広間</div>
+            <div className="comic-text" style={{ 
+              color: '#c8e6c9', 
+              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' 
+            }}>{tweets.length}件</div>
           </div>
           <div>
-            <div className="comic-text" style={{ color: '#ffd93d', fontSize: '2rem', marginBottom: '4px' }}>💰</div>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>MOMOPay</div>
-            <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1rem' }}>{momoPayPoints}</div>
+            <div className="comic-text" style={{ 
+              color: '#ffd93d', 
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+              marginBottom: '4px' 
+            }}>💰</div>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', 
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)' 
+            }}>MOMOPay</div>
+            <div className="comic-text" style={{ 
+              color: '#ffd93d', 
+              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' 
+            }}>{momoPayPoints}</div>
           </div>
           <div>
-            <div className="comic-text" style={{ color: '#ff6b6b', fontSize: '2rem', marginBottom: '4px' }}>🏆</div>
-            <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem' }}>ハイスコア</div>
-            <div className="comic-text" style={{ color: '#ff6b6b', fontSize: '1rem' }}>
+            <div className="comic-text" style={{ 
+              color: '#ff6b6b', 
+              fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+              marginBottom: '4px' 
+            }}>🏆</div>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', 
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)' 
+            }}>ハイスコア</div>
+            <div className="comic-text" style={{ 
+              color: '#ff6b6b', 
+              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)' 
+            }}>
               {highScores.length > 0 ? `最高${highScores[0]}点` : '未記録'}
             </div>
           </div>
@@ -146,12 +199,25 @@ const DataExport: React.FC = () => {
       {/* JSONファイル形式でのエクスポート・インポート */}
       <div className="comic-card" style={{ 
         background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
-        padding: '24px', 
+        padding: 'min(24px, 6vw)', 
         borderColor: '#8bc34a', 
-        marginBottom: '24px' 
+        marginBottom: 'min(40px, 10vw)',
+        maxWidth: '600px',
+        margin: '0 auto min(40px, 10vw) auto'
       }}>
-        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📄 データのバックアップ・復元</h3>
-        <p className="comic-text" style={{ color: '#c8e6c9', marginBottom: '16px', fontSize: '1rem' }}>
+        <h3 className="comic-text" style={{ 
+          color: '#fff3e0', 
+          marginBottom: '18px', 
+          fontSize: 'clamp(1.3rem, 4vw, 1.5rem)' 
+        }}>
+          📄 データのバックアップ・復元
+        </h3>
+        <p className="comic-text" style={{ 
+          color: '#c8e6c9', 
+          marginBottom: '16px', 
+          fontSize: 'clamp(0.9rem, 3vw, 1rem)',
+          lineHeight: '1.4'
+        }}>
           全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア）をJSONファイルでバックアップ・復元できます
         </p>
         
@@ -161,10 +227,10 @@ const DataExport: React.FC = () => {
             onClick={exportAsJson}
             className="comic-button"
             style={{
-              padding: '12px 24px',
+              padding: 'min(12px 24px, 3vw)',
               background: 'linear-gradient(45deg, #2196f3, #1976d2)',
               color: 'white',
-              fontSize: '1.1rem',
+              fontSize: 'clamp(1rem, 3vw, 1.1rem)',
               borderColor: '#0d47a1'
             }}
           >
@@ -179,7 +245,11 @@ const DataExport: React.FC = () => {
               textAlign: 'center',
               animation: 'fadeIn 0.3s ease-in'
             }}>
-              <p className="comic-text" style={{ color: '#fff', fontSize: '1.1rem', margin: 0 }}>
+              <p className="comic-text" style={{ 
+                color: '#fff', 
+                fontSize: 'clamp(1rem, 3vw, 1.1rem)', 
+                margin: 0 
+              }}>
                 ✅ JSONファイルをダウンロードしました！
               </p>
             </div>
@@ -187,7 +257,12 @@ const DataExport: React.FC = () => {
           
           {/* JSONインポート */}
           <div>
-            <label className="comic-text" style={{ color: '#fff3e0', display: 'block', marginBottom: '8px', fontSize: '1rem' }}>
+            <label className="comic-text" style={{ 
+              color: '#fff3e0', 
+              display: 'block', 
+              marginBottom: '8px', 
+              fontSize: 'clamp(0.9rem, 3vw, 1rem)' 
+            }}>
               📤 JSONファイルからインポート:
             </label>
             <input 
@@ -197,22 +272,41 @@ const DataExport: React.FC = () => {
               className="comic-input"
               style={{ 
                 width: '100%', 
-                padding: '12px', 
+                padding: 'min(12px, 3vw)', 
                 borderColor: 'rgba(255,255,255,0.4)',
                 background: 'rgba(255,255,255,0.05)',
                 color: 'white',
-                fontSize: '1rem'
+                fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
               }} 
             />
-            <p className="comic-text" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '8px' }}>
+            <p className="comic-text" style={{ 
+              color: 'rgba(255,255,255,0.7)', 
+              fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+              marginTop: '8px',
+              lineHeight: '1.4'
+            }}>
               💡 エクスポートしたJSONファイルを選択してデータを復元できます
             </p>
           </div>
         </div>
       </div>
 
+      {/* ナビゲーションボタン */}
+      <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <Link to="/settings" style={{ textDecoration: 'none' }}>
+          <button className="comic-button" style={{
+            padding: 'min(12px 24px, 3vw)',
+            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            background: 'linear-gradient(45deg, #4caf50, #45a049)',
+            color: 'white',
+            borderColor: '#2e7d32'
+          }}>
+            ⚙️ 設定に戻る
+          </button>
+        </Link>
+      </div>
     </div>
   )
 }
 
-export default DataExport
+export default ShareSettings

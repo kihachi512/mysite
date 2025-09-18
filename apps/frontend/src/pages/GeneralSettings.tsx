@@ -8,7 +8,7 @@ type AppSettings = {
   'notification-sound': boolean
 }
 
-const Settings: React.FC = () => {
+const GeneralSettings: React.FC = () => {
   const [settings, setSettings] = useState<AppSettings>({
     'dark-mode': false,
     'auto-save': false,
@@ -143,7 +143,7 @@ const Settings: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        ⚙️ 森の設定 ⚙️
+        ⚙️ 一般設定 ⚙️
       </div>
       
       <div className="comic-text" style={{ 
@@ -276,7 +276,7 @@ const Settings: React.FC = () => {
 
       {/* ナビゲーションボタン */}
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
+        <Link to="/settings" style={{ textDecoration: 'none' }}>
           <button className="comic-button" style={{
             padding: 'min(12px 24px, 3vw)',
             fontSize: 'clamp(1rem, 3vw, 1.2rem)',
@@ -284,7 +284,7 @@ const Settings: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🏠 拠点に戻る
+            ⚙️ 設定に戻る
           </button>
         </Link>
         
@@ -304,4 +304,4 @@ const Settings: React.FC = () => {
   )
 }
 
-export default Settings
+export default GeneralSettings

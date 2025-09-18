@@ -5,10 +5,11 @@ import App from './App.tsx'
 // old Minigame removed
 import Favorites from './pages/Favorites.tsx'
 import Tweets from './pages/Tweets.tsx'
-import DataExport from './pages/DataExport.tsx'
 import Games from './pages/Games.tsx'
 import MOMOStore from './pages/MOMOStore.tsx'
-import Settings from './pages/Settings.tsx'
+import SettingsIndex from './pages/SettingsIndex.tsx'
+import GeneralSettings from './pages/GeneralSettings.tsx'
+import ShareSettings from './pages/ShareSettings.tsx'
 import './index.css'
 import OmikujiRoulette from './pages/OmikujiRoulette.tsx'
 import BulletHell from './pages/BulletHell.tsx'
@@ -43,11 +44,11 @@ const router = createBrowserRouter([
               <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>ファイルを保存</div>
             </div>
           </Link>
-          <Link to="/export" style={{ textDecoration: 'none' }}>
-            <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: 'min(24px, 6vw)', borderColor: '#8bc34a', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-              <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', marginBottom: '12px' }}>📤</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>共有</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>データを共有</div>
+          <Link to="/settings" style={{ textDecoration: 'none' }}>
+            <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.3), rgba(33, 150, 243, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#2196f3', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+              <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', marginBottom: '12px' }}>⚙️</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>設定</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>一般・共有設定</div>
             </div>
           </Link>
         </div>
@@ -58,8 +59,9 @@ const router = createBrowserRouter([
             { path: 'games/store', element: <MOMOStore /> },
             { path: 'tweets', element: <Tweets /> },
             { path: 'favorites', element: <Favorites /> },
-            { path: 'export', element: <DataExport /> },
-            { path: 'settings', element: <Settings /> },
+            { path: 'settings', element: <SettingsIndex /> },
+            { path: 'settings/general', element: <GeneralSettings /> },
+            { path: 'settings/share', element: <ShareSettings /> },
     ],
   },
 ])
