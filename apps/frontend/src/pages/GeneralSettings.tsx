@@ -20,10 +20,12 @@ const GeneralSettings: React.FC = () => {
   // Load settings and purchases from localStorage
   useEffect(() => {
     const savedSettings = localStorage.getItem('app-settings')
+    let loadedSettings = settings
     if (savedSettings) {
       try {
         const parsedSettings = JSON.parse(savedSettings)
-        setSettings(prev => ({ ...prev, ...parsedSettings }))
+        loadedSettings = { ...settings, ...parsedSettings }
+        setSettings(loadedSettings)
       } catch {
         // Keep default settings
       }
@@ -37,6 +39,13 @@ const GeneralSettings: React.FC = () => {
         setPurchasedItems([])
       }
     }
+
+    // Apply all loaded settings immediately
+    Object.entries(loadedSettings).forEach(([key, value]) => {
+      if (value) {
+        applySetting(key, value)
+      }
+    })
   }, [])
 
   const updateSetting = (key: keyof AppSettings, value: boolean) => {
