@@ -39,7 +39,7 @@ const DataExport: React.FC = () => {
     return btoa(unescape(encodeURIComponent(jsonStr)))
   }
 
-  // 共有リンクを生成
+  // 共有リンクを生成（URL短縮機能付き）
   const generateShareLink = async () => {
     setIsGenerating(true)
     
@@ -52,9 +52,33 @@ const DataExport: React.FC = () => {
       // データを圧縮
       const encodedData = compressData(data)
       
-      // 現在のサイトのURLにクエリパラメータとして追加
-      const currentUrl = window.location.origin + window.location.pathname
-      const shareUrl = `${currentUrl}?d=${encodedData}`
+      // URL短縮APIを試行
+      let shareUrl: string
+      
+      try {
+        // URL短縮サービスのエンドポイント（環境に応じて変更）
+        const shortenerEndpoint = 'https://url-shortener.your-domain.workers.dev/shorten'
+        
+        const response = await fetch(shortenerEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: encodedData })
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
+          shareUrl = result.shortUrl
+        } else {
+          throw new Error('URL shortener service failed')
+        }
+      } catch (shortenerError) {
+        console.warn('URL shortener failed, falling back to direct link:', shortenerError)
+        // URL短縮に失敗した場合は従来の方法にフォールバック
+        const currentUrl = window.location.origin + window.location.pathname
+        shareUrl = `${currentUrl}?d=${encodedData}`
+      }
       
       setShareUrl(shareUrl)
       
