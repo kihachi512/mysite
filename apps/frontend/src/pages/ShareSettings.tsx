@@ -9,13 +9,28 @@ const ShareSettings: React.FC = () => {
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
     try {
+      // MOMOStoreの購入状況を取得
+      const momoStorePurchases = localStorage.getItem('momostore-purchases')
+      const parsedPurchases = momoStorePurchases ? JSON.parse(momoStorePurchases) : []
+      
+      // アプリ設定を取得
+      const appSettings = localStorage.getItem('app-settings')
+      const parsedSettings = appSettings ? JSON.parse(appSettings) : {}
+      
+      // 弾幕ゲームのインベントリも含める
+      const bulletHellInventory = localStorage.getItem('bullet-hell-inventory')
+      const parsedInventory = bulletHellInventory ? JSON.parse(bulletHellInventory) : { items: [] }
+      
       const data = {
         favorites,
         tweets,
         momoPayPoints,
         highScores,
+        momoStorePurchases: parsedPurchases,
+        appSettings: parsedSettings,
+        bulletHellInventory: parsedInventory,
         exportDate: new Date().toISOString(),
-        version: '4.0'
+        version: '4.1'
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -57,7 +72,9 @@ const ShareSettings: React.FC = () => {
           // データの確認
           const momoPayPointsInfo = jsonData.momoPayPoints !== undefined ? `\n- MOMOPay: ${jsonData.momoPayPoints}` : ''
           const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
-          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}\n\n現在のデータは上書きされます。続行しますか？`
+          const purchasesInfo = jsonData.momoStorePurchases && jsonData.momoStorePurchases.length > 0 ? `\n- MOMOStore購入: ${jsonData.momoStorePurchases.length}件` : ''
+          const inventoryInfo = jsonData.bulletHellInventory && jsonData.bulletHellInventory.items && jsonData.bulletHellInventory.items.length > 0 ? `\n- ゲーム装備: ${jsonData.bulletHellInventory.items.length}件` : ''
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- 大広間: ${jsonData.tweets.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
             localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
@@ -71,6 +88,21 @@ const ShareSettings: React.FC = () => {
             // ハイスコアがあればインポート
             if (jsonData.highScores && Array.isArray(jsonData.highScores)) {
               localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(jsonData.highScores))
+            }
+            
+            // MOMOStore購入状況があればインポート
+            if (jsonData.momoStorePurchases && Array.isArray(jsonData.momoStorePurchases)) {
+              localStorage.setItem('momostore-purchases', JSON.stringify(jsonData.momoStorePurchases))
+            }
+            
+            // アプリ設定があればインポート
+            if (jsonData.appSettings && typeof jsonData.appSettings === 'object') {
+              localStorage.setItem('app-settings', JSON.stringify(jsonData.appSettings))
+            }
+            
+            // 弾幕ゲームのインベントリがあればインポート
+            if (jsonData.bulletHellInventory && typeof jsonData.bulletHellInventory === 'object') {
+              localStorage.setItem('bullet-hell-inventory', JSON.stringify(jsonData.bulletHellInventory))
             }
             
             alert('JSONファイルからデータをインポートしました！ページを再読み込みしてください。')
@@ -218,7 +250,7 @@ const ShareSettings: React.FC = () => {
           fontSize: 'clamp(0.9rem, 3vw, 1rem)',
           lineHeight: '1.4'
         }}>
-          全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア）をJSONファイルでバックアップ・復元できます
+          全てのデータ（宝物庫・大広間・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元できます
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
