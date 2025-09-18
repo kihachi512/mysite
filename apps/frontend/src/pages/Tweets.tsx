@@ -154,10 +154,7 @@ const Tweets: React.FC = () => {
               padding: '20px', 
               borderColor: '#8bc34a'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <div className="comic-text" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
-                  匿名ユーザー
-                </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                   <div className="comic-text" style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>
                     {formatTimeAgo(tweet.createdAt)}
