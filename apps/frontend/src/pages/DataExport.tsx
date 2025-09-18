@@ -6,22 +6,29 @@ const DataExport: React.FC = () => {
   const [shareUrl, setShareUrl] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [jsonExportSuccess, setJsonExportSuccess] = useState(false)
 
 
   // データを圧縮してリンクを短縮
   const compressData = (data: any): string => {
-    // 不要な情報を削除してデータサイズを削減
+    // 必要な情報を保持してデータを圧縮
     const compactData = {
       f: data.favorites.map((fav: any) => ({
         id: fav.id,
         name: fav.name,
-        url: fav.url,
-        type: fav.type
+        kind: fav.kind,
+        text: fav.text,
+        dataUrl: fav.dataUrl,
+        mime: fav.mime,
+        createdAt: fav.createdAt
       })),
       t: data.tweets.map((tweet: any) => ({
         id: tweet.id,
-        text: tweet.text,
-        timestamp: tweet.timestamp
+        content: tweet.content,
+        createdAt: tweet.createdAt,
+        likes: tweet.likes,
+        likedBy: tweet.likedBy,
+        expiresAt: tweet.expiresAt
       }))
     }
     
@@ -74,8 +81,23 @@ const DataExport: React.FC = () => {
       
       // 圧縮されたデータを元の形式に戻す
       const data = {
-        favorites: compactData.f || [],
-        tweets: compactData.t || []
+        favorites: (compactData.f || []).map((fav: any) => ({
+          id: fav.id,
+          name: fav.name,
+          kind: fav.kind,
+          text: fav.text,
+          dataUrl: fav.dataUrl,
+          mime: fav.mime,
+          createdAt: fav.createdAt
+        })),
+        tweets: (compactData.t || []).map((tweet: any) => ({
+          id: tweet.id,
+          content: tweet.content,
+          createdAt: tweet.createdAt,
+          likes: tweet.likes || 0,
+          likedBy: tweet.likedBy || [],
+          expiresAt: tweet.expiresAt
+        }))
       }
       
       return data
@@ -111,8 +133,28 @@ const DataExport: React.FC = () => {
           // 新しい圧縮形式
           data = decompressData(importDataParam)
         } else {
-          // 旧形式
-          data = JSON.parse(decodeURIComponent(escape(atob(importDataParam))))
+          // 旧形式（互換性のため）
+          const oldData = JSON.parse(decodeURIComponent(escape(atob(importDataParam))))
+          // 旧形式を新形式に変換
+          data = {
+            favorites: (oldData.favorites || []).map((fav: any) => ({
+              id: fav.id,
+              name: fav.name,
+              kind: fav.kind || 'file',
+              text: fav.text,
+              dataUrl: fav.dataUrl,
+              mime: fav.mime,
+              createdAt: fav.createdAt || new Date().toISOString()
+            })),
+            tweets: (oldData.tweets || []).map((tweet: any) => ({
+              id: tweet.id,
+              content: tweet.content || tweet.text,
+              createdAt: tweet.createdAt || tweet.timestamp,
+              likes: tweet.likes || 0,
+              likedBy: tweet.likedBy || [],
+              expiresAt: tweet.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+            }))
+          }
         }
         
         if (data && data.favorites && data.tweets) {
@@ -135,6 +177,71 @@ const DataExport: React.FC = () => {
       }
     }
   }, [])
+
+  // JSONファイルとしてエクスポート
+  const exportAsJson = () => {
+    try {
+      const data = {
+        favorites,
+        tweets,
+        exportDate: new Date().toISOString(),
+        version: '2.0'
+      }
+      
+      const jsonStr = JSON.stringify(data, null, 2)
+      const blob = new Blob([jsonStr], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `momonga_carnival_data_${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      
+      URL.revokeObjectURL(url)
+      
+      setJsonExportSuccess(true)
+      setTimeout(() => setJsonExportSuccess(false), 3000)
+    } catch (error) {
+      console.error('Failed to export JSON:', error)
+      alert('JSONファイルのエクスポートに失敗しました')
+    }
+  }
+
+  // JSONファイルからインポート
+  const importFromJson = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string)
+        
+        if (jsonData.favorites && jsonData.tweets) {
+          // データの確認
+          const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件\n- つぶやき: ${jsonData.tweets.length}件\n\n現在のデータは上書きされます。続行しますか？`
+          
+          if (confirm(confirmMessage)) {
+            localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
+            localStorage.setItem('tweets', JSON.stringify(jsonData.tweets))
+            
+            alert('JSONファイルからデータをインポートしました！ページを再読み込みしてください。')
+            window.location.reload()
+          }
+        } else {
+          alert('無効なJSONファイル形式です')
+        }
+      } catch (error) {
+        console.error('Failed to import JSON:', error)
+        alert('JSONファイルの読み込みに失敗しました')
+      }
+    }
+    
+    reader.readAsText(file)
+    event.target.value = ''
+  }
 
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '20px' }}>
@@ -239,6 +346,74 @@ const DataExport: React.FC = () => {
             </p>
           </div>
         )}
+      </div>
+
+      {/* JSONファイル形式でのエクスポート・インポート */}
+      <div className="comic-card" style={{ 
+        background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
+        padding: '24px', 
+        borderColor: '#8bc34a', 
+        marginBottom: '24px' 
+      }}>
+        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📄 JSONファイル方式</h3>
+        <p className="comic-text" style={{ color: '#c8e6c9', marginBottom: '16px', fontSize: '1rem' }}>
+          より確実にファイルデータを含めてエクスポート・インポートできます
+        </p>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* JSONエクスポート */}
+          <button 
+            onClick={exportAsJson}
+            className="comic-button"
+            style={{
+              padding: '12px 24px',
+              background: 'linear-gradient(45deg, #2196f3, #1976d2)',
+              color: 'white',
+              fontSize: '1.1rem',
+              borderColor: '#0d47a1'
+            }}
+          >
+            📥 JSONファイルでエクスポート
+          </button>
+          
+          {jsonExportSuccess && (
+            <div style={{ 
+              padding: '12px',
+              background: 'linear-gradient(45deg, rgba(76, 175, 80, 0.8), rgba(139, 195, 74, 0.6))',
+              borderRadius: '8px',
+              textAlign: 'center',
+              animation: 'fadeIn 0.3s ease-in'
+            }}>
+              <p className="comic-text" style={{ color: '#fff', fontSize: '1.1rem', margin: 0 }}>
+                ✅ JSONファイルをダウンロードしました！
+              </p>
+            </div>
+          )}
+          
+          {/* JSONインポート */}
+          <div>
+            <label className="comic-text" style={{ color: '#fff3e0', display: 'block', marginBottom: '8px', fontSize: '1rem' }}>
+              📤 JSONファイルからインポート:
+            </label>
+            <input 
+              type="file" 
+              accept=".json"
+              onChange={importFromJson}
+              className="comic-input"
+              style={{ 
+                width: '100%', 
+                padding: '12px', 
+                borderColor: 'rgba(255,255,255,0.4)',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'white',
+                fontSize: '1rem'
+              }} 
+            />
+            <p className="comic-text" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '8px' }}>
+              💡 エクスポートしたJSONファイルを選択してデータを復元できます
+            </p>
+          </div>
+        </div>
       </div>
 
     </div>
