@@ -2,22 +2,51 @@ import React, { useState } from 'react'
 import { useAppData, type FavoriteItem } from '../contexts/AppDataContext'
 
 const Favorites: React.FC = () => {
-  const { favorites, addFavorite, removeFavorite } = useAppData()
+  const { favorites, addFavorite, removeFavorite, momoPayPoints, spendMomoPayPoints } = useAppData()
   const [textName, setTextName] = useState('')
   const [textBody, setTextBody] = useState('')
+  const UPLOAD_COST = 100 // アップロードの費用（100ポイント）
 
 
   const genId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
+    
+    // MOMOPayポイントをチェック
+    if (momoPayPoints < UPLOAD_COST) {
+      alert(`ファイルアップロードには${UPLOAD_COST}MOMOPayポイントが必要です。弾幕ゲームでポイントを稼いでください！`)
+      e.target.value = ''
+      return
+    }
+    
     const files = Array.from(e.target.files)
+    const totalCost = files.length * UPLOAD_COST
+    
+    if (momoPayPoints < totalCost) {
+      alert(`${files.length}個のファイルをアップロードするには${totalCost}MOMOPayポイントが必要です。（1ファイル${UPLOAD_COST}ポイント）`)
+      e.target.value = ''
+      return
+    }
+    
+    if (!confirm(`${files.length}個のファイルをアップロードします。${totalCost}MOMOPayポイントを消費しますがよろしいですか？`)) {
+      e.target.value = ''
+      return
+    }
+    
     files.forEach((file) => {
       const name = window.prompt('名前を入力してください（必須）', file.name)
       if (!name || !name.trim()) {
         alert('名前は必須です')
         return
       }
+      
+      // ポイントを消費
+      if (!spendMomoPayPoints(UPLOAD_COST)) {
+        alert('ポイントが不足しています。')
+        return
+      }
+      
       const reader = new FileReader()
       reader.onload = () => {
         const dataUrl = reader.result as string
@@ -39,6 +68,23 @@ const Favorites: React.FC = () => {
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!textBody.trim() || !textName.trim()) return
+    
+    // MOMOPayポイントをチェック
+    if (momoPayPoints < UPLOAD_COST) {
+      alert(`テキスト追加には${UPLOAD_COST}MOMOPayポイントが必要です。弾幕ゲームでポイントを稼いでください！`)
+      return
+    }
+    
+    if (!confirm(`テキストを宝物庫に追加します。${UPLOAD_COST}MOMOPayポイントを消費しますがよろしいですか？`)) {
+      return
+    }
+    
+    // ポイントを消費
+    if (!spendMomoPayPoints(UPLOAD_COST)) {
+      alert('ポイントが不足しています。')
+      return
+    }
+    
     const item: FavoriteItem = {
       id: genId(),
       name: textName.trim(),
@@ -82,7 +128,20 @@ const Favorites: React.FC = () => {
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
         <h2 className="comic-text" style={{ color: '#fff3e0', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', fontSize: '2.4rem', marginBottom: '12px' }}>🌲 宝物庫 🌲</h2>
-        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>好きなファイルやテキストを保存しよう</p>
+        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)', marginBottom: '16px' }}>好きなファイルやテキストを保存しよう</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
+            💰 MOMOPay: {momoPayPoints}
+          </div>
+          <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
+            アップロード費用: {UPLOAD_COST}ポイント
+          </div>
+        </div>
+        {momoPayPoints < UPLOAD_COST && (
+          <div className="comic-text" style={{ fontSize: '0.9rem', color: '#ff6b6b', textShadow: '1px 1px 0px rgba(0,0,0,0.5)', marginTop: '8px' }}>
+            ⚠️ ポイントが不足しています。弾幕ゲームでポイントを稼いでください！
+          </div>
+        )}
       </div>
       
       <div className="comic-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: '24px', borderColor: '#8bc34a', marginBottom: '24px' }}>
