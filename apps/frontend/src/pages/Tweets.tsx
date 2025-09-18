@@ -2,30 +2,44 @@ import React, { useState, useEffect } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
 
 const Tweets: React.FC = () => {
-  const { tweets, addTweet, likeTweet, loadingTweets, errorTweets, refreshData } = useAppData()
+  const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
   const [newTweet, setNewTweet] = useState('')
 
-  // Auto-refresh data every minute
+  // Auto-cleanup expired tweets every minute
   useEffect(() => {
     const interval = setInterval(() => {
-      refreshData()
+      cleanupExpiredTweets()
     }, 60000) // Check every minute
 
     return () => clearInterval(interval)
-  }, [refreshData])
+  }, [cleanupExpiredTweets])
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const generateId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTweet.trim()) return
 
-    await addTweet(newTweet.trim())
+    const now = new Date()
+    const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000) // 24 hours
+
+    const tweet = {
+      id: generateId(),
+      content: newTweet.trim(),
+      createdAt: now.toISOString(),
+      likes: 0,
+      likedBy: [],
+      expiresAt: expiresAt.toISOString()
+    }
+
+    addTweet(tweet)
     setNewTweet('')
   }
 
-  const handleLike = async (tweetId: string) => {
+  const handleLike = (tweetId: string) => {
     const userKey = `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    await likeTweet(tweetId, userKey)
+    likeTweet(tweetId, userKey)
   }
 
   const formatTimeAgo = (dateString: string) => {

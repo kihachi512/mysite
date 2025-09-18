@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { useAppData, type FavoriteItem } from '../contexts/AppDataContext'
 
 const Favorites: React.FC = () => {
-  const { favorites, addFavorite, removeFavorite, loadingFavorites, errorFavorites } = useAppData()
+  const { favorites, addFavorite, removeFavorite } = useAppData()
   const [textName, setTextName] = useState('')
   const [textBody, setTextBody] = useState('')
 
+
+  const genId = () => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -17,36 +19,40 @@ const Favorites: React.FC = () => {
         return
       }
       const reader = new FileReader()
-      reader.onload = async () => {
+      reader.onload = () => {
         const dataUrl = reader.result as string
-        const item = {
+        const item: FavoriteItem = {
+          id: genId(),
           name: name.trim(),
-          kind: 'file' as const,
+          kind: 'file',
           dataUrl,
           mime: file.type,
+          createdAt: new Date().toISOString(),
         }
-        await addFavorite(item)
+        addFavorite(item)
       }
       reader.readAsDataURL(file)
     })
     e.target.value = ''
   }
 
-  const handleTextSubmit = async (e: React.FormEvent) => {
+  const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!textBody.trim() || !textName.trim()) return
-    const item = {
+    const item: FavoriteItem = {
+      id: genId(),
       name: textName.trim(),
-      kind: 'text' as const,
+      kind: 'text',
       text: textBody,
+      createdAt: new Date().toISOString(),
     }
-    await addFavorite(item)
+    addFavorite(item)
     setTextName('')
     setTextBody('')
   }
 
-  const handleDelete = async (id: string) => {
-    await removeFavorite(id)
+  const handleDelete = (id: string) => {
+    removeFavorite(id)
   }
 
   const renderPreview = (item: FavoriteItem) => {
@@ -147,37 +153,9 @@ const Favorites: React.FC = () => {
         </form>
       </div>
 
-      {errorFavorites && (
-        <div className="comic-card" style={{ 
-          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.1))', 
-          padding: '16px', 
-          borderColor: '#ff9800',
-          marginBottom: '16px',
-          textAlign: 'center'
-        }}>
-          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
-            ⚠️ {errorFavorites}
-          </div>
-        </div>
-      )}
-
-      {loadingFavorites && (
-        <div className="comic-card" style={{ 
-          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
-          padding: '16px', 
-          borderColor: '#8bc34a',
-          marginBottom: '16px',
-          textAlign: 'center'
-        }}>
-          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1rem' }}>
-            🔄 データを読み込み中...
-          </div>
-        </div>
-      )}
-
       <div style={{ marginTop: '30px' }}>
             <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '24px', fontSize: '1.5rem' }}>🗂️ 保存済みアイテム ({favorites.length}件)</h3>
-            {favorites.length === 0 && !loadingFavorites ? (
+            {favorites.length === 0 ? (
           <div className="comic-card" style={{ 
             textAlign: 'center', 
             color: '#c8e6c9', 
