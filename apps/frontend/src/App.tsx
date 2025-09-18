@@ -7,23 +7,25 @@ const App: React.FC = () => {
   return (
     <AppDataProvider>
       <div className="app">
-        <div className="header" style={{ padding: 20, textAlign: 'center' }}>
-          <Link to="/" style={{ textDecoration: 'none' }}><h1 className="title">さすらいのモモンガカーニバル</h1></Link>
-              <nav className="nav" style={{ marginTop: 12, display: 'inline-flex' }}>
-                <Link to="/">拠点</Link>
-                <Link to="/games/omikuji">御神籤</Link>
-                <Link to="/games/bullet-hell">弾幕</Link>
-                <Link to="/tweets">つぶやき</Link>
-                <Link to="/favorites">宝物庫</Link>
-                <Link to="/export">共有</Link>
-              </nav>
-        </div>
-        <div style={{ padding: 20 }}>
+        <header className="header" style={{ padding: 20, textAlign: 'center' }} role="banner">
+          <Link to="/" style={{ textDecoration: 'none' }} aria-label="ホームページに戻る">
+            <h1 className="title">さすらいのモモンガカーニバル</h1>
+          </Link>
+          <nav className="nav" style={{ marginTop: 12, display: 'inline-flex' }} role="navigation" aria-label="メインナビゲーション">
+            <Link to="/" aria-label="拠点ページ">拠点</Link>
+            <Link to="/games/omikuji" aria-label="おみくじゲーム">御神籤</Link>
+            <Link to="/games/bullet-hell" aria-label="弾幕シューティングゲーム">弾幕</Link>
+            <Link to="/tweets" aria-label="つぶやき投稿ページ">つぶやき</Link>
+            <Link to="/favorites" aria-label="お気に入りファイル管理">宝物庫</Link>
+            <Link to="/export" aria-label="データ共有ページ">共有</Link>
+          </nav>
+        </header>
+        <main style={{ padding: 20 }} role="main">
           <Outlet />
-        </div>
-        <div className="footer" style={{ textAlign: 'center', padding: 20 }}>
+        </main>
+        <footer className="footer" style={{ textAlign: 'center', padding: 20 }} role="contentinfo">
           <p>© さすらいのモモンガカーニバル</p>
-        </div>
+        </footer>
       </div>
     </AppDataProvider>
   );
