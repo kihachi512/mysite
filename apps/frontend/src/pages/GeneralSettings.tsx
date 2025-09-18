@@ -98,7 +98,7 @@ const GeneralSettings: React.FC = () => {
       },
       'premium-theme': {
         name: 'プレミアムテーマ',
-        description: '特別な色彩テーマを適用',
+        description: 'エレガントなモノトーンテーマを適用',
         icon: '🎨'
       },
       'notification-sound': {

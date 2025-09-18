@@ -701,21 +701,44 @@ body.dark-mode .comic-button:active {
   box-shadow: 0 2px 0 rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.2) !important;
 }
 
-/* プレミアムテーマ対応 */
+/* プレミアムテーマ対応 - モノトーン */
 body.premium-theme {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 70%, #f5576c 100%) !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 25%, #dee2e6 50%, #ced4da 75%, #adb5bd 100%) !important;
 }
 
 body.premium-theme .header {
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57) !important;
+  background: linear-gradient(45deg, #ffffff, #f8f9fa, #e9ecef, #dee2e6, #ced4da) !important;
   background-size: 400% 400% !important;
-  animation: premiumGradient 10s ease infinite !important;
+  animation: premiumGradient 8s ease infinite !important;
+  border-bottom: 2px solid #6c757d !important;
 }
 
 body.premium-theme .comic-card {
-  background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(78, 205, 196, 0.2)) !important;
-  border-color: #ff6b6b !important;
-  box-shadow: 0 8px 0 rgba(255, 107, 107, 0.3), inset 0 2px 0 rgba(255,255,255,0.4) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.8)) !important;
+  border-color: #6c757d !important;
+  box-shadow: 0 8px 0 rgba(108, 117, 125, 0.3), inset 0 2px 0 rgba(255,255,255,0.8) !important;
+  color: #212529 !important;
+}
+
+body.premium-theme .comic-text {
+  color: #212529 !important;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8), 0 0 5px rgba(108, 117, 125, 0.3) !important;
+}
+
+body.premium-theme .comic-button {
+  background: linear-gradient(45deg, #ffffff, #f8f9fa) !important;
+  color: #212529 !important;
+  border-color: #6c757d !important;
+  box-shadow: 0 6px 0 rgba(108, 117, 125, 0.4), inset 0 2px 0 rgba(255,255,255,0.9) !important;
+}
+
+body.premium-theme .comic-button:hover {
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef) !important;
+  box-shadow: 0 8px 0 rgba(108, 117, 125, 0.5), inset 0 2px 0 rgba(255,255,255,0.9) !important;
+}
+
+body.premium-theme .comic-button:active {
+  box-shadow: 0 2px 0 rgba(108, 117, 125, 0.5), inset 0 2px 0 rgba(255,255,255,0.7) !important;
 }
 
 @keyframes premiumGradient {

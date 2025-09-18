@@ -33,7 +33,7 @@ const STORE_ITEMS: StoreItem[] = [
   {
     id: 'premium-theme',
     name: 'プレミアムテーマ',
-    description: '特別な色彩テーマを利用できます',
+    description: 'エレガントな白黒モノトーンテーマを利用できます',
     price: 800,
     type: 'setting',
     icon: '🎨'
