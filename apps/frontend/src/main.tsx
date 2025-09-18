@@ -7,6 +7,8 @@ import Favorites from './pages/Favorites.tsx'
 import Tweets from './pages/Tweets.tsx'
 import DataExport from './pages/DataExport.tsx'
 import Games from './pages/Games.tsx'
+import MOMOStore from './pages/MOMOStore.tsx'
+import Settings from './pages/Settings.tsx'
 import './index.css'
 import OmikujiRoulette from './pages/OmikujiRoulette.tsx'
 import BulletHell from './pages/BulletHell.tsx'
@@ -53,9 +55,11 @@ const router = createBrowserRouter([
             { path: 'games', element: <Games /> },
             { path: 'games/omikuji', element: <OmikujiRoulette /> },
             { path: 'games/bullet-hell', element: <BulletHell /> },
+            { path: 'games/store', element: <MOMOStore /> },
             { path: 'tweets', element: <Tweets /> },
             { path: 'favorites', element: <Favorites /> },
             { path: 'export', element: <DataExport /> },
+            { path: 'settings', element: <Settings /> },
     ],
   },
 ])

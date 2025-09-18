@@ -669,3 +669,59 @@ body::after {
     padding: 16px !important;
   }
 }
+
+/* ダークモード対応 */
+body.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 70%, #0e2954 100%) !important;
+}
+
+body.dark-mode .app {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .header {
+  background: linear-gradient(45deg, #2c5530, #1e3a1e, #0f1f0f, #1e3a1e, #2c5530) !important;
+  background-size: 300% 300% !important;
+}
+
+body.dark-mode .comic-card {
+  background: linear-gradient(135deg, rgba(45, 85, 48, 0.3), rgba(30, 58, 30, 0.2)) !important;
+  border-color: #4a6741 !important;
+}
+
+body.dark-mode .comic-button {
+  box-shadow: 0 6px 0 rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.2) !important;
+}
+
+body.dark-mode .comic-button:hover {
+  box-shadow: 0 8px 0 rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.2) !important;
+}
+
+body.dark-mode .comic-button:active {
+  box-shadow: 0 2px 0 rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.2) !important;
+}
+
+/* プレミアムテーマ対応 */
+body.premium-theme {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 30%, #f093fb 70%, #f5576c 100%) !important;
+}
+
+body.premium-theme .header {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57) !important;
+  background-size: 400% 400% !important;
+  animation: premiumGradient 10s ease infinite !important;
+}
+
+body.premium-theme .comic-card {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(78, 205, 196, 0.2)) !important;
+  border-color: #ff6b6b !important;
+  box-shadow: 0 8px 0 rgba(255, 107, 107, 0.3), inset 0 2px 0 rgba(255,255,255,0.4) !important;
+}
+
+@keyframes premiumGradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+  100% { background-position: 0% 50%; }
+}

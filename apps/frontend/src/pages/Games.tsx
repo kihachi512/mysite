@@ -85,6 +85,34 @@ const Games: React.FC = () => {
             </div>
           </div>
         </Link>
+
+        <Link to="/games/store" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(142, 36, 170, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#9c27b0', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div style={{ fontSize: 'clamp(3rem, 8vw, 4rem)', marginBottom: '16px' }}>🏪</div>
+            <div className="comic-text" style={{ 
+              fontSize: 'clamp(1.3rem, 5vw, 1.8rem)', 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              売店
+            </div>
+            <div className="comic-text" style={{ 
+              fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              装備売却・設定機能の購入<br />
+              <span style={{ color: '#ffd93d', fontSize: '0.9em' }}>MOMOStoreへようこそ！</span>
+            </div>
+          </div>
+        </Link>
       </div>
 
       <div style={{ marginTop: 'min(40px, 10vw)' }}>

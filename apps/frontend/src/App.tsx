@@ -17,6 +17,7 @@ const App: React.FC = () => {
             <Link to="/tweets" aria-label="大広間投稿ページ">大広間</Link>
             <Link to="/favorites" aria-label="お気に入りファイル管理">宝物庫</Link>
             <Link to="/export" aria-label="データ共有ページ">共有</Link>
+            <Link to="/settings" aria-label="設定ページ">設定</Link>
           </nav>
         </header>
         <main style={{ padding: 20 }} role="main">
