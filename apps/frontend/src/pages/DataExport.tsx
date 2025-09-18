@@ -3,244 +3,9 @@ import { useAppData } from '../contexts/AppDataContext'
 
 const DataExport: React.FC = () => {
   const { favorites, tweets } = useAppData()
-  const [shareUrl, setShareUrl] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [copySuccess, setCopySuccess] = useState(false)
   const [jsonExportSuccess, setJsonExportSuccess] = useState(false)
 
 
-  // データを圧縮してリンクを短縮
-  const compressData = (data: any): string => {
-    // 必要な情報を保持してデータを圧縮
-    const compactData = {
-      f: data.favorites.map((fav: any) => ({
-        id: fav.id,
-        name: fav.name,
-        kind: fav.kind,
-        text: fav.text,
-        dataUrl: fav.dataUrl,
-        mime: fav.mime,
-        createdAt: fav.createdAt
-      })),
-      t: data.tweets.map((tweet: any) => ({
-        id: tweet.id,
-        content: tweet.content,
-        createdAt: tweet.createdAt,
-        likes: tweet.likes,
-        likedBy: tweet.likedBy,
-        expiresAt: tweet.expiresAt
-      }))
-    }
-    
-    // JSONを最小化（スペース削除）
-    const jsonStr = JSON.stringify(compactData)
-    
-    // Base64エンコード
-    return btoa(unescape(encodeURIComponent(jsonStr)))
-  }
-
-  // 共有リンクを生成（URL短縮機能付き）
-  const generateShareLink = async () => {
-    setIsGenerating(true)
-    
-    try {
-      const data = {
-        favorites,
-        tweets
-      }
-      
-      // データを圧縮
-      const encodedData = compressData(data)
-      
-      // URL短縮APIを試行
-      let shareUrl: string
-      
-      try {
-        // URL短縮サービスのエンドポイント（環境に応じて変更）
-        const shortenerEndpoint = 'http://localhost:8787/shorten'
-        
-        const response = await fetch(shortenerEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ data: encodedData })
-        })
-        
-        if (response.ok) {
-          const result = await response.json()
-          shareUrl = result.shortUrl
-        } else {
-          throw new Error('URL shortener service failed')
-        }
-      } catch (shortenerError) {
-        console.warn('URL shortener failed, falling back to direct link:', shortenerError)
-        // URL短縮に失敗した場合は従来の方法にフォールバック
-        const currentUrl = window.location.origin + window.location.pathname
-        shareUrl = `${currentUrl}?d=${encodedData}`
-      }
-      
-      setShareUrl(shareUrl)
-      
-      // クリップボードにコピー
-      await navigator.clipboard.writeText(shareUrl)
-      
-      // 成功フィードバック
-      setCopySuccess(true)
-      setTimeout(() => setCopySuccess(false), 3000) // 3秒後に非表示
-    } catch (error) {
-      console.error('Failed to generate share link:', error)
-      alert('共有リンクの生成に失敗しました')
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
-
-  // データを展開
-  const decompressData = (encodedData: string) => {
-    try {
-      const jsonStr = decodeURIComponent(escape(atob(encodedData)))
-      const compactData = JSON.parse(jsonStr)
-      
-      // 圧縮されたデータを元の形式に戻す
-      const data = {
-        favorites: (compactData.f || []).map((fav: any) => ({
-          id: fav.id,
-          name: fav.name,
-          kind: fav.kind,
-          text: fav.text,
-          dataUrl: fav.dataUrl,
-          mime: fav.mime,
-          createdAt: fav.createdAt
-        })),
-        tweets: (compactData.t || []).map((tweet: any) => ({
-          id: tweet.id,
-          content: tweet.content,
-          createdAt: tweet.createdAt,
-          likes: tweet.likes || 0,
-          likedBy: tweet.likedBy || [],
-          expiresAt: tweet.expiresAt
-        }))
-      }
-      
-      return data
-    } catch (error) {
-      console.error('Failed to decompress data:', error)
-      return null
-    }
-  }
-
-  // 短縮URLからデータを展開
-  const expandShortUrl = async (shortId: string): Promise<string | null> => {
-    try {
-      const shortenerEndpoint = 'http://localhost:8787/expand'
-      const response = await fetch(`${shortenerEndpoint}/${shortId}`)
-      
-      if (response.ok) {
-        const result = await response.json()
-        return result.data
-      }
-    } catch (error) {
-      console.warn('Failed to expand short URL:', error)
-    }
-    return null
-  }
-
-  // URLパラメータからデータを自動インポート
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const currentPath = window.location.pathname
-    
-    // 短縮URL形式（/s/shortId）をチェック
-    const shortUrlMatch = currentPath.match(/^\/s\/(.+)$/)
-    if (shortUrlMatch) {
-      const shortId = shortUrlMatch[1]
-      expandShortUrl(shortId).then(expandedData => {
-        if (expandedData) {
-          // 短縮URLから展開したデータを処理
-          processImportData(expandedData, `short_${shortId}`)
-        }
-      })
-      return
-    }
-    
-    // 新しい圧縮形式（?d=）をチェック
-    let importDataParam = urlParams.get('d')
-    let isCompressed = true
-    
-    // 旧形式（?import=）もサポート
-    if (!importDataParam) {
-      importDataParam = urlParams.get('import')
-      isCompressed = false
-    }
-    
-    if (importDataParam) {
-      processImportData(importDataParam, `param_${importDataParam}`, isCompressed)
-    }
-  }, [])
-
-  // データインポート処理を共通化
-  const processImportData = (importDataParam: string, importKey: string, isCompressed: boolean = true) => {
-    // 既にインポート済みかチェック（セッションストレージを使用）
-    const alreadyImported = sessionStorage.getItem(importKey)
-    
-    if (!alreadyImported) {
-      try {
-        let data
-        
-        if (isCompressed) {
-          // 新しい圧縮形式
-          data = decompressData(importDataParam)
-        } else {
-          // 旧形式（互換性のため）
-          const oldData = JSON.parse(decodeURIComponent(escape(atob(importDataParam))))
-          // 旧形式を新形式に変換
-          data = {
-            favorites: (oldData.favorites || []).map((fav: any) => ({
-              id: fav.id,
-              name: fav.name,
-              kind: fav.kind || 'file',
-              text: fav.text,
-              dataUrl: fav.dataUrl,
-              mime: fav.mime,
-              createdAt: fav.createdAt || new Date().toISOString()
-            })),
-            tweets: (oldData.tweets || []).map((tweet: any) => ({
-              id: tweet.id,
-              content: tweet.content || tweet.text,
-              createdAt: tweet.createdAt || tweet.timestamp,
-              likes: tweet.likes || 0,
-              likedBy: tweet.likedBy || [],
-              expiresAt: tweet.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-            }))
-          }
-        }
-        
-        if (data && data.favorites && data.tweets) {
-          localStorage.setItem('favoriteUploads', JSON.stringify(data.favorites))
-          localStorage.setItem('tweets', JSON.stringify(data.tweets))
-          
-          // インポート済みフラグを設定
-          sessionStorage.setItem(importKey, 'true')
-          
-          // URLパラメータをクリアしてから再読み込み
-          const url = new URL(window.location.href)
-          url.searchParams.delete('d')
-          url.searchParams.delete('import')
-          // 短縮URL形式の場合はルートにリダイレクト
-          if (window.location.pathname.startsWith('/s/')) {
-            url.pathname = '/'
-          }
-          
-          alert('共有されたデータをインポートしました！ページを再読み込みしてください。')
-          window.location.href = url.toString()
-        }
-      } catch (error) {
-        console.error('Failed to import shared data:', error)
-      }
-    }
-  }
 
   // JSONファイルとしてエクスポート
   const exportAsJson = () => {
@@ -316,10 +81,10 @@ const DataExport: React.FC = () => {
           fontSize: '2.4rem', 
           marginBottom: '12px' 
         }}>
-          📤 データ共有 📤
+          💾 データ管理 💾
         </h2>
         <p className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.3rem', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
-          あなたの森の秘密基地を他の人と共有しよう
+          あなたの森の秘密基地をバックアップ・復元しよう
         </p>
       </div>
 
@@ -347,70 +112,6 @@ const DataExport: React.FC = () => {
       </div>
 
 
-      {/* 共有リンク生成 */}
-      <div className="comic-card" style={{ 
-        background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
-        padding: '24px', 
-        borderColor: '#8bc34a', 
-        marginBottom: '24px' 
-      }}>
-        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>🔗 共有リンク生成</h3>
-        <p className="comic-text" style={{ color: '#c8e6c9', marginBottom: '16px', fontSize: '1rem' }}>
-          データを含む共有リンクを生成して、他の人にあなたの森の秘密基地を共有できます
-        </p>
-        <button 
-          onClick={generateShareLink}
-          disabled={isGenerating}
-          className="comic-button"
-          style={{
-            padding: '12px 24px',
-            background: isGenerating ? '#666' : 'linear-gradient(45deg, #ff9800, #f57c00)',
-            color: 'white',
-            fontSize: '1.1rem',
-            borderColor: isGenerating ? '#333' : '#e65100',
-            marginBottom: '16px'
-          }}
-        >
-          {isGenerating ? '🔄 生成中...' : '🔗 共有リンク生成'}
-        </button>
-        
-        {copySuccess && (
-          <div style={{ 
-            marginTop: '16px',
-            padding: '12px',
-            background: 'linear-gradient(45deg, rgba(76, 175, 80, 0.8), rgba(139, 195, 74, 0.6))',
-            borderRadius: '8px',
-            textAlign: 'center',
-            animation: 'fadeIn 0.3s ease-in'
-          }}>
-            <p className="comic-text" style={{ color: '#fff', fontSize: '1.1rem', margin: 0 }}>
-              ✅ 共有リンクをクリップボードにコピーしました！
-            </p>
-          </div>
-        )}
-        
-        {shareUrl && (
-          <div style={{ marginTop: '16px' }}>
-            <p className="comic-text" style={{ color: '#fff3e0', marginBottom: '8px', fontSize: '1rem' }}>
-              生成された共有リンク（自動でコピー済み）:
-            </p>
-            <div style={{ 
-              background: 'rgba(0,0,0,0.3)', 
-              padding: '12px', 
-              borderRadius: '8px', 
-              wordBreak: 'break-all',
-              fontSize: '0.9rem',
-              color: '#c8e6c9',
-              border: '1px solid rgba(76, 175, 80, 0.3)'
-            }}>
-              {shareUrl}
-            </div>
-            <p className="comic-text" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '8px' }}>
-              💡 このリンクを他の人に送ると、あなたの森の秘密基地が自動で共有されます
-            </p>
-          </div>
-        )}
-      </div>
 
       {/* JSONファイル形式でのエクスポート・インポート */}
       <div className="comic-card" style={{ 
@@ -419,9 +120,9 @@ const DataExport: React.FC = () => {
         borderColor: '#8bc34a', 
         marginBottom: '24px' 
       }}>
-        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📄 JSONファイル方式</h3>
+        <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '18px', fontSize: '1.5rem' }}>📄 データのバックアップ・復元</h3>
         <p className="comic-text" style={{ color: '#c8e6c9', marginBottom: '16px', fontSize: '1rem' }}>
-          より確実にファイルデータを含めてエクスポート・インポートできます
+          すべてのデータをJSONファイルとしてダウンロードして、他のデバイスや環境で復元できます
         </p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -437,7 +138,7 @@ const DataExport: React.FC = () => {
               borderColor: '#0d47a1'
             }}
           >
-            📥 JSONファイルでエクスポート
+            💾 データをバックアップ
           </button>
           
           {jsonExportSuccess && (
@@ -449,7 +150,7 @@ const DataExport: React.FC = () => {
               animation: 'fadeIn 0.3s ease-in'
             }}>
               <p className="comic-text" style={{ color: '#fff', fontSize: '1.1rem', margin: 0 }}>
-                ✅ JSONファイルをダウンロードしました！
+                ✅ バックアップファイルをダウンロードしました！
               </p>
             </div>
           )}
@@ -457,7 +158,7 @@ const DataExport: React.FC = () => {
           {/* JSONインポート */}
           <div>
             <label className="comic-text" style={{ color: '#fff3e0', display: 'block', marginBottom: '8px', fontSize: '1rem' }}>
-              📤 JSONファイルからインポート:
+              📥 バックアップファイルから復元:
             </label>
             <input 
               type="file" 
@@ -474,7 +175,7 @@ const DataExport: React.FC = () => {
               }} 
             />
             <p className="comic-text" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '8px' }}>
-              💡 エクスポートしたJSONファイルを選択してデータを復元できます
+              💡 バックアップしたJSONファイルを選択してデータを復元できます
             </p>
           </div>
         </div>

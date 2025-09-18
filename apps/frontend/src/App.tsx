@@ -15,7 +15,7 @@ const App: React.FC = () => {
                 <Link to="/games/bullet-hell">弾幕</Link>
                 <Link to="/tweets">つぶやき</Link>
                 <Link to="/favorites">宝物庫</Link>
-                <Link to="/export">共有</Link>
+                <Link to="/export">管理</Link>
               </nav>
         </div>
         <div style={{ padding: 20 }}>
