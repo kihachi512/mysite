@@ -1264,7 +1264,7 @@ const BulletHell: React.FC = () => {
               color: '#ffd93d', fontSize: 'clamp(0.8rem, 2.5vw, 1rem)', 
               marginBottom: '24px', lineHeight: '1.4'
             }}>
-              👑 レジェンダリー: 3%<br className="gacha-rate-break" />
+              👑 レジェンド: 3%<br className="gacha-rate-break" />
               🌿 エピック: 12% | 🌲 レア: 25%<br className="gacha-rate-break" />
               🌰 コモン: 60%
             </div>
@@ -1668,8 +1668,8 @@ const BulletHell: React.FC = () => {
                         const rarityColor = item.rarity === 'legendary' ? '#ffd700' :
                                           item.rarity === 'epic' ? '#9c27b0' :
                                           item.rarity === 'rare' ? '#2196f3' : '#4caf50'
-                        const rarityText = item.rarity === 'legendary' ? '伝説' :
-                                         item.rarity === 'epic' ? '史詩' :
+                        const rarityText = item.rarity === 'legendary' ? 'レジェンド' :
+                                         item.rarity === 'epic' ? 'エピック' :
                                          item.rarity === 'rare' ? 'レア' : 'コモン'
                         
                         return (
