@@ -144,6 +144,7 @@ const BulletHell: React.FC = () => {
   const [inventory, setInventory] = useState<PlayerInventory>({ items: [] })
   const [gachaResult, setGachaResult] = useState<GachaItem | null>(null)
   const [showInventory, setShowInventory] = useState(false)
+  const [showEquipmentCatalog, setShowEquipmentCatalog] = useState(false)
   const playerRef = useRef<Player>({ x: 200, y: 240, r: 6, fireRate: 1, power: 1 })
   const bulletsRef = useRef<Bullet[]>([])
   const enemiesRef = useRef<Enemy[]>([])
@@ -1217,6 +1218,21 @@ const BulletHell: React.FC = () => {
         >
           🎒 装備 ({inventory.items.length})
         </button>
+        
+        <button 
+          onClick={() => setShowEquipmentCatalog(true)} 
+          disabled={running} 
+          className="comic-button"
+          style={{ 
+            padding: '12px 20px', 
+            background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
+            color: 'white', 
+            borderColor: running ? '#333' : '#4a148c'
+          }}
+          aria-label="装備図鑑を開く"
+        >
+          📖 装備図鑑
+        </button>
       </div>
 
       {/* ガチャモーダル */}
@@ -1577,6 +1593,161 @@ const BulletHell: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <button 
                 onClick={() => setShowInventory(false)} 
+                className="comic-button"
+                style={{ 
+                  padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
+                  background: 'linear-gradient(45deg, #666, #555)', 
+                  color: 'white', 
+                  borderColor: '#333'
+                }}
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 装備図鑑モーダル */}
+      {showEquipmentCatalog && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, overflow: 'auto', padding: '8px'
+        }}>
+          <div className="comic-card inventory-modal" style={{
+            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.1))',
+            padding: 'min(32px, 4vw)', borderColor: '#9c27b0', 
+            maxWidth: 'min(700px, 95vw)', width: '100%',
+            maxHeight: 'min(80vh, 600px)', position: 'relative'
+          }}>
+            <div className="comic-text" style={{ 
+              color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
+              marginBottom: '16px', textAlign: 'center' 
+            }}>
+              📖 装備図鑑
+            </div>
+            
+            <div className="comic-text" style={{ 
+              color: '#c8e6c9', fontSize: 'clamp(0.9rem, 3vw, 1rem)', 
+              marginBottom: '20px', textAlign: 'center' 
+            }}>
+              ガチャで入手できる全装備と所持数
+            </div>
+            
+            <div className="inventory-scroll" style={{
+              maxHeight: 'min(60vh, 400px)', overflowY: 'auto',
+              padding: 'min(4px, 1vw)',
+              border: '2px solid rgba(156, 39, 176, 0.3)',
+              borderRadius: '10px',
+              background: 'rgba(0, 0, 0, 0.2)'
+            }}>
+              {/* 装備カテゴリー別表示 */}
+              {['weapon', 'shield', 'accessory'].map(category => {
+                const categoryItems = GACHA_ITEMS.filter(item => item.type === category)
+                const categoryName = category === 'weapon' ? '武器' : category === 'shield' ? '盾' : 'アクセサリー'
+                const categoryIcon = category === 'weapon' ? '⚔️' : category === 'shield' ? '🛡️' : '💎'
+                
+                return (
+                  <div key={category} style={{ marginBottom: '20px' }}>
+                    <div className="comic-text" style={{
+                      color: '#fff3e0', fontSize: 'clamp(1rem, 3.5vw, 1.3rem)',
+                      marginBottom: '12px', textAlign: 'center',
+                      textShadow: '2px 2px 0px rgba(0,0,0,0.5)'
+                    }}>
+                      {categoryIcon} {categoryName}
+                    </div>
+                    
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(min(250px, 90vw), 1fr))',
+                      gap: 'min(12px, 3vw)'
+                    }}>
+                      {categoryItems.map(item => {
+                        const ownedCount = inventory.items.filter(invItem => invItem.id === item.id).length
+                        const rarityColor = item.rarity === 'legendary' ? '#ffd700' :
+                                          item.rarity === 'epic' ? '#9c27b0' :
+                                          item.rarity === 'rare' ? '#2196f3' : '#4caf50'
+                        const rarityText = item.rarity === 'legendary' ? '伝説' :
+                                         item.rarity === 'epic' ? '史詩' :
+                                         item.rarity === 'rare' ? 'レア' : 'コモン'
+                        
+                        return (
+                          <div key={item.id} className="comic-card" style={{
+                            padding: 'min(16px, 4vw)',
+                            background: ownedCount > 0 
+                              ? `linear-gradient(135deg, ${rarityColor}20, ${rarityColor}10)`
+                              : 'linear-gradient(135deg, rgba(100, 100, 100, 0.2), rgba(80, 80, 80, 0.1))',
+                            borderColor: ownedCount > 0 ? rarityColor : '#666',
+                            opacity: ownedCount > 0 ? 1 : 0.6,
+                            position: 'relative'
+                          }}>
+                            {/* 所持数バッジ */}
+                            {ownedCount > 0 && (
+                              <div style={{
+                                position: 'absolute', top: '-8px', right: '-8px',
+                                background: rarityColor, color: 'white',
+                                borderRadius: '50%', width: '24px', height: '24px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '0.8rem', fontWeight: 'bold',
+                                border: '2px solid white'
+                              }}>
+                                {ownedCount}
+                              </div>
+                            )}
+                            
+                            <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                              <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '4px' }}>
+                                {item.icon}
+                              </div>
+                              <div className="comic-text" style={{ 
+                                fontSize: 'clamp(0.9rem, 3vw, 1.1rem)', 
+                                color: ownedCount > 0 ? '#fff3e0' : '#aaa',
+                                marginBottom: '4px'
+                              }}>
+                                {item.name}
+                              </div>
+                              <div style={{
+                                fontSize: 'clamp(0.7rem, 2.5vw, 0.8rem)',
+                                color: rarityColor,
+                                fontWeight: 'bold',
+                                marginBottom: '8px'
+                              }}>
+                                {rarityText}
+                              </div>
+                            </div>
+                            
+                            <div className="comic-text" style={{ 
+                              fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                              color: ownedCount > 0 ? '#c8e6c9' : '#888',
+                              textAlign: 'center',
+                              lineHeight: '1.3'
+                            }}>
+                              {item.description}
+                            </div>
+                            
+                            {ownedCount === 0 && (
+                              <div className="comic-text" style={{
+                                fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+                                color: '#ff6b6b',
+                                textAlign: 'center',
+                                marginTop: '8px'
+                              }}>
+                                未所持
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <button 
+                onClick={() => setShowEquipmentCatalog(false)} 
                 className="comic-button"
                 style={{ 
                   padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
