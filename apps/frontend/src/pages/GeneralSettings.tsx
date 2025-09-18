@@ -113,7 +113,7 @@ const GeneralSettings: React.FC = () => {
         icon: '🔊'
       }
     }
-    return info[key]
+    return info[key] || { name: '不明な設定', description: '設定の説明がありません', icon: '❓' }
   }
 
   const clearAllData = () => {
@@ -186,7 +186,7 @@ const GeneralSettings: React.FC = () => {
               opacity: isPurchased ? 1 : 0.6
             }}>
               <div style={{ fontSize: 'clamp(2.5rem, 6vw, 3rem)', marginBottom: '12px' }}>
-                {info?.icon || '❓'}
+                {info.icon}
               </div>
               <div className="comic-text" style={{ 
                 fontSize: 'clamp(1.2rem, 4vw, 1.4rem)', 
