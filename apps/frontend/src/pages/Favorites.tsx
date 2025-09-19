@@ -102,19 +102,20 @@ const Favorites: React.FC = () => {
           width: '100%', 
           height: '100%', 
           display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          padding: '8px'
+          alignItems: 'flex-start', 
+          justifyContent: 'flex-start',
+          padding: '12px'
         }}>
           <p className="comic-text font-body-sm" style={{ 
             whiteSpace: 'pre-wrap', 
             wordBreak: 'break-word', 
             maxHeight: '100%', 
             overflowY: 'auto',
-            textAlign: 'center',
+            textAlign: 'left',
             color: '#fff3e0',
             lineHeight: '1.4',
-            margin: 0
+            margin: 0,
+            width: '100%'
           }}>
             {item.text && item.text.length > 100 ? `${item.text.substring(0, 100)}...` : (item.text || '')}
           </p>
@@ -317,14 +318,16 @@ const Favorites: React.FC = () => {
                   justifyContent: 'space-between', 
                   alignItems: 'flex-start', 
                   marginBottom: '16px',
-                  minHeight: '40px'
+                  minHeight: '40px',
+                  paddingTop: '8px' // ファイルタイプインジケーターとの重複を避ける
                 }}>
                   <h4 className="comic-text font-title-sm" style={{ 
                     margin: 0, 
                     flex: 1, 
                     wordBreak: 'break-word',
                     lineHeight: '1.3',
-                    paddingRight: '12px'
+                    paddingRight: '12px',
+                    paddingLeft: '80px' // ファイルタイプインジケーター分のスペース確保
                   }}>
                     {item.name}
                   </h4>
@@ -392,16 +395,18 @@ const Favorites: React.FC = () => {
                 {/* ファイルタイプインジケーター */}
                 <div style={{
                   position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  background: 'rgba(76, 175, 80, 0.8)',
+                  top: '8px',
+                  left: '8px',
+                  background: 'rgba(76, 175, 80, 0.9)',
                   color: 'white',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '0.7rem',
+                  padding: '6px 10px',
+                  borderRadius: '16px',
+                  fontSize: '0.75rem',
                   fontWeight: 'bold',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  zIndex: 1 // 他の要素より前面に表示
                 }}>
                   {item.kind === 'text' ? '📝 TEXT' : 
                    item.mime?.startsWith('image/') ? '🖼️ IMAGE' :

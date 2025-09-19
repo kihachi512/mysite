@@ -340,7 +340,6 @@ const BulletHell: React.FC = () => {
   useEffect(() => {
     if (!running) return
     
-    console.log('Starting game loop, running:', running) // デバッグ用ログ
     
     const canvas = canvasRef.current
     if (!canvas) return
@@ -359,11 +358,14 @@ const BulletHell: React.FC = () => {
         return
       }
 
+      // Check if there's a boss alive - if so, don't spawn regular enemies
+      const hasBoss = enemiesRef.current.some(e => e.isBoss)
+      
       // spawn enemies in formations (Touhou-style) - Much more gradual progression
       const baseSpawnRate = 300 // Much slower initial spawn rate
       const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
       
-      if (currentTime % spawnRate === 0) {
+      if (currentTime % spawnRate === 0 && !hasBoss) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
         // Limit formation complexity based on wave
@@ -730,7 +732,7 @@ const BulletHell: React.FC = () => {
         
         // Boss appears every 5th wave, starting from wave 5
         if (nextWave >= 5 && (nextWave % 5 === 0)) {
-          const bossHp = 10 + Math.floor(nextWave / 5) * 8 // More reasonable boss HP scaling
+          const bossHp = 50 + Math.floor(nextWave / 5) * 25 // Much higher HP: starts at 50, increases by 25 per tier
           enemiesRef.current.push({
             x: w / 2,
             y: 50,
@@ -956,10 +958,8 @@ const BulletHell: React.FC = () => {
     
     // ゲームループを開始
     rafRef.current = requestAnimationFrame(loop)
-    console.log('Game loop started with requestAnimationFrame ID:', rafRef.current) // デバッグ用ログ
     
     return () => { 
-      console.log('Cleaning up game loop') // デバッグ用ログ
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current)
         rafRef.current = null
@@ -968,7 +968,6 @@ const BulletHell: React.FC = () => {
   }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound])
 
   const start = useCallback(() => {
-    console.log('Start button clicked!') // デバッグ用ログ
     
     // 前回のゲームループをキャンセル
     if (rafRef.current) {
@@ -996,7 +995,6 @@ const BulletHell: React.FC = () => {
     setGameOver(false)
     
     // ゲームを開始
-    console.log('Setting running to true') // デバッグ用ログ
     setRunning(true)
   }, [playSound])
 
@@ -1214,35 +1212,26 @@ const BulletHell: React.FC = () => {
         </div>
       )}
       
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+        {/* スタートボタン - 最も重要なので一番大きく */}
         <button 
           onClick={start} 
           disabled={running} 
-          className="comic-button font-button-sm"
+          className="comic-button font-button-lg"
           style={{ 
             background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
             color: 'white', 
-            borderColor: running ? '#333' : '#2e7d32'
+            borderColor: running ? '#333' : '#2e7d32',
+            fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
+            padding: 'min(16px 32px, 4vw 8vw)',
+            fontWeight: 'bold'
           }}
           aria-label={running ? 'ゲーム実行中' : 'ゲームを開始する'}
         >
-          {running ? 'プレイ中' : 'スタート'}
+          {running ? '🎮 プレイ中' : '🚀 スタート'}
         </button>
         
-        <button 
-          onClick={() => setShowGacha(true)} 
-          disabled={running || momoPayPoints < 1000} 
-          className="comic-button font-button-sm"
-          style={{ 
-            background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
-            color: 'white', 
-            borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f'
-          }}
-          aria-label="ガチャを引く（1000MOMOPay）"
-        >
-          <span className="momopay-small">🌲 ガチャ (1000MOMOPay)</span>
-        </button>
-        
+        {/* 装備関連ボタン - 中サイズ */}
         <button 
           onClick={() => setShowInventory(true)} 
           disabled={running} 
@@ -1269,6 +1258,23 @@ const BulletHell: React.FC = () => {
           aria-label="装備図鑑を開く"
         >
           📖 装備図鑑
+        </button>
+        
+        {/* ガチャボタン - 誤タップ防止のため小さく */}
+        <button 
+          onClick={() => setShowGacha(true)} 
+          disabled={running || momoPayPoints < 1000} 
+          className="comic-button font-button-xs"
+          style={{ 
+            background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+            color: 'white', 
+            borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f',
+            fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
+            padding: 'min(8px 16px, 2vw 4vw)'
+          }}
+          aria-label="ガチャを引く（1000MOMOPay）"
+        >
+          <span className="momopay-small">🌲 ガチャ</span>
         </button>
       </div>
 
