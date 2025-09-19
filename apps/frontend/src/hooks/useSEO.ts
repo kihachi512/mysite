@@ -18,31 +18,44 @@ export const useSEO = ({
   canonicalUrl
 }: SEOProps) => {
   useEffect(() => {
-    // タイトルの設定
-    if (title) {
-      document.title = `${title} | さすらいのモモンガカーニバル`;
-    }
-
-    // メタタグの動的更新
-    const updateMetaTag = (name: string, content: string) => {
-      let meta = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.name = name;
-        document.head.appendChild(meta);
+    try {
+      // タイトルの設定
+      if (title && typeof title === 'string' && title.trim()) {
+        document.title = `${title.trim()} | さすらいのモモンガカーニバル`;
       }
-      meta.content = content;
-    };
 
-    const updatePropertyTag = (property: string, content: string) => {
-      let meta = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('property', property);
-        document.head.appendChild(meta);
-      }
-      meta.content = content;
-    };
+      // メタタグの動的更新
+      const updateMetaTag = (name: string, content: string) => {
+        try {
+          if (!name || !content || typeof name !== 'string' || typeof content !== 'string') return;
+          
+          let meta = document.querySelector(`meta[name="${CSS.escape(name)}"]`) as HTMLMetaElement;
+          if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = name;
+            document.head.appendChild(meta);
+          }
+          meta.content = content.trim();
+        } catch (e) {
+          console.log('Meta tag update error:', e);
+        }
+      };
+
+      const updatePropertyTag = (property: string, content: string) => {
+        try {
+          if (!property || !content || typeof property !== 'string' || typeof content !== 'string') return;
+          
+          let meta = document.querySelector(`meta[property="${CSS.escape(property)}"]`) as HTMLMetaElement;
+          if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute('property', property);
+            document.head.appendChild(meta);
+          }
+          meta.content = content.trim();
+        } catch (e) {
+          console.log('Property tag update error:', e);
+        }
+      };
 
     // メタディスクリプション
     if (description) {
@@ -70,15 +83,22 @@ export const useSEO = ({
       updatePropertyTag('twitter:description', ogDescription);
     }
 
-    // カノニカルURL
-    if (canonicalUrl) {
-      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (!canonical) {
-        canonical = document.createElement('link');
-        canonical.rel = 'canonical';
-        document.head.appendChild(canonical);
+      // カノニカルURL
+      if (canonicalUrl && typeof canonicalUrl === 'string' && canonicalUrl.trim()) {
+        try {
+          let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+          if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.rel = 'canonical';
+            document.head.appendChild(canonical);
+          }
+          canonical.href = canonicalUrl.trim();
+        } catch (e) {
+          console.log('Canonical URL update error:', e);
+        }
       }
-      canonical.href = canonicalUrl;
+    } catch (e) {
+      console.log('SEO update error:', e);
     }
   }, [title, description, keywords, ogTitle, ogDescription, canonicalUrl]);
 };

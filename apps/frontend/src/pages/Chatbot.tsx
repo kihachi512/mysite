@@ -403,6 +403,14 @@ const Chatbot: React.FC = () => {
                       height: '100%',
                       objectFit: 'cover'
                     }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 20px;">🐿️</div>';
+                      }
+                    }}
                   />
                 </div>
               )}
@@ -469,6 +477,14 @@ const Chatbot: React.FC = () => {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 20px;">🐿️</div>';
+                  }
                 }}
               />
             </div>

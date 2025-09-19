@@ -227,10 +227,16 @@ const BulletHell: React.FC = () => {
       
       // BGMをループ再生
       const loopBGM = () => {
-        if (bgmEnabled && audioContext && audioContext.state === 'running') {
-          setTimeout(() => {
-            createBGM()
-          }, 4000) // 4秒後に再生
+        try {
+          if (bgmEnabled && audioContext && audioContext.state === 'running') {
+            setTimeout(() => {
+              if (bgmEnabled && audioContext && audioContext.state === 'running') {
+                createBGM()
+              }
+            }, 4000) // 4秒後に再生
+          }
+        } catch (e) {
+          console.log('BGM loop error:', e)
         }
       }
       
@@ -243,20 +249,38 @@ const BulletHell: React.FC = () => {
   
   // BGM停止関数
   const stopBGM = useCallback(() => {
-    bgmNodes.oscillators.forEach(osc => {
-      try {
-        osc.stop()
-      } catch (e) {
-        // Already stopped
+    try {
+      bgmNodes.oscillators.forEach(osc => {
+        try {
+          if (osc.context.state !== 'closed') {
+            osc.stop()
+          }
+        } catch (e) {
+          // Already stopped or context closed
+        }
+      })
+      
+      bgmNodes.gainNodes.forEach(gain => {
+        try {
+          if (gain.context.state !== 'closed') {
+            gain.disconnect()
+          }
+        } catch (e) {
+          // Already disconnected or context closed
+        }
+      })
+      
+      if (bgmNodes.masterGain) {
+        try {
+          if (bgmNodes.masterGain.context.state !== 'closed') {
+            bgmNodes.masterGain.disconnect()
+          }
+        } catch (e) {
+          // Already disconnected or context closed
+        }
       }
-    })
-    
-    if (bgmNodes.masterGain) {
-      try {
-        bgmNodes.masterGain.disconnect()
-      } catch (e) {
-        // Already disconnected
-      }
+    } catch (e) {
+      console.log('BGM stop error:', e)
     }
     
     setBgmNodes({ oscillators: [], gainNodes: [], masterGain: null })
@@ -266,14 +290,25 @@ const BulletHell: React.FC = () => {
   const updateBGMVolume = useCallback((newVolume: number) => {
     setBgmVolume(newVolume)
     if (bgmNodes.masterGain) {
-      bgmNodes.masterGain.gain.value = newVolume
+      try {
+        if (bgmNodes.masterGain.context.state !== 'closed') {
+          bgmNodes.masterGain.gain.value = Math.max(0, Math.min(1, newVolume))
+        }
+      } catch (e) {
+        console.log('BGM volume update error:', e)
+      }
     }
   }, [bgmNodes.masterGain])
   
   // 無敵時間を開始する関数
   const startInvincibility = useCallback((duration: number = 120) => { // 2秒間（60fps * 2）
-    setInvincible(true)
-    setInvincibleTime(duration)
+    try {
+      const safeDuration = Math.max(0, Math.min(600, Math.floor(duration))) // 0-10秒の範囲で制限
+      setInvincible(true)
+      setInvincibleTime(safeDuration)
+    } catch (e) {
+      console.log('Invincibility start error:', e)
+    }
   }, [])
   
   // ガチャシステム用状態
@@ -509,9 +544,10 @@ const BulletHell: React.FC = () => {
       
       // 無敵時間のカウントダウン
       if (invincibleTime > 0) {
-        setInvincibleTime(prev => prev - 1)
+        setInvincibleTime(prev => Math.max(0, prev - 1))
         if (invincibleTime <= 1) {
           setInvincible(false)
+          setInvincibleTime(0)
         }
       }
 
