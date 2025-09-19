@@ -1083,10 +1083,9 @@ const BulletHell: React.FC = () => {
     setTime(0)
     setScore(0)
     
-    // シールド初期値を装備に応じて設定
-    const baseShield = 10
+    // シールド初期値を装備に応じて設定（装備なしなら0）
     const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
-    setShield(baseShield + equipmentShieldBonus)
+    setShield(equipmentShieldBonus)
     
     setWave(1)
     setGameOver(false)
@@ -1222,7 +1221,7 @@ const BulletHell: React.FC = () => {
     // シールド効果（装備効果を常時適用）
     if (inventory.equippedShield && !running) {
       const shieldBonus = inventory.equippedShield?.effect.shield || 0 // 100%の効果を適用
-      setShield(prev => 10 + shieldBonus) // 基本10 + 装備ボーナス
+      setShield(shieldBonus) // 装備ボーナスのみ（基本値なし）
     }
 
     playerRef.current = modifiedPlayer
