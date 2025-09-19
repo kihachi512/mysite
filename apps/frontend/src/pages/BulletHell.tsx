@@ -288,11 +288,22 @@ const BulletHell: React.FC = () => {
   
   // BGM音量変更
   const updateBGMVolume = useCallback((newVolume: number) => {
-    setBgmVolume(newVolume)
+    const safeVolume = Math.max(0, Math.min(1, newVolume))
+    setBgmVolume(safeVolume)
+    
+    // LocalStorageに保存
+    try {
+      const settings = JSON.parse(localStorage.getItem('app-settings') || '{}')
+      settings['bgm-volume'] = safeVolume
+      localStorage.setItem('app-settings', JSON.stringify(settings))
+    } catch (e) {
+      console.log('BGM volume save error:', e)
+    }
+    
     if (bgmNodes.masterGain) {
       try {
         if (bgmNodes.masterGain.context.state !== 'closed') {
-          bgmNodes.masterGain.gain.value = Math.max(0, Math.min(1, newVolume))
+          bgmNodes.masterGain.gain.value = safeVolume
         }
       } catch (e) {
         console.log('BGM volume update error:', e)

@@ -6,6 +6,7 @@ type AppSettings = {
   'sharing-feature': boolean
   'premium-theme': boolean
   'notification-sound': boolean
+  'bgm-enabled': boolean
 }
 
 const GeneralSettings: React.FC = () => {
@@ -13,7 +14,8 @@ const GeneralSettings: React.FC = () => {
     'dark-mode': false,
     'sharing-feature': false,
     'premium-theme': false,
-    'notification-sound': false
+    'notification-sound': false,
+    'bgm-enabled': false
   })
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
 
@@ -88,6 +90,9 @@ const GeneralSettings: React.FC = () => {
           // Sound customization logic would be implemented here
         }
         break
+      case 'bgm-enabled':
+        // BGM setting is handled by the game itself when it reads localStorage
+        break
     }
   }
 
@@ -112,6 +117,11 @@ const GeneralSettings: React.FC = () => {
         name: '通知音',
         description: 'ゲーム効果音のカスタマイズ',
         icon: '🔊'
+      },
+      'bgm-enabled': {
+        name: 'BGM機能',
+        description: '演習林でバックグラウンドミュージックを再生',
+        icon: '🎵'
       }
     }
     return info[key] || { name: '不明な設定', description: '設定の説明がありません', icon: '❓' }
@@ -128,7 +138,8 @@ const GeneralSettings: React.FC = () => {
           'dark-mode': false,
           'sharing-feature': false,
           'premium-theme': false,
-          'notification-sound': false
+          'notification-sound': false,
+          'bgm-enabled': false
         })
         setPurchasedItems([])
         
