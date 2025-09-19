@@ -807,6 +807,12 @@ const BulletHell: React.FC = () => {
         
         // Boss appears every 5th wave, starting from wave 5
         if (nextWave >= 5 && (nextWave % 5 === 0)) {
+          // ボス出現時に既存の敵を全て消去
+          enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
+          
+          // ボス出現音
+          playSound(150, 1.0, 'square')
+          
           const bossHp = 50 + Math.floor(nextWave / 5) * 25 // Much higher HP: starts at 50, increases by 25 per tier
           enemiesRef.current.push({
             x: w / 2,
