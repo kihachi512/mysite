@@ -386,10 +386,22 @@ const Chatbot: React.FC = () => {
               {/* モモンガくんのアイコン */}
               {message.sender === 'momonga' && (
                 <div style={{
-                  fontSize: '1.5rem',
-                  flexShrink: 0
+                  width: '32px',
+                  height: '32px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '2px solid #8bc34a'
                 }}>
-                  🐿️
+                  <img 
+                    src="/momonga-icon.png" 
+                    alt="モモンガくん" 
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                  />
                 </div>
               )}
               
@@ -441,7 +453,23 @@ const Chatbot: React.FC = () => {
               alignItems: 'flex-start',
               gap: '8px'
             }}>
-              <div style={{ fontSize: '1.5rem' }}>🐿️</div>
+              <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: '2px solid #8bc34a'
+            }}>
+              <img 
+                src="/momonga-icon.png" 
+                alt="モモンガくん" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+            </div>
               <div className="comic-card" style={{
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
                 borderColor: '#8bc34a',
