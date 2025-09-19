@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 type Message = {
   id: string
@@ -9,6 +10,7 @@ type Message = {
 }
 
 const Chatbot: React.FC = () => {
+  useSEO(SEO_PRESETS.chatbot);
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
