@@ -86,11 +86,25 @@ const Favorites: React.FC = () => {
       try {
         const dataUrl = reader.result as string
         
-        // データURLの基本的な検証
+        // データURLの詳細な検証
         if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
-          console.error('Invalid data URL generated')
-          alert('ファイルの読み込みに失敗しました。')
+          console.error('Invalid data URL generated:', dataUrl?.substring(0, 50))
+          alert('ファイルの読み込みに失敗しました。データURLが無効です。')
           return
+        }
+        
+        // データURLのサイズ制限チェック（5MB制限）
+        if (dataUrl.length > 5 * 1024 * 1024) {
+          console.error('Data URL too large:', dataUrl.length)
+          alert('ファイルが大きすぎます。5MB以下のファイルを選択してください。')
+          return
+        }
+        
+        // MIMEタイプの一致確認
+        const mimeMatch = dataUrl.match(/^data:([^;]+)/)
+        const detectedMime = mimeMatch ? mimeMatch[1] : ''
+        if (detectedMime !== file.type) {
+          console.warn('MIME type mismatch:', { detected: detectedMime, expected: file.type })
         }
         
         const item: FavoriteItem = {
@@ -98,9 +112,11 @@ const Favorites: React.FC = () => {
           name: escapeHtml(name.trim()), // ファイル名をエスケープ
           kind: 'file',
           dataUrl,
-          mime: file.type,
+          mime: file.type || detectedMime, // フォールバック
           createdAt: new Date().toISOString(),
         }
+        
+        console.log('Adding favorite item:', { id: item.id, name: item.name, mime: item.mime, dataUrlLength: dataUrl.length })
         addFavorite(item)
         alert('ファイルをアップロードしました！')
       } catch (error) {
@@ -109,12 +125,23 @@ const Favorites: React.FC = () => {
       }
     }
     
-    reader.onerror = () => {
-      console.error('FileReader error')
-      alert('ファイルの読み込みに失敗しました。')
+    reader.onerror = (error) => {
+      console.error('FileReader error:', error)
+      alert('ファイルの読み込みに失敗しました。ファイルが破損している可能性があります。')
     }
     
-    reader.readAsDataURL(file)
+    reader.onabort = () => {
+      console.error('FileReader aborted')
+      alert('ファイルの読み込みがキャンセルされました。')
+    }
+    
+    // ファイル読み込み開始
+    try {
+      reader.readAsDataURL(file)
+    } catch (error) {
+      console.error('Failed to start file reading:', error)
+      alert('ファイルの読み込みを開始できませんでした。')
+    }
     e.target.value = ''
   }
 
@@ -202,16 +229,73 @@ const Favorites: React.FC = () => {
     const { dataUrl, mime, name } = item
     if (mime?.startsWith('image/')) {
       return (
-        <img 
-          src={dataUrl} 
-          alt={name} 
+        <div 
           style={{ 
-            maxWidth: '100%', 
-            maxHeight: '100%', 
-            objectFit: 'contain',
-            borderRadius: '8px'
-          }} 
-        />
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            cursor: 'pointer',
+            position: 'relative'
+          }}
+          onClick={(e) => {
+            e.stopPropagation()
+            // 画像を新しいタブで開く
+            const newWindow = window.open('', '_blank')
+            if (newWindow) {
+              newWindow.document.write(`
+                <html>
+                  <head><title>${name}</title></head>
+                  <body style="margin:0;background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;">
+                    <img src="${dataUrl}" alt="${name}" style="max-width:100%;max-height:100vh;object-fit:contain;" />
+                  </body>
+                </html>
+              `)
+              newWindow.document.close()
+            }
+          }}
+        >
+          <img 
+            src={dataUrl} 
+            alt={name} 
+            style={{ 
+              maxWidth: '100%', 
+              maxHeight: '100%', 
+              objectFit: 'contain',
+              borderRadius: '8px'
+            }}
+            onError={(e) => {
+              console.error('Image load error for:', name)
+              // エラー時は代替表示
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+              const parent = target.parentElement
+              if (parent) {
+                parent.innerHTML = `
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;color:#ff6b6b;">
+                    <div style="font-size:2rem;">❌</div>
+                    <div>画像の読み込みに失敗しました</div>
+                  </div>
+                `
+              }
+            }}
+          />
+          {/* クリックヒント */}
+          <div style={{
+            position: 'absolute',
+            bottom: '8px',
+            right: '8px',
+            background: 'rgba(0,0,0,0.7)',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            pointerEvents: 'none'
+          }}>
+            🔍 クリックで拡大
+          </div>
+        </div>
       )
     }
     if (mime?.startsWith('audio/')) {
