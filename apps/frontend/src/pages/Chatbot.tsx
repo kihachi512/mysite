@@ -325,16 +325,14 @@ const Chatbot: React.FC = () => {
     }}>
       {/* ヘッダー */}
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <div className="comic-text" style={{ 
-          fontSize: 'clamp(1.4rem, 4.5vw, 2rem)', 
+        <div className="comic-text font-title-lg" style={{ 
           marginBottom: '8px', 
           textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
           color: '#fff3e0'
         }}>
           🏛️ 公会堂 🏛️
         </div>
-        <div className="comic-text" style={{ 
-          fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
+        <div className="comic-text font-body-lg" style={{ 
           color: '#c8e6c9'
         }}>
           モモンガくんとおしゃべりしよう！
@@ -496,9 +494,8 @@ const Chatbot: React.FC = () => {
         flexWrap: 'wrap'
       }}>
         <Link to="/plaza" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
+          <button className="comic-button font-button-sm" style={{
             padding: '10px 20px',
-            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
@@ -508,9 +505,8 @@ const Chatbot: React.FC = () => {
         </Link>
         
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
+          <button className="comic-button font-button-sm" style={{
             padding: '10px 20px',
-            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
             background: 'linear-gradient(45deg, #666, #555)',
             color: 'white',
             borderColor: '#333'

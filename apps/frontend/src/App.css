@@ -804,3 +804,81 @@ body.premium-theme .footer p {
   75% { background-position: 0% 100%; }
   100% { background-position: 0% 50%; }
 }
+
+/* 統一フォントサイズシステム */
+/* ヘッダー・タイトル系 */
+.font-title-xl {
+  font-size: clamp(1.8rem, 5vw, 2.5rem) !important;
+}
+
+.font-title-lg {
+  font-size: clamp(1.4rem, 4.5vw, 2rem) !important;
+}
+
+.font-title-md {
+  font-size: clamp(1.2rem, 4vw, 1.6rem) !important;
+}
+
+.font-title-sm {
+  font-size: clamp(1rem, 3.5vw, 1.3rem) !important;
+}
+
+/* 本文・説明文系 */
+.font-body-lg {
+  font-size: clamp(1rem, 3vw, 1.2rem) !important;
+}
+
+.font-body-md {
+  font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+}
+
+.font-body-sm {
+  font-size: clamp(0.8rem, 2.2vw, 0.9rem) !important;
+}
+
+.font-body-xs {
+  font-size: clamp(0.7rem, 2vw, 0.8rem) !important;
+}
+
+/* ボタン・UI系 */
+.font-button-lg {
+  font-size: clamp(1.1rem, 3.2vw, 1.3rem) !important;
+}
+
+.font-button-md {
+  font-size: clamp(1rem, 3vw, 1.2rem) !important;
+}
+
+.font-button-sm {
+  font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+}
+
+/* 数値・ステータス系 */
+.font-status-lg {
+  font-size: clamp(1.1rem, 3.5vw, 1.4rem) !important;
+}
+
+.font-status-md {
+  font-size: clamp(1rem, 3vw, 1.2rem) !important;
+}
+
+.font-status-sm {
+  font-size: clamp(0.9rem, 2.8vw, 1.1rem) !important;
+}
+
+/* アイコン・装飾系 */
+.font-icon-xl {
+  font-size: clamp(3rem, 8vw, 4.5rem) !important;
+}
+
+.font-icon-lg {
+  font-size: clamp(2.5rem, 7vw, 3.5rem) !important;
+}
+
+.font-icon-md {
+  font-size: clamp(2rem, 6vw, 2.5rem) !important;
+}
+
+.font-icon-sm {
+  font-size: clamp(1.5rem, 4vw, 2rem) !important;
+}
