@@ -338,7 +338,13 @@ const BulletHell: React.FC = () => {
 
 
   useEffect(() => {
-    const canvas = canvasRef.current!
+    if (!running) return
+    
+    console.log('Starting game loop, running:', running) // デバッグ用ログ
+    
+    const canvas = canvasRef.current
+    if (!canvas) return
+    
     const ctx = canvas.getContext('2d')!
     const w = canvas.width, h = canvas.height
 
@@ -947,11 +953,23 @@ const BulletHell: React.FC = () => {
 
       if (running) rafRef.current = requestAnimationFrame(loop)
     }
-    if (running) rafRef.current = requestAnimationFrame(loop)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [running, playSound])
+    
+    // ゲームループを開始
+    rafRef.current = requestAnimationFrame(loop)
+    console.log('Game loop started with requestAnimationFrame ID:', rafRef.current) // デバッグ用ログ
+    
+    return () => { 
+      console.log('Cleaning up game loop') // デバッグ用ログ
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
+  }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound])
 
   const start = useCallback(() => {
+    console.log('Start button clicked!') // デバッグ用ログ
+    
     // 前回のゲームループをキャンセル
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current)
@@ -968,20 +986,18 @@ const BulletHell: React.FC = () => {
     playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
     lastShotRef.current = 0
     
-    // 状態を同期的にリセット（Reactの状態更新は非同期なので、まずfalseにしてからリセット）
-    setRunning(false)
+    // 状態をバッチで更新
     setPowerUpBonuses({ fireRate: 0, power: 0 })
     setLives(1)
-    setTime(0) // timeを確実に0にリセット
+    setTime(0)
     setScore(0)
     setShield(10)
-    setWave(1) // waveを確実に1にリセット
+    setWave(1)
     setGameOver(false)
     
-    // 短い遅延後にゲームを開始して、状態リセットが確実に完了するようにする
-    setTimeout(() => {
-      setRunning(true)
-    }, 10)
+    // ゲームを開始
+    console.log('Setting running to true') // デバッグ用ログ
+    setRunning(true)
   }, [playSound])
 
   // ガチャ機能
