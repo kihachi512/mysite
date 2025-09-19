@@ -406,10 +406,10 @@ const BulletHell: React.FC = () => {
       
       // 無敵時間のカウントダウン
       if (invincibleTime > 0) {
-        setInvincibleTime(prev => Math.max(0, prev - 1))
-        if (invincibleTime <= 1) {
+        const newInvincibleTime = Math.max(0, invincibleTime - 1)
+        setInvincibleTime(newInvincibleTime)
+        if (newInvincibleTime <= 0) {
           setInvincible(false)
-          setInvincibleTime(0)
         }
       }
 
