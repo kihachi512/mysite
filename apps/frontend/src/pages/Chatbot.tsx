@@ -2,6 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
+// 絵文字を除去する関数
+const removeEmojis = (text: string): string => {
+  // 絵文字を除去する正規表現
+  return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim()
+}
+
 // シンプルなマークダウンパーサー
 const parseMarkdown = (text: string): string => {
   let result = text
@@ -55,8 +61,14 @@ const Chatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // サイト情報データベース（将来の機能拡張用に保持）
-  const siteInfo = {
+  // 詳細なサイト情報データベース（RAG用）
+  const siteKnowledgeBase = {
+    site: {
+      name: 'さすらいのモモンガカーニバル',
+      description: '弾幕ゲーム、おみくじ、チャット機能を楽しめるエンターテイメントサイト',
+      mascot: 'モモンガくん',
+      currency: 'MOMOPay'
+    },
     navigation: {
       home: '拠点（ホーム）- メインページ',
       games: '遊技場 - ゲームで遊んだりMOMOPayを稼ごう',
@@ -239,17 +251,17 @@ const Chatbot: React.FC = () => {
     
     // 質問系
     if (message.includes('何') && (message.includes('できる') || message.includes('する'))) {
-      return `🐿️ 僕ができること教えるよ〜！\n\n**サイト案内：**\n・各機能の詳しい説明\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・どこに何があるかの案内\n\n**おしゃべり：**\n・楽しい会話\n・悩み相談\n・どんぐりの話（大好き！）\n\n一番得意なのは君を笑顔にすることかな〜😄 何でも聞いてね〜`
+      return `僕ができること教えるよー！\n\n**サイト案内：**\n・各機能の詳しい説明\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・どこに何があるかの案内\n\n**おしゃべり：**\n・楽しい会話\n・悩み相談\n・どんぐりの話（大好き！）\n\n一番得意なのは君を笑顔にすることかなー 何でも聞いてねー`
     }
     
     // 場所・現在地に関する質問
     if (message.includes('ここ') && (message.includes('どこ') || message.includes('場所'))) {
-      return `🏛️ ここは公会堂だよ〜！僕の秘密基地みたいな場所なんだ😊\n\n公会堂は広場にある施設で、僕とおしゃべりできる特別な場所なの。実は天井にハンモック隠してあるんだよ...内緒だけどね😉\n\n他の場所に行きたかったら案内するよ〜！「案内して」って言ってみて🐿️`
+      return `ここは公会堂だよー！僕の秘密基地みたいな場所なんだ\n\n公会堂は広場にある施設で、僕とおしゃべりできる特別な場所なの。実は天井にハンモック隠してあるんだよ...内緒だけどね\n\n他の場所に行きたかったら案内するよー！「案内して」って言ってみて`
     }
 
     // よくある質問
     if (message.includes('初心者') || message.includes('始め方') || message.includes('最初')) {
-      return `🌟 初心者さんへの案内だよ〜！🐿️\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよ〜😊`
+      return `初心者さんへの案内だよー！\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよー`
     }
     
     // 食べ物系
