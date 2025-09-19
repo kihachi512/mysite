@@ -71,6 +71,8 @@ const BulletHell: React.FC = () => {
   const [lastTap, setLastTap] = useState(0)
   const [shield, setShield] = useState(0)
   const [wave, setWave] = useState(1)
+  const [invincible, setInvincible] = useState(false)
+  const [invincibleTime, setInvincibleTime] = useState(0)
   
   // パワーアップアイテムによる追加能力値を管理
   const [powerUpBonuses, setPowerUpBonuses] = useState({ fireRate: 0, power: 0 })
@@ -267,6 +269,12 @@ const BulletHell: React.FC = () => {
       bgmNodes.masterGain.gain.value = newVolume
     }
   }, [bgmNodes.masterGain])
+  
+  // 無敵時間を開始する関数
+  const startInvincibility = useCallback((duration: number = 120) => { // 2秒間（60fps * 2）
+    setInvincible(true)
+    setInvincibleTime(duration)
+  }, [])
   
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
@@ -498,6 +506,14 @@ const BulletHell: React.FC = () => {
       // time - 現在のtime値を取得して使用
       const currentTime = time
       setTime(t => t + 1)
+      
+      // 無敵時間のカウントダウン
+      if (invincibleTime > 0) {
+        setInvincibleTime(prev => prev - 1)
+        if (invincibleTime <= 1) {
+          setInvincible(false)
+        }
+      }
 
       // 初期フレーム（time < 60）ではスポーンしない
       if (currentTime < 60) {
@@ -798,16 +814,25 @@ const BulletHell: React.FC = () => {
       for (const b of bulletsRef.current.filter(b => b.from === 'enemy')) {
         const dx = p.x - b.x, dy = p.y - b.y
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
+          // 無敵時間中は被弾しない
+          if (invincible) {
+            break
+          }
+          
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
           
           if (shield > 0) {
             // シールドヒット音
             playSound(400, 0.2, 'square')
             setShield(s => Math.max(0, s - 5))
+            // シールド破壊時も無敵時間を付与
+            startInvincibility(60) // 1秒間
           } else {
             // ダメージ音
             playSound(200, 0.5, 'triangle')
             setLives(v => Math.max(0, v - 1))
+            // 被弾時に無敵時間を付与
+            startInvincibility(120) // 2秒間
             if (lives - 1 <= 0) {
               setRunning(false)
               setGameOver(true)
@@ -1011,26 +1036,33 @@ const BulletHell: React.FC = () => {
       ctx.lineWidth = 3
       ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 2, 0, Math.PI * 2); ctx.stroke()
       
-      // Main player body (larger for visibility)
-      ctx.fillStyle = '#4ECDC4'
-      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
+      // 無敵時間中の点滅効果
+      const isVisible = !invincible || Math.floor(currentTime / 8) % 2 === 0
       
-      // Gradient effect for depth
-      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, displayRadius)
-      gradient.addColorStop(0, '#ffffff')
-      gradient.addColorStop(0.3, '#4ECDC4')
-      gradient.addColorStop(1, '#26a69a')
-      ctx.fillStyle = gradient
-      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius * 0.8, 0, Math.PI * 2); ctx.fill()
+      if (isVisible) {
+        // Main player body (larger for visibility)
+        ctx.fillStyle = invincible ? '#ff6b6b' : '#4ECDC4' // 無敵時は赤色
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
+        
+        // Gradient effect for depth
+        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, displayRadius)
+        gradient.addColorStop(0, '#ffffff')
+        gradient.addColorStop(0.3, invincible ? '#ff6b6b' : '#4ECDC4')
+        gradient.addColorStop(1, invincible ? '#e53935' : '#26a69a')
+        ctx.fillStyle = gradient
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius * 0.8, 0, Math.PI * 2); ctx.fill()
+      }
       
-      // Inner core (actual hitbox indicator) - more prominent
-      ctx.strokeStyle = '#ffffff'
-      ctx.lineWidth = 3
-      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius + 1, 0, Math.PI * 2); ctx.stroke()
-      
-      // Core highlight for better visibility
-      ctx.fillStyle = '#ff6b6b'
-      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.fill()
+      if (isVisible) {
+        // Inner core (actual hitbox indicator) - more prominent
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 3
+        ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius + 1, 0, Math.PI * 2); ctx.stroke()
+        
+        // Core highlight for better visibility
+        ctx.fillStyle = invincible ? '#ffaa00' : '#ff6b6b' // 無敵時は橙色
+        ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.fill()
+      }
       
       // Center dot (precise hitbox center) - larger and more visible
       ctx.fillStyle = '#ffffff'
