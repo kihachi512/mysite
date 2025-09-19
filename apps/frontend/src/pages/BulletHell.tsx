@@ -79,9 +79,18 @@ const BulletHell: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
   
+  // BGM設定の状態
+  const [bgmEnabled, setBgmEnabled] = useState(false)
+  const [bgmVolume, setBgmVolume] = useState(0.3)
+  const [bgmNodes, setBgmNodes] = useState<{
+    oscillators: OscillatorNode[]
+    gainNodes: GainNode[]
+    masterGain: GainNode | null
+  }>({ oscillators: [], gainNodes: [], masterGain: null })
+  
   // AudioContextを初期化する関数
   const initializeAudio = useCallback(() => {
-    if (audioContext || !soundEnabled) return
+    if (audioContext || (!soundEnabled && !bgmEnabled)) return
     
     try {
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
@@ -97,7 +106,7 @@ const BulletHell: React.FC = () => {
     } catch (error) {
       console.log('AudioContext creation failed:', error)
     }
-  }, [audioContext, soundEnabled])
+  }, [audioContext, soundEnabled, bgmEnabled])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -141,6 +150,123 @@ const BulletHell: React.FC = () => {
       console.log('Sound play error:', error)
     }
   }, [soundEnabled, audioContext, playActualSound])
+  
+  // BGM生成関数（プロシージャル音楽）
+  const createBGM = useCallback(() => {
+    if (!audioContext || !bgmEnabled) return
+    
+    try {
+      // 既存のBGMを停止
+      stopBGM()
+      
+      // マスターゲインノード
+      const masterGain = audioContext.createGain()
+      masterGain.gain.value = bgmVolume
+      masterGain.connect(audioContext.destination)
+      
+      // BGMの基本構成（4つのレイヤー）
+      const frequencies = [
+        // ベースライン
+        [65.4, 73.4, 82.4, 87.3], // C2, D2, E2, F2
+        // メロディ
+        [261.6, 293.7, 329.6, 349.2, 392.0], // C4, D4, E4, F4, G4
+        // ハーモニー
+        [130.8, 146.8, 164.8, 174.6], // C3, D3, E3, F3
+        // リズム
+        [1047, 1175, 1319, 1397] // C6, D6, E6, F6
+      ]
+      
+      const oscillators: OscillatorNode[] = []
+      const gainNodes: GainNode[] = []
+      
+      // 各レイヤーのオシレーターを作成
+      frequencies.forEach((freqArray, layerIndex) => {
+        freqArray.forEach((freq, noteIndex) => {
+          const osc = audioContext.createOscillator()
+          const gain = audioContext.createGain()
+          
+          // レイヤーごとに異なる波形とボリューム
+          switch(layerIndex) {
+            case 0: // ベース
+              osc.type = 'sawtooth'
+              gain.gain.value = 0.15
+              break
+            case 1: // メロディ
+              osc.type = 'sine'
+              gain.gain.value = 0.1
+              break
+            case 2: // ハーモニー
+              osc.type = 'triangle'
+              gain.gain.value = 0.08
+              break
+            case 3: // リズム
+              osc.type = 'square'
+              gain.gain.value = 0.05
+              break
+          }
+          
+          osc.frequency.value = freq
+          osc.connect(gain)
+          gain.connect(masterGain)
+          
+          // 音符のタイミング設定
+          const startTime = audioContext.currentTime + (noteIndex * 0.5) + (layerIndex * 0.1)
+          const duration = layerIndex === 3 ? 0.1 : 0.4 // リズムは短く
+          
+          osc.start(startTime)
+          osc.stop(startTime + duration)
+          
+          oscillators.push(osc)
+          gainNodes.push(gain)
+        })
+      })
+      
+      setBgmNodes({ oscillators, gainNodes, masterGain })
+      
+      // BGMをループ再生
+      const loopBGM = () => {
+        if (bgmEnabled && audioContext && audioContext.state === 'running') {
+          setTimeout(() => {
+            createBGM()
+          }, 4000) // 4秒後に再生
+        }
+      }
+      
+      setTimeout(loopBGM, 4000)
+      
+    } catch (error) {
+      console.log('BGM creation failed:', error)
+    }
+  }, [audioContext, bgmEnabled, bgmVolume])
+  
+  // BGM停止関数
+  const stopBGM = useCallback(() => {
+    bgmNodes.oscillators.forEach(osc => {
+      try {
+        osc.stop()
+      } catch (e) {
+        // Already stopped
+      }
+    })
+    
+    if (bgmNodes.masterGain) {
+      try {
+        bgmNodes.masterGain.disconnect()
+      } catch (e) {
+        // Already disconnected
+      }
+    }
+    
+    setBgmNodes({ oscillators: [], gainNodes: [], masterGain: null })
+  }, [bgmNodes])
+  
+  // BGM音量変更
+  const updateBGMVolume = useCallback((newVolume: number) => {
+    setBgmVolume(newVolume)
+    if (bgmNodes.masterGain) {
+      bgmNodes.masterGain.gain.value = newVolume
+    }
+  }, [bgmNodes.masterGain])
   
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
@@ -257,10 +383,17 @@ const BulletHell: React.FC = () => {
       try {
         const settings = JSON.parse(savedSettings)
         const soundSetting = settings['notification-sound'] || false
+        const bgmSetting = settings['bgm-enabled'] || false
+        const bgmVolumeSetting = settings['bgm-volume'] || 0.3
         setSoundEnabled(soundSetting)
+        setBgmEnabled(bgmSetting)
+        setBgmVolume(bgmVolumeSetting)
         console.log('Sound setting loaded:', soundSetting)
+        console.log('BGM setting loaded:', bgmSetting, 'Volume:', bgmVolumeSetting)
       } catch {
         setSoundEnabled(false)
+        setBgmEnabled(false)
+        setBgmVolume(0.3)
         console.log('Failed to load sound settings, defaulting to false')
       }
     } else {
@@ -268,12 +401,13 @@ const BulletHell: React.FC = () => {
     }
   }, [])
 
-  // AudioContextを効果音設定に応じて初期化
+  // AudioContextを効果音・BGM設定に応じて初期化
   useEffect(() => {
-    if (soundEnabled && !audioContext) {
+    if ((soundEnabled || bgmEnabled) && !audioContext) {
       initializeAudio()
-    } else if (!soundEnabled && audioContext) {
-      // 効果音が無効になった場合はAudioContextをクローズ
+    } else if (!soundEnabled && !bgmEnabled && audioContext) {
+      // 効果音もBGMも無効になった場合はAudioContextをクローズ
+      stopBGM()
       audioContext.close().then(() => {
         setAudioContext(null)
         console.log('AudioContext closed')
@@ -281,7 +415,7 @@ const BulletHell: React.FC = () => {
         console.log('Failed to close AudioContext:', error)
       })
     }
-  }, [soundEnabled, audioContext, initializeAudio])
+  }, [soundEnabled, bgmEnabled, audioContext, initializeAudio, stopBGM])
 
   // ユーザーインタラクション時にAudioContextをresumeする
   useEffect(() => {
@@ -330,6 +464,17 @@ const BulletHell: React.FC = () => {
       window.removeEventListener('storage', handleStorageChange)
     }
   }, [soundEnabled])
+
+  // BGM制御 - ゲーム開始/停止時
+  useEffect(() => {
+    if (bgmEnabled && audioContext && running) {
+      // ゲーム開始時にBGM開始
+      createBGM()
+    } else if (!running) {
+      // ゲーム停止時にBGM停止
+      stopBGM()
+    }
+  }, [bgmEnabled, audioContext, running, createBGM, stopBGM])
 
   // Save inventory to localStorage
   useEffect(() => {
@@ -902,9 +1047,13 @@ const BulletHell: React.FC = () => {
       ctx.fillStyle = soundEnabled ? (audioContext?.state === 'running' ? '#4caf50' : '#ff9800') : '#666'
       ctx.fillText(`🔊: ${soundEnabled ? (audioContext?.state === 'running' ? 'ON' : 'WAIT') : 'OFF'}`, 10, 65)
       
+      // BGM状態表示
+      ctx.fillStyle = bgmEnabled ? (audioContext?.state === 'running' ? '#4caf50' : '#ff9800') : '#666'
+      ctx.fillText(`🎵: ${bgmEnabled ? (audioContext?.state === 'running' ? 'ON' : 'WAIT') : 'OFF'}`, 10, 85)
+      
       // power-up status with equipment indicators
       ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
-      let yOffset = 85
+      let yOffset = 105
       
       // Fire rate - simple display
       const totalFireRate = playerRef.current.fireRate
