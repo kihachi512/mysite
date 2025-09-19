@@ -78,6 +78,39 @@ const GeneralSettings: React.FC = () => {
     applySetting(key, value)
   }
 
+  const testNotificationSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
+      const audioContext = new AudioContextClass()
+      
+      // テスト音を再生
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+      oscillator.type = 'sine'
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
+      
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.3)
+      
+      console.log('Test sound played')
+      
+      // AudioContextをクリーンアップ
+      setTimeout(() => {
+        audioContext.close()
+      }, 500)
+    } catch (error) {
+      console.log('Test sound error:', error)
+      alert('音声の再生に失敗しました。ブラウザの設定を確認してください。')
+    }
+  }
+
   const applySetting = (key: string, value: boolean) => {
     switch (key) {
       case 'dark-mode':
@@ -101,6 +134,8 @@ const GeneralSettings: React.FC = () => {
         if (value) {
           // Enable notification sounds
           // Sound customization logic would be implemented here
+          // テスト音を再生
+          testNotificationSound()
         }
         break
     }

@@ -90,17 +90,20 @@ const BulletHell: React.FC = () => {
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       const ctx = new AudioContextClass()
       setAudioContext(ctx)
+      console.log('AudioContext created, state:', ctx.state)
       
       // AudioContextが suspend 状態の場合は resume を試行
       if (ctx.state === 'suspended') {
-        ctx.resume().catch(() => {
+        ctx.resume().then(() => {
+          console.log('AudioContext resumed successfully')
+        }).catch(() => {
           console.log('AudioContext resume failed, will try on next user interaction')
         })
       }
     } catch (error) {
       console.log('AudioContext creation failed:', error)
     }
-  }, [audioContext, soundEnabled])
+  }, [soundEnabled])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -119,6 +122,7 @@ const BulletHell: React.FC = () => {
       
       oscillator.start(ctx.currentTime)
       oscillator.stop(ctx.currentTime + duration)
+      console.log(`Sound played: ${frequency}Hz, ${duration}s, ${type}`)
     } catch (error) {
       console.log('Actual sound play error:', error)
     }
@@ -126,19 +130,27 @@ const BulletHell: React.FC = () => {
   
   // 効果音再生関数
   const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
-    if (!soundEnabled || !audioContext) return
+    if (!soundEnabled || !audioContext) {
+      console.log('Sound disabled or no AudioContext:', { soundEnabled, hasAudioContext: !!audioContext })
+      return
+    }
     
     try {
       // AudioContextが suspended 状態の場合は resume を試行
       if (audioContext.state === 'suspended') {
+        console.log('AudioContext suspended, attempting resume...')
         audioContext.resume().then(() => {
+          console.log('AudioContext resumed, playing sound')
           // resume 成功後に再度音声を再生
           playActualSound(audioContext, frequency, duration, type)
         }).catch(() => {
           console.log('AudioContext resume failed')
         })
       } else if (audioContext.state === 'running') {
+        console.log('AudioContext running, playing sound')
         playActualSound(audioContext, frequency, duration, type)
+      } else {
+        console.log('AudioContext in unexpected state:', audioContext.state)
       }
     } catch (error) {
       console.log('Sound play error:', error)
@@ -287,10 +299,13 @@ const BulletHell: React.FC = () => {
 
   // AudioContextを効果音設定に応じて初期化
   useEffect(() => {
+    console.log('Sound effect:', { soundEnabled, hasAudioContext: !!audioContext })
     if (soundEnabled && !audioContext) {
+      console.log('Initializing AudioContext...')
       initializeAudio()
     } else if (!soundEnabled && audioContext) {
       // 効果音が無効になった場合はAudioContextをクローズ
+      console.log('Closing AudioContext...')
       audioContext.close().then(() => {
         setAudioContext(null)
         console.log('AudioContext closed')
@@ -303,7 +318,12 @@ const BulletHell: React.FC = () => {
   // ユーザーインタラクション時にAudioContextをresumeする
   useEffect(() => {
     const handleUserInteraction = () => {
-      if (audioContext && audioContext.state === 'suspended') {
+      console.log('User interaction detected')
+      if (soundEnabled && !audioContext) {
+        console.log('Creating AudioContext on user interaction')
+        initializeAudio()
+      } else if (audioContext && audioContext.state === 'suspended') {
+        console.log('Resuming AudioContext on user interaction')
         audioContext.resume().then(() => {
           console.log('AudioContext resumed after user interaction')
         }).catch((error) => {
@@ -315,7 +335,7 @@ const BulletHell: React.FC = () => {
     // ユーザーインタラクションイベントをリスン
     const events = ['click', 'touchstart', 'keydown']
     events.forEach(event => {
-      document.addEventListener(event, handleUserInteraction, { once: true })
+      document.addEventListener(event, handleUserInteraction, { once: false })
     })
 
     return () => {
@@ -323,7 +343,7 @@ const BulletHell: React.FC = () => {
         document.removeEventListener(event, handleUserInteraction)
       })
     }
-  }, [audioContext])
+  }, [audioContext, soundEnabled, initializeAudio])
 
   // 設定変更を監視してリアルタイムで効果音設定を更新
   useEffect(() => {
