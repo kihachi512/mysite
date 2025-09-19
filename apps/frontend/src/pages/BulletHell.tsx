@@ -359,11 +359,14 @@ const BulletHell: React.FC = () => {
         return
       }
 
+      // Check if there's a boss alive - if so, don't spawn regular enemies
+      const hasBoss = enemiesRef.current.some(e => e.isBoss)
+      
       // spawn enemies in formations (Touhou-style) - Much more gradual progression
       const baseSpawnRate = 300 // Much slower initial spawn rate
       const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
       
-      if (currentTime % spawnRate === 0) {
+      if (currentTime % spawnRate === 0 && !hasBoss) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
         // Limit formation complexity based on wave
@@ -730,7 +733,7 @@ const BulletHell: React.FC = () => {
         
         // Boss appears every 5th wave, starting from wave 5
         if (nextWave >= 5 && (nextWave % 5 === 0)) {
-          const bossHp = 10 + Math.floor(nextWave / 5) * 8 // More reasonable boss HP scaling
+          const bossHp = 50 + Math.floor(nextWave / 5) * 25 // Much higher HP: starts at 50, increases by 25 per tier
           enemiesRef.current.push({
             x: w / 2,
             y: 50,
