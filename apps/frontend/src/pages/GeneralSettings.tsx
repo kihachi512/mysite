@@ -78,6 +78,7 @@ const GeneralSettings: React.FC = () => {
     applySetting(key, value)
   }
 
+
   const applySetting = (key: string, value: boolean) => {
     switch (key) {
       case 'dark-mode':
