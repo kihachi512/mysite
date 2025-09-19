@@ -81,7 +81,7 @@ const BulletHell: React.FC = () => {
   
   // BGM設定の状態
   const [bgmEnabled, setBgmEnabled] = useState(false)
-  const [bgmVolume, setBgmVolume] = useState(0.3)
+  const [bgmVolume, setBgmVolume] = useState(0.15)
   const [bgmNodes, setBgmNodes] = useState<{
     oscillators: OscillatorNode[]
     gainNodes: GainNode[]
@@ -189,19 +189,19 @@ const BulletHell: React.FC = () => {
           switch(layerIndex) {
             case 0: // ベース
               osc.type = 'sawtooth'
-              gain.gain.value = 0.15
+              gain.gain.value = 0.08
               break
             case 1: // メロディ
               osc.type = 'sine'
-              gain.gain.value = 0.1
+              gain.gain.value = 0.06
               break
             case 2: // ハーモニー
               osc.type = 'triangle'
-              gain.gain.value = 0.08
+              gain.gain.value = 0.04
               break
             case 3: // リズム
               osc.type = 'square'
-              gain.gain.value = 0.05
+              gain.gain.value = 0.03
               break
           }
           
@@ -384,7 +384,7 @@ const BulletHell: React.FC = () => {
         const settings = JSON.parse(savedSettings)
         const soundSetting = settings['notification-sound'] || false
         const bgmSetting = settings['bgm-enabled'] || false
-        const bgmVolumeSetting = settings['bgm-volume'] || 0.3
+        const bgmVolumeSetting = settings['bgm-volume'] || 0.15
         setSoundEnabled(soundSetting)
         setBgmEnabled(bgmSetting)
         setBgmVolume(bgmVolumeSetting)
@@ -393,7 +393,7 @@ const BulletHell: React.FC = () => {
       } catch {
         setSoundEnabled(false)
         setBgmEnabled(false)
-        setBgmVolume(0.3)
+        setBgmVolume(0.15)
         console.log('Failed to load sound settings, defaulting to false')
       }
     } else {
