@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useBedrock } from '../hooks/useBedrock'
+import { BEDROCK_MODELS } from '../services/bedrockService'
 
 type Message = {
   id: string
@@ -12,7 +14,20 @@ const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [useAI, setUseAI] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Bedrock連携設定
+  const bedrock = useBedrock({
+    enabled: useAI,
+    config: useAI ? {
+      region: 'us-east-1',
+      model: BEDROCK_MODELS.CLAUDE_3_HAIKU,
+      // 本番環境では環境変数から取得
+      // accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+      // secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY
+    } : undefined
+  })
 
   // サイト情報データベース（将来の機能拡張用に保持）
   const siteInfo = {
@@ -271,22 +286,55 @@ const Chatbot: React.FC = () => {
     setInputMessage('')
     setIsTyping(true)
 
-    // モモンガくんの応答（少し遅延を入れてリアルっぽく）
-    const timeoutId = setTimeout(() => {
-      const response = getResponse(userInput)
-      const momongaMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: response,
-        sender: 'momonga',
-        timestamp: new Date()
-      }
-      
-      setMessages(prev => [...prev, momongaMessage])
-      setIsTyping(false)
-    }, 1000 + Math.random() * 1500) // 1-2.5秒のランダムな遅延
+    try {
+      let response: string
 
-    // クリーンアップ用にtimeoutIdを返す（実際は使用しないが、良いプラクティス）
-    return () => clearTimeout(timeoutId)
+      if (useAI && bedrock.isInitialized) {
+        // AI応答を生成
+        try {
+          // サイト情報をコンテキストとして追加
+          const context = `サイト情報: ${JSON.stringify(siteInfo, null, 2)}`
+          response = await bedrock.generateResponse(userInput, context)
+        } catch (aiError) {
+          console.warn('AI応答生成に失敗、フォールバックを使用:', aiError)
+          response = getResponse(userInput)
+        }
+      } else {
+        // 従来のルールベース応答
+        response = getResponse(userInput)
+      }
+
+      // レスポンス遅延（リアルな感じにするため）
+      const delay = useAI ? 2000 + Math.random() * 2000 : 1000 + Math.random() * 1500
+      
+      setTimeout(() => {
+        const momongaMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: response,
+          sender: 'momonga',
+          timestamp: new Date()
+        }
+        
+        setMessages(prev => [...prev, momongaMessage])
+        setIsTyping(false)
+      }, delay)
+
+    } catch (error) {
+      console.error('メッセージ送信エラー:', error)
+      
+      // エラー時のフォールバック
+      setTimeout(() => {
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: 'ごめんねー、今ちょっと調子が悪くて...。もう一度試してみてー',
+          sender: 'momonga',
+          timestamp: new Date()
+        }
+        
+        setMessages(prev => [...prev, errorMessage])
+        setIsTyping(false)
+      }, 1000)
+    }
   }
 
   // Enter キーで送信
@@ -343,9 +391,34 @@ const Chatbot: React.FC = () => {
           🏛️ 公会堂 🏛️
         </div>
         <div className="comic-text font-body-lg" style={{ 
-          color: '#c8e6c9'
+          color: '#c8e6c9',
+          marginBottom: '12px'
         }}>
           モモンガくんとおしゃべりしよう！
+        </div>
+        
+        {/* AI切り替えボタン */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', alignItems: 'center' }}>
+          <span className="comic-text font-body-sm" style={{ color: '#a5d6a7' }}>応答モード:</span>
+          <button
+            onClick={() => setUseAI(!useAI)}
+            className="comic-button font-button-xs"
+            style={{
+              background: useAI 
+                ? 'linear-gradient(45deg, #9c27b0, #7b1fa2)'
+                : 'linear-gradient(45deg, #4caf50, #45a049)',
+              color: 'white',
+              borderColor: useAI ? '#4a148c' : '#2e7d32',
+              padding: '6px 12px'
+            }}
+          >
+            {useAI ? 'AI' : 'ルール'}
+          </button>
+          {bedrock.error && (
+            <span className="font-body-xs" style={{ color: '#ff6b6b' }}>
+              AI無効
+            </span>
+          )}
         </div>
       </div>
 
