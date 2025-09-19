@@ -993,6 +993,33 @@ body.premium-theme .footer p {
     0 0 3px rgba(255, 215, 0, 0.3) !important;
 }
 
+/* チャットボットメッセージ内のマークダウンスタイル */
+.comic-text ul {
+  margin: 8px 0 !important;
+  padding-left: 20px !important;
+  list-style-type: none !important;
+}
+
+.comic-text li {
+  margin: 4px 0 !important;
+  position: relative !important;
+  padding-left: 0 !important;
+}
+
+.comic-text li:before {
+  content: '・' !important;
+  position: absolute !important;
+  left: -15px !important;
+  color: #8bc34a !important;
+  font-weight: bold !important;
+}
+
+.comic-text strong {
+  color: #ffeb3b !important;
+  font-weight: bold !important;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.5) !important;
+}
+
 /* 宝物庫グリッドレイアウト */
 .favorites-grid {
   display: grid !important;

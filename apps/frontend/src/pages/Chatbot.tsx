@@ -2,6 +2,45 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
+// シンプルなマークダウンパーサー
+const parseMarkdown = (text: string): string => {
+  let result = text
+    // 太字 **text** → <strong>text</strong>
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    
+  // リスト項目の処理
+  const lines = result.split('\n')
+  const processedLines: string[] = []
+  let inList = false
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    
+    if (line.match(/^・(.+)$/)) {
+      // リスト項目の開始
+      if (!inList) {
+        processedLines.push('<ul>')
+        inList = true
+      }
+      processedLines.push(`<li>${line.replace(/^・/, '')}</li>`)
+    } else {
+      // リスト項目以外
+      if (inList) {
+        processedLines.push('</ul>')
+        inList = false
+      }
+      processedLines.push(line)
+    }
+  }
+  
+  // 最後がリストで終わっている場合
+  if (inList) {
+    processedLines.push('</ul>')
+  }
+  
+  return processedLines.join('<br>')
+}
+
 type Message = {
   id: string
   content: string
@@ -429,10 +468,8 @@ const Chatbot: React.FC = () => {
               }}>
                 <div className="comic-text font-body-md" style={{
                   color: '#fff3e0',
-                  lineHeight: '1.4',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {message.content}
+                  lineHeight: '1.4'
+                }} dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}>
                 </div>
                 <div className="font-body-xs" style={{
                   color: 'rgba(255,255,255,0.6)',
