@@ -56,8 +56,10 @@ class PerformanceMonitor {
         const lcpObserver = new PerformanceObserver((entryList) => {
           const entries = entryList.getEntries()
           const lastEntry = entries[entries.length - 1]
-          this.metrics.lcp = lastEntry.startTime
-          logger.debug('LCP measured', { lcp: this.metrics.lcp })
+          if (lastEntry) {
+            this.metrics.lcp = lastEntry.startTime
+            logger.debug('LCP measured', { lcp: this.metrics.lcp })
+          }
         })
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] })
         this.observers.push(lcpObserver)
@@ -70,7 +72,9 @@ class PerformanceMonitor {
         const fidObserver = new PerformanceObserver((entryList) => {
           const entries = entryList.getEntries()
           entries.forEach((entry) => {
-            this.metrics.fid = entry.processingStart - entry.startTime
+            // First Input Delay用の型キャスト
+            const fidEntry = entry as PerformanceEventTiming
+            this.metrics.fid = fidEntry.processingStart - fidEntry.startTime
             logger.debug('FID measured', { fid: this.metrics.fid })
           })
         })
@@ -85,9 +89,14 @@ class PerformanceMonitor {
         let clsValue = 0
         const clsObserver = new PerformanceObserver((entryList) => {
           const entries = entryList.getEntries()
-          entries.forEach((entry: any) => {
-            if (!entry.hadRecentInput) {
-              clsValue += entry.value
+          entries.forEach((entry) => {
+            // Layout Shift Entry の型キャスト
+            const clsEntry = entry as PerformanceEntry & {
+              hadRecentInput?: boolean
+              value: number
+            }
+            if (!clsEntry.hadRecentInput) {
+              clsValue += clsEntry.value
             }
           })
           this.metrics.cls = clsValue
@@ -138,12 +147,19 @@ class PerformanceMonitor {
     try {
       // Performance Memory API（Chrome限定）
       if ('memory' in performance) {
-        const memory = (performance as any).memory
-        this.metrics.memoryUsage = {
-          used: memory.usedJSHeapSize,
-          total: memory.totalJSHeapSize
+        const memory = (performance as unknown as {
+          memory?: {
+            usedJSHeapSize: number
+            totalJSHeapSize: number
+          }
+        }).memory
+        if (memory) {
+          this.metrics.memoryUsage = {
+            used: memory.usedJSHeapSize,
+            total: memory.totalJSHeapSize
+          }
+          logger.debug('Memory usage measured', this.metrics.memoryUsage)
         }
-        logger.debug('Memory usage measured', this.metrics.memoryUsage)
       }
 
       // User Agent Specific Memory API（実験的）
@@ -163,9 +179,25 @@ class PerformanceMonitor {
   private getNetworkInformation(): void {
     try {
       // Network Information API
-      const connection = (navigator as any).connection || 
-                        (navigator as any).mozConnection || 
-                        (navigator as any).webkitConnection
+      const connection = (navigator as Navigator & {
+        connection?: {
+          effectiveType: string
+          downlink: number
+          rtt: number
+        }
+        mozConnection?: {
+          effectiveType: string
+          downlink: number
+          rtt: number
+        }
+        webkitConnection?: {
+          effectiveType: string
+          downlink: number
+          rtt: number
+        }
+      }).connection || 
+      (navigator as Navigator & { mozConnection?: { effectiveType: string; downlink: number; rtt: number } }).mozConnection || 
+      (navigator as Navigator & { webkitConnection?: { effectiveType: string; downlink: number; rtt: number } }).webkitConnection
 
       if (connection) {
         this.metrics.connection = {

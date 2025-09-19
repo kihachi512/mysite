@@ -164,7 +164,7 @@ const Chatbot: React.FC = () => {
         'こんにちはー！僕と一緒に楽しい時間を過ごそうよ！サイトの使い方で分からないことがあったら何でも聞いてねー',
         'おーい！モモンガくんだよー！今日はどんな冒険が待ってるかな？遊技場とか宝物庫とか、色々あるよー'
       ]
-      return greetings[Math.floor(Math.random() * greetings.length)]
+      return greetings[Math.floor(Math.random() * greetings.length)] || greetings[0] || 'こんにちは！'
     }
 
     // サイト案内・ヘルプ系
@@ -178,7 +178,7 @@ const Chatbot: React.FC = () => {
         `MOMOPayについて教えるねー！\n\n**稼ぎ方：**\n・演習林（弾幕ゲーム）をプレイ\n・装備を売店で売却\n\n**使い道：**\n・御神籤：10MOMOPay\n・宝物庫アップロード：100MOMOPay\n・売店で設定購入：200〜800MOMOPay\n\n僕もいつも演習林で頑張ってるよー！でも弾幕が難しくて...うまくいかないんだよねー`,
         `MOMOPayの管理、大変だよねー！僕も散財しちゃう方なんだ。\n\n一番効率がいいのは演習林だよ！弾幕ゲームでMOMOPayと装備がもらえるんだ。装備は売店で売却もできるから、ダブったら売っちゃおうー\n\n宝物庫は100MOMOPay必要だけど、大事なファイルを保存できるから便利だよー`
       ]
-      return payResponses[Math.floor(Math.random() * payResponses.length)]
+      return payResponses[Math.floor(Math.random() * payResponses.length)] || payResponses[0] || 'MOMOPayについて教えるよー！'
     }
     
     // ゲーム関連（詳細情報付き）
@@ -187,7 +187,7 @@ const Chatbot: React.FC = () => {
         `遊技場について教えるよー！\n\n**演習林（弾幕ゲーム）**\n・守護者として修行を積む弾幕シューティング\n・MOMOPayと装備がもらえる\n・装備はcommon→rare→epic→legendaryの順でレア！\n\n**御神籤ルーレット**\n・10MOMOPayで運勢占い\n・大吉から凶まで色々あるよー\n\n僕も演習林で修行してるけど...弾幕が難しくて、すぐやられちゃうんだよねー`,
         `演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだー\n\nでも真面目な話、演習林は一番MOMOPayを稼げる場所だよ！装備ガチャも楽しいし、レア装備が出た時の嬉しさったらもう...\n\n装備がダブったら売店で売却もできるから、どんどんチャレンジしてみてー`
       ]
-      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
+      return gameResponses[Math.floor(Math.random() * gameResponses.length)] || gameResponses[0] || 'ゲームについて教えるよー！'
     }
 
     // 売店関連
@@ -201,7 +201,7 @@ const Chatbot: React.FC = () => {
         `御神籤ルーレットについて教えるよー！\n\n・費用：10MOMOPay\n・神様に運勢を占ってもらえる\n・大吉から凶まで色々な結果があるよ\n・遊技場から行けるよー\n\n僕もよく引くけど、いつも「小吉」ばっかりなんだ...大吉引いてみたいなー`,
         `運勢占い、楽しいよねー！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ\n\n御神籤は10MOMOPayで遊技場から行けるよー！MOMOPayが足りなかったら、演習林で稼いでから挑戦してみてー`
       ]
-      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
+      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)] || fortuneResponses[0] || 'おみくじについて教えるよー！'
     }
     
     // 大広間関連
@@ -210,7 +210,7 @@ const Chatbot: React.FC = () => {
         `大広間について教えるよー！\n\n・1時間で自動削除されるつぶやき投稿\n・いいね機能付き\n・みんなでおしゃべりできる場所\n・広場から行けるよー\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！1時間で消えちゃうから気軽だよねー`,
         `大広間のおしゃべり楽しいよねー！みんなのつぶやき見てると面白いよー\n\n投稿は1時間で自動削除されるから、恥ずかしがり屋の僕には助かるかも。変なこと書いちゃっても、後で「あれ？」って思うけど消えてくれるからねー`
       ]
-      return hallResponses[Math.floor(Math.random() * hallResponses.length)]
+      return hallResponses[Math.floor(Math.random() * hallResponses.length)] || hallResponses[0] || '大広間について教えるよー！'
     }
 
     // 宝物庫関連
@@ -219,7 +219,7 @@ const Chatbot: React.FC = () => {
         `宝物庫について教えるよー！\n\n・ファイル・テキストの保存ができる\n・費用：100MOMOPay（アップロード時）\n・対応：画像、動画、音声、テキストファイルなど\n・プレビュー機能付き\n\n大事なファイルを保存するのにとっても便利だよー！僕もどんぐりの写真をいっぱい保存してるんだ`,
         `宝物庫は僕のお気に入りの場所だよー！100MOMOPay必要だけど、大切なファイルを安全に保存できるんだ\n\nテキストも保存できるから、日記とか大事なメモとかも大丈夫！MOMOPayが足りなかったら演習林で稼いでから使ってみてねー`
       ]
-      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)]
+      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)] || favoritesResponses[0] || '宝物庫について教えるよー！'
     }
 
     // 設定関連
@@ -250,7 +250,7 @@ const Chatbot: React.FC = () => {
         'ありがとうって言われると、尻尾がフワフワしちゃうー。嬉しいなー！',
         'そんなこと言われたら照れちゃうよー。僕、単純だからすぐ喜んじゃうんだ！'
       ]
-      return thanksResponses[Math.floor(Math.random() * thanksResponses.length)]
+      return thanksResponses[Math.floor(Math.random() * thanksResponses.length)] || thanksResponses[0] || 'どういたしまして！'
     }
     
     if (message.includes('さびしい') || message.includes('つまらない') || message.includes('退屈')) {
@@ -259,7 +259,7 @@ const Chatbot: React.FC = () => {
         'つまらない時は僕と遊ぼうー！僕の得意技、木の枝ぶら下がりを見せてあげる！...って、ここじゃできないか',
         '退屈な時は空を見上げてみてー！雲の形、面白いよー！僕はいつもどんぐりに見えちゃうけどね'
       ]
-      return lonelyResponses[Math.floor(Math.random() * lonelyResponses.length)]
+      return lonelyResponses[Math.floor(Math.random() * lonelyResponses.length)] || lonelyResponses[0] || '大丈夫だよー！'
     }
     
     if (message.includes('疲れた') || message.includes('つかれた')) {
@@ -268,7 +268,7 @@ const Chatbot: React.FC = () => {
         '疲れた時は僕みたいにゴロゴロするのがいいよー！モモンガ式リラックス法だよ',
         'あー、疲れてるんだね...僕の癒し系オーラで元気になってー！...効果あるかな？'
       ]
-      return tiredResponses[Math.floor(Math.random() * tiredResponses.length)]
+      return tiredResponses[Math.floor(Math.random() * tiredResponses.length)] || tiredResponses[0] || 'お疲れさまー！'
     }
     
     // 質問系
@@ -293,7 +293,7 @@ const Chatbot: React.FC = () => {
         'ナッツ類は全部好き〜！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ〜😋',
         'お腹空いてきちゃった〜！今度一緒にどんぐり拾いに行こうよ〜！僕、隠し場所知ってるんだ😉'
       ]
-      return foodResponses[Math.floor(Math.random() * foodResponses.length)]
+      return foodResponses[Math.floor(Math.random() * foodResponses.length)] || foodResponses[0] || 'どんぐり美味しいよー！'
     }
     
     // 褒め言葉
@@ -303,7 +303,7 @@ const Chatbot: React.FC = () => {
         'わ〜い！😆 そんなこと言われたら木の上まで飛び跳ねちゃうよ〜！嬉しいな〜！',
         'か、可愛いって...😳 僕、照れちゃうよ〜！でも嬉しいから許す〜😄'
       ]
-      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)]
+      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)] || praiseResponses[0] || 'ありがとう！'
     }
     
     // 困った時
@@ -313,7 +313,7 @@ const Chatbot: React.FC = () => {
         '困った時は僕に任せて〜！モモンガパワーで解決だ〜！...効果のほどは保証しないけど😆',
         'わからないことがあったら遠慮しないで〜！僕も知らないことは一緒に考えるよ〜🤔'
       ]
-      return helpResponses[Math.floor(Math.random() * helpResponses.length)]
+      return helpResponses[Math.floor(Math.random() * helpResponses.length)] || helpResponses[0] || '大丈夫だよー！'
     }
     
     // シンプルなフォールバック応答
@@ -325,7 +325,7 @@ const Chatbot: React.FC = () => {
       'うんうん！君の話、いつも楽しいよー'
     ]
     
-    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)] || fallbackResponses[0] || 'そうなんだねー！'
   }
 
   // メッセージ送信

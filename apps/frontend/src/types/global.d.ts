@@ -31,13 +31,15 @@ interface ImportMetaEnv {
   readonly VITE_LOG_LEVEL: string
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv
-}
-
-// WebKit Audio Context対応
-interface Window {
-  webkitAudioContext?: typeof AudioContext
+// WebKit Audio Context対応（グローバル拡張）
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext
+  }
+  
+  interface ImportMeta {
+    readonly env: ImportMetaEnv
+  }
 }
 
 // カスタムイベント型
@@ -77,11 +79,6 @@ declare global {
   }
 }
 
-// Service Worker関連
-interface ServiceWorkerRegistration {
-  update(): Promise<void>
-}
-
 // PWA関連
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
@@ -90,10 +87,6 @@ interface BeforeInstallPromptEvent extends Event {
     platform: string
   }>
   prompt(): Promise<void>
-}
-
-interface WindowEventMap {
-  beforeinstallprompt: BeforeInstallPromptEvent
 }
 
 export {}

@@ -80,10 +80,10 @@ class Logger {
     // リソース読み込みエラーハンドラー
     window.addEventListener('error', (event) => {
       if (event.target !== window) {
+        const target = event.target as HTMLElement | null
         this.warn('Resource Load Error', {
-          element: event.target?.tagName,
-          source: (event.target as HTMLElement)?.getAttribute?.('src') || 
-                 (event.target as HTMLElement)?.getAttribute?.('href')
+          element: target?.tagName,
+          source: target?.getAttribute?.('src') || target?.getAttribute?.('href')
         })
       }
     }, true)
@@ -202,9 +202,11 @@ class Logger {
       performance.measure(name, `${name}-start`, `${name}-end`)
       
       const measure = performance.getEntriesByName(name)[0]
-      this.debug(`Performance: ${name}`, {
-        duration: `${measure.duration.toFixed(2)}ms`
-      })
+      if (measure) {
+        this.debug(`Performance: ${name}`, {
+          duration: `${measure.duration.toFixed(2)}ms`
+        })
+      }
     }
   }
 

@@ -200,6 +200,7 @@ const BulletHell: React.FC = () => {
       if (e.target === canvasRef.current) {
         e.preventDefault()
         const touch = e.touches[0]
+        if (!touch) return
         const rect = canvasRef.current?.getBoundingClientRect()
         if (!rect) return
         
@@ -223,6 +224,7 @@ const BulletHell: React.FC = () => {
       if (e.target === canvasRef.current && touchStart) {
         e.preventDefault()
         const touch = e.touches[0]
+        if (!touch) return
         const rect = canvasRef.current?.getBoundingClientRect()
         if (!rect) return
         
@@ -499,13 +501,16 @@ const BulletHell: React.FC = () => {
       const powerUpInterval = Math.max(400, 600 - wave * 30) // More frequent in early waves
       if (currentTime % powerUpInterval === 0 && Math.random() < 0.8) {
         const powerUpTypes: PowerUp['type'][] = ['fireRate', 'power', 'shield']
-        powerUpsRef.current.push({
-          x: Math.random() * (w - 40) + 20,
-          y: 60,
-          r: 8,
-          type: powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)],
-          collected: false
-        })
+        const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)]
+        if (randomType) {
+          powerUpsRef.current.push({
+            x: Math.random() * (w - 40) + 20,
+            y: 60,
+            r: 8,
+            type: randomType,
+            collected: false
+          })
+        }
       }
       // enemies shoot with varied patterns - scaled by wave
       enemiesRef.current.forEach((e, idx) => {
@@ -1087,6 +1092,11 @@ const BulletHell: React.FC = () => {
     // 選択されたレアリティのアイテムから抽選
     const availableItems = GACHA_ITEMS.filter(item => item.rarity === selectedRarity)
     const selectedItem = availableItems[Math.floor(Math.random() * availableItems.length)]
+
+    if (!selectedItem) {
+      console.error('No item selected from gacha')
+      return
+    }
 
     // インベントリに追加
     setInventory(prev => ({

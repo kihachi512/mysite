@@ -1,5 +1,10 @@
 // Google Gemini API連携
-import { getApiKey, getApiUrl, getDailyRequestLimit, getMinuteRequestLimit, isDevelopment } from '../config/env'
+// 環境変数から設定を取得
+const getApiKey = () => import.meta.env.VITE_GEMINI_API_KEY || ''
+const getApiUrl = () => import.meta.env.VITE_API_BASE_URL || 'https://generativelanguage.googleapis.com'
+const getDailyRequestLimit = () => 100
+const getMinuteRequestLimit = () => 10
+const isDevelopment = () => import.meta.env.DEV
 
 // 設定値を取得
 const GEMINI_API_KEY = getApiKey()
@@ -200,5 +205,5 @@ const getFallbackResponse = (userMessage: string): string => {
     'うんうん！君の話、いつも楽しいよー'
   ]
   
-  return responses[Math.floor(Math.random() * responses.length)]
+  return responses[Math.floor(Math.random() * responses.length)] || responses[0] || 'ごめんね、今は応答できないよー'
 }

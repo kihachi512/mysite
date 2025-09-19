@@ -24,6 +24,7 @@ const Favorites: React.FC = () => {
     }
     
     const file = e.target.files[0] // 最初のファイルのみ使用
+    if (!file) return
     
     // セキュリティチェック：ファイルタイプの検証
     const allowedTypes = [

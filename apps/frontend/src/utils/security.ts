@@ -24,7 +24,7 @@ export const escapeHtml = (text: string): string => {
     return String(text || '');
   }
   
-  return text.replace(/[&<>"'`=\/]/g, (match) => HTML_ESCAPE_MAP[match] || match);
+  return text.replace(/[&<>"'`=/]/g, (match) => HTML_ESCAPE_MAP[match] || match);
 };
 
 /**
