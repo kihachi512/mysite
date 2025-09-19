@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom'
 const SettingsIndex: React.FC = () => {
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
-      <div className="comic-text" style={{ 
-        fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', 
+      <div className="comic-text font-title-lg" style={{ 
         marginBottom: 'min(24px, 6vw)', 
         textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
         color: '#fff3e0', 
@@ -13,8 +12,7 @@ const SettingsIndex: React.FC = () => {
       }}>
         ⚙️ 設定 ⚙️
       </div>
-      <div className="comic-text" style={{ 
-        fontSize: 'clamp(0.9rem, 3vw, 1.2rem)', 
+      <div className="comic-text font-body-lg" style={{ 
         marginBottom: 'min(36px, 8vw)', 
         color: '#c8e6c9', 
         textShadow: '2px 2px 0px rgba(0,0,0,0.5)' 
@@ -39,21 +37,19 @@ const SettingsIndex: React.FC = () => {
             transition: 'all 0.3s ease',
             minHeight: '180px'
           }}>
-            <div style={{ fontSize: 'clamp(3rem, 8vw, 4rem)', marginBottom: '16px' }}>⚙️</div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', 
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>⚙️</div>
+            <div className="comic-text font-title-sm" style={{ 
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
               一般
             </div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(0.85rem, 3vw, 1.1rem)', 
+            <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
               テーマ設定・機能管理・データ削除<br />
-              <span style={{ color: '#ffd93d', fontSize: '0.9em' }}>購入済み機能の設定</span>
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">購入済み機能の設定</span>
             </div>
           </div>
         </Link>
@@ -67,21 +63,19 @@ const SettingsIndex: React.FC = () => {
             transition: 'all 0.3s ease',
             minHeight: '180px'
           }}>
-            <div style={{ fontSize: 'clamp(3rem, 8vw, 4rem)', marginBottom: '16px' }}>📤</div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', 
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>📤</div>
+            <div className="comic-text font-title-sm" style={{ 
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
               共有
             </div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(0.85rem, 3vw, 1.1rem)', 
+            <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
               データのバックアップ・復元<br />
-              <span style={{ color: '#ffd93d', fontSize: '0.9em' }}>JSONファイルで管理</span>
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">JSONファイルで管理</span>
             </div>
           </div>
         </Link>
@@ -89,9 +83,7 @@ const SettingsIndex: React.FC = () => {
 
       <div style={{ marginTop: 'min(40px, 10vw)' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: 'min(14px 28px, 3.5vw 7vw)',
-            fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
+          <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'

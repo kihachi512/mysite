@@ -82,7 +82,8 @@ const BulletHell: React.FC = () => {
     if (audioContext || !soundEnabled) return
     
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const ctx = new AudioContextClass()
       setAudioContext(ctx)
       
       // AudioContextが suspend 状態の場合は resume を試行
@@ -95,27 +96,6 @@ const BulletHell: React.FC = () => {
       console.log('AudioContext creation failed:', error)
     }
   }, [audioContext, soundEnabled])
-  
-  // 効果音再生関数
-  const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
-    if (!soundEnabled || !audioContext) return
-    
-    try {
-      // AudioContextが suspended 状態の場合は resume を試行
-      if (audioContext.state === 'suspended') {
-        audioContext.resume().then(() => {
-          // resume 成功後に再度音声を再生
-          playActualSound(audioContext, frequency, duration, type)
-        }).catch(() => {
-          console.log('AudioContext resume failed')
-        })
-      } else if (audioContext.state === 'running') {
-        playActualSound(audioContext, frequency, duration, type)
-      }
-    } catch (error) {
-      console.log('Sound play error:', error)
-    }
-  }, [soundEnabled, audioContext])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -138,6 +118,27 @@ const BulletHell: React.FC = () => {
       console.log('Actual sound play error:', error)
     }
   }, [])
+  
+  // 効果音再生関数
+  const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
+    if (!soundEnabled || !audioContext) return
+    
+    try {
+      // AudioContextが suspended 状態の場合は resume を試行
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          // resume 成功後に再度音声を再生
+          playActualSound(audioContext, frequency, duration, type)
+        }).catch(() => {
+          console.log('AudioContext resume failed')
+        })
+      } else if (audioContext.state === 'running') {
+        playActualSound(audioContext, frequency, duration, type)
+      }
+    } catch (error) {
+      console.log('Sound play error:', error)
+    }
+  }, [soundEnabled, audioContext, playActualSound])
   
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
@@ -233,7 +234,8 @@ const BulletHell: React.FC = () => {
       window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [lastTap, touchStart, running])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastTap, touchStart, running]) // shootは内部で定義されるため除外
 
 
   // Load inventory from localStorage
@@ -341,14 +343,21 @@ const BulletHell: React.FC = () => {
     const w = canvas.width, h = canvas.height
 
     const loop = () => {
-      // time
+      // time - 現在のtime値を取得して使用
+      const currentTime = time
       setTime(t => t + 1)
+
+      // 初期フレーム（time < 60）ではスポーンしない
+      if (currentTime < 60) {
+        if (running) rafRef.current = requestAnimationFrame(loop)
+        return
+      }
 
       // spawn enemies in formations (Touhou-style) - Much more gradual progression
       const baseSpawnRate = 300 // Much slower initial spawn rate
       const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
       
-      if (time % spawnRate === 0) {
+      if (currentTime % spawnRate === 0) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
         // Limit formation complexity based on wave
@@ -419,7 +428,7 @@ const BulletHell: React.FC = () => {
 
       // spawn power-ups more frequently in early waves
       const powerUpInterval = Math.max(400, 600 - wave * 30) // More frequent in early waves
-      if (time % powerUpInterval === 0 && Math.random() < 0.8) {
+      if (currentTime % powerUpInterval === 0 && Math.random() < 0.8) {
         const powerUpTypes: PowerUp['type'][] = ['fireRate', 'power', 'shield']
         powerUpsRef.current.push({
           x: Math.random() * (w - 40) + 20,
@@ -435,7 +444,7 @@ const BulletHell: React.FC = () => {
         const baseShootInterval = 90 + (idx % 30) // Longer base interval
         const shootInterval = Math.max(45, baseShootInterval - wave * 5) // Gradually faster
         
-        if (time % shootInterval === 0) {
+        if (currentTime % shootInterval === 0) {
           const bulletSpeed = Math.min(0.8 + wave * 0.1, 1.5) // Slower bullets early game
           
           if (e.pattern === 0) {
@@ -483,7 +492,7 @@ const BulletHell: React.FC = () => {
             // Circular pattern (danmaku style) - reduced bullets, later waves only
             const numBullets = Math.min(4 + wave, 8) // Start with 4, max 8
             for (let i = 0; i < numBullets; i++) {
-              const ang = (time * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+              const ang = (currentTime * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
               bulletsRef.current.push({ 
                 x: e.x, y: e.y, 
                 vx: Math.cos(ang) * bulletSpeed * 0.7, 
@@ -497,7 +506,7 @@ const BulletHell: React.FC = () => {
               // Phase 1: Spiral bullets (reduced count)
               const numBullets = Math.min(6 + Math.floor(wave / 5), 10) // Start with 6, max 10
               for (let i = 0; i < numBullets; i++) {
-                const ang = (time * 0.03 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                const ang = (currentTime * 0.03 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
                 bulletsRef.current.push({ 
                   x: e.x, y: e.y, 
                   vx: Math.cos(ang) * bulletSpeed * 0.8, 
@@ -508,7 +517,7 @@ const BulletHell: React.FC = () => {
             } else if (e.bossPhase === 2) {
               // Phase 2: Wave pattern (reduced spread)
               for (let i = -2; i <= 2; i++) {
-                const ang = Math.PI / 2 + i * 0.15 + Math.sin(time * 0.08) * 0.3
+                const ang = Math.PI / 2 + i * 0.15 + Math.sin(currentTime * 0.08) * 0.3
                 bulletsRef.current.push({ 
                   x: e.x, y: e.y, 
                   vx: Math.cos(ang) * bulletSpeed, 
@@ -530,37 +539,37 @@ const BulletHell: React.FC = () => {
         const moveSpeed = 0.8
         if (e.pattern === 0) {
           // Gentle sine wave horizontal movement
-          e.x += Math.sin(time * 0.03 + idx) * moveSpeed
+          e.x += Math.sin(currentTime * 0.03 + idx) * moveSpeed
           e.y += 0.5
         }
         if (e.pattern === 1) {
           // Vertical sine wave
-          e.y += Math.sin(time * 0.05 + idx) * 0.4 + 0.4
+          e.y += Math.sin(currentTime * 0.05 + idx) * 0.4 + 0.4
         }
         if (e.pattern === 2) {
           // Smooth circular motion
-          e.x += Math.cos(time * 0.04 + idx) * 0.8
-          e.y += Math.sin(time * 0.04 + idx) * 0.3 + 0.5
+          e.x += Math.cos(currentTime * 0.04 + idx) * 0.8
+          e.y += Math.sin(currentTime * 0.04 + idx) * 0.3 + 0.5
         }
         if (e.pattern === 3) {
           // Larger horizontal waves
-          e.x += Math.sin(time * 0.02 + idx) * 1.5
+          e.x += Math.sin(currentTime * 0.02 + idx) * 1.5
           e.y += 0.6
         }
         if (e.pattern === 4) {
           // Figure-8 pattern
-          e.x += Math.cos(time * 0.05 + idx) * 1.2
-          e.y += Math.sin(time * 0.03 + idx) * 0.8 + 0.4
+          e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
+          e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
         }
         if (e.pattern === 5) {
           // Spiral descent
-          const spiral = time * 0.02 + idx
+          const spiral = currentTime * 0.02 + idx
           e.x += Math.cos(spiral) * 1.4
           e.y += Math.sin(spiral) * 0.6 + 0.7
         }
         if (e.pattern === 6 && e.isBoss) {
           // Boss movement - slow horizontal movement
-          e.x += Math.sin(time * 0.01) * 1.0
+          e.x += Math.sin(currentTime * 0.01) * 1.0
           // Keep boss near top of screen
           if (e.y > 80) e.y -= 0.2
           if (e.y < 40) e.y += 0.2
@@ -705,7 +714,7 @@ const BulletHell: React.FC = () => {
       }
 
       // ウェーブ進行チェック（30秒ごと）とボス出現
-      if (time > 0 && time % 1800 === 0) {
+      if (currentTime > 0 && currentTime % 1800 === 0) {
         // ウェーブクリア音
         playSound(1500, 0.5, 'sine')
         
@@ -810,7 +819,7 @@ const BulletHell: React.FC = () => {
       const hitboxRadius = p.r
       
       // Enhanced pulsing effect for better mobile visibility
-      const pulseEffect = Math.sin(time * 0.15) * 0.3 + 1.2
+      const pulseEffect = Math.sin(currentTime * 0.15) * 0.3 + 1.2
       const effectRadius = displayRadius * pulseEffect * 0.15
       
       // Multiple glow layers for better visibility
@@ -829,7 +838,7 @@ const BulletHell: React.FC = () => {
         ctx.strokeStyle = '#ffd93d'
         ctx.lineWidth = 4
         ctx.setLineDash([8, 4])
-        ctx.lineDashOffset = -time * 0.15
+        ctx.lineDashOffset = -currentTime * 0.15
         ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 6, 0, Math.PI * 2); ctx.stroke()
         
         // Additional shield glow
@@ -959,7 +968,8 @@ const BulletHell: React.FC = () => {
     playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
     lastShotRef.current = 0
     
-    // 状態をリセット
+    // 状態を同期的にリセット（Reactの状態更新は非同期なので、まずfalseにしてからリセット）
+    setRunning(false)
     setPowerUpBonuses({ fireRate: 0, power: 0 })
     setLives(1)
     setTime(0) // timeを確実に0にリセット
@@ -968,8 +978,10 @@ const BulletHell: React.FC = () => {
     setWave(1) // waveを確実に1にリセット
     setGameOver(false)
     
-    // 最後にrunningをtrueに設定してゲームループを開始
-    setRunning(true)
+    // 短い遅延後にゲームを開始して、状態リセットが確実に完了するようにする
+    setTimeout(() => {
+      setRunning(true)
+    }, 10)
   }, [playSound])
 
   // ガチャ機能
@@ -1018,7 +1030,32 @@ const BulletHell: React.FC = () => {
 
     setGachaResult(selectedItem)
     // 自動で閉じないように変更
-  }, [momoPayPoints, addMomoPayPoints])
+  }, [momoPayPoints, addMomoPayPoints, playSound])
+
+  // 射撃機能
+  const shoot = useCallback(() => {
+    if (!running) return
+    const now = Date.now()
+    const fireDelay = 200 / playerRef.current.fireRate // 連射速度に応じた発射間隔
+    if (now - lastShotRef.current < fireDelay) return
+    
+    lastShotRef.current = now
+    const player = playerRef.current
+    
+    // 射撃音を再生
+    playSound(800, 0.1, 'square')
+    
+    // パワーに応じて複数弾を発射
+    if (player.power >= 2) {
+      // 3方向発射
+      bulletsRef.current.push({ x: player.x - 5, y: player.y - 8, vx: -1, vy: -4, r: 3, from: 'player', power: player.power })
+      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
+      bulletsRef.current.push({ x: player.x + 5, y: player.y - 8, vx: 1, vy: -4, r: 3, from: 'player', power: player.power })
+    } else {
+      // 単発
+      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
+    }
+  }, [running, playSound])
 
   // アイテム装備機能
   const equipItem = useCallback((item: GachaItem) => {
@@ -1053,7 +1090,7 @@ const BulletHell: React.FC = () => {
   // 装備効果をプレイヤーに適用
   const applyEquipmentEffects = useCallback(() => {
     const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 4, fireRate: 1, power: 1, displayR: 15 }
-    let modifiedPlayer = { ...basePlayer }
+    const modifiedPlayer = { ...basePlayer }
 
     // 武器効果
     if (inventory.equippedWeapon) {
@@ -1089,36 +1126,12 @@ const BulletHell: React.FC = () => {
     }
   }, [powerUpBonuses, applyEquipmentEffects, running])
 
-  const shoot = useCallback(() => {
-    if (!running) return
-    const now = Date.now()
-    const fireDelay = 200 / playerRef.current.fireRate // 連射速度に応じた発射間隔
-    if (now - lastShotRef.current < fireDelay) return
-    
-    lastShotRef.current = now
-    const player = playerRef.current
-    
-    // 射撃音を再生
-    playSound(800, 0.1, 'square')
-    
-    // パワーに応じて複数弾を発射
-    if (player.power >= 2) {
-      // 3方向発射
-      bulletsRef.current.push({ x: player.x - 5, y: player.y - 8, vx: -1, vy: -4, r: 3, from: 'player', power: player.power })
-      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
-      bulletsRef.current.push({ x: player.x + 5, y: player.y - 8, vx: 1, vy: -4, r: 3, from: 'player', power: player.power })
-    } else {
-      // 単発
-      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
-    }
-  }, [running])
-
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
           <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>ウェーブ: {wave}</div>
-          <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
+          <div className="momopay-status" style={{ textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
           </div>
           {shield > 0 && (
@@ -1155,7 +1168,7 @@ const BulletHell: React.FC = () => {
         }}>
           <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
           <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '8px' }}>最終スコア: {score}</div>
-          <div className="comic-text" style={{ color: '#ffd93d', fontSize: '1.1rem', marginBottom: '16px' }}>
+          <div className="momopay-display" style={{ marginBottom: '16px' }}>
             💰 獲得MOMOPay: {Math.floor(score / 10)}
           </div>
           {highScores.length > 0 && (
@@ -1189,9 +1202,8 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={start} 
           disabled={running} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
             color: 'white', 
             borderColor: running ? '#333' : '#2e7d32'
@@ -1204,24 +1216,22 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={() => setShowGacha(true)} 
           disabled={running || momoPayPoints < 1000} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
             color: 'white', 
             borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f'
           }}
           aria-label="ガチャを引く（1000MOMOPay）"
         >
-          🌲 ガチャ (1000MOMOPay)
+          <span className="momopay-small">🌲 ガチャ (1000MOMOPay)</span>
         </button>
         
         <button 
           onClick={() => setShowInventory(true)} 
           disabled={running} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
             color: 'white', 
             borderColor: running ? '#333' : '#1976d2'
@@ -1234,9 +1244,8 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={() => setShowEquipmentCatalog(true)} 
           disabled={running} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
             color: 'white', 
             borderColor: running ? '#333' : '#4a148c'
@@ -1266,8 +1275,7 @@ const BulletHell: React.FC = () => {
             }}>
               🌲 ガチャ小屋 🐿️
             </div>
-            <div className="comic-text" style={{ 
-              color: '#c8e6c9', fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+            <div className="momopay-display" style={{ 
               marginBottom: '16px' 
             }}>
               💰 現在のMOMOPay: {momoPayPoints}
@@ -1285,24 +1293,22 @@ const BulletHell: React.FC = () => {
               <button 
                 onClick={performGacha} 
                 disabled={momoPayPoints < 1000}
-                className="comic-button"
+                className="comic-button font-button-md"
                 style={{ 
-                  padding: 'min(16px 32px, 4vw 8vw)', fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                   background: momoPayPoints < 1000 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
                   color: momoPayPoints < 1000 ? '#ccc' : '#000', 
                   borderColor: momoPayPoints < 1000 ? '#333' : '#f57f17',
                   minWidth: '120px'
                 }}
               >
-                🌰 ガチャ (1000MOMOPay)
+                <span className="momopay-small">🌰 ガチャ (1000MOMOPay)</span>
               </button>
             </div>
             
             <button 
               onClick={() => setShowGacha(false)} 
-              className="comic-button"
+              className="comic-button font-button-sm"
               style={{ 
-                padding: 'min(12px 24px, 3vw 6vw)', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                 background: 'linear-gradient(45deg, #666, #555)', 
                 color: 'white', 
                 borderColor: '#333'
@@ -1379,10 +1385,8 @@ const BulletHell: React.FC = () => {
               </div>
               <button 
                 onClick={() => setGachaResult(null)} 
-                className="comic-button"
+                className="comic-button font-button-sm"
                 style={{ 
-                  padding: '12px 24px', 
-                  fontSize: '1rem',
                   background: 'linear-gradient(45deg, #4caf50, #45a049)', 
                   color: 'white', 
                   borderColor: '#2e7d32',
@@ -1447,9 +1451,8 @@ const BulletHell: React.FC = () => {
                   {inventory.equippedWeapon && (
                     <button 
                       onClick={() => unequipItem('weapon')}
-                      className="comic-button"
+                      className="comic-button font-button-xs"
                       style={{ 
-                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1475,9 +1478,8 @@ const BulletHell: React.FC = () => {
                   {inventory.equippedShield && (
                     <button 
                       onClick={() => unequipItem('shield')}
-                      className="comic-button"
+                      className="comic-button font-button-xs"
                       style={{ 
-                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1503,9 +1505,8 @@ const BulletHell: React.FC = () => {
                   {inventory.equippedSpecial && (
                     <button 
                       onClick={() => unequipItem('special')}
-                      className="comic-button"
+                      className="comic-button font-button-xs"
                       style={{ 
-                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1586,9 +1587,8 @@ const BulletHell: React.FC = () => {
                       </div>
                       <button 
                         onClick={() => equipItem(item)}
-                        className="comic-button"
+                        className="comic-button font-button-xs"
                         style={{ 
-                          padding: 'min(6px 12px, 3vw)', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
                           background: 'linear-gradient(45deg, #4caf50, #45a049)', 
                           color: 'white', borderColor: '#2e7d32', width: '100%'
                         }}
@@ -1605,9 +1605,8 @@ const BulletHell: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <button 
                 onClick={() => setShowInventory(false)} 
-                className="comic-button"
+                className="comic-button font-button-sm"
                 style={{ 
-                  padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
                   background: 'linear-gradient(45deg, #666, #555)', 
                   color: 'white', 
                   borderColor: '#333'
@@ -1760,9 +1759,8 @@ const BulletHell: React.FC = () => {
             <div style={{ textAlign: 'center', marginTop: '16px' }}>
               <button 
                 onClick={() => setShowEquipmentCatalog(false)} 
-                className="comic-button"
+                className="comic-button font-button-sm"
                 style={{ 
-                  padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
                   background: 'linear-gradient(45deg, #666, #555)', 
                   color: 'white', 
                   borderColor: '#333'

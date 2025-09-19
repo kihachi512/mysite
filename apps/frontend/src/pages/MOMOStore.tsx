@@ -12,6 +12,19 @@ type StoreItem = {
   purchased?: boolean
 }
 
+type InventoryItem = {
+  id: string
+  name: string
+  description: string
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  type: 'weapon' | 'shield' | 'special'
+  icon: string
+}
+
+type Inventory = {
+  items: (InventoryItem | null)[]
+}
+
 // 売店のアイテム
 const STORE_ITEMS: StoreItem[] = [
   {
@@ -116,10 +129,8 @@ const PurchaseView: React.FC<{
                 <button 
                   onClick={() => onPurchase(item)}
                   disabled={!canAfford}
-                  className="comic-button"
+                  className="comic-button font-button-xs"
                   style={{ 
-                    padding: 'min(8px 16px, 2vw)', 
-                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     background: canAfford 
                       ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
                       : 'linear-gradient(45deg, #666, #555)',
@@ -128,7 +139,7 @@ const PurchaseView: React.FC<{
                     width: '100%'
                   }}
                 >
-                  💰 {item.price}MOMOPay
+                  <span className="momopay-small">💰 {item.price}MOMOPay</span>
                 </button>
               )}
             </div>
@@ -141,8 +152,8 @@ const PurchaseView: React.FC<{
 
 // 売却画面コンポーネント
 const SaleView: React.FC<{
-  inventory: any
-  onSell: (item: any, index: number) => void
+  inventory: Inventory
+  onSell: (item: InventoryItem, index: number) => void
   getSellPrice: (rarity: string) => number
   getRarityColor: (rarity: string) => string
 }> = ({ inventory, onSell, getSellPrice, getRarityColor }) => {
@@ -165,7 +176,7 @@ const SaleView: React.FC<{
           margin: '0 auto',
           padding: '0 10px'
         }}>
-          {inventory.items.map((item: any, index: number) => item ? (
+          {inventory.items.map((item: InventoryItem | null, index: number) => item ? (
             <div key={`${item.id}-${index}`} className="comic-card" style={{
               background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(233, 30, 99, 0.1))',
               padding: 'min(16px, 4vw)',
@@ -198,17 +209,15 @@ const SaleView: React.FC<{
               
               <button 
                 onClick={() => onSell(item, index)}
-                className="comic-button"
+                className="comic-button font-button-xs"
                 style={{ 
-                  padding: 'min(6px 12px, 2vw)', 
-                  fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
                   background: 'linear-gradient(45deg, #ff6b6b, #ff5252)',
                   color: 'white',
                   borderColor: '#d32f2f',
                   width: '100%'
                 }}
               >
-                💰 {getSellPrice(item.rarity)}MOMOPayで売却
+                <span className="momopay-small">💰 {getSellPrice(item.rarity)}MOMOPayで売却</span>
               </button>
             </div>
           ) : null)}
@@ -230,7 +239,7 @@ const SaleView: React.FC<{
 const MOMOStore: React.FC = () => {
   const { momoPayPoints, addMomoPayPoints } = useAppData()
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
-  const [inventory, setInventory] = useState<any>({ items: [] })
+  const [inventory, setInventory] = useState<Inventory>({ items: [] })
   const [activeTab, setActiveTab] = useState<'purchase' | 'sale'>('purchase')
 
   // Load purchased items from localStorage
@@ -294,7 +303,7 @@ const MOMOStore: React.FC = () => {
     localStorage.setItem('app-settings', JSON.stringify(settings))
   }
 
-  const sellEquipment = (item: any, index: number) => {
+  const sellEquipment = (item: InventoryItem, index: number) => {
     const sellPrice = getSellPrice(item.rarity)
     if (confirm(`${item.name}を${sellPrice}MOMOPayで売却しますか？\n（元の価値より格安での買取となります）`)) {
       // Remove item from inventory
@@ -341,13 +350,11 @@ const MOMOStore: React.FC = () => {
         🏪 売店 (MOMOStore) 🏪
       </div>
       
-      <div className="comic-text" style={{ 
-        fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
-        marginBottom: 'min(24px, 6vw)', 
-        color: '#ffd93d'
-      }}>
-        💰 現在のMOMOPay: {momoPayPoints}
-      </div>
+        <div className="momopay-status" style={{ 
+          marginBottom: 'min(24px, 6vw)'
+        }}>
+          💰 現在のMOMOPay: {momoPayPoints}
+        </div>
 
       {/* タブ切り替えボタン */}
       <div style={{ 
@@ -359,10 +366,8 @@ const MOMOStore: React.FC = () => {
       }}>
         <button 
           onClick={() => setActiveTab('purchase')}
-          className="comic-button"
+          className="comic-button font-button-md"
           style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: activeTab === 'purchase' 
               ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
               : 'linear-gradient(45deg, #666, #555)',
@@ -377,10 +382,8 @@ const MOMOStore: React.FC = () => {
         
         <button 
           onClick={() => setActiveTab('sale')}
-          className="comic-button"
+          className="comic-button font-button-md"
           style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: activeTab === 'sale' 
               ? 'linear-gradient(45deg, #ff6b6b, #ff5252)' 
               : 'linear-gradient(45deg, #666, #555)',
@@ -415,9 +418,7 @@ const MOMOStore: React.FC = () => {
       {/* ナビゲーションボタン */}
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/games" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
@@ -427,9 +428,7 @@ const MOMOStore: React.FC = () => {
         </Link>
         
         <Link to="/settings" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #42a5f5, #2196f3)',
             color: 'white',
             borderColor: '#1976d2'

@@ -14,57 +14,158 @@ const Chatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格）
+  // サイト情報データベース（将来の機能拡張用に保持）
+  const siteInfo = {
+    navigation: {
+      home: '拠点（ホーム）- メインページ',
+      games: '遊技場 - ゲームで遊んだりMOMOPayを稼ごう',
+      plaza: '広場 - みんなとおしゃべりしよう',
+      favorites: '宝物庫 - ファイルやテキストを保存',
+      settings: '設定 - テーマや機能の管理'
+    },
+    games: {
+      omikuji: {
+        name: '御神籤ルーレット',
+        cost: '10MOMOPay',
+        description: '神様に運勢を占ってもらえるよ！大吉から凶まで色々な結果があるんだ',
+        location: '遊技場から行けるよ'
+      },
+      bulletHell: {
+        name: '演習林（弾幕ゲーム）',
+        description: '守護者として修行を積む弾幕シューティングゲーム',
+        rewards: 'MOMOPayと装備がもらえる',
+        equipment: 'レア度別の装備（common, rare, epic, legendary）がガチャで手に入る',
+        location: '遊技場から行けるよ'
+      },
+      store: {
+        name: '売店（MOMOStore）',
+        functions: ['設定機能の購入', '装備の売却'],
+        purchaseItems: [
+          'ダークモード設定（500MOMOPay）',
+          '共有機能利用権（300MOMOPay）',
+          'プレミアムテーマ（800MOMOPay）',
+          '通知音設定（200MOMOPay）'
+        ],
+        sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
+        location: '遊技場から行けるよ'
+      }
+    },
+    plaza: {
+      hall: {
+        name: '大広間',
+        description: '1時間で自動削除されるつぶやき投稿ができる場所',
+        features: ['投稿機能', 'いいね機能', '自動削除（1時間後）'],
+        location: '広場から行けるよ'
+      },
+      chatbot: {
+        name: '公会堂',
+        description: 'モモンガくんとおしゃべりできる場所（ここだよ！）',
+        location: '広場から行けるよ'
+      }
+    },
+    favorites: {
+      name: '宝物庫',
+      cost: '100MOMOPay（ファイル・テキストアップロード）',
+      supportedFiles: '画像、動画、音声、テキストファイルなど',
+      features: ['ファイルアップロード', 'テキスト保存', 'プレビュー機能', '削除機能']
+    },
+    settings: {
+      general: '一般設定 - テーマ設定、機能管理、データ削除',
+      share: '共有設定 - データのバックアップ・復元（JSON形式）'
+    },
+    momoPay: {
+      name: 'MOMOPay',
+      description: 'サイト内の通貨システム',
+      earnWays: ['演習林での弾幕ゲーム', '装備売却'],
+      useWays: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入']
+    }
+  }
+
+  // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格 + 正確な情報提供）
   const getResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
     
     // 挨拶系
     if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして')) {
       const greetings = [
-        'やっほー！🐿️ 僕、モモンガくんだよ！今日も元気だね〜 何して遊ぶ？',
-        'こんにちは〜！😄 僕と一緒に楽しい時間を過ごそうよ！何か面白い話ある？',
-        'おーい！👋 モモンガくんだよ〜！今日はどんな冒険が待ってるかな？'
+        'やっほー！🐿️ 僕、モモンガくんだよ！今日も元気だね〜 何して遊ぶ？このサイトの案内もできるよ〜',
+        'こんにちは〜！😄 僕と一緒に楽しい時間を過ごそうよ！サイトの使い方で分からないことがあったら何でも聞いてね〜',
+        'おーい！👋 モモンガくんだよ〜！今日はどんな冒険が待ってるかな？遊技場とか宝物庫とか、色々あるよ〜'
       ]
       return greetings[Math.floor(Math.random() * greetings.length)]
     }
-    
-    // ゲーム関連
-    if (message.includes('ゲーム') || message.includes('遊技場') || message.includes('弾幕') || message.includes('演習林')) {
-      const gameResponses = [
-        '遊技場、最高だよね！🎮 僕も演習林で弾幕かわしてるけど...実は結構下手なんだ〜😅 でも楽しいからオッケー！',
-        '演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだ〜🌰 集中力ないのかな？笑',
-        'あ〜、弾幕ゲーム！僕もやるよ〜！でもね、たまに画面見てるとクラクラしちゃって...モモンガの目には刺激が強すぎるのかも？😵‍💫'
-      ]
-      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
+
+    // サイト案内・ヘルプ系
+    if (message.includes('案内') || message.includes('ヘルプ') || message.includes('使い方') || message.includes('どこ') || message.includes('場所')) {
+      return `📍 サイト案内だよ〜！🐿️\n\n🏠 **拠点** - メインページ（今いる場所の上だよ）\n🎮 **遊技場** - ゲームでMOMOPayを稼ごう\n  └ 御神籤（10P）、演習林（弾幕ゲーム）、売店\n🏛️ **広場** - みんなとおしゃべり\n  └ 大広間（つぶやき）、公会堂（ここ！）\n🌲 **宝物庫** - ファイル保存（100P必要）\n⚙️ **設定** - テーマ変更とか\n\nどこに行きたい？詳しく教えてあげる〜😊`
     }
-    
-    if (message.includes('御神籤') || message.includes('おみくじ') || message.includes('運勢')) {
-      const fortuneResponses = [
-        '御神籤！僕も大好き〜🎋 でもね、いつも「小吉」ばっかりなんだ...大吉引いてみたいなぁ〜',
-        '運勢占い？僕の今日の運勢は「どんぐり運」が最高だよ！...って、そんな運勢あるのかな？😆',
-        'おみくじはワクワクするよね〜！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ🐿️'
-      ]
-      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
-    }
-    
-    // MOMOPay関連
-    if (message.includes('momopay') || message.includes('ポイント') || message.includes('お金') || message.includes('売店')) {
+
+    // MOMOPay関連の詳細情報
+    if (message.includes('momopay') || message.includes('ポイント') || message.includes('お金') || message.includes('稼ぐ') || message.includes('通貨')) {
       const payResponses = [
-        'MOMOPay！僕の財布事情も厳しいんだよね〜💸 でも売店のどんぐりシューターは絶対欲しい！',
-        'ポイント貯めるの大変だよね〜！僕はいつも散財しちゃう...どんぐり見ると我慢できないんだ🌰',
-        '売店でお買い物〜♪ 僕も装備ガチャ回したいけど、いつも爆死するんだよね...運悪いのかな？😅'
+        `💰 MOMOPayについて教えるね〜！🐿️\n\n**稼ぎ方：**\n・演習林（弾幕ゲーム）をプレイ\n・装備を売店で売却\n\n**使い道：**\n・御神籤：10MOMOPay\n・宝物庫アップロード：100MOMOPay\n・売店で設定購入：200〜800MOMOPay\n\n僕もいつも演習林で頑張ってるよ〜！でも弾幕が難しくて...😅`,
+        `💸 MOMOPayの管理、大変だよね〜！僕も散財しちゃう方なんだ🐿️\n\n一番効率がいいのは演習林だよ！弾幕ゲームでMOMOPayと装備がもらえるんだ。装備は売店で売却もできるから、ダブったら売っちゃおう〜\n\n宝物庫は100MOMOPay必要だけど、大事なファイルを保存できるから便利だよ〜😊`
       ]
       return payResponses[Math.floor(Math.random() * payResponses.length)]
     }
     
+    // ゲーム関連（詳細情報付き）
+    if (message.includes('ゲーム') || message.includes('遊技場') || message.includes('弾幕') || message.includes('演習林')) {
+      const gameResponses = [
+        `🎮 遊技場について教えるよ〜！🐿️\n\n**演習林（弾幕ゲーム）**\n・守護者として修行を積む弾幕シューティング\n・MOMOPayと装備がもらえる\n・装備はcommon→rare→epic→legendaryの順でレア！\n\n**御神籤ルーレット**\n・10MOMOPayで運勢占い\n・大吉から凶まで色々あるよ〜\n\n僕も演習林で修行してるけど...弾幕が難しくて😅`,
+        `🌲 演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだ〜🌰\n\nでも真面目な話、演習林は一番MOMOPayを稼げる場所だよ！装備ガチャも楽しいし、レア装備が出た時の嬉しさったら...✨\n\n装備がダブったら売店で売却もできるから、どんどんチャレンジしてみて〜😊`
+      ]
+      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
+    }
+
+    // 売店関連
+    if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却')) {
+      return `🏪 売店（MOMOStore）について教えるね〜！🐿️\n\n**購入できるもの：**\n・ダークモード設定：500MOMOPay\n・共有機能利用権：300MOMOPay\n・プレミアムテーマ：800MOMOPay\n・通知音設定：200MOMOPay\n\n**装備売却価格：**\n・legendary：80MOMOPay\n・epic：40MOMOPay\n・rare：20MOMOPay\n・common：10MOMOPay\n\n僕も装備ガチャ回したいけど、いつも爆死するんだよね...😅`
+    }
+    
+    // 御神籤関連
+    if (message.includes('御神籤') || message.includes('おみくじ') || message.includes('運勢')) {
+      const fortuneResponses = [
+        `🔮 御神籤ルーレットについて教えるよ〜！🐿️\n\n・費用：10MOMOPay\n・神様に運勢を占ってもらえる\n・大吉から凶まで色々な結果があるよ\n・遊技場から行けるよ〜\n\n僕もよく引くけど、いつも「小吉」ばっかりなんだ...大吉引いてみたいなぁ〜😅`,
+        `🎋 運勢占い、楽しいよね〜！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ🐿️\n\n御神籤は10MOMOPayで遊技場から行けるよ〜！MOMOPayが足りなかったら、演習林で稼いでから挑戦してみて〜✨`
+      ]
+      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
+    }
+    
     // 大広間関連
-    if (message.includes('大広間') || message.includes('つぶやき') || message.includes('投稿')) {
+    if (message.includes('大広間') || message.includes('つぶやき') || message.includes('投稿') || message.includes('おしゃべり')) {
       const hallResponses = [
-        '大広間のおしゃべり楽しいよね〜🐦 僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！',
-        '1時間で消えちゃうから気軽だよね〜！僕は恥ずかしがり屋だから、消えるのは助かるかも😊',
-        'みんなのつぶやき見てると面白いよ〜！僕もたまに変なこと書いちゃって、後で「あれ？」って思うんだ😅'
+        `🐦 大広間について教えるよ〜！🐿️\n\n・1時間で自動削除されるつぶやき投稿\n・いいね機能付き\n・みんなでおしゃべりできる場所\n・広場から行けるよ〜\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！1時間で消えちゃうから気軽だよね〜😊`,
+        `🏠 大広間のおしゃべり楽しいよね〜！みんなのつぶやき見てると面白いよ〜\n\n投稿は1時間で自動削除されるから、恥ずかしがり屋の僕には助かるかも😊 変なこと書いちゃっても、後で「あれ？」って思うけど消えてくれるからね〜😅`
       ]
       return hallResponses[Math.floor(Math.random() * hallResponses.length)]
+    }
+
+    // 宝物庫関連
+    if (message.includes('宝物庫') || message.includes('ファイル') || message.includes('保存') || message.includes('アップロード')) {
+      const favoritesResponses = [
+        `🌲 宝物庫について教えるよ〜！🐿️\n\n・ファイル・テキストの保存ができる\n・費用：100MOMOPay（アップロード時）\n・対応：画像、動画、音声、テキストファイルなど\n・プレビュー機能付き\n\n大事なファイルを保存するのにとっても便利だよ〜！僕もどんぐりの写真をいっぱい保存してるんだ📸`,
+        `📁 宝物庫は僕のお気に入りの場所だよ〜！100MOMOPay必要だけど、大切なファイルを安全に保存できるんだ🌰\n\nテキストも保存できるから、日記とか大事なメモとかも大丈夫！MOMOPayが足りなかったら演習林で稼いでから使ってみてね〜😊`
+      ]
+      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)]
+    }
+
+    // 設定関連
+    if (message.includes('設定') || message.includes('テーマ') || message.includes('ダークモード') || message.includes('共有')) {
+      return `⚙️ 設定について教えるよ〜！🐿️\n\n**一般設定：**\n・テーマ設定（ダークモード、プレミアムテーマ）\n・機能管理\n・データ削除\n\n**共有設定：**\n・データのバックアップ・復元\n・JSON形式で管理\n\n設定機能は売店で購入が必要だよ〜！購入したら設定画面で有効にしてね😊`
+    }
+    
+    // 広場関連
+    if (message.includes('広場') || message.includes('plaza')) {
+      return `🏛️ 広場について教えるよ〜！🐿️\n\n**大広間**\n・1時間で自動削除されるつぶやき投稿\n・いいね機能付き\n・みんなでおしゃべりできる\n\n**公会堂**\n・モモンガくんとおしゃべり（ここだよ！）\n・サイトの案内もできるよ〜\n\nどちらも広場から行けるよ〜！みんなが集まる憩いの場所なんだ😊`
+    }
+
+    // 具体的な質問への対応
+    if (message.includes('どうやって') || message.includes('方法') || message.includes('やり方')) {
+      if (message.includes('稼ぐ') || message.includes('momopay')) {
+        return `💰 MOMOPayの稼ぎ方を教えるよ〜！🐿️\n\n**一番効率的：演習林**\n・弾幕ゲームをプレイ\n・クリアするとMOMOPayと装備がもらえる\n・装備は売店で売却もできる\n\n**装備売却：**\n・legendary：80P、epic：40P\n・rare：20P、common：10P\n\n僕も毎日演習林で修行してるよ〜！一緒に頑張ろう😊`
+      }
+      return `🤔 何のやり方を知りたいのかな？\n\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・ファイルの保存方法\n・設定の変更方法\n\n具体的に教えてくれれば、詳しく説明するよ〜🐿️`
     }
     
     // 感情系
@@ -97,11 +198,17 @@ const Chatbot: React.FC = () => {
     
     // 質問系
     if (message.includes('何') && (message.includes('できる') || message.includes('する'))) {
-      return '僕ができること？🐿️ おしゃべりと、木登りと、どんぐり集めと...あ、でも一番得意なのは君を笑顔にすることかな〜😄 えへへ〜'
+      return `🐿️ 僕ができること教えるよ〜！\n\n**サイト案内：**\n・各機能の詳しい説明\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・どこに何があるかの案内\n\n**おしゃべり：**\n・楽しい会話\n・悩み相談\n・どんぐりの話（大好き！）\n\n一番得意なのは君を笑顔にすることかな〜😄 何でも聞いてね〜`
     }
     
-    if (message.includes('どこ') || message.includes('場所')) {
-      return 'ここは公会堂だよ〜🏛️ 僕の秘密基地みたいな場所なんだ！実は天井にハンモック隠してあるんだよ...内緒だけどね😉'
+    // 場所・現在地に関する質問
+    if (message.includes('ここ') && (message.includes('どこ') || message.includes('場所'))) {
+      return `🏛️ ここは公会堂だよ〜！僕の秘密基地みたいな場所なんだ😊\n\n公会堂は広場にある施設で、僕とおしゃべりできる特別な場所なの。実は天井にハンモック隠してあるんだよ...内緒だけどね😉\n\n他の場所に行きたかったら案内するよ〜！「案内して」って言ってみて🐿️`
+    }
+
+    // よくある質問
+    if (message.includes('初心者') || message.includes('始め方') || message.includes('最初')) {
+      return `🌟 初心者さんへの案内だよ〜！🐿️\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよ〜😊`
     }
     
     // 食べ物系
@@ -197,37 +304,45 @@ const Chatbot: React.FC = () => {
 
   // 初期メッセージ
   useEffect(() => {
+    // サイト情報を開発コンソールに出力（デバッグ用）
+    console.log('モモンガくんのサイト情報データベース:', siteInfo)
+    
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: 'やっほー！🐿️ 僕、モモンガくんだよ〜！\n公会堂へようこそ〜！ここは僕の秘密基地みたいな場所なんだ😄\n何でも気軽に話しかけてね〜！どんぐりの話でも、ゲームの話でも、なんでもオッケーだよ〜♪',
+      content: 'やっほー！🐿️ 僕、モモンガくんだよ〜！\n公会堂へようこそ〜！ここは僕の秘密基地みたいな場所なんだ😄\n\n僕は「さすらいのモモンガカーニバル」のサイト案内ができるよ〜！\n・サイトの使い方が分からない時\n・どこに何があるか知りたい時\n・MOMOPayの稼ぎ方を知りたい時\n・ただおしゃべりしたい時\n\nなんでも気軽に話しかけてね〜！「案内して」って言えば詳しく教えるよ〜♪',
       sender: 'momonga',
       timestamp: new Date()
     }
     setMessages([welcomeMessage])
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // siteInfoは初期化時のみ使用
 
   return (
-    <div style={{ 
+    <div className="chatbot-container" style={{ 
       color: 'white', 
       padding: 'min(20px, 4vw)', 
       maxWidth: '800px', 
       margin: '0 auto',
-      height: 'calc(100vh - 200px)',
+      minHeight: 'calc(100vh - 160px)',
+      maxHeight: 'calc(100vh - 120px)',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      position: 'relative'
     }}>
       {/* ヘッダー */}
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <div className="comic-text" style={{ 
-          fontSize: 'clamp(1.4rem, 4.5vw, 2rem)', 
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: 'min(20px, 3vh)',
+        flexShrink: 0
+      }}>
+        <div className="comic-text font-title-lg" style={{ 
           marginBottom: '8px', 
           textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
           color: '#fff3e0'
         }}>
           🏛️ 公会堂 🏛️
         </div>
-        <div className="comic-text" style={{ 
-          fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
+        <div className="comic-text font-body-lg" style={{ 
           color: '#c8e6c9'
         }}>
           モモンガくんとおしゃべりしよう！
@@ -235,23 +350,29 @@ const Chatbot: React.FC = () => {
       </div>
 
       {/* チャット画面 */}
-      <div className="comic-card" style={{
+      <div className="comic-card chatbot-main" style={{
         background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.1))',
         borderColor: '#9c27b0',
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        padding: '16px',
-        marginBottom: '16px'
+        padding: 'min(16px, 3vw)',
+        marginBottom: 'min(16px, 3vh)',
+        minHeight: '400px',
+        maxHeight: 'calc(100vh - 280px)',
+        overflow: 'hidden'
       }}>
         {/* メッセージ一覧 */}
-        <div style={{
+        <div className="messages-container" style={{
           flex: 1,
           overflowY: 'auto',
-          marginBottom: '16px',
+          marginBottom: 'min(16px, 2vh)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px'
+          gap: 'min(12px, 2vh)',
+          minHeight: '200px',
+          maxHeight: '100%',
+          paddingRight: '4px'
         }}>
           {messages.map((message) => (
             <div key={message.id} style={{
@@ -271,25 +392,25 @@ const Chatbot: React.FC = () => {
               )}
               
               {/* メッセージバブル */}
-              <div className="comic-card" style={{
+              <div className="comic-card message-bubble" style={{
                 background: message.sender === 'user' 
                   ? 'linear-gradient(135deg, rgba(66, 165, 245, 0.3), rgba(33, 150, 243, 0.2))'
                   : 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
                 borderColor: message.sender === 'user' ? '#2196f3' : '#8bc34a',
-                padding: '12px 16px',
-                maxWidth: '70%',
-                wordBreak: 'break-word'
+                padding: 'min(12px 16px, 3vw 4vw)',
+                maxWidth: 'min(70%, 400px)',
+                minWidth: 'min(200px, 50vw)',
+                wordBreak: 'break-word',
+                position: 'relative'
               }}>
-                <div className="comic-text" style={{
+                <div className="comic-text font-body-md" style={{
                   color: '#fff3e0',
-                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                   lineHeight: '1.4',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {message.content}
                 </div>
-                <div style={{
-                  fontSize: '0.7rem',
+                <div className="font-body-xs" style={{
                   color: 'rgba(255,255,255,0.6)',
                   marginTop: '4px',
                   textAlign: 'right'
@@ -324,9 +445,8 @@ const Chatbot: React.FC = () => {
                 borderColor: '#8bc34a',
                 padding: '12px 16px'
               }}>
-                <div className="comic-text" style={{
-                  color: '#fff3e0',
-                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
+                <div className="comic-text font-body-md" style={{
+                  color: '#fff3e0'
                 }}>
                   モモンガくんが考え中だよ〜... 🤔💭
                 </div>
@@ -338,10 +458,12 @@ const Chatbot: React.FC = () => {
         </div>
 
         {/* 入力欄 */}
-        <div style={{
+        <div className="input-area" style={{
           display: 'flex',
-          gap: '8px',
-          alignItems: 'flex-end'
+          gap: 'min(8px, 2vw)',
+          alignItems: 'flex-end',
+          flexShrink: 0,
+          padding: '4px 0'
         }}>
           <textarea
             value={inputMessage}
@@ -350,30 +472,30 @@ const Chatbot: React.FC = () => {
             placeholder="モモンガくんに話しかけてみよう..."
             rows={2}
             maxLength={500}
-            className="comic-input"
+            className="comic-input font-body-md"
             style={{
               flex: 1,
-              padding: '12px',
+              padding: 'min(12px, 3vw)',
               borderColor: 'rgba(255,255,255,0.4)',
               background: 'rgba(255,255,255,0.05)',
               color: 'white',
-              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-              resize: 'none'
+              resize: 'none',
+              minHeight: '50px',
+              maxHeight: '100px'
             }}
           />
           <button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping}
-            className="comic-button"
+            className="comic-button font-button-sm"
             style={{
-              padding: '12px 16px',
               background: (!inputMessage.trim() || isTyping) 
                 ? 'linear-gradient(45deg, #666, #555)' 
                 : 'linear-gradient(45deg, #9c27b0, #7b1fa2)',
               color: 'white',
               borderColor: (!inputMessage.trim() || isTyping) ? '#333' : '#4a148c',
-              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-              minWidth: '60px'
+              minWidth: 'min(80px, 20vw)',
+              flexShrink: 0
             }}
           >
             送信
@@ -382,16 +504,16 @@ const Chatbot: React.FC = () => {
       </div>
 
       {/* ナビゲーションボタン */}
-      <div style={{ 
+      <div className="navigation-buttons" style={{ 
         display: 'flex', 
-        gap: '12px', 
+        gap: 'min(12px, 3vw)', 
         justifyContent: 'center', 
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        flexShrink: 0,
+        padding: 'min(8px, 2vw) 0'
       }}>
         <Link to="/plaza" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: '10px 20px',
-            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+          <button className="comic-button font-button-sm" style={{
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
@@ -401,9 +523,7 @@ const Chatbot: React.FC = () => {
         </Link>
         
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: '10px 20px',
-            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+          <button className="comic-button font-button-sm" style={{
             background: 'linear-gradient(45deg, #666, #555)',
             color: 'white',
             borderColor: '#333'

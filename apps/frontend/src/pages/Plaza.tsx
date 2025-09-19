@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom'
 const Plaza: React.FC = () => {
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
-      <div className="comic-text" style={{ 
-        fontSize: 'clamp(1.4rem, 4.5vw, 2.2rem)', 
+      <div className="comic-text font-title-lg" style={{ 
         marginBottom: 'min(16px, 4vw)', 
         textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
         color: '#fff3e0', 
@@ -14,8 +13,7 @@ const Plaza: React.FC = () => {
         🏛️ 広場 🏛️
       </div>
       
-      <div className="comic-text" style={{ 
-        fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
+      <div className="comic-text font-body-lg" style={{ 
         marginBottom: 'min(32px, 8vw)', 
         color: '#c8e6c9'
       }}>
@@ -39,18 +37,16 @@ const Plaza: React.FC = () => {
             cursor: 'pointer',
             transition: 'all 0.3s ease'
           }}>
-            <div style={{ fontSize: 'clamp(2.5rem, 7vw, 3.5rem)', marginBottom: '16px' }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>
               🐦
             </div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', 
+            <div className="comic-text font-title-sm" style={{ 
               color: '#fff3e0',
               marginBottom: '8px'
             }}>
               大広間
             </div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+            <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9',
               lineHeight: '1.4'
             }}>
@@ -69,18 +65,16 @@ const Plaza: React.FC = () => {
             cursor: 'pointer',
             transition: 'all 0.3s ease'
           }}>
-            <div style={{ fontSize: 'clamp(2.5rem, 7vw, 3.5rem)', marginBottom: '16px' }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>
               🐿️
             </div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', 
+            <div className="comic-text font-title-sm" style={{ 
               color: '#fff3e0',
               marginBottom: '8px'
             }}>
               公会堂
             </div>
-            <div className="comic-text" style={{ 
-              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+            <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9',
               lineHeight: '1.4'
             }}>
@@ -100,9 +94,7 @@ const Plaza: React.FC = () => {
         marginTop: 'min(40px, 10vw)'
       }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
