@@ -43,16 +43,16 @@ const Tweets: React.FC = () => {
   }
 
 
-  const formatExpiry = (expiresAt: string) => {
+  const formatTimeAgo = (createdAt: string) => {
     const now = new Date().getTime()
-    const expiryTime = new Date(expiresAt).getTime()
-    const diffMs = expiryTime - now
+    const createdTime = new Date(createdAt).getTime()
+    const diffMs = now - createdTime
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
 
-    if (diffHours > 0) return `あと${diffHours}時間${diffMinutes}分で削除`
-    if (diffMinutes > 0) return `あと${diffMinutes}分で削除`
-    return 'まもなく削除'
+    if (diffHours > 0) return `${diffHours}時間前`
+    if (diffMinutes > 0) return `${diffMinutes}分前`
+    return 'たった今'
   }
 
   return (
@@ -142,7 +142,7 @@ const Tweets: React.FC = () => {
             }}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div className="comic-text" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
-                  {formatExpiry(tweet.expiresAt)}
+                  {formatTimeAgo(tweet.createdAt)}
                 </div>
               </div>
               
