@@ -78,8 +78,7 @@ const Plaza: React.FC = () => {
               color: '#c8e6c9',
               lineHeight: '1.4'
             }}>
-              モモンガくんとおしゃべり<br />
-              サイト案内とお話相手
+              モモンガくんとおしゃべり
             </div>
           </div>
         </Link>
