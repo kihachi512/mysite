@@ -340,7 +340,6 @@ const BulletHell: React.FC = () => {
   useEffect(() => {
     if (!running) return
     
-    console.log('Starting game loop, running:', running) // デバッグ用ログ
     
     const canvas = canvasRef.current
     if (!canvas) return
@@ -959,10 +958,8 @@ const BulletHell: React.FC = () => {
     
     // ゲームループを開始
     rafRef.current = requestAnimationFrame(loop)
-    console.log('Game loop started with requestAnimationFrame ID:', rafRef.current) // デバッグ用ログ
     
     return () => { 
-      console.log('Cleaning up game loop') // デバッグ用ログ
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current)
         rafRef.current = null
@@ -971,7 +968,6 @@ const BulletHell: React.FC = () => {
   }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound])
 
   const start = useCallback(() => {
-    console.log('Start button clicked!') // デバッグ用ログ
     
     // 前回のゲームループをキャンセル
     if (rafRef.current) {
@@ -999,7 +995,6 @@ const BulletHell: React.FC = () => {
     setGameOver(false)
     
     // ゲームを開始
-    console.log('Setting running to true') // デバッグ用ログ
     setRunning(true)
   }, [playSound])
 

@@ -304,8 +304,10 @@ const Chatbot: React.FC = () => {
 
   // 初期メッセージ
   useEffect(() => {
-    // サイト情報を開発コンソールに出力（デバッグ用）
-    console.log('モモンガくんのサイト情報データベース:', siteInfo)
+    // siteInfoを使用していることを明示（TypeScript警告回避）
+    if (siteInfo) {
+      // サイト情報は getResponse 関数内で使用される
+    }
     
     const welcomeMessage: Message = {
       id: 'welcome',

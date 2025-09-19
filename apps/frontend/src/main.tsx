@@ -36,7 +36,7 @@ const router = createBrowserRouter([
             <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: 'min(24px, 6vw)', borderColor: '#8bc34a', cursor: 'pointer', transition: 'all 0.3s ease' }}>
               <div className="font-icon-md" style={{ marginBottom: '12px' }}>🏛️</div>
               <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>広場</div>
-              <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>おしゃべり・AI会話</div>
+              <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>おしゃべり・交流</div>
             </div>
           </Link>
           <Link to="/favorites" style={{ textDecoration: 'none' }}>
