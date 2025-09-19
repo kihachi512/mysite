@@ -89,6 +89,7 @@ const BulletHell: React.FC = () => {
     gainNodes: GainNode[]
     masterGain: GainNode | null
   }>({ oscillators: [], gainNodes: [], masterGain: null })
+  const [bgmTimeoutId, setBgmTimeoutId] = useState<number | null>(null)
   
   // AudioContextを初期化する関数
   const initializeAudio = useCallback(() => {
@@ -158,7 +159,7 @@ const BulletHell: React.FC = () => {
     if (!audioContext || !bgmEnabled) return
     
     try {
-      // 既存のBGMを停止
+      // 既存のBGMを完全に停止
       stopBGM()
       
       // マスターゲインノード
@@ -166,81 +167,83 @@ const BulletHell: React.FC = () => {
       masterGain.gain.value = bgmVolume
       masterGain.connect(audioContext.destination)
       
-      // BGMの基本構成（4つのレイヤー）
-      const frequencies = [
-        // ベースライン
-        [65.4, 73.4, 82.4, 87.3], // C2, D2, E2, F2
-        // メロディ
-        [261.6, 293.7, 329.6, 349.2, 392.0], // C4, D4, E4, F4, G4
-        // ハーモニー
-        [130.8, 146.8, 164.8, 174.6], // C3, D3, E3, F3
-        // リズム
-        [1047, 1175, 1319, 1397] // C6, D6, E6, F6
-      ]
+      // シンプルなBGMパターン（メモリ使用量を削減）
+      const melodyFrequencies = [261.6, 293.7, 329.6, 349.2] // C4, D4, E4, F4
+      const bassFrequencies = [130.8, 146.8, 164.8, 174.6] // C3, D3, E3, F3
       
       const oscillators: OscillatorNode[] = []
       const gainNodes: GainNode[] = []
       
-      // 各レイヤーのオシレーターを作成
-      frequencies.forEach((freqArray, layerIndex) => {
-        freqArray.forEach((freq, noteIndex) => {
-          const osc = audioContext.createOscillator()
-          const gain = audioContext.createGain()
-          
-          // レイヤーごとに異なる波形とボリューム
-          switch(layerIndex) {
-            case 0: // ベース
-              osc.type = 'sawtooth'
-              gain.gain.value = 0.08
-              break
-            case 1: // メロディ
-              osc.type = 'sine'
-              gain.gain.value = 0.06
-              break
-            case 2: // ハーモニー
-              osc.type = 'triangle'
-              gain.gain.value = 0.04
-              break
-            case 3: // リズム
-              osc.type = 'square'
-              gain.gain.value = 0.03
-              break
+      // メロディライン（2音符のみでメモリ節約）
+      melodyFrequencies.slice(0, 2).forEach((freq, index) => {
+        const osc = audioContext.createOscillator()
+        const gain = audioContext.createGain()
+        
+        osc.type = 'sine'
+        osc.frequency.value = freq
+        gain.gain.value = 0.04 // ボリューム削減
+        
+        osc.connect(gain)
+        gain.connect(masterGain)
+        
+        const startTime = audioContext.currentTime + (index * 0.8)
+        const duration = 0.6
+        
+        osc.start(startTime)
+        osc.stop(startTime + duration)
+        
+        oscillators.push(osc)
+        gainNodes.push(gain)
+        
+        // オシレーター終了時の自動クリーンアップ
+        osc.onended = () => {
+          try {
+            if (gain.context.state !== 'closed') {
+              gain.disconnect()
+            }
+          } catch (e) {
+            // 既に切断済みの場合は無視
           }
-          
-          osc.frequency.value = freq
-          osc.connect(gain)
-          gain.connect(masterGain)
-          
-          // 音符のタイミング設定
-          const startTime = audioContext.currentTime + (noteIndex * 0.5) + (layerIndex * 0.1)
-          const duration = layerIndex === 3 ? 0.1 : 0.4 // リズムは短く
-          
-          osc.start(startTime)
-          osc.stop(startTime + duration)
-          
-          oscillators.push(osc)
-          gainNodes.push(gain)
-        })
+        }
       })
       
-      setBgmNodes({ oscillators, gainNodes, masterGain })
+      // ベースライン（1音符のみ）
+      const bassOsc = audioContext.createOscillator()
+      const bassGain = audioContext.createGain()
       
-      // BGMをループ再生
-      const loopBGM = () => {
+      bassOsc.type = 'sawtooth'
+      bassOsc.frequency.value = bassFrequencies[0]
+      bassGain.gain.value = 0.03
+      
+      bassOsc.connect(bassGain)
+      bassGain.connect(masterGain)
+      
+      bassOsc.start(audioContext.currentTime)
+      bassOsc.stop(audioContext.currentTime + 1.6)
+      
+      oscillators.push(bassOsc)
+      gainNodes.push(bassGain)
+      
+      bassOsc.onended = () => {
         try {
-          if (bgmEnabled && audioContext && audioContext.state === 'running') {
-            setTimeout(() => {
-              if (bgmEnabled && audioContext && audioContext.state === 'running') {
-                createBGM()
-              }
-            }, 4000) // 4秒後に再生
+          if (bassGain.context.state !== 'closed') {
+            bassGain.disconnect()
           }
         } catch (e) {
-          console.log('BGM loop error:', e)
+          // 既に切断済みの場合は無視
         }
       }
       
-      setTimeout(loopBGM, 4000)
+      setBgmNodes({ oscillators, gainNodes, masterGain })
+      
+      // 次のBGMループを予約（メモリリーク防止のためタイムアウトIDを管理）
+      const timeoutId = setTimeout(() => {
+        if (bgmEnabled && audioContext && audioContext.state === 'running') {
+          createBGM()
+        }
+      }, 2000) // 2秒間隔に短縮してスムーズに
+      
+      setBgmTimeoutId(timeoutId)
       
     } catch (error) {
       console.log('BGM creation failed:', error)
@@ -250,6 +253,12 @@ const BulletHell: React.FC = () => {
   // BGM停止関数
   const stopBGM = useCallback(() => {
     try {
+      // タイムアウトをクリア
+      if (bgmTimeoutId) {
+        clearTimeout(bgmTimeoutId)
+        setBgmTimeoutId(null)
+      }
+      
       bgmNodes.oscillators.forEach(osc => {
         try {
           if (osc.context.state !== 'closed') {
@@ -284,7 +293,7 @@ const BulletHell: React.FC = () => {
     }
     
     setBgmNodes({ oscillators: [], gainNodes: [], masterGain: null })
-  }, [bgmNodes])
+  }, [bgmNodes, bgmTimeoutId])
   
   
   // 無敵時間を開始する関数
@@ -505,6 +514,20 @@ const BulletHell: React.FC = () => {
       stopBGM()
     }
   }, [bgmEnabled, audioContext, running, createBGM, stopBGM])
+
+  // コンポーネントアンマウント時のクリーンアップ
+  useEffect(() => {
+    return () => {
+      // BGMを停止
+      stopBGM()
+      // AudioContextをクローズ
+      if (audioContext) {
+        audioContext.close().catch((error) => {
+          console.log('Failed to close AudioContext on unmount:', error)
+        })
+      }
+    }
+  }, [audioContext, stopBGM])
 
   // Save inventory to localStorage
   useEffect(() => {
