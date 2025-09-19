@@ -1028,6 +1028,13 @@ const BulletHell: React.FC = () => {
       yOffset += 15
       
       // Shield with equipment bonus
+      if (inventory.equippedShield) {
+        ctx.fillStyle = '#ffd93d'
+        const shieldName = inventory.equippedShield.name
+        const shieldIcon = inventory.equippedShield.icon
+        ctx.fillText(`シールド: ${shieldIcon} ${shieldName}`, 10, yOffset)
+        yOffset += 15
+      }
       
       // Special equipment effects
       if (inventory.equippedSpecial) {
@@ -1075,13 +1082,18 @@ const BulletHell: React.FC = () => {
     setLives(1)
     setTime(0)
     setScore(0)
-    setShield(10)
+    
+    // シールド初期値を装備に応じて設定
+    const baseShield = 10
+    const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
+    setShield(baseShield + equipmentShieldBonus)
+    
     setWave(1)
     setGameOver(false)
     
     // ゲームを開始
     setRunning(true)
-  }, [playSound])
+  }, [playSound, inventory])
 
   // ガチャ機能
   const performGacha = useCallback(() => {
@@ -1207,10 +1219,10 @@ const BulletHell: React.FC = () => {
     modifiedPlayer.fireRate += powerUpBonuses.fireRate
     modifiedPlayer.power += powerUpBonuses.power
 
-    // シールド効果（ゲーム開始時に適用）- 装備効果も調整
+    // シールド効果（装備効果を常時適用）
     if (inventory.equippedShield && !running) {
-      const shieldBonus = Math.floor((inventory.equippedShield?.effect.shield || 0) * 0.3) // 30%に減少
-      setShield(prev => prev + shieldBonus)
+      const shieldBonus = inventory.equippedShield?.effect.shield || 0 // 100%の効果を適用
+      setShield(prev => 10 + shieldBonus) // 基本10 + 装備ボーナス
     }
 
     playerRef.current = modifiedPlayer
