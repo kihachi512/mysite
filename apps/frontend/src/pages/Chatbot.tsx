@@ -314,17 +314,23 @@ const Chatbot: React.FC = () => {
   }, [])
 
   return (
-    <div style={{ 
+    <div className="chatbot-container" style={{ 
       color: 'white', 
       padding: 'min(20px, 4vw)', 
       maxWidth: '800px', 
       margin: '0 auto',
-      height: 'calc(100vh - 200px)',
+      minHeight: 'calc(100vh - 160px)',
+      maxHeight: 'calc(100vh - 120px)',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      position: 'relative'
     }}>
       {/* ヘッダー */}
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: 'min(20px, 3vh)',
+        flexShrink: 0
+      }}>
         <div className="comic-text font-title-lg" style={{ 
           marginBottom: '8px', 
           textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
@@ -340,23 +346,29 @@ const Chatbot: React.FC = () => {
       </div>
 
       {/* チャット画面 */}
-      <div className="comic-card" style={{
+      <div className="comic-card chatbot-main" style={{
         background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.1))',
         borderColor: '#9c27b0',
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        padding: '16px',
-        marginBottom: '16px'
+        padding: 'min(16px, 3vw)',
+        marginBottom: 'min(16px, 3vh)',
+        minHeight: '400px',
+        maxHeight: 'calc(100vh - 280px)',
+        overflow: 'hidden'
       }}>
         {/* メッセージ一覧 */}
-        <div style={{
+        <div className="messages-container" style={{
           flex: 1,
           overflowY: 'auto',
-          marginBottom: '16px',
+          marginBottom: 'min(16px, 2vh)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px'
+          gap: 'min(12px, 2vh)',
+          minHeight: '200px',
+          maxHeight: '100%',
+          paddingRight: '4px'
         }}>
           {messages.map((message) => (
             <div key={message.id} style={{
@@ -376,25 +388,25 @@ const Chatbot: React.FC = () => {
               )}
               
               {/* メッセージバブル */}
-              <div className="comic-card" style={{
+              <div className="comic-card message-bubble" style={{
                 background: message.sender === 'user' 
                   ? 'linear-gradient(135deg, rgba(66, 165, 245, 0.3), rgba(33, 150, 243, 0.2))'
                   : 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
                 borderColor: message.sender === 'user' ? '#2196f3' : '#8bc34a',
-                padding: '12px 16px',
-                maxWidth: '70%',
-                wordBreak: 'break-word'
+                padding: 'min(12px 16px, 3vw 4vw)',
+                maxWidth: 'min(70%, 400px)',
+                minWidth: 'min(200px, 50vw)',
+                wordBreak: 'break-word',
+                position: 'relative'
               }}>
-                <div className="comic-text" style={{
+                <div className="comic-text font-body-md" style={{
                   color: '#fff3e0',
-                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                   lineHeight: '1.4',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {message.content}
                 </div>
-                <div style={{
-                  fontSize: '0.7rem',
+                <div className="font-body-xs" style={{
                   color: 'rgba(255,255,255,0.6)',
                   marginTop: '4px',
                   textAlign: 'right'
@@ -429,9 +441,8 @@ const Chatbot: React.FC = () => {
                 borderColor: '#8bc34a',
                 padding: '12px 16px'
               }}>
-                <div className="comic-text" style={{
-                  color: '#fff3e0',
-                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
+                <div className="comic-text font-body-md" style={{
+                  color: '#fff3e0'
                 }}>
                   モモンガくんが考え中だよ〜... 🤔💭
                 </div>
@@ -443,10 +454,12 @@ const Chatbot: React.FC = () => {
         </div>
 
         {/* 入力欄 */}
-        <div style={{
+        <div className="input-area" style={{
           display: 'flex',
-          gap: '8px',
-          alignItems: 'flex-end'
+          gap: 'min(8px, 2vw)',
+          alignItems: 'flex-end',
+          flexShrink: 0,
+          padding: '4px 0'
         }}>
           <textarea
             value={inputMessage}
@@ -455,30 +468,31 @@ const Chatbot: React.FC = () => {
             placeholder="モモンガくんに話しかけてみよう..."
             rows={2}
             maxLength={500}
-            className="comic-input"
+            className="comic-input font-body-md"
             style={{
               flex: 1,
-              padding: '12px',
+              padding: 'min(12px, 3vw)',
               borderColor: 'rgba(255,255,255,0.4)',
               background: 'rgba(255,255,255,0.05)',
               color: 'white',
-              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-              resize: 'none'
+              resize: 'none',
+              minHeight: '50px',
+              maxHeight: '100px'
             }}
           />
           <button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping}
-            className="comic-button"
+            className="comic-button font-button-sm"
             style={{
-              padding: '12px 16px',
+              padding: 'min(12px 16px, 3vw 4vw)',
               background: (!inputMessage.trim() || isTyping) 
                 ? 'linear-gradient(45deg, #666, #555)' 
                 : 'linear-gradient(45deg, #9c27b0, #7b1fa2)',
               color: 'white',
               borderColor: (!inputMessage.trim() || isTyping) ? '#333' : '#4a148c',
-              fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-              minWidth: '60px'
+              minWidth: 'min(80px, 20vw)',
+              flexShrink: 0
             }}
           >
             送信
@@ -487,11 +501,13 @@ const Chatbot: React.FC = () => {
       </div>
 
       {/* ナビゲーションボタン */}
-      <div style={{ 
+      <div className="navigation-buttons" style={{ 
         display: 'flex', 
-        gap: '12px', 
+        gap: 'min(12px, 3vw)', 
         justifyContent: 'center', 
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        flexShrink: 0,
+        padding: 'min(8px, 2vw) 0'
       }}>
         <Link to="/plaza" style={{ textDecoration: 'none' }}>
           <button className="comic-button font-button-sm" style={{

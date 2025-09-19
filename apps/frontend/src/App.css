@@ -1192,3 +1192,125 @@ body.premium-theme .footer p {
     padding: 12px !important;
   }
 }
+
+/* チャットボット（モモンガくん）レスポンシブ対応 */
+.chatbot-container {
+  min-height: calc(100vh - 160px) !important;
+  max-height: calc(100vh - 120px) !important;
+}
+
+.chatbot-main {
+  min-height: 400px !important;
+  max-height: calc(100vh - 280px) !important;
+}
+
+.message-bubble {
+  max-width: min(70%, 400px) !important;
+  min-width: min(200px, 50vw) !important;
+}
+
+.messages-container {
+  scrollbar-width: thin;
+  scrollbar-color: #9c27b0 rgba(0, 0, 0, 0.3);
+}
+
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* タブレット対応 */
+@media (max-width: 768px) {
+  .chatbot-container {
+    padding: min(16px, 3vw) !important;
+    min-height: calc(100vh - 140px) !important;
+    max-height: calc(100vh - 100px) !important;
+  }
+  
+  .chatbot-main {
+    min-height: 350px !important;
+    max-height: calc(100vh - 240px) !important;
+    padding: min(12px, 2.5vw) !important;
+  }
+  
+  .message-bubble {
+    max-width: min(75%, 350px) !important;
+    min-width: min(180px, 45vw) !important;
+    padding: min(10px 14px, 2.5vw 3.5vw) !important;
+  }
+}
+
+/* スマホ対応 */
+@media (max-width: 480px) {
+  .chatbot-container {
+    padding: 12px !important;
+    min-height: calc(100vh - 120px) !important;
+    max-height: calc(100vh - 80px) !important;
+  }
+  
+  .chatbot-main {
+    min-height: 300px !important;
+    max-height: calc(100vh - 200px) !important;
+    padding: 12px !important;
+  }
+  
+  .message-bubble {
+    max-width: 85% !important;
+    min-width: min(150px, 40vw) !important;
+    padding: 8px 12px !important;
+  }
+  
+  .input-area {
+    gap: 8px !important;
+    padding: 4px 0 !important;
+  }
+  
+  .navigation-buttons {
+    gap: 8px !important;
+    padding: 8px 0 !important;
+  }
+}
+
+/* 極小画面対応 */
+@media (max-width: 360px) {
+  .chatbot-container {
+    padding: 8px !important;
+    min-height: calc(100vh - 100px) !important;
+    max-height: calc(100vh - 60px) !important;
+  }
+  
+  .chatbot-main {
+    min-height: 280px !important;
+    max-height: calc(100vh - 180px) !important;
+    padding: 8px !important;
+  }
+  
+  .message-bubble {
+    max-width: 90% !important;
+    min-width: 120px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* 高倍率ブラウザ対応 */
+@media (min-resolution: 150dpi) {
+  .chatbot-container {
+    min-height: calc(100vh - 120px) !important;
+    max-height: calc(100vh - 80px) !important;
+  }
+  
+  .chatbot-main {
+    min-height: 320px !important;
+    max-height: calc(100vh - 200px) !important;
+  }
+}
