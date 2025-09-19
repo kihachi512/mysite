@@ -341,14 +341,21 @@ const BulletHell: React.FC = () => {
     const w = canvas.width, h = canvas.height
 
     const loop = () => {
-      // time
+      // time - 現在のtime値を取得して使用
+      const currentTime = time
       setTime(t => t + 1)
+
+      // 初期フレーム（time < 60）ではスポーンしない
+      if (currentTime < 60) {
+        if (running) rafRef.current = requestAnimationFrame(loop)
+        return
+      }
 
       // spawn enemies in formations (Touhou-style) - Much more gradual progression
       const baseSpawnRate = 300 // Much slower initial spawn rate
       const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
       
-      if (time % spawnRate === 0) {
+      if (currentTime % spawnRate === 0) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
         // Limit formation complexity based on wave
@@ -419,7 +426,7 @@ const BulletHell: React.FC = () => {
 
       // spawn power-ups more frequently in early waves
       const powerUpInterval = Math.max(400, 600 - wave * 30) // More frequent in early waves
-      if (time % powerUpInterval === 0 && Math.random() < 0.8) {
+      if (currentTime % powerUpInterval === 0 && Math.random() < 0.8) {
         const powerUpTypes: PowerUp['type'][] = ['fireRate', 'power', 'shield']
         powerUpsRef.current.push({
           x: Math.random() * (w - 40) + 20,
@@ -435,7 +442,7 @@ const BulletHell: React.FC = () => {
         const baseShootInterval = 90 + (idx % 30) // Longer base interval
         const shootInterval = Math.max(45, baseShootInterval - wave * 5) // Gradually faster
         
-        if (time % shootInterval === 0) {
+        if (currentTime % shootInterval === 0) {
           const bulletSpeed = Math.min(0.8 + wave * 0.1, 1.5) // Slower bullets early game
           
           if (e.pattern === 0) {
@@ -483,7 +490,7 @@ const BulletHell: React.FC = () => {
             // Circular pattern (danmaku style) - reduced bullets, later waves only
             const numBullets = Math.min(4 + wave, 8) // Start with 4, max 8
             for (let i = 0; i < numBullets; i++) {
-              const ang = (time * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+              const ang = (currentTime * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
               bulletsRef.current.push({ 
                 x: e.x, y: e.y, 
                 vx: Math.cos(ang) * bulletSpeed * 0.7, 
@@ -497,7 +504,7 @@ const BulletHell: React.FC = () => {
               // Phase 1: Spiral bullets (reduced count)
               const numBullets = Math.min(6 + Math.floor(wave / 5), 10) // Start with 6, max 10
               for (let i = 0; i < numBullets; i++) {
-                const ang = (time * 0.03 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                const ang = (currentTime * 0.03 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
                 bulletsRef.current.push({ 
                   x: e.x, y: e.y, 
                   vx: Math.cos(ang) * bulletSpeed * 0.8, 
@@ -508,7 +515,7 @@ const BulletHell: React.FC = () => {
             } else if (e.bossPhase === 2) {
               // Phase 2: Wave pattern (reduced spread)
               for (let i = -2; i <= 2; i++) {
-                const ang = Math.PI / 2 + i * 0.15 + Math.sin(time * 0.08) * 0.3
+                const ang = Math.PI / 2 + i * 0.15 + Math.sin(currentTime * 0.08) * 0.3
                 bulletsRef.current.push({ 
                   x: e.x, y: e.y, 
                   vx: Math.cos(ang) * bulletSpeed, 
@@ -530,37 +537,37 @@ const BulletHell: React.FC = () => {
         const moveSpeed = 0.8
         if (e.pattern === 0) {
           // Gentle sine wave horizontal movement
-          e.x += Math.sin(time * 0.03 + idx) * moveSpeed
+          e.x += Math.sin(currentTime * 0.03 + idx) * moveSpeed
           e.y += 0.5
         }
         if (e.pattern === 1) {
           // Vertical sine wave
-          e.y += Math.sin(time * 0.05 + idx) * 0.4 + 0.4
+          e.y += Math.sin(currentTime * 0.05 + idx) * 0.4 + 0.4
         }
         if (e.pattern === 2) {
           // Smooth circular motion
-          e.x += Math.cos(time * 0.04 + idx) * 0.8
-          e.y += Math.sin(time * 0.04 + idx) * 0.3 + 0.5
+          e.x += Math.cos(currentTime * 0.04 + idx) * 0.8
+          e.y += Math.sin(currentTime * 0.04 + idx) * 0.3 + 0.5
         }
         if (e.pattern === 3) {
           // Larger horizontal waves
-          e.x += Math.sin(time * 0.02 + idx) * 1.5
+          e.x += Math.sin(currentTime * 0.02 + idx) * 1.5
           e.y += 0.6
         }
         if (e.pattern === 4) {
           // Figure-8 pattern
-          e.x += Math.cos(time * 0.05 + idx) * 1.2
-          e.y += Math.sin(time * 0.03 + idx) * 0.8 + 0.4
+          e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
+          e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
         }
         if (e.pattern === 5) {
           // Spiral descent
-          const spiral = time * 0.02 + idx
+          const spiral = currentTime * 0.02 + idx
           e.x += Math.cos(spiral) * 1.4
           e.y += Math.sin(spiral) * 0.6 + 0.7
         }
         if (e.pattern === 6 && e.isBoss) {
           // Boss movement - slow horizontal movement
-          e.x += Math.sin(time * 0.01) * 1.0
+          e.x += Math.sin(currentTime * 0.01) * 1.0
           // Keep boss near top of screen
           if (e.y > 80) e.y -= 0.2
           if (e.y < 40) e.y += 0.2
@@ -705,7 +712,7 @@ const BulletHell: React.FC = () => {
       }
 
       // ウェーブ進行チェック（30秒ごと）とボス出現
-      if (time > 0 && time % 1800 === 0) {
+      if (currentTime > 0 && currentTime % 1800 === 0) {
         // ウェーブクリア音
         playSound(1500, 0.5, 'sine')
         
@@ -810,7 +817,7 @@ const BulletHell: React.FC = () => {
       const hitboxRadius = p.r
       
       // Enhanced pulsing effect for better mobile visibility
-      const pulseEffect = Math.sin(time * 0.15) * 0.3 + 1.2
+      const pulseEffect = Math.sin(currentTime * 0.15) * 0.3 + 1.2
       const effectRadius = displayRadius * pulseEffect * 0.15
       
       // Multiple glow layers for better visibility
@@ -829,7 +836,7 @@ const BulletHell: React.FC = () => {
         ctx.strokeStyle = '#ffd93d'
         ctx.lineWidth = 4
         ctx.setLineDash([8, 4])
-        ctx.lineDashOffset = -time * 0.15
+        ctx.lineDashOffset = -currentTime * 0.15
         ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 6, 0, Math.PI * 2); ctx.stroke()
         
         // Additional shield glow
@@ -959,7 +966,8 @@ const BulletHell: React.FC = () => {
     playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
     lastShotRef.current = 0
     
-    // 状態をリセット
+    // 状態を同期的にリセット（Reactの状態更新は非同期なので、まずfalseにしてからリセット）
+    setRunning(false)
     setPowerUpBonuses({ fireRate: 0, power: 0 })
     setLives(1)
     setTime(0) // timeを確実に0にリセット
@@ -968,8 +976,10 @@ const BulletHell: React.FC = () => {
     setWave(1) // waveを確実に1にリセット
     setGameOver(false)
     
-    // 最後にrunningをtrueに設定してゲームループを開始
-    setRunning(true)
+    // 短い遅延後にゲームを開始して、状態リセットが確実に完了するようにする
+    setTimeout(() => {
+      setRunning(true)
+    }, 10)
   }, [playSound])
 
   // ガチャ機能
