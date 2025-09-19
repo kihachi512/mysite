@@ -928,14 +928,34 @@ body.premium-theme .footer p {
 /* ボタン・UI系 */
 .font-button-lg {
   font-size: clamp(1.1rem, 3.2vw, 1.3rem) !important;
+  padding: min(16px 32px, 4vw 8vw) !important;
 }
 
 .font-button-md {
   font-size: clamp(1rem, 3vw, 1.2rem) !important;
+  padding: min(14px 28px, 3.5vw 7vw) !important;
 }
 
 .font-button-sm {
   font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+  padding: min(12px 24px, 3vw 6vw) !important;
+}
+
+/* 特殊ボタンタイプ */
+.font-button-xs {
+  font-size: clamp(0.8rem, 2.2vw, 0.9rem) !important;
+  padding: min(10px 20px, 2.5vw 5vw) !important;
+}
+
+.font-button-icon {
+  font-size: clamp(0.8rem, 2.5vw, 1rem) !important;
+  padding: min(8px 16px, 2vw 4vw) !important;
+  min-width: min(60px, 15vw) !important;
+}
+
+.font-button-wide {
+  font-size: clamp(1rem, 3vw, 1.2rem) !important;
+  padding: min(12px 32px, 3vw 8vw) !important;
 }
 
 /* 数値・ステータス系 */

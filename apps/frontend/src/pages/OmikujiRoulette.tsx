@@ -172,12 +172,10 @@ const OmikujiChoice: React.FC = () => {
       <div style={{ display: 'flex', gap: 12 }}>
         <button 
           onClick={reset} 
-          className="comic-button"
+          className="comic-button font-button-md"
           style={{ 
-            padding: '12px 24px', 
             background: 'linear-gradient(45deg, #66bb6a, #4caf50)', 
             color: '#fff', 
-            fontSize: '1.2rem',
             borderColor: '#2e7d32'
           }}
         >

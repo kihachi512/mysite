@@ -95,7 +95,6 @@ const Plaza: React.FC = () => {
       }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <button className="comic-button font-button-md" style={{
-            padding: 'min(12px 24px, 3vw)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'

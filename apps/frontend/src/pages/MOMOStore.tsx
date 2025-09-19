@@ -116,10 +116,8 @@ const PurchaseView: React.FC<{
                 <button 
                   onClick={() => onPurchase(item)}
                   disabled={!canAfford}
-                  className="comic-button"
+                  className="comic-button font-button-xs"
                   style={{ 
-                    padding: 'min(8px 16px, 2vw)', 
-                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                     background: canAfford 
                       ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
                       : 'linear-gradient(45deg, #666, #555)',
@@ -198,10 +196,8 @@ const SaleView: React.FC<{
               
               <button 
                 onClick={() => onSell(item, index)}
-                className="comic-button"
+                className="comic-button font-button-xs"
                 style={{ 
-                  padding: 'min(6px 12px, 2vw)', 
-                  fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
                   background: 'linear-gradient(45deg, #ff6b6b, #ff5252)',
                   color: 'white',
                   borderColor: '#d32f2f',
@@ -357,10 +353,8 @@ const MOMOStore: React.FC = () => {
       }}>
         <button 
           onClick={() => setActiveTab('purchase')}
-          className="comic-button"
+          className="comic-button font-button-md"
           style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: activeTab === 'purchase' 
               ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
               : 'linear-gradient(45deg, #666, #555)',
@@ -375,10 +369,8 @@ const MOMOStore: React.FC = () => {
         
         <button 
           onClick={() => setActiveTab('sale')}
-          className="comic-button"
+          className="comic-button font-button-md"
           style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
             background: activeTab === 'sale' 
               ? 'linear-gradient(45deg, #ff6b6b, #ff5252)' 
               : 'linear-gradient(45deg, #666, #555)',
@@ -413,9 +405,7 @@ const MOMOStore: React.FC = () => {
       {/* ナビゲーションボタン */}
       <div style={{ display: 'flex', gap: 'min(16px, 4vw)', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/games" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
@@ -425,9 +415,7 @@ const MOMOStore: React.FC = () => {
         </Link>
         
         <Link to="/settings" style={{ textDecoration: 'none' }}>
-          <button className="comic-button" style={{
-            padding: 'min(12px 24px, 3vw)',
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #42a5f5, #2196f3)',
             color: 'white',
             borderColor: '#1976d2'

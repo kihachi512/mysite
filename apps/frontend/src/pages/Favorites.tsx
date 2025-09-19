@@ -262,12 +262,10 @@ const Favorites: React.FC = () => {
           <button 
             type="submit" 
             disabled={momoPayPoints < UPLOAD_COST}
-            className="comic-button"
+            className="comic-button font-button-md"
             style={{
-              padding: '14px 28px',
               background: momoPayPoints < UPLOAD_COST ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)',
               color: momoPayPoints < UPLOAD_COST ? '#ccc' : 'white',
-              fontSize: '1.2rem',
               alignSelf: 'flex-start',
               borderColor: momoPayPoints < UPLOAD_COST ? '#333' : '#2e7d32',
               cursor: momoPayPoints < UPLOAD_COST ? 'not-allowed' : 'pointer'

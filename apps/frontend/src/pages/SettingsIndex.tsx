@@ -84,7 +84,6 @@ const SettingsIndex: React.FC = () => {
       <div style={{ marginTop: 'min(40px, 10vw)' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <button className="comic-button font-button-md" style={{
-            padding: 'min(14px 28px, 3.5vw 7vw)',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'

@@ -1199,9 +1199,8 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={start} 
           disabled={running} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
             color: 'white', 
             borderColor: running ? '#333' : '#2e7d32'
@@ -1214,9 +1213,8 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={() => setShowGacha(true)} 
           disabled={running || momoPayPoints < 1000} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
             color: 'white', 
             borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f'
@@ -1229,9 +1227,8 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={() => setShowInventory(true)} 
           disabled={running} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
             color: 'white', 
             borderColor: running ? '#333' : '#1976d2'
@@ -1244,9 +1241,8 @@ const BulletHell: React.FC = () => {
         <button 
           onClick={() => setShowEquipmentCatalog(true)} 
           disabled={running} 
-          className="comic-button"
+          className="comic-button font-button-sm"
           style={{ 
-            padding: '12px 20px', 
             background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
             color: 'white', 
             borderColor: running ? '#333' : '#4a148c'
@@ -1294,9 +1290,8 @@ const BulletHell: React.FC = () => {
               <button 
                 onClick={performGacha} 
                 disabled={momoPayPoints < 1000}
-                className="comic-button"
+                className="comic-button font-button-md"
                 style={{ 
-                  padding: 'min(16px 32px, 4vw 8vw)', fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                   background: momoPayPoints < 1000 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
                   color: momoPayPoints < 1000 ? '#ccc' : '#000', 
                   borderColor: momoPayPoints < 1000 ? '#333' : '#f57f17',
@@ -1309,9 +1304,8 @@ const BulletHell: React.FC = () => {
             
             <button 
               onClick={() => setShowGacha(false)} 
-              className="comic-button"
+              className="comic-button font-button-sm"
               style={{ 
-                padding: 'min(12px 24px, 3vw 6vw)', fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                 background: 'linear-gradient(45deg, #666, #555)', 
                 color: 'white', 
                 borderColor: '#333'
@@ -1388,10 +1382,8 @@ const BulletHell: React.FC = () => {
               </div>
               <button 
                 onClick={() => setGachaResult(null)} 
-                className="comic-button"
+                className="comic-button font-button-sm"
                 style={{ 
-                  padding: '12px 24px', 
-                  fontSize: '1rem',
                   background: 'linear-gradient(45deg, #4caf50, #45a049)', 
                   color: 'white', 
                   borderColor: '#2e7d32',
@@ -1456,9 +1448,8 @@ const BulletHell: React.FC = () => {
                   {inventory.equippedWeapon && (
                     <button 
                       onClick={() => unequipItem('weapon')}
-                      className="comic-button"
+                      className="comic-button font-button-xs"
                       style={{ 
-                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1484,9 +1475,8 @@ const BulletHell: React.FC = () => {
                   {inventory.equippedShield && (
                     <button 
                       onClick={() => unequipItem('shield')}
-                      className="comic-button"
+                      className="comic-button font-button-xs"
                       style={{ 
-                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1512,9 +1502,8 @@ const BulletHell: React.FC = () => {
                   {inventory.equippedSpecial && (
                     <button 
                       onClick={() => unequipItem('special')}
-                      className="comic-button"
+                      className="comic-button font-button-xs"
                       style={{ 
-                        padding: 'min(8px 16px, 2vw 4vw)', fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                         background: 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
                         color: 'white', borderColor: '#d32f2f', width: '100%'
                       }}
@@ -1595,9 +1584,8 @@ const BulletHell: React.FC = () => {
                       </div>
                       <button 
                         onClick={() => equipItem(item)}
-                        className="comic-button"
+                        className="comic-button font-button-xs"
                         style={{ 
-                          padding: 'min(6px 12px, 3vw)', fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
                           background: 'linear-gradient(45deg, #4caf50, #45a049)', 
                           color: 'white', borderColor: '#2e7d32', width: '100%'
                         }}
@@ -1614,9 +1602,8 @@ const BulletHell: React.FC = () => {
             <div style={{ textAlign: 'center' }}>
               <button 
                 onClick={() => setShowInventory(false)} 
-                className="comic-button"
+                className="comic-button font-button-sm"
                 style={{ 
-                  padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
                   background: 'linear-gradient(45deg, #666, #555)', 
                   color: 'white', 
                   borderColor: '#333'
@@ -1769,9 +1756,8 @@ const BulletHell: React.FC = () => {
             <div style={{ textAlign: 'center', marginTop: '16px' }}>
               <button 
                 onClick={() => setShowEquipmentCatalog(false)} 
-                className="comic-button"
+                className="comic-button font-button-sm"
                 style={{ 
-                  padding: 'min(12px 24px, 3vw)', fontSize: 'clamp(0.9rem, 3vw, 1rem)',
                   background: 'linear-gradient(45deg, #666, #555)', 
                   color: 'white', 
                   borderColor: '#333'

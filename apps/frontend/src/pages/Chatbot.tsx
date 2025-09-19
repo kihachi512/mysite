@@ -485,7 +485,6 @@ const Chatbot: React.FC = () => {
             disabled={!inputMessage.trim() || isTyping}
             className="comic-button font-button-sm"
             style={{
-              padding: 'min(12px 16px, 3vw 4vw)',
               background: (!inputMessage.trim() || isTyping) 
                 ? 'linear-gradient(45deg, #666, #555)' 
                 : 'linear-gradient(45deg, #9c27b0, #7b1fa2)',
@@ -511,7 +510,6 @@ const Chatbot: React.FC = () => {
       }}>
         <Link to="/plaza" style={{ textDecoration: 'none' }}>
           <button className="comic-button font-button-sm" style={{
-            padding: '10px 20px',
             background: 'linear-gradient(45deg, #4caf50, #45a049)',
             color: 'white',
             borderColor: '#2e7d32'
@@ -522,7 +520,6 @@ const Chatbot: React.FC = () => {
         
         <Link to="/" style={{ textDecoration: 'none' }}>
           <button className="comic-button font-button-sm" style={{
-            padding: '10px 20px',
             background: 'linear-gradient(45deg, #666, #555)',
             color: 'white',
             borderColor: '#333'
