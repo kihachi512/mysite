@@ -48,10 +48,190 @@ const STORE_ITEMS: StoreItem[] = [
   }
 ]
 
+// 購入画面コンポーネント
+const PurchaseView: React.FC<{
+  momoPayPoints: number
+  purchasedItems: string[]
+  onPurchase: (item: StoreItem) => void
+}> = ({ momoPayPoints, purchasedItems, onPurchase }) => {
+  return (
+    <div>
+      <div className="comic-text" style={{ 
+        fontSize: 'clamp(1.1rem, 3.2vw, 1.3rem)', 
+        marginBottom: 'min(20px, 5vw)', 
+        color: '#fff3e0' 
+      }}>
+        ⚙️ 設定・機能購入
+      </div>
+      
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 45vw), 1fr))', 
+        gap: 'min(16px, 4vw)', 
+        maxWidth: '1000px', 
+        margin: '0 auto',
+        padding: '0 10px'
+      }}>
+        {STORE_ITEMS.map((item) => {
+          const isPurchased = purchasedItems.includes(item.id)
+          const canAfford = momoPayPoints >= item.price
+          
+          return (
+            <div key={item.id} className="comic-card" style={{
+              background: isPurchased 
+                ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))'
+                : 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.1))',
+              padding: 'min(20px, 5vw)',
+              borderColor: isPurchased ? '#4caf50' : (canAfford ? '#ffc107' : '#666'),
+              opacity: isPurchased ? 0.7 : 1
+            }}>
+              <div style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', marginBottom: '12px' }}>
+                {item.icon}
+              </div>
+              <div className="comic-text" style={{ 
+                fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+                color: '#fff3e0',
+                marginBottom: '8px'
+              }}>
+                {item.name}
+              </div>
+              <div className="comic-text" style={{ 
+                fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
+                color: '#c8e6c9',
+                marginBottom: '16px',
+                lineHeight: '1.4'
+              }}>
+                {item.description}
+              </div>
+              
+              {isPurchased ? (
+                <div className="comic-text" style={{ 
+                  color: '#4caf50', 
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                  fontWeight: 'bold'
+                }}>
+                  ✅ 購入済み
+                </div>
+              ) : (
+                <button 
+                  onClick={() => onPurchase(item)}
+                  disabled={!canAfford}
+                  className="comic-button"
+                  style={{ 
+                    padding: 'min(8px 16px, 2vw)', 
+                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                    background: canAfford 
+                      ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
+                      : 'linear-gradient(45deg, #666, #555)',
+                    color: canAfford ? '#000' : '#ccc',
+                    borderColor: canAfford ? '#f57f17' : '#333',
+                    width: '100%'
+                  }}
+                >
+                  💰 {item.price}MOMOPay
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// 売却画面コンポーネント
+const SaleView: React.FC<{
+  inventory: any
+  onSell: (item: any, index: number) => void
+  getSellPrice: (rarity: string) => number
+  getRarityColor: (rarity: string) => string
+}> = ({ inventory, onSell, getSellPrice, getRarityColor }) => {
+  return (
+    <div>
+      <div className="comic-text" style={{ 
+        fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', 
+        marginBottom: 'min(20px, 5vw)', 
+        color: '#fff3e0' 
+      }}>
+        ⚔️ 装備売却 (格安買取)
+      </div>
+      
+      {inventory.items && inventory.items.length > 0 ? (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', 
+          gap: 'min(12px, 3vw)', 
+          maxWidth: '1000px', 
+          margin: '0 auto',
+          padding: '0 10px'
+        }}>
+          {inventory.items.map((item: any, index: number) => item ? (
+            <div key={`${item.id}-${index}`} className="comic-card" style={{
+              background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(233, 30, 99, 0.1))',
+              padding: 'min(16px, 4vw)',
+              borderColor: getRarityColor(item.rarity)
+            }}>
+              <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '8px' }}>
+                {item?.icon || '❓'}
+              </div>
+              <div className="comic-text" style={{ 
+                fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+                color: '#fff3e0',
+                marginBottom: '4px'
+              }}>
+                {item.name}
+              </div>
+              <div className="comic-text" style={{ 
+                fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                color: getRarityColor(item.rarity),
+                marginBottom: '8px'
+              }}>
+                {item.rarity.toUpperCase()}
+              </div>
+              <div className="comic-text" style={{ 
+                fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                color: '#c8e6c9',
+                marginBottom: '12px'
+              }}>
+                {item.description}
+              </div>
+              
+              <button 
+                onClick={() => onSell(item, index)}
+                className="comic-button"
+                style={{ 
+                  padding: 'min(6px 12px, 2vw)', 
+                  fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
+                  background: 'linear-gradient(45deg, #ff6b6b, #ff5252)',
+                  color: 'white',
+                  borderColor: '#d32f2f',
+                  width: '100%'
+                }}
+              >
+                💰 {getSellPrice(item.rarity)}MOMOPayで売却
+              </button>
+            </div>
+          ) : null)}
+        </div>
+      ) : (
+        <div className="comic-text" style={{ 
+          color: '#c8e6c9', 
+          fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          padding: 'min(20px, 5vw)'
+        }}>
+          売却できる装備がありません。<br />
+          演習林で装備を獲得してから来てください！
+        </div>
+      )}
+    </div>
+  )
+}
+
 const MOMOStore: React.FC = () => {
   const { momoPayPoints, addMomoPayPoints } = useAppData()
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
   const [inventory, setInventory] = useState<any>({ items: [] })
+  const [activeTab, setActiveTab] = useState<'purchase' | 'sale'>('purchase')
 
   // Load purchased items from localStorage
   useEffect(() => {
@@ -169,165 +349,66 @@ const MOMOStore: React.FC = () => {
         💰 現在のMOMOPay: {momoPayPoints}
       </div>
 
-      {/* 設定・機能購入セクション */}
-      <div style={{ marginBottom: 'min(40px, 10vw)' }}>
-        <div className="comic-text" style={{ 
-          fontSize: 'clamp(1.1rem, 3.2vw, 1.3rem)', 
-          marginBottom: 'min(20px, 5vw)', 
-          color: '#fff3e0' 
-        }}>
-          ⚙️ 設定・機能
-        </div>
+      {/* タブ切り替えボタン */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        gap: 'min(16px, 4vw)', 
+        marginBottom: 'min(32px, 8vw)',
+        flexWrap: 'wrap'
+      }}>
+        <button 
+          onClick={() => setActiveTab('purchase')}
+          className="comic-button"
+          style={{
+            padding: 'min(12px 24px, 3vw)',
+            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            background: activeTab === 'purchase' 
+              ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
+              : 'linear-gradient(45deg, #666, #555)',
+            color: activeTab === 'purchase' ? '#000' : '#ccc',
+            borderColor: activeTab === 'purchase' ? '#f57f17' : '#333',
+            transform: activeTab === 'purchase' ? 'scale(1.05)' : 'scale(1)',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          🛒 購入
+        </button>
         
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 45vw), 1fr))', 
-          gap: 'min(16px, 4vw)', 
-          maxWidth: '1000px', 
-          margin: '0 auto',
-          padding: '0 10px'
-        }}>
-          {STORE_ITEMS.map((item) => {
-            const isPurchased = purchasedItems.includes(item.id)
-            const canAfford = momoPayPoints >= item.price
-            
-            return (
-              <div key={item.id} className="comic-card" style={{
-                background: isPurchased 
-                  ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))'
-                  : 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.1))',
-                padding: 'min(20px, 5vw)',
-                borderColor: isPurchased ? '#4caf50' : (canAfford ? '#ffc107' : '#666'),
-                opacity: isPurchased ? 0.7 : 1
-              }}>
-                <div style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', marginBottom: '12px' }}>
-                  {item.icon}
-                </div>
-                <div className="comic-text" style={{ 
-                  fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
-                  color: '#fff3e0',
-                  marginBottom: '8px'
-                }}>
-                  {item.name}
-                </div>
-                <div className="comic-text" style={{ 
-                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', 
-                  color: '#c8e6c9',
-                  marginBottom: '16px',
-                  lineHeight: '1.4'
-                }}>
-                  {item.description}
-                </div>
-                
-                {isPurchased ? (
-                  <div className="comic-text" style={{ 
-                    color: '#4caf50', 
-                    fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-                    fontWeight: 'bold'
-                  }}>
-                    ✅ 購入済み
-                  </div>
-                ) : (
-                  <button 
-                    onClick={() => purchaseItem(item)}
-                    disabled={!canAfford}
-                    className="comic-button"
-                    style={{ 
-                      padding: 'min(8px 16px, 2vw)', 
-                      fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
-                      background: canAfford 
-                        ? 'linear-gradient(45deg, #ffc107, #ffb300)' 
-                        : 'linear-gradient(45deg, #666, #555)',
-                      color: canAfford ? '#000' : '#ccc',
-                      borderColor: canAfford ? '#f57f17' : '#333',
-                      width: '100%'
-                    }}
-                  >
-                    💰 {item.price}MOMOPay
-                  </button>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        <button 
+          onClick={() => setActiveTab('sale')}
+          className="comic-button"
+          style={{
+            padding: 'min(12px 24px, 3vw)',
+            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            background: activeTab === 'sale' 
+              ? 'linear-gradient(45deg, #ff6b6b, #ff5252)' 
+              : 'linear-gradient(45deg, #666, #555)',
+            color: activeTab === 'sale' ? 'white' : '#ccc',
+            borderColor: activeTab === 'sale' ? '#d32f2f' : '#333',
+            transform: activeTab === 'sale' ? 'scale(1.05)' : 'scale(1)',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          💰 売却
+        </button>
       </div>
 
-      {/* 装備売却セクション */}
+      {/* タブの内容 */}
       <div style={{ marginBottom: 'min(40px, 10vw)' }}>
-        <div className="comic-text" style={{ 
-          fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', 
-          marginBottom: 'min(20px, 5vw)', 
-          color: '#fff3e0' 
-        }}>
-          ⚔️ 装備売却 (格安買取)
-        </div>
-        
-        {inventory.items && inventory.items.length > 0 ? (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', 
-            gap: 'min(12px, 3vw)', 
-            maxWidth: '1000px', 
-            margin: '0 auto',
-            padding: '0 10px'
-          }}>
-            {inventory.items.map((item: any, index: number) => item ? (
-              <div key={`${item.id}-${index}`} className="comic-card" style={{
-                background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(233, 30, 99, 0.1))',
-                padding: 'min(16px, 4vw)',
-                borderColor: getRarityColor(item.rarity)
-              }}>
-                <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '8px' }}>
-                  {item?.icon || '❓'}
-                </div>
-                <div className="comic-text" style={{ 
-                  fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
-                  color: '#fff3e0',
-                  marginBottom: '4px'
-                }}>
-                  {item.name}
-                </div>
-                <div className="comic-text" style={{ 
-                  fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
-                  color: getRarityColor(item.rarity),
-                  marginBottom: '8px'
-                }}>
-                  {item.rarity.toUpperCase()}
-                </div>
-                <div className="comic-text" style={{ 
-                  fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
-                  color: '#c8e6c9',
-                  marginBottom: '12px'
-                }}>
-                  {item.description}
-                </div>
-                
-                <button 
-                  onClick={() => sellEquipment(item, index)}
-                  className="comic-button"
-                  style={{ 
-                    padding: 'min(6px 12px, 2vw)', 
-                    fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
-                    background: 'linear-gradient(45deg, #ff6b6b, #ff5252)',
-                    color: 'white',
-                    borderColor: '#d32f2f',
-                    width: '100%'
-                  }}
-                >
-                  💰 {getSellPrice(item.rarity)}MOMOPayで売却
-                </button>
-              </div>
-            ) : null)}
-          </div>
+        {activeTab === 'purchase' ? (
+          <PurchaseView 
+            momoPayPoints={momoPayPoints}
+            purchasedItems={purchasedItems}
+            onPurchase={purchaseItem}
+          />
         ) : (
-          <div className="comic-text" style={{ 
-            color: '#c8e6c9', 
-            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
-            padding: 'min(20px, 5vw)'
-          }}>
-            売却できる装備がありません。<br />
-            演習林で装備を獲得してから来てください！
-          </div>
+          <SaleView 
+            inventory={inventory}
+            onSell={sellEquipment}
+            getSellPrice={getSellPrice}
+            getRarityColor={getRarityColor}
+          />
         )}
       </div>
 
