@@ -159,13 +159,14 @@ const Chatbot: React.FC = () => {
       timestamp: new Date()
     }
 
+    const userInput = inputMessage // 入力をキャプチャ
     setMessages(prev => [...prev, userMessage])
     setInputMessage('')
     setIsTyping(true)
 
     // モモンガくんの応答（少し遅延を入れてリアルっぽく）
-    setTimeout(() => {
-      const response = getResponse(inputMessage)
+    const timeoutId = setTimeout(() => {
+      const response = getResponse(userInput)
       const momongaMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: response,
@@ -176,6 +177,9 @@ const Chatbot: React.FC = () => {
       setMessages(prev => [...prev, momongaMessage])
       setIsTyping(false)
     }, 1000 + Math.random() * 1500) // 1-2.5秒のランダムな遅延
+
+    // クリーンアップ用にtimeoutIdを返す（実際は使用しないが、良いプラクティス）
+    return () => clearTimeout(timeoutId)
   }
 
   // Enter キーで送信
