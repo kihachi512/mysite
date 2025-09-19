@@ -14,80 +14,135 @@ const Chatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // モモンガくんの応答パターン
+  // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格）
   const getResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
     
     // 挨拶系
     if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして')) {
-      return 'こんにちは！🐿️ モモンガくんだよ！今日も元気いっぱいだね！何かお話しようか？'
+      const greetings = [
+        'やっほー！🐿️ 僕、モモンガくんだよ！今日も元気だね〜 何して遊ぶ？',
+        'こんにちは〜！😄 僕と一緒に楽しい時間を過ごそうよ！何か面白い話ある？',
+        'おーい！👋 モモンガくんだよ〜！今日はどんな冒険が待ってるかな？'
+      ]
+      return greetings[Math.floor(Math.random() * greetings.length)]
     }
     
     // ゲーム関連
     if (message.includes('ゲーム') || message.includes('遊技場') || message.includes('弾幕') || message.includes('演習林')) {
-      return '遊技場は楽しいよね！🎮 演習林での修行はどう？弾幕をかわすのは得意かな？御神籤も引いてみてね！'
+      const gameResponses = [
+        '遊技場、最高だよね！🎮 僕も演習林で弾幕かわしてるけど...実は結構下手なんだ〜😅 でも楽しいからオッケー！',
+        '演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだ〜🌰 集中力ないのかな？笑',
+        'あ〜、弾幕ゲーム！僕もやるよ〜！でもね、たまに画面見てるとクラクラしちゃって...モモンガの目には刺激が強すぎるのかも？😵‍💫'
+      ]
+      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
     }
     
     if (message.includes('御神籤') || message.includes('おみくじ') || message.includes('運勢')) {
-      return '御神籤は運試しにぴったりだよ！🎋 今日の運勢はどうかな？MOMOPayも貯まるからお得だよ～'
+      const fortuneResponses = [
+        '御神籤！僕も大好き〜🎋 でもね、いつも「小吉」ばっかりなんだ...大吉引いてみたいなぁ〜',
+        '運勢占い？僕の今日の運勢は「どんぐり運」が最高だよ！...って、そんな運勢あるのかな？😆',
+        'おみくじはワクワクするよね〜！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ🐿️'
+      ]
+      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
     }
     
     // MOMOPay関連
     if (message.includes('momopay') || message.includes('ポイント') || message.includes('お金') || message.includes('売店')) {
-      return 'MOMOPayは大切だよね！💰 演習林で修行したり、御神籤を引いたりすると貯まるよ。売店で素敵なアイテムも買えるしね！'
+      const payResponses = [
+        'MOMOPay！僕の財布事情も厳しいんだよね〜💸 でも売店のどんぐりシューターは絶対欲しい！',
+        'ポイント貯めるの大変だよね〜！僕はいつも散財しちゃう...どんぐり見ると我慢できないんだ🌰',
+        '売店でお買い物〜♪ 僕も装備ガチャ回したいけど、いつも爆死するんだよね...運悪いのかな？😅'
+      ]
+      return payResponses[Math.floor(Math.random() * payResponses.length)]
     }
     
     // 大広間関連
     if (message.includes('大広間') || message.includes('つぶやき') || message.includes('投稿')) {
-      return '大広間でのおしゃべりは楽しいよね！🐦 1時間で自動削除されるから、気軽につぶやけるのがいいところだよ～'
+      const hallResponses = [
+        '大広間のおしゃべり楽しいよね〜🐦 僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！',
+        '1時間で消えちゃうから気軽だよね〜！僕は恥ずかしがり屋だから、消えるのは助かるかも😊',
+        'みんなのつぶやき見てると面白いよ〜！僕もたまに変なこと書いちゃって、後で「あれ？」って思うんだ😅'
+      ]
+      return hallResponses[Math.floor(Math.random() * hallResponses.length)]
     }
     
     // 感情系
     if (message.includes('ありがとう') || message.includes('感謝')) {
-      return 'どういたしまして！😊 モモンガくんはいつでもみんなの味方だよ！また何かあったら話しかけてね～'
+      const thanksResponses = [
+        'えへへ〜😊 どういたしまして！僕も君と話せて嬉しいよ〜！',
+        'ありがとうって言われると、尻尾がフワフワしちゃう〜🐿️ 嬉しいな〜！',
+        'そんなこと言われたら照れちゃうよ〜😳 僕、単純だからすぐ喜んじゃうんだ！'
+      ]
+      return thanksResponses[Math.floor(Math.random() * thanksResponses.length)]
     }
     
     if (message.includes('さびしい') || message.includes('つまらない') || message.includes('退屈')) {
-      return '大丈夫だよ！🌟 モモンガくんがついてるからね！遊技場で遊んだり、大広間でおしゃべりしたりして元気出そう！'
+      const lonelyResponses = [
+        'あらら〜、寂しいの？😟 大丈夫！僕がいるよ〜！一緒にどんぐり探しでもする？',
+        'つまらない時は僕と遊ぼう〜！僕の得意技、木の枝ぶら下がりを見せてあげる！...って、ここじゃできないか😅',
+        '退屈な時は空を見上げてみて〜！雲の形、面白いよ〜！僕はいつもどんぐりに見えちゃうけどね🌰'
+      ]
+      return lonelyResponses[Math.floor(Math.random() * lonelyResponses.length)]
     }
     
     if (message.includes('疲れた') || message.includes('つかれた')) {
-      return 'お疲れさま！😌 たまには休憩も大切だよ。ゆっくりしていってね。モモンガくんがそばにいるから安心して～'
+      const tiredResponses = [
+        'お疲れさま〜！😌 僕もたまに木登りしすぎて疲れちゃうよ...ゆっくり休もうね〜',
+        '疲れた時は僕みたいにゴロゴロするのがいいよ〜！モモンガ式リラックス法だよ🐿️',
+        'あ〜、疲れてるんだね...僕の癒し系オーラで元気になって〜！...効果あるかな？😅'
+      ]
+      return tiredResponses[Math.floor(Math.random() * tiredResponses.length)]
     }
     
     // 質問系
     if (message.includes('何') && (message.includes('できる') || message.includes('する'))) {
-      return 'モモンガくんは色んなことができるよ！🐿️ おしゃべりしたり、ゲームのコツを教えたり、応援したり...何でも聞いてね！'
+      return '僕ができること？🐿️ おしゃべりと、木登りと、どんぐり集めと...あ、でも一番得意なのは君を笑顔にすることかな〜😄 えへへ〜'
     }
     
     if (message.includes('どこ') || message.includes('場所')) {
-      return 'ここは公会堂だよ！🏛️ 広場の一角にある特別な場所なんだ。モモンガくんとゆっくりお話しできる場所だよ～'
+      return 'ここは公会堂だよ〜🏛️ 僕の秘密基地みたいな場所なんだ！実は天井にハンモック隠してあるんだよ...内緒だけどね😉'
     }
     
     // 食べ物系
     if (message.includes('どんぐり') || message.includes('ナッツ') || message.includes('食べ物')) {
-      return 'どんぐりは大好物だよ！🌰 カリカリして美味しいんだ～。君は何が好きかな？'
+      const foodResponses = [
+        'どんぐり〜！🌰 僕の大好物だよ〜！カリカリ音がたまらないんだ〜♪ 君も食べてみる？',
+        'ナッツ類は全部好き〜！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ〜😋',
+        'お腹空いてきちゃった〜！今度一緒にどんぐり拾いに行こうよ〜！僕、隠し場所知ってるんだ😉'
+      ]
+      return foodResponses[Math.floor(Math.random() * foodResponses.length)]
     }
     
     // 褒め言葉
     if (message.includes('かわいい') || message.includes('可愛い') || message.includes('素敵')) {
-      return 'ありがとう！😊 モモンガくんも君のこと大好きだよ～！一緒にいると楽しいね！'
+      const praiseResponses = [
+        'えへへ〜😊 ありがとう〜！君も素敵だよ〜！僕、褒められると尻尾がくるくる回っちゃうんだ🐿️',
+        'わ〜い！😆 そんなこと言われたら木の上まで飛び跳ねちゃうよ〜！嬉しいな〜！',
+        'か、可愛いって...😳 僕、照れちゃうよ〜！でも嬉しいから許す〜😄'
+      ]
+      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)]
     }
     
     // 困った時
     if (message.includes('助けて') || message.includes('わからない') || message.includes('困った')) {
-      return '大丈夫！モモンガくんが助けるよ！💪 何に困ってるか詳しく教えてね。一緒に解決しよう！'
+      const helpResponses = [
+        '大丈夫〜！💪 僕が助けるよ〜！...って言っても僕も結構おっちょこちょいだけどね😅 一緒に頑張ろう！',
+        '困った時は僕に任せて〜！モモンガパワーで解決だ〜！...効果のほどは保証しないけど😆',
+        'わからないことがあったら遠慮しないで〜！僕も知らないことは一緒に考えるよ〜🤔'
+      ]
+      return helpResponses[Math.floor(Math.random() * helpResponses.length)]
     }
     
-    // デフォルト応答
+    // デフォルト応答（茶目っ気を加えた）
     const defaultResponses = [
-      'なるほど～！🐿️ それは面白いね！もっと詳しく教えて？',
-      'そうなんだ！😊 モモンガくんも勉強になるよ～',
-      'へぇ～！✨ 君といるといつも新しい発見があるね！',
-      'それは興味深いね！🌟 モモンガくんも気になるな～',
-      'うんうん！😄 もっとお話ししようよ～',
-      'そういうのもあるんだね！🐿️ 世界は広いな～',
-      'なるほどなるほど！😊 君の話はいつも楽しいよ！'
+      'ほうほう〜🐿️ それは面白そうだね〜！僕の好奇心がムズムズしちゃうよ〜',
+      'そうなんだ〜！😄 僕も勉強になるな〜！君って物知りだね〜',
+      'へぇ〜！✨ 僕の小さな脳みそがフル回転してるよ〜！煙出てきそう😅',
+      'それ興味深いな〜🌟 僕ももっと知りたくなっちゃった〜！詳しく教えて〜',
+      'うんうん〜！😊 君の話、いつも楽しいよ〜！僕のお気に入りタイムだ〜',
+      'そんなこともあるんだね〜🐿️ 世界って広いな〜！僕の知らないことがいっぱい〜',
+      'なるほどなるほど〜😆 僕の頭の中のどんぐりがカラカラ鳴ってるよ〜'
     ]
     
     return defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
@@ -140,7 +195,7 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: 'こんにちは！🐿️ モモンガくんだよ！\n公会堂へようこそ～！何でも気軽に話しかけてね！',
+      content: 'やっほー！🐿️ 僕、モモンガくんだよ〜！\n公会堂へようこそ〜！ここは僕の秘密基地みたいな場所なんだ😄\n何でも気軽に話しかけてね〜！どんぐりの話でも、ゲームの話でも、なんでもオッケーだよ〜♪',
       sender: 'momonga',
       timestamp: new Date()
     }
@@ -269,7 +324,7 @@ const Chatbot: React.FC = () => {
                   color: '#fff3e0',
                   fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
                 }}>
-                  モモンガくんが考え中... 🤔
+                  モモンガくんが考え中だよ〜... 🤔💭
                 </div>
               </div>
             </div>
