@@ -1,6 +1,50 @@
 // Google Gemini API連携
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent'
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+
+// 使用量制限管理
+const DAILY_REQUEST_LIMIT = 200 // 無料枠: 250/日（安全マージン）
+const MINUTE_REQUEST_LIMIT = 8  // 無料枠: 10/分（安全マージン）
+
+// 使用量トラッキング
+let dailyRequestCount = 0
+let minuteRequestCount = 0
+let lastResetTime = Date.now()
+let lastMinuteResetTime = Date.now()
+
+// 使用量リセット
+const resetCountersIfNeeded = () => {
+  const now = Date.now()
+  
+  // 日次リセット（24時間）
+  if (now - lastResetTime > 24 * 60 * 60 * 1000) {
+    dailyRequestCount = 0
+    lastResetTime = now
+  }
+  
+  // 分次リセット（1分）
+  if (now - lastMinuteResetTime > 60 * 1000) {
+    minuteRequestCount = 0
+    lastMinuteResetTime = now
+  }
+}
+
+// 使用量チェック
+const checkRateLimit = (): boolean => {
+  resetCountersIfNeeded()
+  
+  if (dailyRequestCount >= DAILY_REQUEST_LIMIT) {
+    console.warn('Daily request limit reached')
+    return false
+  }
+  
+  if (minuteRequestCount >= MINUTE_REQUEST_LIMIT) {
+    console.warn('Minute request limit reached')
+    return false
+  }
+  
+  return true
+}
 
 export interface GeminiResponse {
   candidates: Array<{
@@ -29,7 +73,16 @@ export const callGeminiAPI = async (
     return getFallbackResponse(userMessage)
   }
 
+  // 使用量制限チェック
+  if (!checkRateLimit()) {
+    console.warn('Rate limit exceeded, using fallback response')
+    return getFallbackResponse(userMessage)
+  }
+
   try {
+    // リクエストカウンターを増加
+    dailyRequestCount++
+    minuteRequestCount++
     // モモンガくんのキャラクター設定とサイト情報をシステムプロンプトとして設定
     const systemPrompt = `あなたは「さすらいのモモンガカーニバル」のマスコットキャラクター「モモンガくん」です。
 
