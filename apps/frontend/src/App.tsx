@@ -32,9 +32,7 @@ const App: React.FC = () => {
         const parsedSettings = JSON.parse(savedSettings)
         // 保存された設定をすべて適用
         Object.entries(parsedSettings).forEach(([key, value]) => {
-          if (value) {
-            applySetting(key, value as boolean)
-          }
+          applySetting(key, value as boolean)
         })
       } catch {
         // 設定の読み込みに失敗した場合はデフォルトのまま

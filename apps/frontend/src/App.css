@@ -135,7 +135,7 @@ body::after {
 }
 
 .header {
-  background: linear-gradient(45deg, #1a1a1a, #2d2d2d, #1a1a1a, #2d2d2d, #1a1a1a);
+  background: linear-gradient(45deg, #2e7d32, #388e3c, #4caf50, #66bb6a, #2e7d32);
   background-size: 300% 300%;
   animation: gradientShift 8s ease infinite;
   padding: 20px;
@@ -750,7 +750,7 @@ body.dark-mode .app {
 }
 
 body.dark-mode .header {
-  background: linear-gradient(45deg, #2c5530, #1e3a1e, #0f1f0f, #1e3a1e, #2c5530) !important;
+  background: linear-gradient(45deg, #1b5e20, #2e7d32, #388e3c, #2e7d32, #1b5e20) !important;
   background-size: 300% 300% !important;
 }
 
@@ -777,7 +777,7 @@ body.premium-theme {
 }
 
 body.premium-theme .header {
-  background: linear-gradient(45deg, #000000, #1a1a1a, #0d0d0d, #262626, #000000) !important;
+  background: linear-gradient(45deg, #1b5e20, #2e7d32, #388e3c, #4caf50, #1b5e20) !important;
   background-size: 400% 400% !important;
   animation: premiumGradient 8s ease infinite !important;
   border-bottom: 2px solid #ffffff !important;
