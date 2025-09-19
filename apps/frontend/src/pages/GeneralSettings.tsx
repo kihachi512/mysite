@@ -26,8 +26,23 @@ const GeneralSettings: React.FC = () => {
     if (savedSettings) {
       try {
         const parsedSettings = JSON.parse(savedSettings)
-        loadedSettings = { ...settings, ...parsedSettings }
+        // 定義済みのキーのみを使用（不明な設定を除外）
+        const validKeys: Array<keyof AppSettings> = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound', 'bgm-enabled']
+        const filteredSettings: Partial<AppSettings> = {}
+        
+        validKeys.forEach(key => {
+          if (key in parsedSettings) {
+            filteredSettings[key] = parsedSettings[key]
+          }
+        })
+        
+        loadedSettings = { ...settings, ...filteredSettings }
         setSettings(loadedSettings)
+        
+        // 不正なキーがある場合は、クリーンアップしたデータで上書き保存
+        if (Object.keys(parsedSettings).length !== Object.keys(filteredSettings).length) {
+          localStorage.setItem('app-settings', JSON.stringify(loadedSettings))
+        }
       } catch {
         // Keep default settings
       }
@@ -181,7 +196,11 @@ const GeneralSettings: React.FC = () => {
         margin: '0 auto min(40px, 10vw) auto',
         padding: '0 10px'
       }}>
-        {(Object.keys(settings) as Array<keyof AppSettings>).map((key) => {
+        {(Object.keys(settings) as Array<keyof AppSettings>).filter((key) => {
+          // 定義済みの設定項目のみを表示（不明な設定を除外）
+          const validKeys: Array<keyof AppSettings> = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound', 'bgm-enabled']
+          return validKeys.includes(key)
+        }).map((key) => {
           const info = getSettingInfo(key)
           const isPurchased = purchasedItems.includes(key)
           const isEnabled = settings[key]
