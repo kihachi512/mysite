@@ -1,10 +1,11 @@
 // Google Gemini API連携
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+import { getApiKey, getApiUrl, getDailyRequestLimit, getMinuteRequestLimit, isDevelopment } from '../config/env'
 
-// 使用量制限管理
-const DAILY_REQUEST_LIMIT = 200 // 無料枠: 250/日（安全マージン）
-const MINUTE_REQUEST_LIMIT = 8  // 無料枠: 10/分（安全マージン）
+// 設定値を取得
+const GEMINI_API_KEY = getApiKey()
+const GEMINI_API_URL = getApiUrl()
+const DAILY_REQUEST_LIMIT = getDailyRequestLimit()
+const MINUTE_REQUEST_LIMIT = getMinuteRequestLimit()
 
 // 使用量トラッキング
 let dailyRequestCount = 0
@@ -69,8 +70,12 @@ export const callGeminiAPI = async (
   conversationHistory: ChatMessage[] = []
 ): Promise<string> => {
   if (!GEMINI_API_KEY) {
+    const errorMessage = isDevelopment() 
+      ? 'APIキーが設定されていないよー！.env.localファイルにVITE_GEMINI_API_KEYを設定してねー'
+      : 'ごめんねー！今、AIチャット機能が使えない状態なんだ。管理者に連絡してもらえるかな？'
+    
     console.warn('Gemini API key not found, using fallback response')
-    return getFallbackResponse(userMessage)
+    return errorMessage
   }
 
   // 使用量制限チェック
