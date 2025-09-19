@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 
 const allFortunes = ['大吉','中吉','小吉','吉','凶']
@@ -169,7 +170,7 @@ const OmikujiChoice: React.FC = () => {
           </div>
         </div>
       )}
-      <div style={{ display: 'flex', gap: 12 }}>
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
         <button 
           onClick={reset} 
           className="comic-button font-button-md"
@@ -181,6 +182,18 @@ const OmikujiChoice: React.FC = () => {
         >
           🔄 もう一度
         </button>
+        <Link to="/games" style={{ textDecoration: 'none' }}>
+          <button 
+            className="comic-button font-button-md"
+            style={{ 
+              background: 'linear-gradient(45deg, #2196f3, #1976d2)', 
+              color: '#fff', 
+              borderColor: '#1565c0'
+            }}
+          >
+            🏠 遊技場に戻る
+          </button>
+        </Link>
       </div>
     </div>
   )
