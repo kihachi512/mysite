@@ -90,15 +90,18 @@ const Chatbot: React.FC = () => {
       store: {
         name: '売店（MOMOStore）',
         description: 'MOMOPayで便利機能を購入したり装備を売却したりできる場所',
-        functions: ['設定機能の購入', '装備の売却'],
+        url: '/games/store',
+        features: ['購入タブ', '売却タブ'],
+        functions: ['設定機能の購入', '装備の売却', '購入した設定の管理'],
         purchaseItems: [
-          'ダークモード設定（500MOMOPay）',
-          '共有機能利用権（300MOMOPay）',
-          'プレミアムテーマ（800MOMOPay）',
-          '通知音設定（200MOMOPay）'
+          'ダークモード設定（500MOMOPay）🌙',
+          '共有機能利用権（300MOMOPay）📤',
+          'プレミアムテーマ（800MOMOPay）🎨',
+          '通知音設定（200MOMOPay）🔊'
         ],
-        sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
-        location: '遊技場から行けるよ'
+        sellPrices: 'legendary:80P⭐, epic:40P💜, rare:20P💙, common:10P⚪',
+        location: '遊技場から行けるよ',
+        note: '購入した設定は設定ページで有効化が必要'
       }
     },
     plaza: {
@@ -151,7 +154,11 @@ const Chatbot: React.FC = () => {
   - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
     費用: ${siteKnowledgeBase.games.omikuji.cost}
   - 売店: ${siteKnowledgeBase.games.store.description}
-    商品: ダークモード(500P), 共有機能(300P), プレミアムテーマ(800P), 通知音(200P)
+    URL: ${siteKnowledgeBase.games.store.url}
+    機能: ${siteKnowledgeBase.games.store.features.join('、')}
+    商品: ${siteKnowledgeBase.games.store.purchaseItems.join(', ')}
+    売却価格: ${siteKnowledgeBase.games.store.sellPrices}
+    注意: ${siteKnowledgeBase.games.store.note}
 ・広場: ${siteKnowledgeBase.navigation.plaza}
   - 大広間: ${siteKnowledgeBase.plaza.hall.description}
   - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}
@@ -201,7 +208,7 @@ const Chatbot: React.FC = () => {
 
     // サイト案内・ヘルプ系
     if (message.includes('案内') || message.includes('ヘルプ') || message.includes('使い方') || message.includes('どこ') || message.includes('場所')) {
-      return `サイト案内だよー！\n\n**拠点** - メインページ（今いる場所の上だよ）\n**遊技場** - ゲームでMOMOPayを稼ごう\n  └ 御神籤（10P）、演習林（弾幕ゲーム）、売店\n**広場** - みんなとおしゃべり\n  └ 大広間（つぶやき）、公会堂（ここ！）\n**宝物庫** - ファイル保存（100P必要）\n**設定** - テーマ変更とか\n\nどこに行きたい？詳しく教えてあげるー`
+      return `サイト案内だよー！\n\n**🏠 拠点** - メインページ（今いる場所の上だよ）\n**🎮 遊技場** - ゲームでMOMOPayを稼ごう\n  └ 🔮 御神籤（10P）\n  └ 🌲 演習林（弾幕ゲーム）\n  └ 🏪 売店（MOMOStore）\n**🏛️ 広場** - みんなとおしゃべり\n  └ 📢 大広間（つぶやき）\n  └ 🗣️ 公会堂（ここ！）\n**📁 宝物庫** - ファイル保存（100P必要）\n**⚙️ 設定** - テーマ変更・機能管理\n\nどこに行きたい？「売店に行きたい」とか具体的に言ってくれれば、詳しく教えてあげるー`
     }
 
     // MOMOPay関連の詳細情報
@@ -223,8 +230,8 @@ const Chatbot: React.FC = () => {
     }
 
     // 売店関連
-    if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却')) {
-      return `売店（MOMOStore）について教えるねー！\n\n**購入できるもの：**\n・ダークモード設定：500MOMOPay\n・共有機能利用権：300MOMOPay\n・プレミアムテーマ：800MOMOPay\n・通知音設定：200MOMOPay\n\n**装備売却価格：**\n・legendary：80MOMOPay\n・epic：40MOMOPay\n・rare：20MOMOPay\n・common：10MOMOPay\n\n僕も装備ガチャ回したいけど、いつも爆死するんだよねー...運が悪いのかなー`
+    if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却') || message.includes('ストア') || message.includes('store')) {
+      return `売店（MOMOStore）について教えるねー！\n\n**🏪 場所：遊技場 → 売店**\n\n**🛒 購入タブ：**\n・ダークモード設定：500MOMOPay 🌙\n・共有機能利用権：300MOMOPay 📤\n・プレミアムテーマ：800MOMOPay 🎨\n・通知音設定：200MOMOPay 🔊\n\n**💰 売却タブ：**\n演習林で獲得した装備を売却できるよ！\n・legendary：80MOMOPay ⭐\n・epic：40MOMOPay 💜\n・rare：20MOMOPay 💙\n・common：10MOMOPay ⚪\n\n購入した設定は「設定」ページで有効にできるよー！僕も装備ガチャ回したいけど、いつも爆死するんだよねー...`
     }
     
     // 御神籤関連
@@ -265,11 +272,14 @@ const Chatbot: React.FC = () => {
     }
 
     // 具体的な質問への対応
-    if (message.includes('どうやって') || message.includes('方法') || message.includes('やり方')) {
+    if (message.includes('どうやって') || message.includes('方法') || message.includes('やり方') || message.includes('行き方') || message.includes('行く')) {
       if (message.includes('稼ぐ') || message.includes('momopay')) {
         return `MOMOPayの稼ぎ方を教えるよー！\n\n**一番効率的：演習林**\n・弾幕ゲームをプレイ\n・クリアするとMOMOPayと装備がもらえる\n・装備は売店で売却もできる\n\n**装備売却：**\n・legendary：80P、epic：40P\n・rare：20P、common：10P\n\n僕も毎日演習林で修行してるよー！一緒に頑張ろう`
       }
-      return `何のやり方を知りたいのかな？\n\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・ファイルの保存方法\n・設定の変更方法\n\n具体的に教えてくれれば、詳しく説明するよー`
+      if (message.includes('売店') || message.includes('store') || message.includes('ストア')) {
+        return `売店（MOMOStore）への行き方だねー！\n\n**🗺️ 行き方：**\n1. 拠点（ホーム）から「🎮 遊技場」をクリック\n2. 遊技場で「🏪 売店」をクリック\n\n**📍 直接リンク：** /games/store\n\n**🏪 売店でできること：**\n・🛒 購入タブ：設定機能を購入\n・💰 売却タブ：装備を売却\n\n僕もよく装備を売りに行くよー！ダブった装備をMOMOPayに変えられるからお得だよ`
+      }
+      return `何のやり方を知りたいのかな？\n\n・MOMOPayの稼ぎ方\n・売店への行き方\n・ゲームの遊び方\n・ファイルの保存方法\n・設定の変更方法\n\n具体的に教えてくれれば、詳しく説明するよー`
     }
     
     // 感情系
