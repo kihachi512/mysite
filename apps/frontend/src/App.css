@@ -981,167 +981,56 @@ body.premium-theme .footer p {
   font-family: 'SF Pro Display', 'Helvetica Neue', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
   font-weight: 700 !important;
   font-size: clamp(1.1rem, 3.5vw, 1.4rem) !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.3px !important;
   
-  /* 金色グラデーション */
-  background: linear-gradient(135deg, #ffd700 0%, #ffb300 25%, #ff8f00 50%, #ffcc02 75%, #ffd700 100%) !important;
-  background-size: 200% 200% !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  animation: momoPayGlow 3s ease-in-out infinite !important;
+  /* シンプルな金色 */
+  color: #ff8f00 !important;
   
-  /* 立体的なシャドウ */
+  /* 控えめなシャドウ */
   text-shadow: 
     1px 1px 0px #b8860b,
-    2px 2px 0px #9a7209,
-    3px 3px 0px #7d5e07,
-    0 0 8px rgba(255, 215, 0, 0.8),
-    0 0 16px rgba(255, 179, 0, 0.6) !important;
-  
-  /* 微細なパルス効果 */
-  transform: scale(1) !important;
-  transition: all 0.3s ease !important;
+    0 0 4px rgba(255, 215, 0, 0.4) !important;
   
   /* 数字部分の特別スタイル */
   font-variant-numeric: tabular-nums !important;
   position: relative !important;
 }
 
-.momopay-display::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 179, 0, 0.2));
-  border-radius: 8px;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.momopay-display:hover::before {
-  opacity: 1;
-}
-
-.momopay-display:hover {
-  transform: scale(1.05) !important;
-  animation: momoPayGlow 1s ease-in-out infinite, momoPayPulse 0.5s ease-in-out !important;
-}
-
-/* MOMOPayアニメーション */
-@keyframes momoPayGlow {
-  0%, 100% { 
-    background-position: 0% 50%;
-    filter: brightness(1);
-  }
-  25% { 
-    background-position: 100% 0%;
-    filter: brightness(1.1);
-  }
-  50% { 
-    background-position: 100% 100%;
-    filter: brightness(1.2);
-  }
-  75% { 
-    background-position: 0% 100%;
-    filter: brightness(1.1);
-  }
-}
-
-@keyframes momoPayPulse {
-  0%, 100% { transform: scale(1.05); }
-  50% { transform: scale(1.08); }
-}
 
 /* 大きなMOMOPay表示（ステータス用） */
 .momopay-status {
   font-family: 'SF Pro Display', 'Helvetica Neue', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
-  font-weight: 800 !important;
+  font-weight: 700 !important;
   font-size: clamp(1.2rem, 4vw, 1.6rem) !important;
-  letter-spacing: 1px !important;
+  letter-spacing: 0.5px !important;
   
-  /* より強烈な金色グラデーション */
-  background: linear-gradient(135deg, #ffd700 0%, #ffeb3b 20%, #ff9800 40%, #ffcc02 60%, #ffd700 80%, #ffeb3b 100%) !important;
-  background-size: 300% 300% !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  animation: momoPayStatusGlow 2.5s ease-in-out infinite !important;
+  /* シンプルな金色 */
+  color: #ff8f00 !important;
   
-  /* 強化されたシャドウ */
+  /* 控えめなシャドウ */
   text-shadow: 
     1px 1px 0px #b8860b,
-    2px 2px 0px #9a7209,
-    3px 3px 0px #7d5e07,
-    4px 4px 0px #5d4505,
-    0 0 10px rgba(255, 215, 0, 1),
-    0 0 20px rgba(255, 179, 0, 0.8),
-    0 0 30px rgba(255, 152, 0, 0.6) !important;
+    0 0 6px rgba(255, 215, 0, 0.5) !important;
   
   position: relative !important;
   display: inline-block !important;
 }
 
-.momopay-status::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  z-index: -1;
-  animation: momoPayAura 2s ease-in-out infinite;
-}
-
-@keyframes momoPayStatusGlow {
-  0%, 100% { 
-    background-position: 0% 50%;
-    filter: brightness(1) saturate(1);
-  }
-  33% { 
-    background-position: 100% 0%;
-    filter: brightness(1.15) saturate(1.1);
-  }
-  66% { 
-    background-position: 100% 100%;
-    filter: brightness(1.25) saturate(1.2);
-  }
-}
-
-@keyframes momoPayAura {
-  0%, 100% { 
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.3;
-  }
-  50% { 
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.6;
-  }
-}
 
 /* 小さなMOMOPay表示（インライン用） */
 .momopay-small {
   font-family: 'SF Pro Display', 'Helvetica Neue', 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
   font-weight: 600 !important;
   font-size: clamp(0.9rem, 2.8vw, 1.1rem) !important;
-  letter-spacing: 0.3px !important;
+  letter-spacing: 0.2px !important;
   
-  background: linear-gradient(135deg, #ffd700 0%, #ffb300 50%, #ffd700 100%) !important;
-  background-size: 200% 200% !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  animation: momoPayGlow 4s ease-in-out infinite !important;
+  /* シンプルな金色 */
+  color: #ff8f00 !important;
   
+  /* 軽いシャドウ */
   text-shadow: 
     1px 1px 0px #b8860b,
-    0 0 6px rgba(255, 215, 0, 0.6) !important;
+    0 0 3px rgba(255, 215, 0, 0.3) !important;
 }
 
 /* 宝物庫グリッドレイアウト */
