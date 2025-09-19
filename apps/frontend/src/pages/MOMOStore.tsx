@@ -58,14 +58,6 @@ const STORE_ITEMS: StoreItem[] = [
     price: 200,
     type: 'setting',
     icon: '🔊'
-  },
-  {
-    id: 'bgm-enabled',
-    name: 'BGM機能',
-    description: '演習林でバックグラウンドミュージックを再生できます',
-    price: 400,
-    type: 'setting',
-    icon: '🎵'
   }
 ]
 

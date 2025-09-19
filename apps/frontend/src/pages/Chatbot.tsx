@@ -95,8 +95,7 @@ const Chatbot: React.FC = () => {
           'ダークモード設定（500MOMOPay）',
           '共有機能利用権（300MOMOPay）',
           'プレミアムテーマ（800MOMOPay）',
-          '通知音設定（200MOMOPay）',
-          'BGM機能（400MOMOPay）'
+          '通知音設定（200MOMOPay）'
         ],
         sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
         location: '遊技場から行けるよ'
@@ -152,7 +151,7 @@ const Chatbot: React.FC = () => {
   - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
     費用: ${siteKnowledgeBase.games.omikuji.cost}
   - 売店: ${siteKnowledgeBase.games.store.description}
-    商品: ダークモード(500P), 共有機能(300P), プレミアムテーマ(800P), 通知音(200P), BGM機能(400P)
+    商品: ダークモード(500P), 共有機能(300P), プレミアムテーマ(800P), 通知音(200P)
 ・広場: ${siteKnowledgeBase.navigation.plaza}
   - 大広間: ${siteKnowledgeBase.plaza.hall.description}
   - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}

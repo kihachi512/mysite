@@ -6,7 +6,6 @@ type AppSettings = {
   'sharing-feature': boolean
   'premium-theme': boolean
   'notification-sound': boolean
-  'bgm-enabled': boolean
 }
 
 const GeneralSettings: React.FC = () => {
@@ -14,8 +13,7 @@ const GeneralSettings: React.FC = () => {
     'dark-mode': false,
     'sharing-feature': false,
     'premium-theme': false,
-    'notification-sound': false,
-    'bgm-enabled': false
+    'notification-sound': false
   })
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
 
@@ -27,7 +25,7 @@ const GeneralSettings: React.FC = () => {
       try {
         const parsedSettings = JSON.parse(savedSettings)
         // 定義済みのキーのみを使用（不明な設定を除外）
-        const validKeys: Array<keyof AppSettings> = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound', 'bgm-enabled']
+        const validKeys: Array<keyof AppSettings> = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound']
         const filteredSettings: Partial<AppSettings> = {}
         
         validKeys.forEach(key => {
@@ -105,9 +103,6 @@ const GeneralSettings: React.FC = () => {
           // Sound customization logic would be implemented here
         }
         break
-      case 'bgm-enabled':
-        // BGM setting is handled by the game itself when it reads localStorage
-        break
     }
   }
 
@@ -132,11 +127,6 @@ const GeneralSettings: React.FC = () => {
         name: '通知音',
         description: 'ゲーム効果音のカスタマイズ',
         icon: '🔊'
-      },
-      'bgm-enabled': {
-        name: 'BGM機能',
-        description: '演習林でバックグラウンドミュージックを再生',
-        icon: '🎵'
       }
     }
     return info[key] || { name: '不明な設定', description: '設定の説明がありません', icon: '❓' }
@@ -153,8 +143,7 @@ const GeneralSettings: React.FC = () => {
           'dark-mode': false,
           'sharing-feature': false,
           'premium-theme': false,
-          'notification-sound': false,
-          'bgm-enabled': false
+          'notification-sound': false
         })
         setPurchasedItems([])
         
@@ -198,7 +187,7 @@ const GeneralSettings: React.FC = () => {
       }}>
         {(Object.keys(settings) as Array<keyof AppSettings>).filter((key) => {
           // 定義済みの設定項目のみを表示（不明な設定を除外）
-          const validKeys: Array<keyof AppSettings> = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound', 'bgm-enabled']
+          const validKeys: Array<keyof AppSettings> = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound']
           return validKeys.includes(key)
         }).map((key) => {
           const info = getSettingInfo(key)
