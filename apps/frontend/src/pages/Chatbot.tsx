@@ -1,5 +1,47 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
+import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
+
+
+// シンプルなマークダウンパーサー
+const parseMarkdown = (text: string): string => {
+  let result = text
+    // 太字 **text** → <strong>text</strong>
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    
+  // リスト項目の処理
+  const lines = result.split('\n')
+  const processedLines: string[] = []
+  let inList = false
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    
+    if (line.match(/^・(.+)$/)) {
+      // リスト項目の開始
+      if (!inList) {
+        processedLines.push('<ul>')
+        inList = true
+      }
+      processedLines.push(`<li>${line.replace(/^・/, '')}</li>`)
+    } else {
+      // リスト項目以外
+      if (inList) {
+        processedLines.push('</ul>')
+        inList = false
+      }
+      processedLines.push(line)
+    }
+  }
+  
+  // 最後がリストで終わっている場合
+  if (inList) {
+    processedLines.push('</ul>')
+  }
+  
+  return processedLines.join('<br>')
+}
 
 type Message = {
   id: string
@@ -9,13 +51,21 @@ type Message = {
 }
 
 const Chatbot: React.FC = () => {
+  useSEO(SEO_PRESETS.chatbot);
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // サイト情報データベース（将来の機能拡張用に保持）
-  const siteInfo = {
+  // 詳細なサイト情報データベース（RAG用）
+  const siteKnowledgeBase = {
+    site: {
+      name: 'さすらいのモモンガカーニバル',
+      description: '弾幕ゲーム、おみくじ、チャット機能を楽しめるエンターテイメントサイト',
+      mascot: 'モモンガくん',
+      currency: 'MOMOPay'
+    },
     navigation: {
       home: '拠点（ホーム）- メインページ',
       games: '遊技場 - ゲームで遊んだりMOMOPayを稼ごう',
@@ -39,12 +89,14 @@ const Chatbot: React.FC = () => {
       },
       store: {
         name: '売店（MOMOStore）',
+        description: 'MOMOPayで便利機能を購入したり装備を売却したりできる場所',
         functions: ['設定機能の購入', '装備の売却'],
         purchaseItems: [
           'ダークモード設定（500MOMOPay）',
           '共有機能利用権（300MOMOPay）',
           'プレミアムテーマ（800MOMOPay）',
-          '通知音設定（200MOMOPay）'
+          '通知音設定（200MOMOPay）',
+          'BGM機能（400MOMOPay）'
         ],
         sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
         location: '遊技場から行けるよ'
@@ -65,6 +117,7 @@ const Chatbot: React.FC = () => {
     },
     favorites: {
       name: '宝物庫',
+      description: 'ファイルやテキストを保存できる機能',
       cost: '100MOMOPay（ファイル・テキストアップロード）',
       supportedFiles: '画像、動画、音声、テキストファイルなど',
       features: ['ファイルアップロード', 'テキスト保存', 'プレビュー機能', '削除機能']
@@ -73,16 +126,68 @@ const Chatbot: React.FC = () => {
       general: '一般設定 - テーマ設定、機能管理、データ削除',
       share: '共有設定 - データのバックアップ・復元（JSON形式）'
     },
-    momoPay: {
+    currency: {
       name: 'MOMOPay',
       description: 'サイト内の通貨システム',
-      earnWays: ['演習林での弾幕ゲーム', '装備売却'],
-      useWays: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入']
+      earning: '演習林での弾幕ゲーム、装備売却',
+      uses: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入']
     }
   }
 
   // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格 + 正確な情報提供）
-  const getResponse = (userMessage: string): string => {
+  // サイト情報をコンテキスト用文字列に変換
+  const getSiteContext = (): string => {
+    return `
+【サイト概要】
+サイト名: ${siteKnowledgeBase.site.name}
+説明: ${siteKnowledgeBase.site.description}
+通貨: ${siteKnowledgeBase.currency.name}
+
+【主要ページ】
+・拠点: ${siteKnowledgeBase.navigation.home}
+・遊技場: ${siteKnowledgeBase.navigation.games}
+  - 演習林: ${siteKnowledgeBase.games.bulletHell.description}
+    報酬: ${siteKnowledgeBase.games.bulletHell.rewards}
+    装備: ${siteKnowledgeBase.games.bulletHell.equipment}
+  - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
+    費用: ${siteKnowledgeBase.games.omikuji.cost}
+  - 売店: ${siteKnowledgeBase.games.store.description}
+    商品: ダークモード(500P), 共有機能(300P), プレミアムテーマ(800P), 通知音(200P), BGM機能(400P)
+・広場: ${siteKnowledgeBase.navigation.plaza}
+  - 大広間: ${siteKnowledgeBase.plaza.hall.description}
+  - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}
+・宝物庫: ${siteKnowledgeBase.favorites.description}
+  費用: ${siteKnowledgeBase.favorites.cost}
+・設定: ${siteKnowledgeBase.navigation.settings}
+
+【MOMOPay情報】
+稼ぎ方: ${siteKnowledgeBase.currency.earning}
+使い道: ${siteKnowledgeBase.currency.uses.join(', ')}
+    `.trim()
+  }
+
+  // AI APIを使用したレスポンス生成
+  const getAIResponse = async (message: string): Promise<string> => {
+    try {
+      const siteContext = getSiteContext()
+      const response = await callGeminiAPI(message, siteContext, conversationHistory)
+      
+      // 会話履歴を更新
+      setConversationHistory(prev => [
+        ...prev.slice(-8), // 最新8件のみ保持
+        { role: 'user', parts: [{ text: message }] },
+        { role: 'model', parts: [{ text: response }] }
+      ])
+      
+      return response
+    } catch (error) {
+      console.error('AI response generation failed:', error)
+      return getFallbackResponse(message)
+    }
+  }
+
+  // フォールバック応答（AI API利用不可時）
+  const getFallbackResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
     
     // 挨拶系
@@ -198,17 +303,17 @@ const Chatbot: React.FC = () => {
     
     // 質問系
     if (message.includes('何') && (message.includes('できる') || message.includes('する'))) {
-      return `🐿️ 僕ができること教えるよ〜！\n\n**サイト案内：**\n・各機能の詳しい説明\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・どこに何があるかの案内\n\n**おしゃべり：**\n・楽しい会話\n・悩み相談\n・どんぐりの話（大好き！）\n\n一番得意なのは君を笑顔にすることかな〜😄 何でも聞いてね〜`
+      return `僕ができること教えるよー！\n\n**サイト案内：**\n・各機能の詳しい説明\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・どこに何があるかの案内\n\n**おしゃべり：**\n・楽しい会話\n・悩み相談\n・どんぐりの話（大好き！）\n\n一番得意なのは君を笑顔にすることかなー 何でも聞いてねー`
     }
     
     // 場所・現在地に関する質問
     if (message.includes('ここ') && (message.includes('どこ') || message.includes('場所'))) {
-      return `🏛️ ここは公会堂だよ〜！僕の秘密基地みたいな場所なんだ😊\n\n公会堂は広場にある施設で、僕とおしゃべりできる特別な場所なの。実は天井にハンモック隠してあるんだよ...内緒だけどね😉\n\n他の場所に行きたかったら案内するよ〜！「案内して」って言ってみて🐿️`
+      return `ここは公会堂だよー！僕の秘密基地みたいな場所なんだ\n\n公会堂は広場にある施設で、僕とおしゃべりできる特別な場所なの。実は天井にハンモック隠してあるんだよ...内緒だけどね\n\n他の場所に行きたかったら案内するよー！「案内して」って言ってみて`
     }
 
     // よくある質問
     if (message.includes('初心者') || message.includes('始め方') || message.includes('最初')) {
-      return `🌟 初心者さんへの案内だよ〜！🐿️\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよ〜😊`
+      return `初心者さんへの案内だよー！\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよー`
     }
     
     // 食べ物系
@@ -241,18 +346,16 @@ const Chatbot: React.FC = () => {
       return helpResponses[Math.floor(Math.random() * helpResponses.length)]
     }
     
-    // デフォルト応答（茶目っ気を加えた）
-    const defaultResponses = [
-      'ほうほう〜🐿️ それは面白そうだね〜！僕の好奇心がムズムズしちゃうよ〜',
-      'そうなんだ〜！😄 僕も勉強になるな〜！君って物知りだね〜',
-      'へぇ〜！✨ 僕の小さな脳みそがフル回転してるよ〜！煙出てきそう😅',
-      'それ興味深いな〜🌟 僕ももっと知りたくなっちゃった〜！詳しく教えて〜',
-      'うんうん〜！😊 君の話、いつも楽しいよ〜！僕のお気に入りタイムだ〜',
-      'そんなこともあるんだね〜🐿️ 世界って広いな〜！僕の知らないことがいっぱい〜',
-      'なるほどなるほど〜😆 僕の頭の中のどんぐりがカラカラ鳴ってるよ〜'
+    // シンプルなフォールバック応答
+    const fallbackResponses = [
+      'そうなんだねー！面白いお話だよー',
+      'なるほどー！僕も勉強になるなー',
+      'へー！それは知らなかったよー',
+      'そんなこともあるんだねー！世界って広いなー',
+      'うんうん！君の話、いつも楽しいよー'
     ]
     
-    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
   }
 
   // メッセージ送信
@@ -271,22 +374,33 @@ const Chatbot: React.FC = () => {
     setInputMessage('')
     setIsTyping(true)
 
-    // モモンガくんの応答（少し遅延を入れてリアルっぽく）
-    const timeoutId = setTimeout(() => {
-      const response = getResponse(userInput)
-      const momongaMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: response,
-        sender: 'momonga',
-        timestamp: new Date()
+    // AI APIを使用してモモンガくんの返答を生成
+    const generateResponse = async () => {
+      try {
+        const aiResponse = await getAIResponse(userInput)
+        const momongaMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: aiResponse,
+          sender: 'momonga',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, momongaMessage])
+      } catch (error) {
+        console.error('Message processing failed:', error)
+        const fallbackMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: getFallbackResponse(userInput),
+          sender: 'momonga',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, fallbackMessage])
+      } finally {
+        setIsTyping(false)
       }
-      
-      setMessages(prev => [...prev, momongaMessage])
-      setIsTyping(false)
-    }, 1000 + Math.random() * 1500) // 1-2.5秒のランダムな遅延
+    }
 
-    // クリーンアップ用にtimeoutIdを返す（実際は使用しないが、良いプラクティス）
-    return () => clearTimeout(timeoutId)
+    // 少し遅延を入れてリアルっぽく
+    setTimeout(generateResponse, 1000 + Math.random() * 1000)
   }
 
   // Enter キーで送信
@@ -304,9 +418,9 @@ const Chatbot: React.FC = () => {
 
   // 初期メッセージ
   useEffect(() => {
-    // siteInfoを使用していることを明示（TypeScript警告回避）
-    if (siteInfo) {
-      // サイト情報は getResponse 関数内で使用される
+    // siteKnowledgeBaseを使用していることを明示（TypeScript警告回避）
+    if (siteKnowledgeBase) {
+      // サイト情報は AI API のコンテキストとして使用される
     }
     
     const welcomeMessage: Message = {
@@ -386,10 +500,30 @@ const Chatbot: React.FC = () => {
               {/* モモンガくんのアイコン */}
               {message.sender === 'momonga' && (
                 <div style={{
-                  fontSize: '1.5rem',
-                  flexShrink: 0
+                  width: '32px',
+                  height: '32px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '2px solid #8bc34a'
                 }}>
-                  🐿️
+                  <img 
+                    src="/momonga-icon.png" 
+                    alt="モモンガくん" 
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover'
+                    }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 20px;">🐿️</div>';
+                      }
+                    }}
+                  />
                 </div>
               )}
               
@@ -407,10 +541,8 @@ const Chatbot: React.FC = () => {
               }}>
                 <div className="comic-text font-body-md" style={{
                   color: '#fff3e0',
-                  lineHeight: '1.4',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {message.content}
+                  lineHeight: '1.4'
+                }} dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}>
                 </div>
                 <div className="font-body-xs" style={{
                   color: 'rgba(255,255,255,0.6)',
@@ -441,7 +573,31 @@ const Chatbot: React.FC = () => {
               alignItems: 'flex-start',
               gap: '8px'
             }}>
-              <div style={{ fontSize: '1.5rem' }}>🐿️</div>
+              <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: '2px solid #8bc34a'
+            }}>
+              <img 
+                src="/momonga-icon.png" 
+                alt="モモンガくん" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 20px;">🐿️</div>';
+                  }
+                }}
+              />
+            </div>
               <div className="comic-card" style={{
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
                 borderColor: '#8bc34a',

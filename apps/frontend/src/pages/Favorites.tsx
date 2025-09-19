@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import { useAppData, type FavoriteItem } from '../contexts/AppDataContext'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 const Favorites: React.FC = () => {
+  useSEO(SEO_PRESETS.favorites);
   const { favorites, addFavorite, removeFavorite, momoPayPoints, spendMomoPayPoints } = useAppData()
   const [textName, setTextName] = useState('')
   const [textBody, setTextBody] = useState('')

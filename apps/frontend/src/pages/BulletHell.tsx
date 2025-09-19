@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 type Player = { x: number; y: number; r: number; fireRate: number; power: number; displayR?: number }
 type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
@@ -58,6 +59,7 @@ const GACHA_RATES = {
 }
 
 const BulletHell: React.FC = () => {
+  useSEO(SEO_PRESETS.bulletHell);
   const { momoPayPoints, addMomoPayPoints, updateHighScores, highScores } = useAppData()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
@@ -69,6 +71,8 @@ const BulletHell: React.FC = () => {
   const [lastTap, setLastTap] = useState(0)
   const [shield, setShield] = useState(0)
   const [wave, setWave] = useState(1)
+  const [invincible, setInvincible] = useState(false)
+  const [invincibleTime, setInvincibleTime] = useState(0)
   
   // パワーアップアイテムによる追加能力値を管理
   const [powerUpBonuses, setPowerUpBonuses] = useState({ fireRate: 0, power: 0 })
@@ -77,9 +81,18 @@ const BulletHell: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
   
+  // BGM設定の状態
+  const [bgmEnabled, setBgmEnabled] = useState(false)
+  const [bgmVolume, setBgmVolume] = useState(0.15)
+  const [bgmNodes, setBgmNodes] = useState<{
+    oscillators: OscillatorNode[]
+    gainNodes: GainNode[]
+    masterGain: GainNode | null
+  }>({ oscillators: [], gainNodes: [], masterGain: null })
+  
   // AudioContextを初期化する関数
   const initializeAudio = useCallback(() => {
-    if (audioContext || !soundEnabled) return
+    if (audioContext || (!soundEnabled && !bgmEnabled)) return
     
     try {
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
@@ -95,7 +108,7 @@ const BulletHell: React.FC = () => {
     } catch (error) {
       console.log('AudioContext creation failed:', error)
     }
-  }, [audioContext, soundEnabled])
+  }, [audioContext, soundEnabled, bgmEnabled])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -139,6 +152,151 @@ const BulletHell: React.FC = () => {
       console.log('Sound play error:', error)
     }
   }, [soundEnabled, audioContext, playActualSound])
+  
+  // BGM生成関数（プロシージャル音楽）
+  const createBGM = useCallback(() => {
+    if (!audioContext || !bgmEnabled) return
+    
+    try {
+      // 既存のBGMを停止
+      stopBGM()
+      
+      // マスターゲインノード
+      const masterGain = audioContext.createGain()
+      masterGain.gain.value = bgmVolume
+      masterGain.connect(audioContext.destination)
+      
+      // BGMの基本構成（4つのレイヤー）
+      const frequencies = [
+        // ベースライン
+        [65.4, 73.4, 82.4, 87.3], // C2, D2, E2, F2
+        // メロディ
+        [261.6, 293.7, 329.6, 349.2, 392.0], // C4, D4, E4, F4, G4
+        // ハーモニー
+        [130.8, 146.8, 164.8, 174.6], // C3, D3, E3, F3
+        // リズム
+        [1047, 1175, 1319, 1397] // C6, D6, E6, F6
+      ]
+      
+      const oscillators: OscillatorNode[] = []
+      const gainNodes: GainNode[] = []
+      
+      // 各レイヤーのオシレーターを作成
+      frequencies.forEach((freqArray, layerIndex) => {
+        freqArray.forEach((freq, noteIndex) => {
+          const osc = audioContext.createOscillator()
+          const gain = audioContext.createGain()
+          
+          // レイヤーごとに異なる波形とボリューム
+          switch(layerIndex) {
+            case 0: // ベース
+              osc.type = 'sawtooth'
+              gain.gain.value = 0.08
+              break
+            case 1: // メロディ
+              osc.type = 'sine'
+              gain.gain.value = 0.06
+              break
+            case 2: // ハーモニー
+              osc.type = 'triangle'
+              gain.gain.value = 0.04
+              break
+            case 3: // リズム
+              osc.type = 'square'
+              gain.gain.value = 0.03
+              break
+          }
+          
+          osc.frequency.value = freq
+          osc.connect(gain)
+          gain.connect(masterGain)
+          
+          // 音符のタイミング設定
+          const startTime = audioContext.currentTime + (noteIndex * 0.5) + (layerIndex * 0.1)
+          const duration = layerIndex === 3 ? 0.1 : 0.4 // リズムは短く
+          
+          osc.start(startTime)
+          osc.stop(startTime + duration)
+          
+          oscillators.push(osc)
+          gainNodes.push(gain)
+        })
+      })
+      
+      setBgmNodes({ oscillators, gainNodes, masterGain })
+      
+      // BGMをループ再生
+      const loopBGM = () => {
+        try {
+          if (bgmEnabled && audioContext && audioContext.state === 'running') {
+            setTimeout(() => {
+              if (bgmEnabled && audioContext && audioContext.state === 'running') {
+                createBGM()
+              }
+            }, 4000) // 4秒後に再生
+          }
+        } catch (e) {
+          console.log('BGM loop error:', e)
+        }
+      }
+      
+      setTimeout(loopBGM, 4000)
+      
+    } catch (error) {
+      console.log('BGM creation failed:', error)
+    }
+  }, [audioContext, bgmEnabled, bgmVolume])
+  
+  // BGM停止関数
+  const stopBGM = useCallback(() => {
+    try {
+      bgmNodes.oscillators.forEach(osc => {
+        try {
+          if (osc.context.state !== 'closed') {
+            osc.stop()
+          }
+        } catch (e) {
+          // Already stopped or context closed
+        }
+      })
+      
+      bgmNodes.gainNodes.forEach(gain => {
+        try {
+          if (gain.context.state !== 'closed') {
+            gain.disconnect()
+          }
+        } catch (e) {
+          // Already disconnected or context closed
+        }
+      })
+      
+      if (bgmNodes.masterGain) {
+        try {
+          if (bgmNodes.masterGain.context.state !== 'closed') {
+            bgmNodes.masterGain.disconnect()
+          }
+        } catch (e) {
+          // Already disconnected or context closed
+        }
+      }
+    } catch (e) {
+      console.log('BGM stop error:', e)
+    }
+    
+    setBgmNodes({ oscillators: [], gainNodes: [], masterGain: null })
+  }, [bgmNodes])
+  
+  
+  // 無敵時間を開始する関数
+  const startInvincibility = useCallback((duration: number = 120) => { // 2秒間（60fps * 2）
+    try {
+      const safeDuration = Math.max(0, Math.min(600, Math.floor(duration))) // 0-10秒の範囲で制限
+      setInvincible(true)
+      setInvincibleTime(safeDuration)
+    } catch (e) {
+      console.log('Invincibility start error:', e)
+    }
+  }, [])
   
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
@@ -255,10 +413,17 @@ const BulletHell: React.FC = () => {
       try {
         const settings = JSON.parse(savedSettings)
         const soundSetting = settings['notification-sound'] || false
+        const bgmSetting = settings['bgm-enabled'] || false
+        const bgmVolumeSetting = settings['bgm-volume'] || 0.15
         setSoundEnabled(soundSetting)
+        setBgmEnabled(bgmSetting)
+        setBgmVolume(bgmVolumeSetting)
         console.log('Sound setting loaded:', soundSetting)
+        console.log('BGM setting loaded:', bgmSetting, 'Volume:', bgmVolumeSetting)
       } catch {
         setSoundEnabled(false)
+        setBgmEnabled(false)
+        setBgmVolume(0.15)
         console.log('Failed to load sound settings, defaulting to false')
       }
     } else {
@@ -266,12 +431,13 @@ const BulletHell: React.FC = () => {
     }
   }, [])
 
-  // AudioContextを効果音設定に応じて初期化
+  // AudioContextを効果音・BGM設定に応じて初期化
   useEffect(() => {
-    if (soundEnabled && !audioContext) {
+    if ((soundEnabled || bgmEnabled) && !audioContext) {
       initializeAudio()
-    } else if (!soundEnabled && audioContext) {
-      // 効果音が無効になった場合はAudioContextをクローズ
+    } else if (!soundEnabled && !bgmEnabled && audioContext) {
+      // 効果音もBGMも無効になった場合はAudioContextをクローズ
+      stopBGM()
       audioContext.close().then(() => {
         setAudioContext(null)
         console.log('AudioContext closed')
@@ -279,7 +445,7 @@ const BulletHell: React.FC = () => {
         console.log('Failed to close AudioContext:', error)
       })
     }
-  }, [soundEnabled, audioContext, initializeAudio])
+  }, [soundEnabled, bgmEnabled, audioContext, initializeAudio, stopBGM])
 
   // ユーザーインタラクション時にAudioContextをresumeする
   useEffect(() => {
@@ -329,6 +495,17 @@ const BulletHell: React.FC = () => {
     }
   }, [soundEnabled])
 
+  // BGM制御 - ゲーム開始/停止時
+  useEffect(() => {
+    if (bgmEnabled && audioContext && running) {
+      // ゲーム開始時にBGM開始
+      createBGM()
+    } else if (!running) {
+      // ゲーム停止時にBGM停止
+      stopBGM()
+    }
+  }, [bgmEnabled, audioContext, running, createBGM, stopBGM])
+
   // Save inventory to localStorage
   useEffect(() => {
     if (inventory.items.length > 0) {
@@ -351,6 +528,15 @@ const BulletHell: React.FC = () => {
       // time - 現在のtime値を取得して使用
       const currentTime = time
       setTime(t => t + 1)
+      
+      // 無敵時間のカウントダウン
+      if (invincibleTime > 0) {
+        setInvincibleTime(prev => Math.max(0, prev - 1))
+        if (invincibleTime <= 1) {
+          setInvincible(false)
+          setInvincibleTime(0)
+        }
+      }
 
       // 初期フレーム（time < 60）ではスポーンしない
       if (currentTime < 60) {
@@ -651,16 +837,25 @@ const BulletHell: React.FC = () => {
       for (const b of bulletsRef.current.filter(b => b.from === 'enemy')) {
         const dx = p.x - b.x, dy = p.y - b.y
         if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
+          // 無敵時間中は被弾しない
+          if (invincible) {
+            break
+          }
+          
           bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
           
           if (shield > 0) {
             // シールドヒット音
             playSound(400, 0.2, 'square')
             setShield(s => Math.max(0, s - 5))
+            // シールド破壊時も無敵時間を付与
+            startInvincibility(60) // 1秒間
           } else {
             // ダメージ音
             playSound(200, 0.5, 'triangle')
             setLives(v => Math.max(0, v - 1))
+            // 被弾時に無敵時間を付与
+            startInvincibility(120) // 2秒間
             if (lives - 1 <= 0) {
               setRunning(false)
               setGameOver(true)
@@ -864,26 +1059,33 @@ const BulletHell: React.FC = () => {
       ctx.lineWidth = 3
       ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius + 2, 0, Math.PI * 2); ctx.stroke()
       
-      // Main player body (larger for visibility)
-      ctx.fillStyle = '#4ECDC4'
-      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
+      // 無敵時間中の点滅効果
+      const isVisible = !invincible || Math.floor(currentTime / 8) % 2 === 0
       
-      // Gradient effect for depth
-      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, displayRadius)
-      gradient.addColorStop(0, '#ffffff')
-      gradient.addColorStop(0.3, '#4ECDC4')
-      gradient.addColorStop(1, '#26a69a')
-      ctx.fillStyle = gradient
-      ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius * 0.8, 0, Math.PI * 2); ctx.fill()
+      if (isVisible) {
+        // Main player body (larger for visibility)
+        ctx.fillStyle = invincible ? '#ff6b6b' : '#4ECDC4' // 無敵時は赤色
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius, 0, Math.PI * 2); ctx.fill()
+        
+        // Gradient effect for depth
+        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, displayRadius)
+        gradient.addColorStop(0, '#ffffff')
+        gradient.addColorStop(0.3, invincible ? '#ff6b6b' : '#4ECDC4')
+        gradient.addColorStop(1, invincible ? '#e53935' : '#26a69a')
+        ctx.fillStyle = gradient
+        ctx.beginPath(); ctx.arc(p.x, p.y, displayRadius * 0.8, 0, Math.PI * 2); ctx.fill()
+      }
       
-      // Inner core (actual hitbox indicator) - more prominent
-      ctx.strokeStyle = '#ffffff'
-      ctx.lineWidth = 3
-      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius + 1, 0, Math.PI * 2); ctx.stroke()
-      
-      // Core highlight for better visibility
-      ctx.fillStyle = '#ff6b6b'
-      ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.fill()
+      if (isVisible) {
+        // Inner core (actual hitbox indicator) - more prominent
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 3
+        ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius + 1, 0, Math.PI * 2); ctx.stroke()
+        
+        // Core highlight for better visibility
+        ctx.fillStyle = invincible ? '#ffaa00' : '#ff6b6b' // 無敵時は橙色
+        ctx.beginPath(); ctx.arc(p.x, p.y, hitboxRadius, 0, Math.PI * 2); ctx.fill()
+      }
       
       // Center dot (precise hitbox center) - larger and more visible
       ctx.fillStyle = '#ffffff'
@@ -894,15 +1096,11 @@ const BulletHell: React.FC = () => {
       ctx.font = 'bold 16px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       ctx.textAlign = 'left'
       ctx.fillText(`スコア: ${score}`, 10, 25)
-      ctx.fillText(`ウェーブ: ${wave}`, 10, 45)
       
-      // 効果音状態表示
-      ctx.fillStyle = soundEnabled ? (audioContext?.state === 'running' ? '#4caf50' : '#ff9800') : '#666'
-      ctx.fillText(`🔊: ${soundEnabled ? (audioContext?.state === 'running' ? 'ON' : 'WAIT') : 'OFF'}`, 10, 65)
       
       // power-up status with equipment indicators
       ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
-      let yOffset = 85
+      let yOffset = 45
       
       // Fire rate - simple display
       const totalFireRate = playerRef.current.fireRate
@@ -933,16 +1131,6 @@ const BulletHell: React.FC = () => {
       yOffset += 15
       
       // Shield with equipment bonus
-      if (shield > 0) {
-        const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
-        ctx.fillStyle = '#ffd93d'
-        if (equipmentShieldBonus > 0) {
-          ctx.fillText(`シールド: ${shield} (装備効果: +${equipmentShieldBonus}) 🛡️`, 10, yOffset)
-        } else {
-          ctx.fillText(`シールド: ${shield}`, 10, yOffset)
-        }
-        yOffset += 15
-      }
       
       // Special equipment effects
       if (inventory.equippedSpecial) {

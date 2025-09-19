@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 const Games: React.FC = () => {
+  useSEO(SEO_PRESETS.games);
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
       <div className="comic-text font-title-lg" style={{ 

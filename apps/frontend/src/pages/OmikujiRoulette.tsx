@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 const allFortunes = ['大吉','中吉','小吉','吉','凶']
 
 const OmikujiChoice: React.FC = () => {
+  useSEO(SEO_PRESETS.omikuji);
   const { momoPayPoints, spendMomoPayPoints } = useAppData()
   const [revealedIdx, setRevealedIdx] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
