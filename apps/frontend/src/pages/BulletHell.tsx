@@ -161,9 +161,9 @@ const BulletHell: React.FC = () => {
   
   
   // 無敵時間を開始する関数
-  const startInvincibility = useCallback((duration: number = 120) => { // 2秒間（60fps * 2）
+  const startInvincibility = useCallback((duration: number = 60) => { // 1秒間（60fps * 1）
     try {
-      const safeDuration = Math.max(0, Math.min(600, Math.floor(duration))) // 0-10秒の範囲で制限
+      const safeDuration = Math.max(0, Math.min(300, Math.floor(duration))) // 0-5秒の範囲で制限
       setInvincible(true)
       setInvincibleTime(safeDuration)
     } catch (e) {
@@ -200,6 +200,7 @@ const BulletHell: React.FC = () => {
       if (e.target === canvasRef.current) {
         e.preventDefault()
         const touch = e.touches[0]
+        if (!touch) return
         const rect = canvasRef.current?.getBoundingClientRect()
         if (!rect) return
         
@@ -223,6 +224,7 @@ const BulletHell: React.FC = () => {
       if (e.target === canvasRef.current && touchStart) {
         e.preventDefault()
         const touch = e.touches[0]
+        if (!touch) return
         const rect = canvasRef.current?.getBoundingClientRect()
         if (!rect) return
         
@@ -406,10 +408,10 @@ const BulletHell: React.FC = () => {
       
       // 無敵時間のカウントダウン
       if (invincibleTime > 0) {
-        setInvincibleTime(prev => Math.max(0, prev - 1))
-        if (invincibleTime <= 1) {
+        const newInvincibleTime = Math.max(0, invincibleTime - 1)
+        setInvincibleTime(newInvincibleTime)
+        if (newInvincibleTime <= 0) {
           setInvincible(false)
-          setInvincibleTime(0)
         }
       }
 
@@ -499,13 +501,16 @@ const BulletHell: React.FC = () => {
       const powerUpInterval = Math.max(400, 600 - wave * 30) // More frequent in early waves
       if (currentTime % powerUpInterval === 0 && Math.random() < 0.8) {
         const powerUpTypes: PowerUp['type'][] = ['fireRate', 'power', 'shield']
-        powerUpsRef.current.push({
-          x: Math.random() * (w - 40) + 20,
-          y: 60,
-          r: 8,
-          type: powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)],
-          collected: false
-        })
+        const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)]
+        if (randomType) {
+          powerUpsRef.current.push({
+            x: Math.random() * (w - 40) + 20,
+            y: 60,
+            r: 8,
+            type: randomType,
+            collected: false
+          })
+        }
       }
       // enemies shoot with varied patterns - scaled by wave
       enemiesRef.current.forEach((e, idx) => {
@@ -724,13 +729,13 @@ const BulletHell: React.FC = () => {
             playSound(400, 0.2, 'square')
             setShield(s => Math.max(0, s - 5))
             // シールド破壊時も無敵時間を付与
-            startInvincibility(60) // 1秒間
+            startInvincibility(30) // 0.5秒間
           } else {
             // ダメージ音
             playSound(200, 0.5, 'triangle')
             setLives(v => Math.max(0, v - 1))
             // 被弾時に無敵時間を付与
-            startInvincibility(120) // 2秒間
+            startInvincibility(60) // 1秒間
             if (lives - 1 <= 0) {
               setRunning(false)
               setGameOver(true)
@@ -1087,6 +1092,11 @@ const BulletHell: React.FC = () => {
     // 選択されたレアリティのアイテムから抽選
     const availableItems = GACHA_ITEMS.filter(item => item.rarity === selectedRarity)
     const selectedItem = availableItems[Math.floor(Math.random() * availableItems.length)]
+
+    if (!selectedItem) {
+      console.error('No item selected from gacha')
+      return
+    }
 
     // インベントリに追加
     setInventory(prev => ({

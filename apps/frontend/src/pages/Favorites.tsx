@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAppData, type FavoriteItem } from '../contexts/AppDataContext'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
+import { validateFileType, validateFileSize, escapeHtml, detectMaliciousScript, validateInputLength } from '../utils/security'
 
 const Favorites: React.FC = () => {
   useSEO(SEO_PRESETS.favorites);
@@ -23,6 +24,29 @@ const Favorites: React.FC = () => {
     }
     
     const file = e.target.files[0] // 最初のファイルのみ使用
+    if (!file) return
+    
+    // セキュリティチェック：ファイルタイプの検証
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'video/mp4', 'video/webm', 'video/ogg',
+      'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/mpeg',
+      'text/plain', 'application/json', 'application/pdf'
+    ]
+    
+    if (!validateFileType(file, allowedTypes)) {
+      alert('サポートされていないファイル形式です。')
+      e.target.value = ''
+      return
+    }
+    
+    // ファイルサイズの検証（10MB制限）
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    if (!validateFileSize(file, maxSize)) {
+      alert('ファイルサイズが大きすぎます。10MB以下のファイルを選択してください。')
+      e.target.value = ''
+      return
+    }
     
     if (!confirm(`ファイルをアップロードします。${UPLOAD_COST}MOMOPayを消費しますか？`)) {
       e.target.value = ''
@@ -36,6 +60,20 @@ const Favorites: React.FC = () => {
       return
     }
     
+    // ファイル名の検証
+    if (!validateInputLength(name.trim(), 100)) {
+      alert('ファイル名が長すぎます。100文字以内で入力してください。')
+      e.target.value = ''
+      return
+    }
+    
+    // 悪意のあるファイル名の検出
+    if (detectMaliciousScript(name.trim())) {
+      alert('不正なファイル名が検出されました。')
+      e.target.value = ''
+      return
+    }
+    
     // MOMOPayを消費
     if (!spendMomoPayPoints(UPLOAD_COST)) {
       alert('MOMOPay不足。')
@@ -45,18 +83,37 @@ const Favorites: React.FC = () => {
     
     const reader = new FileReader()
     reader.onload = () => {
-      const dataUrl = reader.result as string
-      const item: FavoriteItem = {
-        id: genId(),
-        name: name.trim(),
-        kind: 'file',
-        dataUrl,
-        mime: file.type,
-        createdAt: new Date().toISOString(),
+      try {
+        const dataUrl = reader.result as string
+        
+        // データURLの基本的な検証
+        if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+          console.error('Invalid data URL generated')
+          alert('ファイルの読み込みに失敗しました。')
+          return
+        }
+        
+        const item: FavoriteItem = {
+          id: genId(),
+          name: escapeHtml(name.trim()), // ファイル名をエスケープ
+          kind: 'file',
+          dataUrl,
+          mime: file.type,
+          createdAt: new Date().toISOString(),
+        }
+        addFavorite(item)
+        alert('ファイルをアップロードしました！')
+      } catch (error) {
+        console.error('File upload error:', error)
+        alert('ファイルのアップロードに失敗しました。')
       }
-      addFavorite(item)
-      alert('ファイルをアップロードしました！')
     }
+    
+    reader.onerror = () => {
+      console.error('FileReader error')
+      alert('ファイルの読み込みに失敗しました。')
+    }
+    
     reader.readAsDataURL(file)
     e.target.value = ''
   }
@@ -64,6 +121,23 @@ const Favorites: React.FC = () => {
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!textBody.trim() || !textName.trim()) return
+    
+    // 入力値の検証
+    if (!validateInputLength(textName.trim(), 100)) {
+      alert('タイトルが長すぎます。100文字以内で入力してください。')
+      return
+    }
+    
+    if (!validateInputLength(textBody.trim(), 10000)) {
+      alert('テキストが長すぎます。10,000文字以内で入力してください。')
+      return
+    }
+    
+    // 悪意のあるスクリプトの検出
+    if (detectMaliciousScript(textName.trim()) || detectMaliciousScript(textBody.trim())) {
+      alert('不正なスクリプトが検出されました。')
+      return
+    }
     
     // MOMOPayをチェック
     if (momoPayPoints < UPLOAD_COST) {
@@ -83,9 +157,9 @@ const Favorites: React.FC = () => {
     
     const item: FavoriteItem = {
       id: genId(),
-      name: textName.trim(),
+      name: escapeHtml(textName.trim()), // タイトルをエスケープ
       kind: 'text',
-      text: textBody,
+      text: escapeHtml(textBody.trim()), // テキストをエスケープ
       createdAt: new Date().toISOString(),
     }
     addFavorite(item)

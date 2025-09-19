@@ -2,46 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
-
-
-// シンプルなマークダウンパーサー
-const parseMarkdown = (text: string): string => {
-  let result = text
-    // 太字 **text** → <strong>text</strong>
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    
-  // リスト項目の処理
-  const lines = result.split('\n')
-  const processedLines: string[] = []
-  let inList = false
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-    
-    if (line.match(/^・(.+)$/)) {
-      // リスト項目の開始
-      if (!inList) {
-        processedLines.push('<ul>')
-        inList = true
-      }
-      processedLines.push(`<li>${line.replace(/^・/, '')}</li>`)
-    } else {
-      // リスト項目以外
-      if (inList) {
-        processedLines.push('</ul>')
-        inList = false
-      }
-      processedLines.push(line)
-    }
-  }
-  
-  // 最後がリストで終わっている場合
-  if (inList) {
-    processedLines.push('</ul>')
-  }
-  
-  return processedLines.join('<br>')
-}
+import { parseSafeMarkdown, detectMaliciousScript } from '../utils/security'
 
 type Message = {
   id: string
@@ -90,15 +51,18 @@ const Chatbot: React.FC = () => {
       store: {
         name: '売店（MOMOStore）',
         description: 'MOMOPayで便利機能を購入したり装備を売却したりできる場所',
-        functions: ['設定機能の購入', '装備の売却'],
+        url: '/games/store',
+        features: ['購入タブ', '売却タブ'],
+        functions: ['設定機能の購入', '装備の売却', '購入した設定の管理'],
         purchaseItems: [
-          'ダークモード設定（500MOMOPay）',
-          '共有機能利用権（300MOMOPay）',
-          'プレミアムテーマ（800MOMOPay）',
-          '通知音設定（200MOMOPay）'
+          'ダークモード設定（500MOMOPay）🌙',
+          '共有機能利用権（300MOMOPay）📤',
+          'プレミアムテーマ（800MOMOPay）🎨',
+          '通知音設定（200MOMOPay）🔊'
         ],
-        sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
-        location: '遊技場から行けるよ'
+        sellPrices: 'legendary:80P⭐, epic:40P💜, rare:20P💙, common:10P⚪',
+        location: '遊技場から行けるよ',
+        note: '購入した設定は設定ページで有効化が必要'
       }
     },
     plaza: {
@@ -151,7 +115,11 @@ const Chatbot: React.FC = () => {
   - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
     費用: ${siteKnowledgeBase.games.omikuji.cost}
   - 売店: ${siteKnowledgeBase.games.store.description}
-    商品: ダークモード(500P), 共有機能(300P), プレミアムテーマ(800P), 通知音(200P)
+    URL: ${siteKnowledgeBase.games.store.url}
+    機能: ${siteKnowledgeBase.games.store.features.join('、')}
+    商品: ${siteKnowledgeBase.games.store.purchaseItems.join(', ')}
+    売却価格: ${siteKnowledgeBase.games.store.sellPrices}
+    注意: ${siteKnowledgeBase.games.store.note}
 ・広場: ${siteKnowledgeBase.navigation.plaza}
   - 大広間: ${siteKnowledgeBase.plaza.hall.description}
   - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}
@@ -196,12 +164,12 @@ const Chatbot: React.FC = () => {
         'こんにちはー！僕と一緒に楽しい時間を過ごそうよ！サイトの使い方で分からないことがあったら何でも聞いてねー',
         'おーい！モモンガくんだよー！今日はどんな冒険が待ってるかな？遊技場とか宝物庫とか、色々あるよー'
       ]
-      return greetings[Math.floor(Math.random() * greetings.length)]
+      return greetings[Math.floor(Math.random() * greetings.length)] || greetings[0] || 'こんにちは！'
     }
 
     // サイト案内・ヘルプ系
     if (message.includes('案内') || message.includes('ヘルプ') || message.includes('使い方') || message.includes('どこ') || message.includes('場所')) {
-      return `サイト案内だよー！\n\n**拠点** - メインページ（今いる場所の上だよ）\n**遊技場** - ゲームでMOMOPayを稼ごう\n  └ 御神籤（10P）、演習林（弾幕ゲーム）、売店\n**広場** - みんなとおしゃべり\n  └ 大広間（つぶやき）、公会堂（ここ！）\n**宝物庫** - ファイル保存（100P必要）\n**設定** - テーマ変更とか\n\nどこに行きたい？詳しく教えてあげるー`
+      return `サイト案内だよー！\n\n**🏠 拠点** - メインページ（今いる場所の上だよ）\n**🎮 遊技場** - ゲームでMOMOPayを稼ごう\n  └ 🔮 御神籤（10P）\n  └ 🌲 演習林（弾幕ゲーム）\n  └ 🏪 売店（MOMOStore）\n**🏛️ 広場** - みんなとおしゃべり\n  └ 📢 大広間（つぶやき）\n  └ 🗣️ 公会堂（ここ！）\n**📁 宝物庫** - ファイル保存（100P必要）\n**⚙️ 設定** - テーマ変更・機能管理\n\nどこに行きたい？「売店に行きたい」とか具体的に言ってくれれば、詳しく教えてあげるー`
     }
 
     // MOMOPay関連の詳細情報
@@ -210,7 +178,7 @@ const Chatbot: React.FC = () => {
         `MOMOPayについて教えるねー！\n\n**稼ぎ方：**\n・演習林（弾幕ゲーム）をプレイ\n・装備を売店で売却\n\n**使い道：**\n・御神籤：10MOMOPay\n・宝物庫アップロード：100MOMOPay\n・売店で設定購入：200〜800MOMOPay\n\n僕もいつも演習林で頑張ってるよー！でも弾幕が難しくて...うまくいかないんだよねー`,
         `MOMOPayの管理、大変だよねー！僕も散財しちゃう方なんだ。\n\n一番効率がいいのは演習林だよ！弾幕ゲームでMOMOPayと装備がもらえるんだ。装備は売店で売却もできるから、ダブったら売っちゃおうー\n\n宝物庫は100MOMOPay必要だけど、大事なファイルを保存できるから便利だよー`
       ]
-      return payResponses[Math.floor(Math.random() * payResponses.length)]
+      return payResponses[Math.floor(Math.random() * payResponses.length)] || payResponses[0] || 'MOMOPayについて教えるよー！'
     }
     
     // ゲーム関連（詳細情報付き）
@@ -219,12 +187,12 @@ const Chatbot: React.FC = () => {
         `遊技場について教えるよー！\n\n**演習林（弾幕ゲーム）**\n・守護者として修行を積む弾幕シューティング\n・MOMOPayと装備がもらえる\n・装備はcommon→rare→epic→legendaryの順でレア！\n\n**御神籤ルーレット**\n・10MOMOPayで運勢占い\n・大吉から凶まで色々あるよー\n\n僕も演習林で修行してるけど...弾幕が難しくて、すぐやられちゃうんだよねー`,
         `演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだー\n\nでも真面目な話、演習林は一番MOMOPayを稼げる場所だよ！装備ガチャも楽しいし、レア装備が出た時の嬉しさったらもう...\n\n装備がダブったら売店で売却もできるから、どんどんチャレンジしてみてー`
       ]
-      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
+      return gameResponses[Math.floor(Math.random() * gameResponses.length)] || gameResponses[0] || 'ゲームについて教えるよー！'
     }
 
     // 売店関連
-    if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却')) {
-      return `売店（MOMOStore）について教えるねー！\n\n**購入できるもの：**\n・ダークモード設定：500MOMOPay\n・共有機能利用権：300MOMOPay\n・プレミアムテーマ：800MOMOPay\n・通知音設定：200MOMOPay\n\n**装備売却価格：**\n・legendary：80MOMOPay\n・epic：40MOMOPay\n・rare：20MOMOPay\n・common：10MOMOPay\n\n僕も装備ガチャ回したいけど、いつも爆死するんだよねー...運が悪いのかなー`
+    if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却') || message.includes('ストア') || message.includes('store')) {
+      return `売店（MOMOStore）について教えるねー！\n\n**🏪 場所：遊技場 → 売店**\n\n**🛒 購入タブ：**\n・ダークモード設定：500MOMOPay 🌙\n・共有機能利用権：300MOMOPay 📤\n・プレミアムテーマ：800MOMOPay 🎨\n・通知音設定：200MOMOPay 🔊\n\n**💰 売却タブ：**\n演習林で獲得した装備を売却できるよ！\n・legendary：80MOMOPay ⭐\n・epic：40MOMOPay 💜\n・rare：20MOMOPay 💙\n・common：10MOMOPay ⚪\n\n購入した設定は「設定」ページで有効にできるよー！僕も装備ガチャ回したいけど、いつも爆死するんだよねー...`
     }
     
     // 御神籤関連
@@ -233,7 +201,7 @@ const Chatbot: React.FC = () => {
         `御神籤ルーレットについて教えるよー！\n\n・費用：10MOMOPay\n・神様に運勢を占ってもらえる\n・大吉から凶まで色々な結果があるよ\n・遊技場から行けるよー\n\n僕もよく引くけど、いつも「小吉」ばっかりなんだ...大吉引いてみたいなー`,
         `運勢占い、楽しいよねー！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ\n\n御神籤は10MOMOPayで遊技場から行けるよー！MOMOPayが足りなかったら、演習林で稼いでから挑戦してみてー`
       ]
-      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
+      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)] || fortuneResponses[0] || 'おみくじについて教えるよー！'
     }
     
     // 大広間関連
@@ -242,7 +210,7 @@ const Chatbot: React.FC = () => {
         `大広間について教えるよー！\n\n・1時間で自動削除されるつぶやき投稿\n・いいね機能付き\n・みんなでおしゃべりできる場所\n・広場から行けるよー\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！1時間で消えちゃうから気軽だよねー`,
         `大広間のおしゃべり楽しいよねー！みんなのつぶやき見てると面白いよー\n\n投稿は1時間で自動削除されるから、恥ずかしがり屋の僕には助かるかも。変なこと書いちゃっても、後で「あれ？」って思うけど消えてくれるからねー`
       ]
-      return hallResponses[Math.floor(Math.random() * hallResponses.length)]
+      return hallResponses[Math.floor(Math.random() * hallResponses.length)] || hallResponses[0] || '大広間について教えるよー！'
     }
 
     // 宝物庫関連
@@ -251,7 +219,7 @@ const Chatbot: React.FC = () => {
         `宝物庫について教えるよー！\n\n・ファイル・テキストの保存ができる\n・費用：100MOMOPay（アップロード時）\n・対応：画像、動画、音声、テキストファイルなど\n・プレビュー機能付き\n\n大事なファイルを保存するのにとっても便利だよー！僕もどんぐりの写真をいっぱい保存してるんだ`,
         `宝物庫は僕のお気に入りの場所だよー！100MOMOPay必要だけど、大切なファイルを安全に保存できるんだ\n\nテキストも保存できるから、日記とか大事なメモとかも大丈夫！MOMOPayが足りなかったら演習林で稼いでから使ってみてねー`
       ]
-      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)]
+      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)] || favoritesResponses[0] || '宝物庫について教えるよー！'
     }
 
     // 設定関連
@@ -265,11 +233,14 @@ const Chatbot: React.FC = () => {
     }
 
     // 具体的な質問への対応
-    if (message.includes('どうやって') || message.includes('方法') || message.includes('やり方')) {
+    if (message.includes('どうやって') || message.includes('方法') || message.includes('やり方') || message.includes('行き方') || message.includes('行く')) {
       if (message.includes('稼ぐ') || message.includes('momopay')) {
         return `MOMOPayの稼ぎ方を教えるよー！\n\n**一番効率的：演習林**\n・弾幕ゲームをプレイ\n・クリアするとMOMOPayと装備がもらえる\n・装備は売店で売却もできる\n\n**装備売却：**\n・legendary：80P、epic：40P\n・rare：20P、common：10P\n\n僕も毎日演習林で修行してるよー！一緒に頑張ろう`
       }
-      return `何のやり方を知りたいのかな？\n\n・MOMOPayの稼ぎ方\n・ゲームの遊び方\n・ファイルの保存方法\n・設定の変更方法\n\n具体的に教えてくれれば、詳しく説明するよー`
+      if (message.includes('売店') || message.includes('store') || message.includes('ストア')) {
+        return `売店（MOMOStore）への行き方だねー！\n\n**🗺️ 行き方：**\n1. 拠点（ホーム）から「🎮 遊技場」をクリック\n2. 遊技場で「🏪 売店」をクリック\n\n**📍 直接リンク：** /games/store\n\n**🏪 売店でできること：**\n・🛒 購入タブ：設定機能を購入\n・💰 売却タブ：装備を売却\n\n僕もよく装備を売りに行くよー！ダブった装備をMOMOPayに変えられるからお得だよ`
+      }
+      return `何のやり方を知りたいのかな？\n\n・MOMOPayの稼ぎ方\n・売店への行き方\n・ゲームの遊び方\n・ファイルの保存方法\n・設定の変更方法\n\n具体的に教えてくれれば、詳しく説明するよー`
     }
     
     // 感情系
@@ -279,7 +250,7 @@ const Chatbot: React.FC = () => {
         'ありがとうって言われると、尻尾がフワフワしちゃうー。嬉しいなー！',
         'そんなこと言われたら照れちゃうよー。僕、単純だからすぐ喜んじゃうんだ！'
       ]
-      return thanksResponses[Math.floor(Math.random() * thanksResponses.length)]
+      return thanksResponses[Math.floor(Math.random() * thanksResponses.length)] || thanksResponses[0] || 'どういたしまして！'
     }
     
     if (message.includes('さびしい') || message.includes('つまらない') || message.includes('退屈')) {
@@ -288,7 +259,7 @@ const Chatbot: React.FC = () => {
         'つまらない時は僕と遊ぼうー！僕の得意技、木の枝ぶら下がりを見せてあげる！...って、ここじゃできないか',
         '退屈な時は空を見上げてみてー！雲の形、面白いよー！僕はいつもどんぐりに見えちゃうけどね'
       ]
-      return lonelyResponses[Math.floor(Math.random() * lonelyResponses.length)]
+      return lonelyResponses[Math.floor(Math.random() * lonelyResponses.length)] || lonelyResponses[0] || '大丈夫だよー！'
     }
     
     if (message.includes('疲れた') || message.includes('つかれた')) {
@@ -297,7 +268,7 @@ const Chatbot: React.FC = () => {
         '疲れた時は僕みたいにゴロゴロするのがいいよー！モモンガ式リラックス法だよ',
         'あー、疲れてるんだね...僕の癒し系オーラで元気になってー！...効果あるかな？'
       ]
-      return tiredResponses[Math.floor(Math.random() * tiredResponses.length)]
+      return tiredResponses[Math.floor(Math.random() * tiredResponses.length)] || tiredResponses[0] || 'お疲れさまー！'
     }
     
     // 質問系
@@ -322,7 +293,7 @@ const Chatbot: React.FC = () => {
         'ナッツ類は全部好き〜！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ〜😋',
         'お腹空いてきちゃった〜！今度一緒にどんぐり拾いに行こうよ〜！僕、隠し場所知ってるんだ😉'
       ]
-      return foodResponses[Math.floor(Math.random() * foodResponses.length)]
+      return foodResponses[Math.floor(Math.random() * foodResponses.length)] || foodResponses[0] || 'どんぐり美味しいよー！'
     }
     
     // 褒め言葉
@@ -332,7 +303,7 @@ const Chatbot: React.FC = () => {
         'わ〜い！😆 そんなこと言われたら木の上まで飛び跳ねちゃうよ〜！嬉しいな〜！',
         'か、可愛いって...😳 僕、照れちゃうよ〜！でも嬉しいから許す〜😄'
       ]
-      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)]
+      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)] || praiseResponses[0] || 'ありがとう！'
     }
     
     // 困った時
@@ -342,7 +313,7 @@ const Chatbot: React.FC = () => {
         '困った時は僕に任せて〜！モモンガパワーで解決だ〜！...効果のほどは保証しないけど😆',
         'わからないことがあったら遠慮しないで〜！僕も知らないことは一緒に考えるよ〜🤔'
       ]
-      return helpResponses[Math.floor(Math.random() * helpResponses.length)]
+      return helpResponses[Math.floor(Math.random() * helpResponses.length)] || helpResponses[0] || '大丈夫だよー！'
     }
     
     // シンプルなフォールバック応答
@@ -354,21 +325,33 @@ const Chatbot: React.FC = () => {
       'うんうん！君の話、いつも楽しいよー'
     ]
     
-    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)] || fallbackResponses[0] || 'そうなんだねー！'
   }
 
   // メッセージ送信
   const sendMessage = async () => {
     if (!inputMessage.trim()) return
 
+    // セキュリティチェック：悪意のあるスクリプトの検出
+    if (detectMaliciousScript(inputMessage)) {
+      console.warn('Malicious script detected in user input')
+      return
+    }
+
+    // 入力長制限（500文字）
+    if (inputMessage.length > 500) {
+      alert('メッセージは500文字以内で入力してください。')
+      return
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputMessage,
+      content: inputMessage.trim(), // 前後の空白を除去
       sender: 'user',
       timestamp: new Date()
     }
 
-    const userInput = inputMessage // 入力をキャプチャ
+    const userInput = inputMessage.trim() // 入力をキャプチャ
     setMessages(prev => [...prev, userMessage])
     setInputMessage('')
     setIsTyping(true)
@@ -541,7 +524,7 @@ const Chatbot: React.FC = () => {
                 <div className="comic-text font-body-md" style={{
                   color: '#fff3e0',
                   lineHeight: '1.4'
-                }} dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}>
+                }} dangerouslySetInnerHTML={{ __html: parseSafeMarkdown(message.content) }}>
                 </div>
                 <div className="font-body-xs" style={{
                   color: 'rgba(255,255,255,0.6)',

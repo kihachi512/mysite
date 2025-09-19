@@ -52,9 +52,51 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
+    <!-- DNS Prefetch for External Resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    
+    <!-- Resource Hints for Better Performance -->
+    <link rel="preload" href="/momonga-icon.png" as="image" type="image/png" />
+    <link rel="prefetch" href="/games" />
+    <link rel="prefetch" href="/plaza" />
+    
     <!-- Theme Color for Mobile -->
     <meta name="theme-color" content="#4caf50" />
     <meta name="msapplication-TileColor" content="#4caf50" />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="モモンガカーニバル" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://generativelanguage.googleapis.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: blob: https:;
+      media-src 'self' data: blob:;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+      block-all-mixed-content;
+    " />
+    
+    <!-- Performance Hints -->
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -62,10 +104,11 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "さすらいのモモンガカーニバル",
-      "alternateName": "モモンガカーニバル",
+      "alternateName": ["モモンガカーニバル", "MOMONGA CARNIVAL"],
       "url": "https://sasurai-momonga-carnival.com/",
       "description": "モモンガくんと一緒に楽しむ日本語エンターテイメントサイト。弾幕シューティングゲーム「演習林」でMOMOPayを稼ぎ、おみくじで運勢占い、公会堂でチャット。宝物庫でファイル管理も可能。完全無料で遊べる癒し系ゲームサイトです。",
       "inLanguage": "ja-JP",
+      "keywords": ["弾幕ゲーム", "シューティングゲーム", "おみくじ", "チャット", "ファイル管理", "日本語ゲーム", "無料ゲーム", "ブラウザゲーム"],
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
@@ -76,15 +119,54 @@
       },
       "author": {
         "@type": "Organization",
-        "name": "さすらいのモモンガカーニバル"
+        "name": "さすらいのモモンガカーニバル",
+        "url": "https://sasurai-momonga-carnival.com/"
       },
       "publisher": {
         "@type": "Organization",
         "name": "さすらいのモモンガカーニバル",
+        "url": "https://sasurai-momonga-carnival.com/",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://sasurai-momonga-carnival.com/momonga-icon.png"
+          "url": "https://sasurai-momonga-carnival.com/momonga-icon.png",
+          "width": 512,
+          "height": 512
         }
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "item": {
+              "@type": "WebPage",
+              "name": "遊技場",
+              "url": "https://sasurai-momonga-carnival.com/games",
+              "description": "弾幕シューティング、おみくじ、売店で楽しもう"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "item": {
+              "@type": "WebPage",
+              "name": "広場",
+              "url": "https://sasurai-momonga-carnival.com/plaza",
+              "description": "みんなとおしゃべり、モモンガくんとチャット"
+            }
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "item": {
+              "@type": "WebPage",
+              "name": "宝物庫",
+              "url": "https://sasurai-momonga-carnival.com/favorites",
+              "description": "ファイルを安全に保存・管理"
+            }
+          }
+        ]
       }
     }
     </script>
@@ -94,17 +176,26 @@
       "@context": "https://schema.org",
       "@type": "Game",
       "name": "さすらいのモモンガカーニバル",
-      "description": "弾幕シューティングゲーム、おみくじ、チャット機能を楽しめる無料のブラウザゲーム",
+      "alternateName": "モモンガカーニバル",
+      "description": "弾幕シューティングゲーム「演習林」、おみくじルーレット、AIチャット機能を楽しめる無料のブラウザゲーム。MOMOPayを稼いでレア装備をゲット！",
       "url": "https://sasurai-momonga-carnival.com/",
-      "image": "https://sasurai-momonga-carnival.com/momonga-icon.png",
-      "genre": ["シューティングゲーム", "カジュアルゲーム", "エンターテイメント"],
-      "gamePlatform": "ブラウザ",
-      "operatingSystem": "Any",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://sasurai-momonga-carnival.com/momonga-icon.png",
+        "width": 512,
+        "height": 512
+      },
+      "genre": ["シューティングゲーム", "カジュアルゲーム", "エンターテイメント", "弾幕ゲーム"],
+      "gamePlatform": ["ブラウザ", "PC", "スマートフォン", "タブレット"],
+      "operatingSystem": ["Windows", "macOS", "Linux", "Android", "iOS"],
       "applicationCategory": "Game",
+      "inLanguage": "ja-JP",
+      "keywords": ["弾幕ゲーム", "シューティング", "おみくじ", "チャット", "無料ゲーム", "ブラウザゲーム"],
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "JPY"
+        "priceCurrency": "JPY",
+        "availability": "https://schema.org/InStock"
       },
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -112,6 +203,34 @@
         "ratingCount": "150",
         "bestRating": "5",
         "worstRating": "1"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "さすらいのモモンガカーニバル"
+      },
+      "datePublished": "2024-01-01",
+      "dateModified": "2024-12-20"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "さすらいのモモンガカーニバル",
+      "url": "https://sasurai-momonga-carnival.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://sasurai-momonga-carnival.com/momonga-icon.png",
+        "width": 512,
+        "height": 512
+      },
+      "description": "モモンガくんと一緒に楽しむ日本語エンターテイメントサイト",
+      "sameAs": [],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": "Japanese"
       }
     }
     </script>

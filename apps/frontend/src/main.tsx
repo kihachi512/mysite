@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider, Link } from 'react-router-dom'
 import App from './App.tsx'
 import { useSEO, SEO_PRESETS } from './hooks/useSEO'
+import { logger } from './utils/logger'
+import { performanceMonitor } from './utils/performance'
 
 // ホームページコンポーネント
 const HomePage: React.FC = () => {
@@ -80,6 +82,36 @@ const router = createBrowserRouter([
     ],
   },
 ])
+
+// Service Worker登録
+if ('serviceWorker' in navigator && import.meta.env.VITE_ENABLE_PWA !== 'false') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        logger.info('Service Worker registered successfully', {
+          scope: registration.scope
+        })
+        
+        // 更新チェック
+        registration.addEventListener('updatefound', () => {
+          logger.info('New Service Worker version available')
+        })
+      })
+      .catch((error) => {
+        logger.error('Service Worker registration failed', error)
+      })
+  })
+}
+
+// アプリケーション初期化
+logger.info('Application starting', {
+  version: __APP_VERSION__,
+  buildDate: __BUILD_DATE__,
+  userAgent: navigator.userAgent
+})
+
+// パフォーマンス監視開始
+performanceMonitor.reportVitals()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
