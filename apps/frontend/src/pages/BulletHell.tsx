@@ -1077,16 +1077,6 @@ const BulletHell: React.FC = () => {
       yOffset += 15
       
       // Shield with equipment bonus
-      if (shield > 0) {
-        const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
-        ctx.fillStyle = '#ffd93d'
-        if (equipmentShieldBonus > 0) {
-          ctx.fillText(`シールド: ${shield} (装備効果: +${equipmentShieldBonus}) 🛡️`, 10, yOffset)
-        } else {
-          ctx.fillText(`シールド: ${shield}`, 10, yOffset)
-        }
-        yOffset += 15
-      }
       
       // Special equipment effects
       if (inventory.equippedSpecial) {
