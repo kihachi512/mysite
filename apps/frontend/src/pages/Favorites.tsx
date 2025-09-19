@@ -102,19 +102,20 @@ const Favorites: React.FC = () => {
           width: '100%', 
           height: '100%', 
           display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          padding: '8px'
+          alignItems: 'flex-start', 
+          justifyContent: 'flex-start',
+          padding: '12px'
         }}>
           <p className="comic-text font-body-sm" style={{ 
             whiteSpace: 'pre-wrap', 
             wordBreak: 'break-word', 
             maxHeight: '100%', 
             overflowY: 'auto',
-            textAlign: 'center',
+            textAlign: 'left',
             color: '#fff3e0',
             lineHeight: '1.4',
-            margin: 0
+            margin: 0,
+            width: '100%'
           }}>
             {item.text && item.text.length > 100 ? `${item.text.substring(0, 100)}...` : (item.text || '')}
           </p>
