@@ -1,4 +1,5 @@
 import { createContext, useContext, type ReactNode, useState, useEffect } from 'react'
+import { safeGetLocalStorage, safeSetLocalStorage, validateInputLength } from '../utils/security'
 
 // Types
 export type FavoriteItem = {

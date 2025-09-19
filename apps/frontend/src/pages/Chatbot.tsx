@@ -2,46 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
-
-
-// シンプルなマークダウンパーサー
-const parseMarkdown = (text: string): string => {
-  let result = text
-    // 太字 **text** → <strong>text</strong>
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    
-  // リスト項目の処理
-  const lines = result.split('\n')
-  const processedLines: string[] = []
-  let inList = false
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-    
-    if (line.match(/^・(.+)$/)) {
-      // リスト項目の開始
-      if (!inList) {
-        processedLines.push('<ul>')
-        inList = true
-      }
-      processedLines.push(`<li>${line.replace(/^・/, '')}</li>`)
-    } else {
-      // リスト項目以外
-      if (inList) {
-        processedLines.push('</ul>')
-        inList = false
-      }
-      processedLines.push(line)
-    }
-  }
-  
-  // 最後がリストで終わっている場合
-  if (inList) {
-    processedLines.push('</ul>')
-  }
-  
-  return processedLines.join('<br>')
-}
+import { parseSafeMarkdown, detectMaliciousScript } from '../utils/security'
 
 type Message = {
   id: string
@@ -371,14 +332,26 @@ const Chatbot: React.FC = () => {
   const sendMessage = async () => {
     if (!inputMessage.trim()) return
 
+    // セキュリティチェック：悪意のあるスクリプトの検出
+    if (detectMaliciousScript(inputMessage)) {
+      console.warn('Malicious script detected in user input')
+      return
+    }
+
+    // 入力長制限（500文字）
+    if (inputMessage.length > 500) {
+      alert('メッセージは500文字以内で入力してください。')
+      return
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputMessage,
+      content: inputMessage.trim(), // 前後の空白を除去
       sender: 'user',
       timestamp: new Date()
     }
 
-    const userInput = inputMessage // 入力をキャプチャ
+    const userInput = inputMessage.trim() // 入力をキャプチャ
     setMessages(prev => [...prev, userMessage])
     setInputMessage('')
     setIsTyping(true)
@@ -551,7 +524,7 @@ const Chatbot: React.FC = () => {
                 <div className="comic-text font-body-md" style={{
                   color: '#fff3e0',
                   lineHeight: '1.4'
-                }} dangerouslySetInnerHTML={{ __html: parseMarkdown(message.content) }}>
+                }} dangerouslySetInnerHTML={{ __html: parseSafeMarkdown(message.content) }}>
                 </div>
                 <div className="font-body-xs" style={{
                   color: 'rgba(255,255,255,0.6)',
