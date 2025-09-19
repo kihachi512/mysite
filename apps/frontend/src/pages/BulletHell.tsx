@@ -39,10 +39,10 @@ const GACHA_ITEMS: GachaItem[] = [
   { id: 'w4', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
   
   // シールド (Shields) - 森の守りシリーズ
-  { id: 's1', name: '木の皮バリア', description: 'シールド+20', rarity: 'common', type: 'shield', effect: { shield: 20 }, icon: '🌳' },
-  { id: 's2', name: '森の加護', description: 'シールド+40', rarity: 'rare', type: 'shield', effect: { shield: 40 }, icon: '🌲' },
-  { id: 's3', name: '古樹の盾', description: 'シールド+80', rarity: 'epic', type: 'shield', effect: { shield: 80 }, icon: '🌿' },
-  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+150', rarity: 'legendary', type: 'shield', effect: { shield: 150 }, icon: '👑' },
+  { id: 's1', name: '木の皮バリア', description: 'シールド+5', rarity: 'common', type: 'shield', effect: { shield: 5 }, icon: '🌳' },
+  { id: 's2', name: '森の加護', description: 'シールド+10', rarity: 'rare', type: 'shield', effect: { shield: 10 }, icon: '🌲' },
+  { id: 's3', name: '古樹の盾', description: 'シールド+20', rarity: 'epic', type: 'shield', effect: { shield: 20 }, icon: '🌿' },
+  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+35', rarity: 'legendary', type: 'shield', effect: { shield: 35 }, icon: '👑' },
   
   // 特殊能力 (Special) - 森の魔法シリーズ
   { id: 'sp1', name: '風のささやき', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🍃' },
