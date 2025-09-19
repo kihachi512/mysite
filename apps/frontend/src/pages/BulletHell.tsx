@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
+import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 type Player = { x: number; y: number; r: number; fireRate: number; power: number; displayR?: number }
 type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
@@ -58,6 +59,7 @@ const GACHA_RATES = {
 }
 
 const BulletHell: React.FC = () => {
+  useSEO(SEO_PRESETS.bulletHell);
   const { momoPayPoints, addMomoPayPoints, updateHighScores, highScores } = useAppData()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [running, setRunning] = useState(false)
