@@ -96,33 +96,102 @@ const Favorites: React.FC = () => {
   }
 
   const renderPreview = (item: FavoriteItem) => {
-
     if (item.kind === 'text') {
-      return <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '200px', overflowY: 'auto' }}>{item.text}</p>
+      return (
+        <div style={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '8px'
+        }}>
+          <p className="comic-text font-body-sm" style={{ 
+            whiteSpace: 'pre-wrap', 
+            wordBreak: 'break-word', 
+            maxHeight: '100%', 
+            overflowY: 'auto',
+            textAlign: 'center',
+            color: '#fff3e0',
+            lineHeight: '1.4',
+            margin: 0
+          }}>
+            {item.text?.length > 100 ? `${item.text.substring(0, 100)}...` : item.text}
+          </p>
+        </div>
+      )
     }
 
     const { dataUrl, mime, name } = item
     if (mime?.startsWith('image/')) {
-      return <img src={dataUrl} alt={name} style={{ maxWidth: '100%' }} />
+      return (
+        <img 
+          src={dataUrl} 
+          alt={name} 
+          style={{ 
+            maxWidth: '100%', 
+            maxHeight: '100%', 
+            objectFit: 'contain',
+            borderRadius: '8px'
+          }} 
+        />
+      )
     }
     if (mime?.startsWith('audio/')) {
-      return <audio controls src={dataUrl} />
+      return (
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div className="font-icon-md">🎵</div>
+          <audio controls src={dataUrl} style={{ width: '100%', maxWidth: '250px' }} />
+        </div>
+      )
     }
     if (mime?.startsWith('video/')) {
-      return <video controls src={dataUrl} style={{ maxWidth: '100%' }} />
+      return (
+        <video 
+          controls 
+          src={dataUrl} 
+          style={{ 
+            maxWidth: '100%', 
+            maxHeight: '100%',
+            borderRadius: '8px'
+          }} 
+        />
+      )
     }
     return (
-      <a href={dataUrl} download={name} style={{ color: 'white', textDecoration: 'underline' }}>
-        {name}
-      </a>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        gap: '12px',
+        textAlign: 'center'
+      }}>
+        <div className="font-icon-md">📄</div>
+        <a 
+          href={dataUrl} 
+          download={name} 
+          className="comic-button font-button-sm"
+          style={{ 
+            color: 'white', 
+            textDecoration: 'none',
+            background: 'linear-gradient(45deg, #42a5f5, #2196f3)',
+            borderColor: '#1976d2',
+            padding: '8px 16px'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          📥 ダウンロード
+        </a>
+      </div>
     )
   }
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 className="comic-text" style={{ color: '#fff3e0', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', fontSize: 'clamp(1.6rem, 5vw, 2.2rem)', marginBottom: '12px' }}>🌲 宝物庫 🌲</h2>
-        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', textShadow: '2px 2px 0px rgba(0,0,0,0.5)', marginBottom: '16px' }}>好きなファイルやテキストを保存しよう</p>
+        <h2 className="comic-text font-title-lg" style={{ color: '#fff3e0', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', marginBottom: '12px' }}>🌲 宝物庫 🌲</h2>
+        <p className="comic-text font-body-lg" style={{ color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)', marginBottom: '16px' }}>好きなファイルやテキストを保存しよう</p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="momopay-display" style={{ textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
@@ -210,7 +279,7 @@ const Favorites: React.FC = () => {
       </div>
 
       <div style={{ marginTop: '30px' }}>
-            <h3 className="comic-text" style={{ color: '#fff3e0', marginBottom: '24px', fontSize: '1.5rem' }}>🗂️ 保存済みアイテム ({favorites.length}件)</h3>
+            <h3 className="comic-text font-title-md" style={{ color: '#fff3e0', marginBottom: '24px' }}>🗂️ 保存済みアイテム ({favorites.length}件)</h3>
             {favorites.length === 0 ? (
           <div className="comic-card" style={{ 
             textAlign: 'center', 
@@ -225,41 +294,121 @@ const Favorites: React.FC = () => {
             <div className="comic-text" style={{ fontSize: '1rem', marginTop: '8px' }}>ファイルアップロードかテキスト追加</div>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+          <div className="favorites-grid" style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', 
+            gap: 'min(24px, 4vw)',
+            padding: '0 min(8px, 2vw)'
+          }}>
             {favorites.map((item) => (
-              <div key={item.id} className="comic-card" style={{ 
+              <div key={item.id} className="comic-card favorites-item" style={{ 
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', 
                 color: '#fff3e0', 
-                padding: '24px', 
+                padding: 'min(24px, 5vw)', 
                 borderColor: '#8bc34a',
-                position: 'relative'
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '280px',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                  <h4 className="comic-text" style={{ margin: 0, fontSize: '1.2rem' }}>{item.name}</h4>
+                {/* ヘッダー部分 */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start', 
+                  marginBottom: '16px',
+                  minHeight: '40px'
+                }}>
+                  <h4 className="comic-text font-title-sm" style={{ 
+                    margin: 0, 
+                    flex: 1, 
+                    wordBreak: 'break-word',
+                    lineHeight: '1.3',
+                    paddingRight: '12px'
+                  }}>
+                    {item.name}
+                  </h4>
                   <button 
-                    onClick={() => handleDelete(item.id)} 
-                    className="comic-button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(item.id)
+                    }} 
+                    className="comic-button font-button-sm"
                     style={{ 
                       background: 'linear-gradient(45deg, #ff6b6b, #f44336)',
                       color: 'white',
-                      padding: '6px 12px',
-                      fontSize: '0.9rem',
-                      borderColor: '#d32f2f'
+                      padding: 'min(8px 12px, 2vw 3vw)',
+                      borderColor: '#d32f2f',
+                      flexShrink: 0,
+                      minWidth: '60px'
                     }}
                   >
-                    🗑️ 削除
+                    🗑️
                   </button>
                 </div>
-                <div style={{ marginBottom: '8px' }}>
-                  {renderPreview(item)}
+
+                {/* プレビュー部分 */}
+                <div style={{ 
+                  flex: 1,
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '120px',
+                  background: 'rgba(0, 0, 0, 0.1)',
+                  borderRadius: '12px',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}>
+                  <div style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '12px'
+                  }}>
+                    {renderPreview(item)}
+                  </div>
                 </div>
-                <div className="comic-text" style={{ 
-                  fontSize: '0.9rem', 
+
+                {/* フッター部分 */}
+                <div className="comic-text font-body-sm" style={{ 
                   color: 'rgba(255,255,255,0.7)',
                   borderTop: '2px solid rgba(255,255,255,0.2)',
-                  paddingTop: '10px'
+                  paddingTop: '12px',
+                  textAlign: 'center'
                 }}>
-                  {new Date(item.createdAt).toLocaleString('ja-JP')}
+                  📅 {new Date(item.createdAt).toLocaleString('ja-JP', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+
+                {/* ファイルタイプインジケーター */}
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  background: 'rgba(76, 175, 80, 0.8)',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.7rem',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  {item.kind === 'text' ? '📝 TEXT' : 
+                   item.mime?.startsWith('image/') ? '🖼️ IMAGE' :
+                   item.mime?.startsWith('video/') ? '🎬 VIDEO' :
+                   item.mime?.startsWith('audio/') ? '🎵 AUDIO' : '📄 FILE'}
                 </div>
               </div>
             ))}
