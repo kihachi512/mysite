@@ -124,11 +124,11 @@ const Favorites: React.FC = () => {
         <h2 className="comic-text" style={{ color: '#fff3e0', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', fontSize: 'clamp(1.6rem, 5vw, 2.2rem)', marginBottom: '12px' }}>🌲 宝物庫 🌲</h2>
         <p className="comic-text" style={{ color: '#c8e6c9', fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', textShadow: '2px 2px 0px rgba(0,0,0,0.5)', marginBottom: '16px' }}>好きなファイルやテキストを保存しよう</p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
+          <div className="momopay-display" style={{ textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
           </div>
           <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
-            費用: {UPLOAD_COST}MOMOPay
+            <span className="momopay-small">費用: {UPLOAD_COST}MOMOPay</span>
           </div>
         </div>
         {momoPayPoints < UPLOAD_COST && (
@@ -204,7 +204,7 @@ const Favorites: React.FC = () => {
               cursor: momoPayPoints < UPLOAD_COST ? 'not-allowed' : 'pointer'
             }}
           >
-            ✨ テキスト追加 ({UPLOAD_COST}P)
+            <span className="momopay-small">✨ テキスト追加 ({UPLOAD_COST}P)</span>
           </button>
         </form>
       </div>

@@ -49,7 +49,7 @@ const Games: React.FC = () => {
               lineHeight: '1.4'
             }}>
               神様に運勢を占ってもらおう<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">費用: 10MOMOPay</span>
+              <span className="momopay-small">費用: 10MOMOPay</span>
             </div>
           </div>
         </Link>
@@ -101,7 +101,7 @@ const Games: React.FC = () => {
               lineHeight: '1.4'
             }}>
               装備売却・設定機能の購入<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">MOMOStoreへようこそ！</span>
+              <span className="momopay-small">MOMOStoreへようこそ！</span>
             </div>
           </div>
         </Link>

@@ -128,7 +128,7 @@ const PurchaseView: React.FC<{
                     width: '100%'
                   }}
                 >
-                  💰 {item.price}MOMOPay
+                  <span className="momopay-small">💰 {item.price}MOMOPay</span>
                 </button>
               )}
             </div>
@@ -208,7 +208,7 @@ const SaleView: React.FC<{
                   width: '100%'
                 }}
               >
-                💰 {getSellPrice(item.rarity)}MOMOPayで売却
+                <span className="momopay-small">💰 {getSellPrice(item.rarity)}MOMOPayで売却</span>
               </button>
             </div>
           ) : null)}
@@ -341,13 +341,11 @@ const MOMOStore: React.FC = () => {
         🏪 売店 (MOMOStore) 🏪
       </div>
       
-      <div className="comic-text" style={{ 
-        fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
-        marginBottom: 'min(24px, 6vw)', 
-        color: '#ffd93d'
-      }}>
-        💰 現在のMOMOPay: {momoPayPoints}
-      </div>
+        <div className="momopay-status" style={{ 
+          marginBottom: 'min(24px, 6vw)'
+        }}>
+          💰 現在のMOMOPay: {momoPayPoints}
+        </div>
 
       {/* タブ切り替えボタン */}
       <div style={{ 

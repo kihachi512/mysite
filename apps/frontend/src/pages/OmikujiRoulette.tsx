@@ -62,11 +62,11 @@ const OmikujiChoice: React.FC = () => {
           {revealedIdx === null ? '🔮 一枚選んで 🔮' : showAll ? '🎉 結果発表！ 🎉' : '🔮 結果確認中... 🔮'}
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
+          <div className="momopay-display" style={{ textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
           </div>
           <div className="comic-text" style={{ fontSize: '1rem', color: '#c8e6c9', textShadow: '1px 1px 0px rgba(0,0,0,0.5)' }}>
-            費用: {OMIKUJI_COST}MOMOPay
+            <span className="momopay-small">費用: {OMIKUJI_COST}MOMOPay</span>
           </div>
         </div>
         {momoPayPoints < OMIKUJI_COST && (
