@@ -46,7 +46,8 @@ const GeneralSettings: React.FC = () => {
         applySetting(key, value)
       }
     })
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 初期化時のみ実行
 
   const updateSetting = (key: keyof AppSettings, value: boolean) => {
     if (!purchasedItems.includes(key)) {

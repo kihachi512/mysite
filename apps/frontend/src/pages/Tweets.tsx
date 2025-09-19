@@ -58,15 +58,14 @@ const Tweets: React.FC = () => {
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <h2 className="comic-text" style={{ 
+        <h2 className="comic-text font-title-lg" style={{ 
           color: '#fff3e0', 
           textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
-          fontSize: 'clamp(1.6rem, 5vw, 2.2rem)', 
           marginBottom: '12px' 
         }}>
           🏠 大広間 🏠
         </h2>
-        <p className="comic-text" style={{ color: '#c8e6c9', fontSize: 'clamp(1rem, 3.5vw, 1.2rem)', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
+        <p className="comic-text font-body-lg" style={{ color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>
           1時間で自動削除されるおしゃべり
         </p>
       </div>
@@ -102,12 +101,10 @@ const Tweets: React.FC = () => {
             </span>
             <button
               type="submit"
-              className="comic-button"
+              className="comic-button font-button-md"
               style={{
-                padding: '12px 24px',
                 background: 'linear-gradient(45deg, #66bb6a, #4caf50)',
                 color: 'white',
-                fontSize: '1.1rem',
                 borderColor: '#2e7d32'
               }}
             >
@@ -153,12 +150,10 @@ const Tweets: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button
                   onClick={() => handleLike(tweet.id)}
-                  className="comic-button"
+                  className="comic-button font-button-xs"
                   style={{
                     background: 'linear-gradient(45deg, #ff6b6b, #f44336)',
                     color: 'white',
-                    padding: '8px 16px',
-                    fontSize: '0.9rem',
                     borderColor: '#d32f2f',
                     display: 'flex',
                     alignItems: 'center',

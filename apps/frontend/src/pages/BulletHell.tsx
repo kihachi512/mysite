@@ -97,27 +97,6 @@ const BulletHell: React.FC = () => {
     }
   }, [audioContext, soundEnabled])
   
-  // 効果音再生関数
-  const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
-    if (!soundEnabled || !audioContext) return
-    
-    try {
-      // AudioContextが suspended 状態の場合は resume を試行
-      if (audioContext.state === 'suspended') {
-        audioContext.resume().then(() => {
-          // resume 成功後に再度音声を再生
-          playActualSound(audioContext, frequency, duration, type)
-        }).catch(() => {
-          console.log('AudioContext resume failed')
-        })
-      } else if (audioContext.state === 'running') {
-        playActualSound(audioContext, frequency, duration, type)
-      }
-    } catch (error) {
-      console.log('Sound play error:', error)
-    }
-  }, [soundEnabled, audioContext])
-  
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
     try {
@@ -139,6 +118,27 @@ const BulletHell: React.FC = () => {
       console.log('Actual sound play error:', error)
     }
   }, [])
+  
+  // 効果音再生関数
+  const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
+    if (!soundEnabled || !audioContext) return
+    
+    try {
+      // AudioContextが suspended 状態の場合は resume を試行
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+          // resume 成功後に再度音声を再生
+          playActualSound(audioContext, frequency, duration, type)
+        }).catch(() => {
+          console.log('AudioContext resume failed')
+        })
+      } else if (audioContext.state === 'running') {
+        playActualSound(audioContext, frequency, duration, type)
+      }
+    } catch (error) {
+      console.log('Sound play error:', error)
+    }
+  }, [soundEnabled, audioContext, playActualSound])
   
   // ガチャシステム用状態
   const [showGacha, setShowGacha] = useState(false)
@@ -234,7 +234,8 @@ const BulletHell: React.FC = () => {
       window.removeEventListener('touchmove', handleTouchMove)
       window.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [lastTap, touchStart, running])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastTap, touchStart, running]) // shootは内部で定義されるため除外
 
 
   // Load inventory from localStorage
@@ -1029,7 +1030,32 @@ const BulletHell: React.FC = () => {
 
     setGachaResult(selectedItem)
     // 自動で閉じないように変更
-  }, [momoPayPoints, addMomoPayPoints])
+  }, [momoPayPoints, addMomoPayPoints, playSound])
+
+  // 射撃機能
+  const shoot = useCallback(() => {
+    if (!running) return
+    const now = Date.now()
+    const fireDelay = 200 / playerRef.current.fireRate // 連射速度に応じた発射間隔
+    if (now - lastShotRef.current < fireDelay) return
+    
+    lastShotRef.current = now
+    const player = playerRef.current
+    
+    // 射撃音を再生
+    playSound(800, 0.1, 'square')
+    
+    // パワーに応じて複数弾を発射
+    if (player.power >= 2) {
+      // 3方向発射
+      bulletsRef.current.push({ x: player.x - 5, y: player.y - 8, vx: -1, vy: -4, r: 3, from: 'player', power: player.power })
+      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
+      bulletsRef.current.push({ x: player.x + 5, y: player.y - 8, vx: 1, vy: -4, r: 3, from: 'player', power: player.power })
+    } else {
+      // 単発
+      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
+    }
+  }, [running, playSound])
 
   // アイテム装備機能
   const equipItem = useCallback((item: GachaItem) => {
@@ -1099,30 +1125,6 @@ const BulletHell: React.FC = () => {
       applyEquipmentEffects()
     }
   }, [powerUpBonuses, applyEquipmentEffects, running])
-
-  const shoot = useCallback(() => {
-    if (!running) return
-    const now = Date.now()
-    const fireDelay = 200 / playerRef.current.fireRate // 連射速度に応じた発射間隔
-    if (now - lastShotRef.current < fireDelay) return
-    
-    lastShotRef.current = now
-    const player = playerRef.current
-    
-    // 射撃音を再生
-    playSound(800, 0.1, 'square')
-    
-    // パワーに応じて複数弾を発射
-    if (player.power >= 2) {
-      // 3方向発射
-      bulletsRef.current.push({ x: player.x - 5, y: player.y - 8, vx: -1, vy: -4, r: 3, from: 'player', power: player.power })
-      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
-      bulletsRef.current.push({ x: player.x + 5, y: player.y - 8, vx: 1, vy: -4, r: 3, from: 'player', power: player.power })
-    } else {
-      // 単発
-      bulletsRef.current.push({ x: player.x, y: player.y - 8, vx: 0, vy: -4, r: 3, from: 'player', power: player.power })
-    }
-  }, [running])
 
   return (
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
