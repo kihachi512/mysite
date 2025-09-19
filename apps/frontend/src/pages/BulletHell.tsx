@@ -90,6 +90,7 @@ const BulletHell: React.FC = () => {
     masterGain: GainNode | null
   }>({ oscillators: [], gainNodes: [], masterGain: null })
   const [bgmTimeoutId, setBgmTimeoutId] = useState<number | null>(null)
+  const [isBgmPlaying, setIsBgmPlaying] = useState(false)
   
   // AudioContextを初期化する関数
   const initializeAudio = useCallback(() => {
@@ -156,7 +157,9 @@ const BulletHell: React.FC = () => {
   
   // BGM生成関数（プロシージャル音楽）
   const createBGM = useCallback(() => {
-    if (!audioContext || !bgmEnabled) return
+    if (!audioContext || !bgmEnabled || isBgmPlaying) return
+    
+    setIsBgmPlaying(true)
     
     try {
       // 既存のBGMを完全に停止
@@ -237,18 +240,22 @@ const BulletHell: React.FC = () => {
       setBgmNodes({ oscillators, gainNodes, masterGain })
       
       // 次のBGMループを予約（メモリリーク防止のためタイムアウトIDを管理）
+      // 最後のオシレーター終了時間を計算（1.6秒後）
+      const nextLoopDelay = 1800 // 1.8秒後に次のループ（少し余裕を持たせる）
       const timeoutId = setTimeout(() => {
+        setIsBgmPlaying(false) // BGM再生フラグをリセット
         if (bgmEnabled && audioContext && audioContext.state === 'running') {
           createBGM()
         }
-      }, 2000) // 2秒間隔に短縮してスムーズに
+      }, nextLoopDelay)
       
       setBgmTimeoutId(timeoutId)
       
     } catch (error) {
       console.log('BGM creation failed:', error)
+      setIsBgmPlaying(false) // エラー時もフラグをリセット
     }
-  }, [audioContext, bgmEnabled, bgmVolume])
+  }, [audioContext, bgmEnabled, bgmVolume, isBgmPlaying])
   
   // BGM停止関数
   const stopBGM = useCallback(() => {
@@ -293,6 +300,7 @@ const BulletHell: React.FC = () => {
     }
     
     setBgmNodes({ oscillators: [], gainNodes: [], masterGain: null })
+    setIsBgmPlaying(false)
   }, [bgmNodes, bgmTimeoutId])
   
   
