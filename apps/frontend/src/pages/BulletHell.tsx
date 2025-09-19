@@ -286,30 +286,6 @@ const BulletHell: React.FC = () => {
     setBgmNodes({ oscillators: [], gainNodes: [], masterGain: null })
   }, [bgmNodes])
   
-  // BGM音量変更
-  const updateBGMVolume = useCallback((newVolume: number) => {
-    const safeVolume = Math.max(0, Math.min(1, newVolume))
-    setBgmVolume(safeVolume)
-    
-    // LocalStorageに保存
-    try {
-      const settings = JSON.parse(localStorage.getItem('app-settings') || '{}')
-      settings['bgm-volume'] = safeVolume
-      localStorage.setItem('app-settings', JSON.stringify(settings))
-    } catch (e) {
-      console.log('BGM volume save error:', e)
-    }
-    
-    if (bgmNodes.masterGain) {
-      try {
-        if (bgmNodes.masterGain.context.state !== 'closed') {
-          bgmNodes.masterGain.gain.value = safeVolume
-        }
-      } catch (e) {
-        console.log('BGM volume update error:', e)
-      }
-    }
-  }, [bgmNodes.masterGain])
   
   // 無敵時間を開始する関数
   const startInvincibility = useCallback((duration: number = 120) => { // 2秒間（60fps * 2）

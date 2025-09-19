@@ -3,11 +3,6 @@ import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
 
-// 絵文字を除去する関数
-const removeEmojis = (text: string): string => {
-  // 絵文字を除去する正規表現
-  return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim()
-}
 
 // シンプルなマークダウンパーサー
 const parseMarkdown = (text: string): string => {
@@ -94,12 +89,14 @@ const Chatbot: React.FC = () => {
       },
       store: {
         name: '売店（MOMOStore）',
+        description: 'MOMOPayで便利機能を購入したり装備を売却したりできる場所',
         functions: ['設定機能の購入', '装備の売却'],
         purchaseItems: [
           'ダークモード設定（500MOMOPay）',
           '共有機能利用権（300MOMOPay）',
           'プレミアムテーマ（800MOMOPay）',
-          '通知音設定（200MOMOPay）'
+          '通知音設定（200MOMOPay）',
+          'BGM機能（400MOMOPay）'
         ],
         sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
         location: '遊技場から行けるよ'
@@ -120,6 +117,7 @@ const Chatbot: React.FC = () => {
     },
     favorites: {
       name: '宝物庫',
+      description: 'ファイルやテキストを保存できる機能',
       cost: '100MOMOPay（ファイル・テキストアップロード）',
       supportedFiles: '画像、動画、音声、テキストファイルなど',
       features: ['ファイルアップロード', 'テキスト保存', 'プレビュー機能', '削除機能']
@@ -128,11 +126,11 @@ const Chatbot: React.FC = () => {
       general: '一般設定 - テーマ設定、機能管理、データ削除',
       share: '共有設定 - データのバックアップ・復元（JSON形式）'
     },
-    momoPay: {
+    currency: {
       name: 'MOMOPay',
       description: 'サイト内の通貨システム',
-      earnWays: ['演習林での弾幕ゲーム', '装備売却'],
-      useWays: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入']
+      earning: '演習林での弾幕ゲーム、装備売却',
+      uses: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入']
     }
   }
 
