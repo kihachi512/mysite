@@ -10,6 +10,8 @@ import MOMOStore from './pages/MOMOStore.tsx'
 import SettingsIndex from './pages/SettingsIndex.tsx'
 import GeneralSettings from './pages/GeneralSettings.tsx'
 import ShareSettings from './pages/ShareSettings.tsx'
+import Plaza from './pages/Plaza.tsx'
+import Chatbot from './pages/Chatbot.tsx'
 import './index.css'
 import OmikujiRoulette from './pages/OmikujiRoulette.tsx'
 import BulletHell from './pages/BulletHell.tsx'
@@ -30,11 +32,11 @@ const router = createBrowserRouter([
               <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>御神籤・弾幕ゲーム</div>
             </div>
           </Link>
-          <Link to="/tweets" style={{ textDecoration: 'none' }}>
+          <Link to="/plaza" style={{ textDecoration: 'none' }}>
             <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: 'min(24px, 6vw)', borderColor: '#8bc34a', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-              <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', marginBottom: '12px' }}>🐦</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>大広間</div>
-              <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>みんなでおしゃべり</div>
+              <div style={{ fontSize: 'clamp(2rem, 6vw, 2.5rem)', marginBottom: '12px' }}>🏛️</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 4vw, 1.3rem)', color: '#fff3e0' }}>広場</div>
+              <div className="comic-text" style={{ fontSize: 'clamp(0.9rem, 3vw, 1rem)', color: '#c8e6c9', marginTop: '6px' }}>おしゃべり・AI会話</div>
             </div>
           </Link>
           <Link to="/favorites" style={{ textDecoration: 'none' }}>
@@ -57,7 +59,10 @@ const router = createBrowserRouter([
             { path: 'games/omikuji', element: <OmikujiRoulette /> },
             { path: 'games/bullet-hell', element: <BulletHell /> },
             { path: 'games/store', element: <MOMOStore /> },
-            { path: 'tweets', element: <Tweets /> },
+            { path: 'plaza', element: <Plaza /> },
+            { path: 'plaza/hall', element: <Tweets /> },
+            { path: 'plaza/chatbot', element: <Chatbot /> },
+            { path: 'tweets', element: <Tweets /> }, // 後方互換性のため残す
             { path: 'favorites', element: <Favorites /> },
             { path: 'settings', element: <SettingsIndex /> },
             { path: 'settings/general', element: <GeneralSettings /> },

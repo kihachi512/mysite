@@ -709,12 +709,13 @@ const BulletHell: React.FC = () => {
         // ウェーブクリア音
         playSound(1500, 0.5, 'sine')
         
-        setWave(w => w + 1)
+        const nextWave = wave + 1
+        setWave(nextWave)
         setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
         
         // Boss appears every 5th wave, starting from wave 5
-        if (wave >= 5 && (wave % 5 === 0)) {
-          const bossHp = 10 + Math.floor(wave / 5) * 8 // More reasonable boss HP scaling
+        if (nextWave >= 5 && (nextWave % 5 === 0)) {
+          const bossHp = 10 + Math.floor(nextWave / 5) * 8 // More reasonable boss HP scaling
           enemiesRef.current.push({
             x: w / 2,
             y: 50,
@@ -939,26 +940,37 @@ const BulletHell: React.FC = () => {
     }
     if (running) rafRef.current = requestAnimationFrame(loop)
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [running, time])
+  }, [running, playSound])
 
   const start = useCallback(() => {
+    // 前回のゲームループをキャンセル
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    
     // 効果音のテスト（ゲーム開始音）
     playSound(440, 0.2, 'sine')
     
+    // ゲーム状態を完全にリセット
     bulletsRef.current = []
     enemiesRef.current = []
     powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 } // Small hitbox, much larger display for mobile
+    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
     lastShotRef.current = 0
-    setPowerUpBonuses({ fireRate: 0, power: 0 }) // パワーアップボーナスをリセット
+    
+    // 状態をリセット
+    setPowerUpBonuses({ fireRate: 0, power: 0 })
     setLives(1)
-    setTime(0)
+    setTime(0) // timeを確実に0にリセット
     setScore(0)
-    setShield(10) // Start with some shield
-    setWave(1)
+    setShield(10)
+    setWave(1) // waveを確実に1にリセット
     setGameOver(false)
+    
+    // 最後にrunningをtrueに設定してゲームループを開始
     setRunning(true)
-  }, [])
+  }, [playSound])
 
   // ガチャ機能
   const performGacha = useCallback(() => {
