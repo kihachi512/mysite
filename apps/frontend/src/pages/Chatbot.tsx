@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
+import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
 
 // 絵文字を除去する関数
 const removeEmojis = (text: string): string => {
@@ -59,6 +60,7 @@ const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // 詳細なサイト情報データベース（RAG用）
@@ -135,7 +137,59 @@ const Chatbot: React.FC = () => {
   }
 
   // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格 + 正確な情報提供）
-  const getResponse = (userMessage: string): string => {
+  // サイト情報をコンテキスト用文字列に変換
+  const getSiteContext = (): string => {
+    return `
+【サイト概要】
+サイト名: ${siteKnowledgeBase.site.name}
+説明: ${siteKnowledgeBase.site.description}
+通貨: ${siteKnowledgeBase.currency.name}
+
+【主要ページ】
+・拠点: ${siteKnowledgeBase.navigation.home}
+・遊技場: ${siteKnowledgeBase.navigation.games}
+  - 演習林: ${siteKnowledgeBase.games.bulletHell.description}
+    報酬: ${siteKnowledgeBase.games.bulletHell.rewards}
+    装備: ${siteKnowledgeBase.games.bulletHell.equipment}
+  - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
+    費用: ${siteKnowledgeBase.games.omikuji.cost}
+  - 売店: ${siteKnowledgeBase.games.store.description}
+    商品: ダークモード(500P), 共有機能(300P), プレミアムテーマ(800P), 通知音(200P), BGM機能(400P)
+・広場: ${siteKnowledgeBase.navigation.plaza}
+  - 大広間: ${siteKnowledgeBase.plaza.hall.description}
+  - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}
+・宝物庫: ${siteKnowledgeBase.favorites.description}
+  費用: ${siteKnowledgeBase.favorites.cost}
+・設定: ${siteKnowledgeBase.navigation.settings}
+
+【MOMOPay情報】
+稼ぎ方: ${siteKnowledgeBase.currency.earning}
+使い道: ${siteKnowledgeBase.currency.uses.join(', ')}
+    `.trim()
+  }
+
+  // AI APIを使用したレスポンス生成
+  const getAIResponse = async (message: string): Promise<string> => {
+    try {
+      const siteContext = getSiteContext()
+      const response = await callGeminiAPI(message, siteContext, conversationHistory)
+      
+      // 会話履歴を更新
+      setConversationHistory(prev => [
+        ...prev.slice(-8), // 最新8件のみ保持
+        { role: 'user', parts: [{ text: message }] },
+        { role: 'model', parts: [{ text: response }] }
+      ])
+      
+      return response
+    } catch (error) {
+      console.error('AI response generation failed:', error)
+      return getFallbackResponse(message)
+    }
+  }
+
+  // フォールバック応答（AI API利用不可時）
+  const getFallbackResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
     
     // 挨拶系
@@ -294,18 +348,16 @@ const Chatbot: React.FC = () => {
       return helpResponses[Math.floor(Math.random() * helpResponses.length)]
     }
     
-    // デフォルト応答（茶目っ気を加えた）
-    const defaultResponses = [
-      'ほうほう〜🐿️ それは面白そうだね〜！僕の好奇心がムズムズしちゃうよ〜',
-      'そうなんだ〜！😄 僕も勉強になるな〜！君って物知りだね〜',
-      'へぇ〜！✨ 僕の小さな脳みそがフル回転してるよ〜！煙出てきそう😅',
-      'それ興味深いな〜🌟 僕ももっと知りたくなっちゃった〜！詳しく教えて〜',
-      'うんうん〜！😊 君の話、いつも楽しいよ〜！僕のお気に入りタイムだ〜',
-      'そんなこともあるんだね〜🐿️ 世界って広いな〜！僕の知らないことがいっぱい〜',
-      'なるほどなるほど〜😆 僕の頭の中のどんぐりがカラカラ鳴ってるよ〜'
+    // シンプルなフォールバック応答
+    const fallbackResponses = [
+      'そうなんだねー！面白いお話だよー',
+      'なるほどー！僕も勉強になるなー',
+      'へー！それは知らなかったよー',
+      'そんなこともあるんだねー！世界って広いなー',
+      'うんうん！君の話、いつも楽しいよー'
     ]
     
-    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)]
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
   }
 
   // メッセージ送信
@@ -324,22 +376,33 @@ const Chatbot: React.FC = () => {
     setInputMessage('')
     setIsTyping(true)
 
-    // モモンガくんの応答（少し遅延を入れてリアルっぽく）
-    const timeoutId = setTimeout(() => {
-      const response = getResponse(userInput)
-      const momongaMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: response,
-        sender: 'momonga',
-        timestamp: new Date()
+    // AI APIを使用してモモンガくんの返答を生成
+    const generateResponse = async () => {
+      try {
+        const aiResponse = await getAIResponse(userInput)
+        const momongaMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: aiResponse,
+          sender: 'momonga',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, momongaMessage])
+      } catch (error) {
+        console.error('Message processing failed:', error)
+        const fallbackMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: getFallbackResponse(userInput),
+          sender: 'momonga',
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, fallbackMessage])
+      } finally {
+        setIsTyping(false)
       }
-      
-      setMessages(prev => [...prev, momongaMessage])
-      setIsTyping(false)
-    }, 1000 + Math.random() * 1500) // 1-2.5秒のランダムな遅延
+    }
 
-    // クリーンアップ用にtimeoutIdを返す（実際は使用しないが、良いプラクティス）
-    return () => clearTimeout(timeoutId)
+    // 少し遅延を入れてリアルっぽく
+    setTimeout(generateResponse, 1000 + Math.random() * 1000)
   }
 
   // Enter キーで送信
@@ -357,9 +420,9 @@ const Chatbot: React.FC = () => {
 
   // 初期メッセージ
   useEffect(() => {
-    // siteInfoを使用していることを明示（TypeScript警告回避）
-    if (siteInfo) {
-      // サイト情報は getResponse 関数内で使用される
+    // siteKnowledgeBaseを使用していることを明示（TypeScript警告回避）
+    if (siteKnowledgeBase) {
+      // サイト情報は AI API のコンテキストとして使用される
     }
     
     const welcomeMessage: Message = {
