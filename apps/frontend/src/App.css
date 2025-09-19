@@ -183,12 +183,67 @@ body::after {
 .title {
   font-size: 3rem;
   color: #fff3e0;
-  text-shadow: 2px 2px 0px #2e7d32, 4px 4px 0px #1b5e20, 0 0 10px rgba(139, 195, 74, 0.5);
   margin-bottom: 10px;
   position: relative;
   z-index: 1;
-  font-weight: bold;
-  letter-spacing: 2px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  
+  /* 特徴的な日本語フォント設定 */
+  font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo UI', 'Meiryo', 'MS Gothic', 'BIZ UDPGothic', 'Noto Sans CJK JP', sans-serif;
+  
+  /* 複層テキストシャドウで立体感 */
+  text-shadow: 
+    /* メインシャドウ */
+    2px 2px 0px #2e7d32,
+    4px 4px 0px #1b5e20,
+    6px 6px 0px #0d4e14,
+    8px 8px 0px #052e08,
+    /* グロー効果 */
+    0 0 10px rgba(139, 195, 74, 0.8),
+    0 0 20px rgba(76, 175, 80, 0.6),
+    0 0 30px rgba(56, 142, 60, 0.4),
+    /* アウトライン */
+    -1px -1px 0px #1b5e20,
+    1px -1px 0px #1b5e20,
+    -1px 1px 0px #1b5e20,
+    1px 1px 0px #1b5e20;
+  
+  /* グラデーション効果 */
+  background: linear-gradient(45deg, #fff3e0 0%, #ffcc02 25%, #fff3e0 50%, #c8e6c9 75%, #fff3e0 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGradient 4s ease-in-out infinite;
+  
+  /* 微細な振動アニメーション */
+  animation: titleGradient 4s ease-in-out infinite, titleShake 0.1s ease-in-out infinite alternate;
+}
+
+/* タイトル専用アニメーション */
+@keyframes titleGradient {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 0%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
+
+@keyframes titleShake {
+  0% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+  100% { transform: translateX(0.5px) translateY(0.2px) rotate(0.1deg); }
+}
+
+/* ホバー時の特別効果 */
+.title:hover {
+  animation: titleGradient 1s ease-in-out infinite, titleBounce 0.6s ease-in-out;
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 20px rgba(139, 195, 74, 0.8));
+}
+
+@keyframes titleBounce {
+  0%, 100% { transform: scale(1.02) translateY(0px); }
+  50% { transform: scale(1.05) translateY(-3px); }
 }
 
 .nav {
@@ -448,6 +503,7 @@ body::after {
   
   .title {
     font-size: 2rem;
+    letter-spacing: 2px;
   }
   
   .score {
@@ -459,6 +515,8 @@ body::after {
   .title {
     font-size: 1.5rem;
     letter-spacing: 1px;
+    /* モバイルでは複雑なアニメーションを軽減 */
+    animation: titleGradient 6s ease-in-out infinite;
   }
   .nav { 
     gap: 6px; 
@@ -501,6 +559,13 @@ body::after {
 @media (max-width: 400px) {
   .title {
     font-size: 1.3rem;
+    letter-spacing: 0.5px;
+    /* 極小画面では更にシンプルに */
+    animation: titleGradient 8s ease-in-out infinite;
+    text-shadow: 
+      2px 2px 0px #2e7d32,
+      4px 4px 0px #1b5e20,
+      0 0 10px rgba(139, 195, 74, 0.6);
   }
   .nav a {
     font-size: 0.8rem;
@@ -732,8 +797,28 @@ body.premium-theme .header {
 }
 
 body.premium-theme .title {
-  color: #ffffff !important;
-  text-shadow: 2px 2px 0px #000000, 4px 4px 0px #333333, 0 0 10px rgba(255, 255, 255, 0.5) !important;
+  /* プレミアムテーマ用のモノトーングラデーション */
+  background: linear-gradient(45deg, #ffffff 0%, #cccccc 25%, #ffffff 50%, #eeeeee 75%, #ffffff 100%) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  
+  /* モノトーン用テキストシャドウ */
+  text-shadow: 
+    2px 2px 0px #000000,
+    4px 4px 0px #333333,
+    6px 6px 0px #555555,
+    0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    -1px -1px 0px #000000,
+    1px -1px 0px #000000,
+    -1px 1px 0px #000000,
+    1px 1px 0px #000000 !important;
+}
+
+body.premium-theme .title:hover {
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) !important;
 }
 
 body.premium-theme .nav {
