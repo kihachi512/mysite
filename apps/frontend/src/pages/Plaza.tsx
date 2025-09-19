@@ -79,7 +79,7 @@ const Plaza: React.FC = () => {
               lineHeight: '1.4'
             }}>
               モモンガくんとおしゃべり<br />
-              AIアシスタントとの会話
+              サイト案内とお話相手
             </div>
           </div>
         </Link>
