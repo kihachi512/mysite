@@ -135,7 +135,7 @@ body::after {
 }
 
 .header {
-  background: linear-gradient(45deg, #4caf50, #2e7d32, #1b5e20, #2e7d32, #4caf50);
+  background: linear-gradient(45deg, #1a1a1a, #2d2d2d, #1a1a1a, #2d2d2d, #1a1a1a);
   background-size: 300% 300%;
   animation: gradientShift 8s ease infinite;
   padding: 20px;
@@ -144,8 +144,8 @@ body::after {
   position: relative;
   overflow: hidden;
   z-index: 1;
-  border-bottom: 3px solid #8bc34a;
-  border-top: 2px solid #66bb6a;
+  border-bottom: 3px solid #ffffff;
+  border-top: 2px solid #ffffff;
 }
 
 .header::before {
@@ -182,7 +182,7 @@ body::after {
 
 .title {
   font-size: 3rem;
-  color: #fff3e0;
+  color: #ffffff;
   margin-bottom: 10px;
   position: relative;
   z-index: 1;
@@ -192,25 +192,13 @@ body::after {
   /* 特徴的な日本語フォント設定 */
   font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo UI', 'Meiryo', 'MS Gothic', 'BIZ UDPGothic', 'Noto Sans CJK JP', sans-serif;
   
-  /* 複層テキストシャドウで立体感 */
+  /* シンプルで見やすいテキストシャドウ */
   text-shadow: 
-    /* メインシャドウ */
-    2px 2px 0px #2e7d32,
-    4px 4px 0px #1b5e20,
-    6px 6px 0px #0d4e14,
-    8px 8px 0px #052e08,
-    /* グロー効果 */
-    0 0 10px rgba(139, 195, 74, 0.8),
-    0 0 20px rgba(76, 175, 80, 0.6),
-    0 0 30px rgba(56, 142, 60, 0.4),
-    /* アウトライン */
-    -1px -1px 0px #1b5e20,
-    1px -1px 0px #1b5e20,
-    -1px 1px 0px #1b5e20,
-    1px 1px 0px #1b5e20;
+    2px 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(255, 255, 255, 0.3);
   
-  /* グラデーション効果 */
-  background: linear-gradient(45deg, #fff3e0 0%, #ffcc02 25%, #fff3e0 50%, #c8e6c9 75%, #fff3e0 100%);
+  /* 明るいグラデーション効果 */
+  background: linear-gradient(45deg, #ffffff 0%, #f0f0f0 25%, #ffffff 50%, #e0e0e0 75%, #ffffff 100%);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -249,30 +237,30 @@ body::after {
 .nav {
   display: inline-flex;
   gap: 12px;
-  background: rgba(139, 195, 74, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   padding: 8px 12px;
   border-radius: 9999px;
-  border: 2px solid #8bc34a;
+  border: 2px solid #ffffff;
   backdrop-filter: blur(6px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .nav a {
-  color: #fff3e0;
+  color: #ffffff;
   text-decoration: none;
   padding: 8px 14px;
   border-radius: 9999px;
   transition: all 0.3s ease;
   font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .nav a:hover,
 .nav a.active {
-  background: linear-gradient(45deg, #66bb6a, #4caf50);
+  background: linear-gradient(45deg, #4a4a4a, #666666);
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .score {
