@@ -977,6 +977,17 @@ const BulletHell: React.FC = () => {
       ctx.textAlign = 'left'
       ctx.fillText(`スコア: ${score}`, 10, 25)
       
+      // ウェーブ表示（右上）
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#fff3e0'
+      ctx.fillText(`ウェーブ: ${wave}`, w - 10, 25)
+      
+      // シールド表示（右上、ウェーブの下）
+      if (shield > 0) {
+        ctx.fillStyle = '#ffd93d'
+        ctx.fillText(`🛡️ シールド: ${shield}`, w - 10, 45)
+      }
+      
       
       // power-up status with equipment indicators
       ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
@@ -1217,15 +1228,9 @@ const BulletHell: React.FC = () => {
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
-          <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>ウェーブ: {wave}</div>
           <div className="momopay-status" style={{ textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
           </div>
-          {shield > 0 && (
-            <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
-              🛡️ シールド: {shield}
-            </div>
-          )}
         </div>
         <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>
           矢印キーで移動 / スペースでショット / パワーアップ(F:連射 P:威力 S:シールド)を取ろう！
