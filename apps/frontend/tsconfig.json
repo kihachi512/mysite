@@ -3,5 +3,21 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    // 型チェック強化
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    
+    // パフォーマンス最適化
+    "skipLibCheck": true,
+    "incremental": true,
+    
+    // 開発体験向上
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true
+  }
 }
