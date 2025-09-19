@@ -1043,17 +1043,10 @@ const BulletHell: React.FC = () => {
       ctx.fillText(`スコア: ${score}`, 10, 25)
       ctx.fillText(`ウェーブ: ${wave}`, 10, 45)
       
-      // 効果音状態表示
-      ctx.fillStyle = soundEnabled ? (audioContext?.state === 'running' ? '#4caf50' : '#ff9800') : '#666'
-      ctx.fillText(`🔊: ${soundEnabled ? (audioContext?.state === 'running' ? 'ON' : 'WAIT') : 'OFF'}`, 10, 65)
-      
-      // BGM状態表示
-      ctx.fillStyle = bgmEnabled ? (audioContext?.state === 'running' ? '#4caf50' : '#ff9800') : '#666'
-      ctx.fillText(`🎵: ${bgmEnabled ? (audioContext?.state === 'running' ? 'ON' : 'WAIT') : 'OFF'}`, 10, 85)
       
       // power-up status with equipment indicators
       ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
-      let yOffset = 105
+      let yOffset = 65
       
       // Fire rate - simple display
       const totalFireRate = playerRef.current.fireRate
