@@ -281,20 +281,6 @@ const Favorites: React.FC = () => {
               }
             }}
           />
-          {/* クリックヒント */}
-          <div style={{
-            position: 'absolute',
-            bottom: '8px',
-            right: '8px',
-            background: 'rgba(0,0,0,0.7)',
-            color: 'white',
-            padding: '4px 8px',
-            borderRadius: '12px',
-            fontSize: '0.75rem',
-            pointerEvents: 'none'
-          }}>
-            🔍 クリックで拡大
-          </div>
         </div>
       )
     }
