@@ -12,6 +12,19 @@ type StoreItem = {
   purchased?: boolean
 }
 
+type InventoryItem = {
+  id: string
+  name: string
+  description: string
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  type: 'weapon' | 'shield' | 'special'
+  icon: string
+}
+
+type Inventory = {
+  items: (InventoryItem | null)[]
+}
+
 // 売店のアイテム
 const STORE_ITEMS: StoreItem[] = [
   {
@@ -139,8 +152,8 @@ const PurchaseView: React.FC<{
 
 // 売却画面コンポーネント
 const SaleView: React.FC<{
-  inventory: any
-  onSell: (item: any, index: number) => void
+  inventory: Inventory
+  onSell: (item: InventoryItem, index: number) => void
   getSellPrice: (rarity: string) => number
   getRarityColor: (rarity: string) => string
 }> = ({ inventory, onSell, getSellPrice, getRarityColor }) => {
@@ -163,7 +176,7 @@ const SaleView: React.FC<{
           margin: '0 auto',
           padding: '0 10px'
         }}>
-          {inventory.items.map((item: any, index: number) => item ? (
+          {inventory.items.map((item: InventoryItem | null, index: number) => item ? (
             <div key={`${item.id}-${index}`} className="comic-card" style={{
               background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(233, 30, 99, 0.1))',
               padding: 'min(16px, 4vw)',
@@ -226,7 +239,7 @@ const SaleView: React.FC<{
 const MOMOStore: React.FC = () => {
   const { momoPayPoints, addMomoPayPoints } = useAppData()
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
-  const [inventory, setInventory] = useState<any>({ items: [] })
+  const [inventory, setInventory] = useState<Inventory>({ items: [] })
   const [activeTab, setActiveTab] = useState<'purchase' | 'sale'>('purchase')
 
   // Load purchased items from localStorage
@@ -290,7 +303,7 @@ const MOMOStore: React.FC = () => {
     localStorage.setItem('app-settings', JSON.stringify(settings))
   }
 
-  const sellEquipment = (item: any, index: number) => {
+  const sellEquipment = (item: InventoryItem, index: number) => {
     const sellPrice = getSellPrice(item.rarity)
     if (confirm(`${item.name}を${sellPrice}MOMOPayで売却しますか？\n（元の価値より格安での買取となります）`)) {
       // Remove item from inventory

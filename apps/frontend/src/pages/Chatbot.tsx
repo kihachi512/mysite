@@ -14,7 +14,7 @@ const Chatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // サイト情報データベース
+  // サイト情報データベース（将来の機能拡張用に保持）
   const siteInfo = {
     navigation: {
       home: '拠点（ホーム）- メインページ',
@@ -97,7 +97,7 @@ const Chatbot: React.FC = () => {
 
     // サイト案内・ヘルプ系
     if (message.includes('案内') || message.includes('ヘルプ') || message.includes('使い方') || message.includes('どこ') || message.includes('場所')) {
-      return `📍 サイト案内だよ〜！🐿️\n\n🏠 **拠点** - メインページ（今いる場所の上だよ）\n🎮 **遊技場** - ゲームでMOMOPayを稼ごう\n　└ 御神籤（10P）、演習林（弾幕ゲーム）、売店\n🏛️ **広場** - みんなとおしゃべり\n　└ 大広間（つぶやき）、公会堂（ここ！）\n🌲 **宝物庫** - ファイル保存（100P必要）\n⚙️ **設定** - テーマ変更とか\n\nどこに行きたい？詳しく教えてあげる〜😊`
+      return `📍 サイト案内だよ〜！🐿️\n\n🏠 **拠点** - メインページ（今いる場所の上だよ）\n🎮 **遊技場** - ゲームでMOMOPayを稼ごう\n  └ 御神籤（10P）、演習林（弾幕ゲーム）、売店\n🏛️ **広場** - みんなとおしゃべり\n  └ 大広間（つぶやき）、公会堂（ここ！）\n🌲 **宝物庫** - ファイル保存（100P必要）\n⚙️ **設定** - テーマ変更とか\n\nどこに行きたい？詳しく教えてあげる〜😊`
     }
 
     // MOMOPay関連の詳細情報
@@ -304,6 +304,9 @@ const Chatbot: React.FC = () => {
 
   // 初期メッセージ
   useEffect(() => {
+    // サイト情報を開発コンソールに出力（デバッグ用）
+    console.log('モモンガくんのサイト情報データベース:', siteInfo)
+    
     const welcomeMessage: Message = {
       id: 'welcome',
       content: 'やっほー！🐿️ 僕、モモンガくんだよ〜！\n公会堂へようこそ〜！ここは僕の秘密基地みたいな場所なんだ😄\n\n僕は「さすらいのモモンガカーニバル」のサイト案内ができるよ〜！\n・サイトの使い方が分からない時\n・どこに何があるか知りたい時\n・MOMOPayの稼ぎ方を知りたい時\n・ただおしゃべりしたい時\n\nなんでも気軽に話しかけてね〜！「案内して」って言えば詳しく教えるよ〜♪',
@@ -311,7 +314,8 @@ const Chatbot: React.FC = () => {
       timestamp: new Date()
     }
     setMessages([welcomeMessage])
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // siteInfoは初期化時のみ使用
 
   return (
     <div className="chatbot-container" style={{ 

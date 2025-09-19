@@ -116,7 +116,7 @@ const Favorites: React.FC = () => {
             lineHeight: '1.4',
             margin: 0
           }}>
-            {item.text?.length > 100 ? `${item.text.substring(0, 100)}...` : item.text}
+            {item.text && item.text.length > 100 ? `${item.text.substring(0, 100)}...` : (item.text || '')}
           </p>
         </div>
       )

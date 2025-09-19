@@ -82,7 +82,8 @@ const BulletHell: React.FC = () => {
     if (audioContext || !soundEnabled) return
     
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const ctx = new AudioContextClass()
       setAudioContext(ctx)
       
       // AudioContextが suspend 状態の場合は resume を試行
@@ -1063,7 +1064,7 @@ const BulletHell: React.FC = () => {
   // 装備効果をプレイヤーに適用
   const applyEquipmentEffects = useCallback(() => {
     const basePlayer = { x: playerRef.current.x, y: playerRef.current.y, r: 4, fireRate: 1, power: 1, displayR: 15 }
-    let modifiedPlayer = { ...basePlayer }
+    const modifiedPlayer = { ...basePlayer }
 
     // 武器効果
     if (inventory.equippedWeapon) {
