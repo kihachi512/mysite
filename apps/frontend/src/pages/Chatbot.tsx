@@ -243,41 +243,54 @@ const Chatbot: React.FC = () => {
       return gameResponses[Math.floor(Math.random() * gameResponses.length)]
     }
 
-    // 売店関連
+    // 売店・MOMOStore関連
     if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却') || message.includes('ストア') || message.includes('store')) {
-      return `売店（MOMOStore）について教えるねー！\n\n**🏪 場所：遊技場 → 売店**\n\n**🛒 購入タブ：**\n・ダークモード設定：500MOMOPay 🌙\n・共有機能利用権：300MOMOPay 📤\n・プレミアムテーマ：800MOMOPay 🎨\n・通知音設定：200MOMOPay 🔊\n\n**💰 売却タブ：**\n演習林で獲得した装備を売却できるよ！\n・legendary：80MOMOPay ⭐\n・epic：40MOMOPay 💜\n・rare：20MOMOPay 💙\n・common：10MOMOPay ⚪\n\n購入した設定は「設定」ページで有効にできるよー！僕も装備ガチャ回したいけど、いつも爆死するんだよねー...`
+      const storeResponses = [
+        `**MOMOStore**の話？あー、売店のことだね\n\n**購入タブ**でダークモード（500P）とか共有機能（300P）とか買えるよ。プレミアムテーマ（800P）も綺麗でおすすめ\n\n**売却タブ**では演習林の装備を売れるんだ。legendary装備なら80Pになるから結構お得だよ`,
+        `MOMOStore行ったことある？**遊技場**にあるお店だよ\n\n僕もよく装備売りに行くんだ。commonは10Pだけど、rareなら20P、epicは40Pになるからね\n\n設定機能も売ってるから、MOMOPay貯まったら覗いてみて`,
+        `売店かー。僕、あそこの雰囲気好きなんだよね\n\n装備がダブった時とか、MOMOPayに困った時によく利用してる。購入した設定は**設定ページ**で有効にするの忘れずにね`
+      ]
+      return storeResponses[Math.floor(Math.random() * storeResponses.length)]
     }
     
     // 御神籤関連
     if (message.includes('御神籤') || message.includes('おみくじ') || message.includes('運勢')) {
       const fortuneResponses = [
-        `御神籤ルーレットについて教えるよー！\n\n・費用：10MOMOPay\n・神様に運勢を占ってもらえる\n・大吉から凶まで色々な結果があるよ\n・遊技場から行けるよー\n\n僕もよく引くけど、いつも「小吉」ばっかりなんだ...大吉引いてみたいなー`,
-        `運勢占い、楽しいよねー！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ\n\n御神籤は10MOMOPayで遊技場から行けるよー！MOMOPayが足りなかったら、演習林で稼いでから挑戦してみてー`
+        `おみくじ？あー、**御神籤ルーレット**のことだね\n\n僕もよく引くよ。10MOMOPayで運勢占ってもらえるんだ。でもいつも「小吉」ばっかり...大吉出たことないなー`,
+        `運勢占い好きなの？僕も毎日引いてる！\n\n引く前にお尻フリフリして運気アップを狙ってるんだけど、効果あるのかなー。君も試してみる？`,
+        `おみくじかー。**遊技場**にあるよ\n\n神様に占ってもらえるんだけど、僕の運勢はいつもパッとしなくて...でも楽しいから続けてる`
       ]
-      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)] || fortuneResponses[0] || 'おみくじについて教えるよー！'
+      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
     }
     
     // 大広間関連
     if (message.includes('大広間') || message.includes('つぶやき') || message.includes('投稿') || message.includes('おしゃべり')) {
       const hallResponses = [
-        `大広間について教えるよー！\n\n・1時間で自動削除されるつぶやき投稿\n・いいね機能付き\n・みんなでおしゃべりできる場所\n・広場から行けるよー\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！1時間で消えちゃうから気軽だよねー`,
-        `大広間のおしゃべり楽しいよねー！みんなのつぶやき見てると面白いよー\n\n投稿は1時間で自動削除されるから、恥ずかしがり屋の僕には助かるかも。変なこと書いちゃっても、後で「あれ？」って思うけど消えてくれるからねー`
+        `**大広間**の話？あそこ楽しいよねー\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてる。1時間で消えちゃうから気軽に書けるのがいいよね`,
+        `つぶやき機能？**大広間**で使えるよ\n\n1時間で自動削除されるから、恥ずかしがり屋の僕には助かる。変なこと書いても消えてくれるからさ`,
+        `おしゃべりしたいの？**大広間**がおすすめだよ\n\nみんなのつぶやき見てると面白いし、いいね機能もあるから交流できるよ`
       ]
-      return hallResponses[Math.floor(Math.random() * hallResponses.length)] || hallResponses[0] || '大広間について教えるよー！'
+      return hallResponses[Math.floor(Math.random() * hallResponses.length)]
     }
 
     // 宝物庫関連
     if (message.includes('宝物庫') || message.includes('ファイル') || message.includes('保存') || message.includes('アップロード')) {
       const favoritesResponses = [
-        `宝物庫について教えるよー！\n\n・ファイル・テキストの保存ができる\n・費用：100MOMOPay（アップロード時）\n・対応：画像、動画、音声、テキストファイルなど\n・プレビュー機能付き\n\n大事なファイルを保存するのにとっても便利だよー！僕もどんぐりの写真をいっぱい保存してるんだ`,
-        `宝物庫は僕のお気に入りの場所だよー！100MOMOPay必要だけど、大切なファイルを安全に保存できるんだ\n\nテキストも保存できるから、日記とか大事なメモとかも大丈夫！MOMOPayが足りなかったら演習林で稼いでから使ってみてねー`
+        `**宝物庫**？あー、ファイル保存の場所だね\n\n100MOMOPay必要だけど、画像とか動画とか色々保存できるよ。僕もどんぐりの写真いっぱい保存してる`,
+        `ファイル保存したいの？**宝物庫**がおすすめだよ\n\nテキストも保存できるから、日記とか大事なメモも大丈夫。プレビュー機能もあるから便利だよー`,
+        `宝物庫は僕のお気に入りの場所なんだ\n\n大切なファイルを安全に保存できるし、いつでも見返せるからね。MOMOPayが足りなかったら演習林で稼いでから使ってみて`
       ]
-      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)] || favoritesResponses[0] || '宝物庫について教えるよー！'
+      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)]
     }
 
     // 設定関連
     if (message.includes('設定') || message.includes('テーマ') || message.includes('ダークモード') || message.includes('共有')) {
-      return `設定について教えるよー！\n\n**一般設定：**\n・テーマ設定（ダークモード、プレミアムテーマ）\n・機能管理\n・データ削除\n\n**共有設定：**\n・データのバックアップ・復元\n・JSON形式で管理\n\n設定機能は売店で購入が必要だよー！購入したら設定画面で有効にしてね`
+      const settingsResponses = [
+        `設定の話？**MOMOStore**で機能買ったら、**設定ページ**で有効にできるよ\n\nダークモードとか共有機能とか、結構便利だから僕も使ってる`,
+        `テーマ変更したいの？**プレミアムテーマ**とか**ダークモード**があるよ\n\nMOMOStoreで買って、設定で有効にする感じ。僕はダークモード派かなー`,
+        `**共有設定**では、データのバックアップとかできるんだ\n\nJSONファイルで管理するから、他のデバイスにもデータ移せるよ。便利でしょ？`
+      ]
+      return settingsResponses[Math.floor(Math.random() * settingsResponses.length)]
     }
     
     // 広場関連
@@ -339,24 +352,28 @@ const Chatbot: React.FC = () => {
       return `初心者さんへの案内だよー！\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよー`
     }
     
-    // 食べ物系
+    // 食べ物系（どんぐり特化）
     if (message.includes('どんぐり') || message.includes('ナッツ') || message.includes('食べ物')) {
       const foodResponses = [
-        'どんぐり〜！🌰 僕の大好物だよ〜！カリカリ音がたまらないんだ〜♪ 君も食べてみる？',
-        'ナッツ類は全部好き〜！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ〜😋',
-        'お腹空いてきちゃった〜！今度一緒にどんぐり拾いに行こうよ〜！僕、隠し場所知ってるんだ😉'
+        'どんぐり！僕の大好物だよー！カリカリ音がたまらないんだ。君も食べてみる？',
+        'ナッツ類は全部好きー！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ',
+        'お腹空いてきちゃった！今度一緒にどんぐり拾いに行こうよ！僕、隠し場所知ってるんだ',
+        'どんぐりって、見てるだけでも幸せになれるんだよね。丸くて可愛いし',
+        '今年のどんぐりは豊作だったなー。君の近くにも落ちてない？'
       ]
-      return foodResponses[Math.floor(Math.random() * foodResponses.length)] || foodResponses[0] || 'どんぐり美味しいよー！'
+      return foodResponses[Math.floor(Math.random() * foodResponses.length)]
     }
     
     // 褒め言葉
     if (message.includes('かわいい') || message.includes('可愛い') || message.includes('素敵')) {
       const praiseResponses = [
-        'えへへ〜😊 ありがとう〜！君も素敵だよ〜！僕、褒められると尻尾がくるくる回っちゃうんだ🐿️',
-        'わ〜い！😆 そんなこと言われたら木の上まで飛び跳ねちゃうよ〜！嬉しいな〜！',
-        'か、可愛いって...😳 僕、照れちゃうよ〜！でも嬉しいから許す〜😄'
+        'えへへー、ありがとう！君も素敵だよー！僕、褒められると尻尾がくるくる回っちゃうんだ',
+        'わーい！そんなこと言われたら木の上まで飛び跳ねちゃうよー！嬉しいなー！',
+        'か、可愛いって...僕、照れちゃうよー！でも嬉しいから許すー',
+        'ありがとう！そんなこと言われると、どんぐり10個分くらい嬉しいよ',
+        'えー、本当？僕、そんなに可愛いかなー。照れるなー'
       ]
-      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)] || praiseResponses[0] || 'ありがとう！'
+      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)]
     }
     
     // 困った時
@@ -478,6 +495,42 @@ const Chatbot: React.FC = () => {
         'ペット飼ってるの？いいなー。僕もペットになりたい'
       ]
       return animalResponses[Math.floor(Math.random() * animalResponses.length)]
+    }
+    
+    // 季節や時期の話
+    if (message.includes('春') || message.includes('夏') || message.includes('秋') || message.includes('冬') || message.includes('季節')) {
+      const seasonResponses = [
+        '春？新緑の季節だね。僕の故郷の森も緑が綺麗になる頃かな',
+        '夏は暑いけど、木陰は涼しくて気持ちいいよね',
+        '秋！どんぐりの季節だー！一年で一番好きな時期なんだ',
+        '冬は寒いけど、雪景色は綺麗だよね。僕は冬眠したくなっちゃう',
+        '季節の変わり目って、なんとなくワクワクしない？'
+      ]
+      return seasonResponses[Math.floor(Math.random() * seasonResponses.length)]
+    }
+    
+    // 日常の出来事
+    if (message.includes('今日') || message.includes('昨日') || message.includes('明日') || message.includes('最近')) {
+      const dailyResponses = [
+        '今日はどんな一日だった？僕はのんびり過ごしてたよ',
+        '昨日？僕は昨日のこともうあんまり覚えてないや',
+        '明日の予定とかある？僕は毎日同じような感じだけど',
+        '最近どう？何か変わったことあった？',
+        '今日は君と話せて楽しいよ'
+      ]
+      return dailyResponses[Math.floor(Math.random() * dailyResponses.length)]
+    }
+    
+    // 技術や難しい話題
+    if (message.includes('プログラム') || message.includes('コンピュータ') || message.includes('AI') || message.includes('技術') || message.includes('IT')) {
+      const techResponses = [
+        '技術の話？僕にはちょっと難しいかも...でも興味深いね',
+        'プログラム？僕も実はプログラムで動いてるんだよね',
+        'AIって不思議だよね。僕もAIなのかな？よくわからないけど',
+        'コンピュータってすごいよね。僕みたいなのを作れちゃうんだから',
+        'IT？難しそう...僕はアナログ派かも'
+      ]
+      return techResponses[Math.floor(Math.random() * techResponses.length)]
     }
     
     // 短い相槌や反応
