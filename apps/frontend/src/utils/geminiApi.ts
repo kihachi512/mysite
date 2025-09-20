@@ -74,6 +74,10 @@ export const callGeminiAPI = async (
   siteContext: string,
   conversationHistory: ChatMessage[] = []
 ): Promise<string> => {
+  console.log('API Key status:', GEMINI_API_KEY ? 'Present' : 'Missing')
+  console.log('API URL:', GEMINI_API_URL)
+  console.log('Development mode:', isDevelopment())
+  
   if (!GEMINI_API_KEY) {
     const errorMessage = isDevelopment() 
       ? 'APIキーが設定されていないよー！.env.localファイルにVITE_GEMINI_API_KEYを設定してねー'
@@ -140,7 +144,7 @@ ${siteContext}
       }
     ]
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`${GEMINI_API_URL}/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
