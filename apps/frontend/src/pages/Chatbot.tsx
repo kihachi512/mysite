@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
-import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
 import { parseSafeMarkdown, detectMaliciousScript } from '../utils/security'
 
 type Message = {
@@ -16,7 +15,8 @@ const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
+  // 会話履歴は簡単な配列で管理
+  const [conversationHistory, setConversationHistory] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // 詳細なサイト情報データベース（RAG用）
@@ -133,29 +133,22 @@ const Chatbot: React.FC = () => {
     `.trim()
   }
 
-  // AI APIを使用したレスポンス生成
-  const getAIResponse = async (message: string): Promise<string> => {
-    try {
-      const siteContext = getSiteContext()
-      const response = await callGeminiAPI(message, siteContext, conversationHistory)
-      
-      // 会話履歴を更新
-      setConversationHistory(prev => [
-        ...prev.slice(-8), // 最新8件のみ保持
-        { role: 'user', parts: [{ text: message }] },
-        { role: 'model', parts: [{ text: response }] }
-      ])
-      
-      return response
-    } catch (error) {
-      console.error('AI response generation failed:', error)
-      return getFallbackResponse(message)
-    }
+  // 完全にローカルな応答生成システム
+  const getLocalResponse = (message: string): string => {
+    // 会話履歴を更新（最新5件のみ保持）
+    setConversationHistory(prev => [...prev.slice(-4), message])
+    
+    return getFallbackResponse(message)
   }
 
-  // フォールバック応答（AI API利用不可時）
+  // 完全にローカルな応答システム（AI不要）
   const getFallbackResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
+    
+    // 会話履歴を考慮した応答の多様性を追加
+    const isRepeatedMessage = conversationHistory.some(prev => 
+      prev.toLowerCase().includes(message.substring(0, Math.min(message.length, 10)))
+    )
     
     // 挨拶系
     if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして')) {
@@ -163,8 +156,15 @@ const Chatbot: React.FC = () => {
         'あ、やっほー！僕モモンガ！...って、自己紹介するたびに「モモンガくん」って呼ばれるんだけど、実は本名「モモ」なんだよね。でも「くん」付けられると嬉しいから、そのままでいいや',
         'こんにちはー！今ちょうどどんぐりのことを考えてたんだ。あ、でも君と話す方が楽しそう！今日は何して遊ぶ？',
         'おっ、新しい人だ！僕の隠れ家（公会堂）にようこそ！実はここ、天井にハンモック隠してあるんだよ...えへへ、内緒だけどね',
-        '今日もいい天気だね！...って、ここ室内だった。でも君が来てくれたから気分は晴天だよ'
+        '今日もいい天気だね！...って、ここ室内だった。でも君が来てくれたから気分は晴天だよ',
+        'やあやあー！また会えて嬉しいよー！今日は何の話をしようかな？',
+        'あっ、おかえりー！僕、君が来るの待ってたんだ。どんぐり数えながら待ってたよー'
       ]
+      
+      if (isRepeatedMessage) {
+        return 'また挨拶してくれるの？嬉しいなー！僕も改めて...やっほー！今日も一緒におしゃべりしよう'
+      }
+      
       return greetings[Math.floor(Math.random() * greetings.length)] || greetings[0] || 'こんにちは！'
     }
 
@@ -321,14 +321,36 @@ const Chatbot: React.FC = () => {
       return helpResponses[Math.floor(Math.random() * helpResponses.length)] || helpResponses[0] || '大丈夫だよー！'
     }
     
-    // シンプルなフォールバック応答
+    // より豊富で自然なフォールバック応答
     const fallbackResponses = [
       'そうなんだねー！面白いお話だよー',
       'なるほどー！僕も勉強になるなー',
       'へー！それは知らなかったよー',
       'そんなこともあるんだねー！世界って広いなー',
-      'うんうん！君の話、いつも楽しいよー'
+      'うんうん！君の話、いつも楽しいよー',
+      'あー、そういうことかー！僕もそう思うよー',
+      'わーい！新しいことを教えてもらえて嬉しいなー',
+      'ふむふむ...僕もメモしておこうっと！',
+      'そうそう！僕も似たような経験があるよー',
+      'えー！そんなことがあるんだー！びっくりだよー',
+      '君の話を聞いてると、いつも発見があるなー',
+      'あれ、ちょっと難しい話だったかも...でも面白そうだねー',
+      '今度僕も試してみようかな！教えてくれてありがとう',
+      'へぇー、そんな風に考えるんだねー。勉強になるよー',
+      'うーん、僕にはよく分からないけど、君が楽しそうだから嬉しいよー'
     ]
+    
+    // 繰り返し応答の場合は特別な応答
+    if (isRepeatedMessage) {
+      const repeatResponses = [
+        'あれ？さっきも似たようなこと言ってなかったっけ？僕の記憶違いかなー',
+        'もう一回言ってくれるの？嬉しいなー！大事なことは二度言うもんね',
+        'うんうん、大切なことだから繰り返してくれるんだねー',
+        'あ、また同じ話？僕、まだちゃんと理解できてなかったのかな...',
+        'そうそう！その話好きだよー。何度聞いても面白いなー'
+      ]
+      return repeatResponses[Math.floor(Math.random() * repeatResponses.length)] || repeatResponses[0] || 'そうだねー！'
+    }
     
     return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)] || fallbackResponses[0] || 'そうなんだねー！'
   }
@@ -361,13 +383,13 @@ const Chatbot: React.FC = () => {
     setInputMessage('')
     setIsTyping(true)
 
-    // AI APIを使用してモモンガくんの返答を生成
-    const generateResponse = async () => {
+    // 完全にローカルなモモンガくんの返答を生成
+    const generateResponse = () => {
       try {
-        const aiResponse = await getAIResponse(userInput)
+        const localResponse = getLocalResponse(userInput)
         const momongaMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: aiResponse,
+          content: localResponse,
           sender: 'momonga',
           timestamp: new Date()
         }
@@ -376,7 +398,7 @@ const Chatbot: React.FC = () => {
         console.error('Message processing failed:', error)
         const fallbackMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: getFallbackResponse(userInput),
+          content: 'あれー？ちょっと混乱しちゃった...もう一度言ってもらえる？',
           sender: 'momonga',
           timestamp: new Date()
         }
@@ -386,8 +408,8 @@ const Chatbot: React.FC = () => {
       }
     }
 
-    // 少し遅延を入れてリアルっぽく
-    setTimeout(generateResponse, 1000 + Math.random() * 1000)
+    // 少し遅延を入れてリアルっぽく（500-1500ms）
+    setTimeout(generateResponse, 500 + Math.random() * 1000)
   }
 
   // Enter キーで送信
@@ -407,12 +429,12 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     // siteKnowledgeBaseを使用していることを明示（TypeScript警告回避）
     if (siteKnowledgeBase) {
-      // サイト情報は AI API のコンテキストとして使用される
+      // サイト情報はローカル応答システムで使用される
     }
     
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: 'やっほー！僕、モモンガくんだよー！\n公会堂へようこそー！ここは僕の秘密基地みたいな場所なんだ\n\n僕は「さすらいのモモンガカーニバル」のサイト案内ができるよー！\n・サイトの使い方が分からない時\n・どこに何があるか知りたい時\n・MOMOPayの稼ぎ方を知りたい時\n・ただおしゃべりしたい時\n\nなんでも気軽に話しかけてねー！「案内して」って言えば詳しく教えるよー',
+      content: 'やっほー！僕、モモンガくんだよー！\n公会堂へようこそー！ここは僕の秘密基地みたいな場所なんだ\n\n僕は「さすらいのモモンガカーニバル」のサイト案内ができるよー！\n・サイトの使い方が分からない時\n・どこに何があるか知りたい時\n・MOMOPayの稼ぎ方を知りたい時\n・ただおしゃべりしたい時\n\n**完全にローカルで動いてるから安心だよー！**\n外部のAIは使ってないんだ。僕の頭（プログラム）だけで頑張って答えるよー\n\nなんでも気軽に話しかけてねー！「案内して」って言えば詳しく教えるよー',
       sender: 'momonga',
       timestamp: new Date()
     }
