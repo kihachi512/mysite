@@ -56,21 +56,28 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   // Load data from localStorage on mount with security validation
   useEffect(() => {
-    // Load favorites with validation
-    const savedFavorites = safeGetLocalStorage('favoriteUploads')
-    if (Array.isArray(savedFavorites)) {
-      // Validate favorite items structure and limit count
-      const validFavorites = savedFavorites.slice(0, 100).filter((item: unknown) => {
-        if (typeof item !== 'object' || item === null) return false
-        const typedItem = item as Record<string, unknown>
-        return (
-          typeof typedItem.id === 'string' &&
-          typeof typedItem.name === 'string' &&
-          validateInputLength(typedItem.name, 100) &&
-          ['text', 'file'].includes(typedItem.kind as string)
-        )
-      })
-      setFavorites(validFavorites as FavoriteItem[])
+    // Load favorites with validation (直接読み込み）
+    try {
+      const savedFavoritesString = localStorage.getItem('favoriteUploads')
+      if (savedFavoritesString) {
+        const savedFavorites = JSON.parse(savedFavoritesString)
+        if (Array.isArray(savedFavorites)) {
+          // Validate favorite items structure and limit count
+          const validFavorites = savedFavorites.slice(0, 100).filter((item: unknown) => {
+            if (typeof item !== 'object' || item === null) return false
+            const typedItem = item as Record<string, unknown>
+            return (
+              typeof typedItem.id === 'string' &&
+              typeof typedItem.name === 'string' &&
+              validateInputLength(typedItem.name, 100) &&
+              ['text', 'file'].includes(typedItem.kind as string)
+            )
+          })
+          setFavorites(validFavorites as FavoriteItem[])
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load favorites from localStorage:', error)
     }
 
     // Load tweets with validation
@@ -132,7 +139,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     // Limit total favorites to 100
     const updatedFavorites = [favorite, ...favorites].slice(0, 100)
     setFavorites(updatedFavorites)
-    safeSetLocalStorage('favoriteUploads', updatedFavorites)
+    
+    // 直接localStorageに保存（sanitizeJsonDataを回避）
+    try {
+      localStorage.setItem('favoriteUploads', JSON.stringify(updatedFavorites))
+    } catch (error) {
+      console.error('Failed to save favorites to localStorage:', error)
+    }
   }
 
   const removeFavorite = (id: string) => {
@@ -143,7 +156,13 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     
     const updatedFavorites = favorites.filter(item => item.id !== id)
     setFavorites(updatedFavorites)
-    safeSetLocalStorage('favoriteUploads', updatedFavorites)
+    
+    // 直接localStorageに保存（sanitizeJsonDataを回避）
+    try {
+      localStorage.setItem('favoriteUploads', JSON.stringify(updatedFavorites))
+    } catch (error) {
+      console.error('Failed to save favorites to localStorage:', error)
+    }
   }
 
   // Tweets helpers

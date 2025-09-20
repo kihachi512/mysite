@@ -104,6 +104,10 @@ export const sanitizeJsonData = (data: unknown): unknown => {
   }
   
   if (typeof data === 'string') {
+    // dataURLは安全なBase64データなのでエスケープしない
+    if (data.startsWith('data:')) {
+      return data;
+    }
     return escapeHtml(data);
   }
   
@@ -118,8 +122,8 @@ export const sanitizeJsonData = (data: unknown): unknown => {
   if (typeof data === 'object') {
     const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
-      // キーもサニタイズ
-      const safeKey = escapeHtml(key);
+      // 特定のキーはエスケープしない
+      const safeKey = ['dataUrl', 'mime', 'id', 'createdAt'].includes(key) ? key : escapeHtml(key);
       sanitized[safeKey] = sanitizeJsonData(value);
     }
     return sanitized;
