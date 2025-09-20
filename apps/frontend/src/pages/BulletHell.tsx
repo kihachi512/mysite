@@ -853,11 +853,12 @@ const BulletHell: React.FC = () => {
           ctx.fillStyle = '#44ff44'
           ctx.fillRect(e.x - barWidth/2, e.y - e.r - 15, barWidth * (e.hp / e.maxHp), barHeight)
           
-          // Boss name/phase indicator
+          // Boss name/phase indicator - compact
           ctx.fillStyle = '#ffffff'
-          ctx.font = 'bold 12px Arial'
+          ctx.font = 'bold 10px Arial'
           ctx.textAlign = 'center'
-          ctx.fillText(`BOSS ${e.bossPhase === 2 ? 'RAGE' : 'PHASE 1'}`, e.x, e.y - e.r - 20)
+          const bossText = e.bossPhase === 2 ? 'RAGE' : 'BOSS'
+          ctx.fillText(bossText, e.x, e.y - e.r - 18)
         } else {
           // Normal enemy
           ctx.fillStyle = '#FFD166'
@@ -977,72 +978,78 @@ const BulletHell: React.FC = () => {
       ctx.fillStyle = '#ffffff'
       ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill()
       
-      // draw UI
+      // draw UI - improved text sizing and positioning
       ctx.fillStyle = '#fff3e0'
-      ctx.font = 'bold 16px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
+      ctx.font = 'bold 14px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       ctx.textAlign = 'left'
-      ctx.fillText(`スコア: ${score}`, 10, 25)
+      ctx.fillText(`スコア: ${score}`, 8, 20)
       
-      // ウェーブ表示（右上）
+      // ウェーブ表示（右上） - 余裕をもって配置
       ctx.textAlign = 'right'
       ctx.fillStyle = '#fff3e0'
-      ctx.fillText(`ウェーブ: ${wave}`, w - 10, 25)
+      ctx.fillText(`ウェーブ: ${wave}`, w - 8, 20)
       
-      // シールド表示（右上、ウェーブの下）
+      // シールド表示（右上、ウェーブの下） - 短縮表示
       if (shield > 0) {
         ctx.fillStyle = '#ffd93d'
-        ctx.fillText(`🛡️ シールド: ${shield}`, w - 10, 45)
+        ctx.fillText(`🛡️${shield}`, w - 8, 36)
       }
       
       
-      // power-up status with equipment indicators
-      ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
-      let yOffset = 45
+      // power-up status with equipment indicators - compact display
+      ctx.font = 'bold 10px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
+      let yOffset = 50
       
-      // Fire rate - simple display
+      // Fire rate - compact display
       const totalFireRate = playerRef.current.fireRate
       const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
       const powerUpFireRateBonus = powerUpBonuses.fireRate
       
       if (equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0) {
         ctx.fillStyle = '#4ecdc4' // Bonus color
-        ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x ⚡`, 10, yOffset)
+        ctx.fillText(`連射:${totalFireRate.toFixed(1)}⚡`, 8, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`連射: ${totalFireRate.toFixed(1)}x`, 10, yOffset)
+        ctx.fillText(`連射:${totalFireRate.toFixed(1)}`, 8, yOffset)
       }
-      yOffset += 15
+      yOffset += 12
       
-      // Power - simple display
+      // Power - compact display
       const totalPower = playerRef.current.power
       const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
       const powerUpPowerBonus = powerUpBonuses.power
       
       if (equipmentPowerBonus > 0 || powerUpPowerBonus > 0) {
         ctx.fillStyle = '#ff6b6b' // Bonus color
-        ctx.fillText(`威力: ${totalPower.toFixed(1)}x 💥`, 10, yOffset)
+        ctx.fillText(`威力:${totalPower.toFixed(1)}💥`, 8, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`威力: ${totalPower.toFixed(1)}x`, 10, yOffset)
+        ctx.fillText(`威力:${totalPower.toFixed(1)}`, 8, yOffset)
       }
-      yOffset += 15
+      yOffset += 12
       
-      // Shield with equipment bonus
+      // Shield with equipment bonus - shortened
       if (inventory.equippedShield) {
         ctx.fillStyle = '#ffd93d'
-        const shieldName = inventory.equippedShield.name
         const shieldIcon = inventory.equippedShield.icon
-        ctx.fillText(`シールド: ${shieldIcon} ${shieldName}`, 10, yOffset)
-        yOffset += 15
+        // 装備名を短縮
+        const shortName = inventory.equippedShield.name.length > 6 
+          ? inventory.equippedShield.name.substring(0, 6) + '...'
+          : inventory.equippedShield.name
+        ctx.fillText(`${shieldIcon}${shortName}`, 8, yOffset)
+        yOffset += 12
       }
       
-      // Special equipment effects
+      // Special equipment effects - shortened
       if (inventory.equippedSpecial) {
         ctx.fillStyle = '#9c27b0'
-        const specialName = inventory.equippedSpecial.name
         const specialIcon = inventory.equippedSpecial.icon
-        ctx.fillText(`特殊: ${specialIcon} ${specialName}`, 10, yOffset)
-        yOffset += 15
+        // 装備名を短縮
+        const shortName = inventory.equippedSpecial.name.length > 6 
+          ? inventory.equippedSpecial.name.substring(0, 6) + '...'
+          : inventory.equippedSpecial.name
+        ctx.fillText(`${specialIcon}${shortName}`, 8, yOffset)
+        yOffset += 12
       }
 
       if (running) rafRef.current = requestAnimationFrame(loop)
@@ -1249,11 +1256,13 @@ const BulletHell: React.FC = () => {
             💰 MOMOPay: {momoPayPoints}
           </div>
         </div>
-        <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>
-          矢印キーで移動 / スペースでショット / パワーアップ(F:連射 P:威力 S:シールド)を取ろう！
+        <div className="comic-text" style={{ fontSize: 'clamp(0.8rem, 2.5vw, 1rem)', marginTop: 6, color: '#c8e6c9', lineHeight: '1.3' }}>
+          矢印キーで移動・スペースでショット<br />
+          パワーアップ(F:連射 P:威力 S:シールド)を取ろう！
         </div>
-        <div className="comic-text" style={{ fontSize: '0.9rem', marginTop: 4, color: '#a5d6a7' }}>
-          スマホ：スワイプで移動・ダブルタップでショット / 大きな青い自機の中の赤い部分が当たり判定！🎯
+        <div className="comic-text" style={{ fontSize: 'clamp(0.7rem, 2.2vw, 0.9rem)', marginTop: 4, color: '#a5d6a7', lineHeight: '1.3' }}>
+          📱スマホ：スワイプで移動・ダブルタップでショット<br />
+          🎯青い自機の中の赤い部分が当たり判定！
         </div>
       </div>
       <canvas 
@@ -1275,14 +1284,14 @@ const BulletHell: React.FC = () => {
           textAlign: 'center',
           marginTop: '12px'
         }}>
-          <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.6rem', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
-          <div className="comic-text" style={{ color: '#c8e6c9', fontSize: '1.2rem', marginBottom: '8px' }}>最終スコア: {score}</div>
+          <div className="comic-text" style={{ color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', marginBottom: '16px' }}>🎮 ゲームオーバー 🎮</div>
+          <div className="comic-text" style={{ color: '#c8e6c9', fontSize: 'clamp(1rem, 3vw, 1.2rem)', marginBottom: '8px' }}>最終スコア: {score}</div>
           <div className="momopay-display" style={{ marginBottom: '16px' }}>
             💰 獲得MOMOPay: {Math.floor(score / 10)}
           </div>
           {highScores.length > 0 && (
             <div>
-              <div className="comic-text" style={{ color: '#fff3e0', fontSize: '1.2rem', marginBottom: '12px' }}>🏆 通算ハイスコア TOP3 🏆</div>
+              <div className="comic-text" style={{ color: '#fff3e0', fontSize: 'clamp(1rem, 3vw, 1.2rem)', marginBottom: '12px' }}>🏆 通算ハイスコア TOP3 🏆</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
                 {highScores.map((score, index) => {
                   const medals = ['🥇', '🥈', '🥉']

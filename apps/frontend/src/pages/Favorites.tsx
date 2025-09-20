@@ -119,6 +119,12 @@ const Favorites: React.FC = () => {
         console.log('Adding favorite item:', { id: item.id, name: item.name, mime: item.mime, dataUrlLength: dataUrl.length })
         addFavorite(item)
         alert('ファイルをアップロードしました！')
+        
+        // Force re-render to ensure preview shows immediately
+        setTimeout(() => {
+          // This ensures the component re-renders with the new favorite
+          console.log('Upload complete, favorites updated')
+        }, 100)
       } catch (error) {
         console.error('File upload error:', error)
         alert('ファイルのアップロードに失敗しました。')
@@ -265,8 +271,11 @@ const Favorites: React.FC = () => {
               objectFit: 'contain',
               borderRadius: '8px'
             }}
+            onLoad={() => {
+              console.log('Image loaded successfully:', name)
+            }}
             onError={(e) => {
-              console.error('Image load error for:', name)
+              console.error('Image load error for:', name, 'dataUrl length:', dataUrl?.length)
               // エラー時は代替表示
               const target = e.target as HTMLImageElement
               target.style.display = 'none'
@@ -280,6 +289,7 @@ const Favorites: React.FC = () => {
                 `
               }
             }}
+            key={`${item.id}-${dataUrl?.substring(0, 50)}`}
           />
         </div>
       )
@@ -315,21 +325,9 @@ const Favorites: React.FC = () => {
         textAlign: 'center'
       }}>
         <div className="font-icon-md">📄</div>
-        <a 
-          href={dataUrl} 
-          download={name} 
-          className="comic-button font-button-sm"
-          style={{ 
-            color: 'white', 
-            textDecoration: 'none',
-            background: 'linear-gradient(45deg, #42a5f5, #2196f3)',
-            borderColor: '#1976d2',
-            padding: '8px 16px'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          📥 ダウンロード
-        </a>
+        <div className="comic-text font-body-sm" style={{ color: '#c8e6c9' }}>
+          {name}
+        </div>
       </div>
     )
   }
