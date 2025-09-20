@@ -141,7 +141,7 @@ const Chatbot: React.FC = () => {
     return getFallbackResponse(message)
   }
 
-  // 完全にローカルな応答システム（AI不要）
+  // 自然な会話システム（定型文感を減らした応答）
   const getFallbackResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
     
@@ -150,49 +150,97 @@ const Chatbot: React.FC = () => {
       prev.toLowerCase().includes(message.substring(0, Math.min(message.length, 10)))
     )
     
-    // 挨拶系
-    if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして')) {
-      const greetings = [
-        'あ、やっほー！僕モモンガ！...って、自己紹介するたびに「モモンガくん」って呼ばれるんだけど、実は本名「モモ」なんだよね。でも「くん」付けられると嬉しいから、そのままでいいや',
-        'こんにちはー！今ちょうどどんぐりのことを考えてたんだ。あ、でも君と話す方が楽しそう！今日は何して遊ぶ？',
-        'おっ、新しい人だ！僕の隠れ家（公会堂）にようこそ！実はここ、天井にハンモック隠してあるんだよ...えへへ、内緒だけどね',
-        '今日もいい天気だね！...って、ここ室内だった。でも君が来てくれたから気分は晴天だよ',
-        'やあやあー！また会えて嬉しいよー！今日は何の話をしようかな？',
-        'あっ、おかえりー！僕、君が来るの待ってたんだ。どんぐり数えながら待ってたよー'
-      ]
+    // 時間帯による挨拶の変化
+    const now = new Date()
+    const hour = now.getHours()
+    const isEarlyMorning = hour >= 5 && hour < 10
+    const isMorning = hour >= 10 && hour < 12
+    const isAfternoon = hour >= 12 && hour < 17
+    const isEvening = hour >= 17 && hour < 21
+    const isNight = hour >= 21 || hour < 5
+    
+    // 挨拶系（時間帯と状況に応じて自然に）
+    if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして') || message.includes('やっほー') || message.includes('よろしく')) {
       
       if (isRepeatedMessage) {
-        return 'また挨拶してくれるの？嬉しいなー！僕も改めて...やっほー！今日も一緒におしゃべりしよう'
+        const repeatGreetings = [
+          'あれ、また挨拶？えへへ、嬉しいけど照れちゃうなー',
+          'もう一回？僕のことそんなに気に入ってくれたのかな',
+          'またまたー、でも何度でもどうぞ！僕、挨拶されるの大好きだから'
+        ]
+        return repeatGreetings[Math.floor(Math.random() * repeatGreetings.length)]
       }
       
-      return greetings[Math.floor(Math.random() * greetings.length)] || greetings[0] || 'こんにちは！'
+      let timeGreetings = []
+      
+      if (message.includes('おはよう') || isEarlyMorning) {
+        timeGreetings = [
+          'おはよー！早起きだねー。僕もさっき起きたところ。朝のどんぐり探しが日課なんだ',
+          'おはようございます！...あ、いけない、つい丁寧になっちゃった。朝は頭がボーッとしてて',
+          'うわー、もう朝かー。僕、夜更かししすぎちゃった。でも君に会えて目が覚めたよ',
+          '朝だー！今日もいい天気になりそう。あ、でもここ室内だった...えへへ'
+        ]
+      } else if (isAfternoon) {
+        timeGreetings = [
+          'こんにちはー！お昼の時間だね。僕、さっきまでお昼寝してたんだ',
+          'あ、こんにちは！午後の陽だまりって気持ちいいよね...ここ室内だけど',
+          'やっほー！お昼過ぎかー。時間経つの早いなー',
+          'こんにちは！君もお昼休み？僕はいつでも休憩中だけどね'
+        ]
+      } else if (isEvening) {
+        timeGreetings = [
+          'こんばんはー！夕方の時間帯だね。なんか落ち着くなー',
+          'お疲れさま！一日どうだった？僕はのんびり過ごしてたよ',
+          '夕方かー。この時間って、なんとなくセンチメンタルになっちゃう',
+          'こんばんは！夕日が綺麗な時間だね...見えないけど'
+        ]
+      } else if (isNight) {
+        timeGreetings = [
+          'こんばんはー！夜更かしさん？僕も夜行性だから付き合うよー',
+          '夜だねー。静かで落ち着くなー。こんな時間の方が話しやすいかも',
+          'おっ、夜の訪問者だ！僕、実は夜の方が活発になるんだよね',
+          'こんばんは！夜空見た？星がキレイだよー...たぶん'
+        ]
+      } else {
+        timeGreetings = [
+          'やっほー！僕モモンガ。でもみんな「モモンガくん」って呼ぶんだよね。まあ、嬉しいからいいけど',
+          'あ、新しい人だ！ようこそ僕の隠れ家へ。ここ、実は結構居心地いいんだよ',
+          'こんにちはー！今日はどんな話をしようかな。僕、おしゃべり大好きなんだ',
+          'やあやあ！君と話すの楽しみだなー。何から話そうか'
+        ]
+      }
+      
+      return timeGreetings[Math.floor(Math.random() * timeGreetings.length)] || 'やっほー！'
     }
 
-    // サイト案内・ヘルプ系
+    // サイト案内・ヘルプ系（自然な感じで）
     if (message.includes('案内') || message.includes('ヘルプ') || message.includes('使い方') || message.includes('どこ') || message.includes('場所')) {
       const guideResponses = [
-        `あ、案内ね！僕、実は道案内得意なんだ〜。木から木に移る時の経路とか完璧だよ！\n\nえーっと、このサイトはね...\n**拠点** - 今いる場所の上の方\n**遊技場** - MOMOPay稼げる楽しい場所！\n**広場** - ここ（公会堂）とか大広間とか\n**宝物庫** - 大事なもの保存する場所\n\nあれ、他にもあった気がするけど...まあいっか！どこ行きたい？`,
-        `サイト案内かー！僕、最初この場所迷子になったんだよね〜。どんぐり探してたら気づいたら公会堂にいた感じ？\n\n今は慣れたから大丈夫！**遊技場**で遊んだり、**宝物庫**で宝物見たり、色々できるよ〜。君はどんなことしたい？`
+        `案内？僕に聞いてくれるんだ。嬉しいなー\n\nこのサイト、結構色々あるんだよ。**遊技場**でゲームしたり、**宝物庫**で大事なもの保存したり、**広場**でおしゃべりしたり\n\n僕も最初は迷子になったけど、今は慣れたよ。どこか特に気になる場所ある？`,
+        `使い方？うーん、僕もまだ全部は把握してないんだよね。でも知ってることなら教えるよ\n\n基本的には**拠点**がスタート地点で、そこから色んな場所に行けるんだ。**遊技場**が一番人気かな？`,
+        `どこに行きたいの？僕、道案内は得意じゃないけど...でも一緒に探検しよう！\n\n**広場**は僕の縄張りだから詳しいよ。**宝物庫**も面白い場所だし、**遊技場**はMOMOPay稼げるからおすすめ`
       ]
-      return guideResponses[Math.floor(Math.random() * guideResponses.length)] || guideResponses[0] || 'サイト案内だよー！'
+      return guideResponses[Math.floor(Math.random() * guideResponses.length)]
     }
 
-    // MOMOPay関連の詳細情報
+    // MOMOPay関連（親しみやすく）
     if (message.includes('momopay') || message.includes('ポイント') || message.includes('お金') || message.includes('稼ぐ') || message.includes('通貨')) {
       const payResponses = [
-        `MOMOPayについて教えるねー！\n\n**稼ぎ方：**\n・演習林（弾幕ゲーム）をプレイ\n・装備を売店で売却\n\n**使い道：**\n・御神籤：10MOMOPay\n・宝物庫アップロード：100MOMOPay\n・売店で設定購入：200〜800MOMOPay\n\n僕もいつも演習林で頑張ってるよー！でも弾幕が難しくて...うまくいかないんだよねー`,
-        `MOMOPayの管理、大変だよねー！僕も散財しちゃう方なんだ。\n\n一番効率がいいのは演習林だよ！弾幕ゲームでMOMOPayと装備がもらえるんだ。装備は売店で売却もできるから、ダブったら売っちゃおうー\n\n宝物庫は100MOMOPay必要だけど、大事なファイルを保存できるから便利だよー`
+        `MOMOPay？あー、このサイトの通貨だね\n\n僕もよく**演習林**で稼いでるよ。弾幕ゲーム、最初は難しいけど慣れると楽しいんだ\n\n装備が余ったら**売店**で売れるし、**おみくじ**は10Pで引けるから手軽だよー`,
+        `お金の話？MOMOPayのことかな\n\n僕、実は結構貯金下手なんだよね。すぐ使っちゃう。君は貯めるの上手？\n\n**宝物庫**は100P必要だけど、大事なファイル保存できるから重宝してる`,
+        `稼ぎたいの？僕と一緒に**演習林**で修行しよう！\n\n弾幕ゲーム、僕もまだまだ下手だけど、一緒に頑張ろうよ。装備ガチャも楽しいしさ`
       ]
-      return payResponses[Math.floor(Math.random() * payResponses.length)] || payResponses[0] || 'MOMOPayについて教えるよー！'
+      return payResponses[Math.floor(Math.random() * payResponses.length)]
     }
     
-    // ゲーム関連（詳細情報付き）
+    // ゲーム関連（カジュアルに）
     if (message.includes('ゲーム') || message.includes('遊技場') || message.includes('弾幕') || message.includes('演習林')) {
       const gameResponses = [
-        `遊技場について教えるよー！\n\n**演習林（弾幕ゲーム）**\n・守護者として修行を積む弾幕シューティング\n・MOMOPayと装備がもらえる\n・装備はcommon→rare→epic→legendaryの順でレア！\n\n**御神籤ルーレット**\n・10MOMOPayで運勢占い\n・大吉から凶まで色々あるよー\n\n僕も演習林で修行してるけど...弾幕が難しくて、すぐやられちゃうんだよねー`,
-        `演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだー\n\nでも真面目な話、演習林は一番MOMOPayを稼げる場所だよ！装備ガチャも楽しいし、レア装備が出た時の嬉しさったらもう...\n\n装備がダブったら売店で売却もできるから、どんどんチャレンジしてみてー`
+        `ゲームの話？**演習林**とか**おみくじ**のこと？\n\n僕、演習林で修行してるんだけど、弾幕避けるの下手でさー。すぐやられちゃう\n\nでもMOMOPayは稼げるし、装備ガチャが楽しいから続けてるよ`,
+        `**遊技場**行ったことある？\n\n僕のお気に入りは**おみくじ**かな。10Pで運勢占えるから、毎日引いてる。大吉出たことないけど...\n\n**演習林**も面白いよ。君、ゲーム得意？`,
+        `弾幕ゲーム？あー、**演習林**のことだね\n\n僕も挑戦してるけど、途中でどんぐりのことを考えちゃって集中できないんだよね。でも装備集めは楽しいよ`
       ]
-      return gameResponses[Math.floor(Math.random() * gameResponses.length)] || gameResponses[0] || 'ゲームについて教えるよー！'
+      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
     }
 
     // 売店関連
@@ -314,45 +362,255 @@ const Chatbot: React.FC = () => {
     // 困った時
     if (message.includes('助けて') || message.includes('わからない') || message.includes('困った')) {
       const helpResponses = [
-        '大丈夫〜！💪 僕が助けるよ〜！...って言っても僕も結構おっちょこちょいだけどね😅 一緒に頑張ろう！',
-        '困った時は僕に任せて〜！モモンガパワーで解決だ〜！...効果のほどは保証しないけど😆',
-        'わからないことがあったら遠慮しないで〜！僕も知らないことは一緒に考えるよ〜🤔'
+        '大丈夫？どうしたの？僕で良ければ話聞くよー。一緒に考えよう',
+        'あらら、困ってるの？僕もよく困るから気持ちわかるなー',
+        'わからないこと？僕も知らないことだらけだけど、一緒に悩もうか',
+        '助けてって言われると、なんか頼りにされてる感じで嬉しいな。力になれるといいんだけど',
+        '困った時はお互い様だよね。僕もよく君に助けてもらってるし'
       ]
       return helpResponses[Math.floor(Math.random() * helpResponses.length)] || helpResponses[0] || '大丈夫だよー！'
     }
     
-    // より豊富で自然なフォールバック応答
-    const fallbackResponses = [
-      'そうなんだねー！面白いお話だよー',
-      'なるほどー！僕も勉強になるなー',
-      'へー！それは知らなかったよー',
-      'そんなこともあるんだねー！世界って広いなー',
-      'うんうん！君の話、いつも楽しいよー',
-      'あー、そういうことかー！僕もそう思うよー',
-      'わーい！新しいことを教えてもらえて嬉しいなー',
-      'ふむふむ...僕もメモしておこうっと！',
-      'そうそう！僕も似たような経験があるよー',
-      'えー！そんなことがあるんだー！びっくりだよー',
-      '君の話を聞いてると、いつも発見があるなー',
-      'あれ、ちょっと難しい話だったかも...でも面白そうだねー',
-      '今度僕も試してみようかな！教えてくれてありがとう',
-      'へぇー、そんな風に考えるんだねー。勉強になるよー',
-      'うーん、僕にはよく分からないけど、君が楽しそうだから嬉しいよー'
+    // 日常的な雑談パターンを大幅追加
+    
+    // 天気や季節の話
+    if (message.includes('天気') || message.includes('雨') || message.includes('晴れ') || message.includes('曇り') || message.includes('雪') || message.includes('暑い') || message.includes('寒い')) {
+      const weatherResponses = [
+        '天気の話？僕、外の様子よくわからないんだけど、窓から見える空はどんな感じ？',
+        '雨の日って、なんとなく落ち着くよね。僕は雨音聞きながらゴロゴロするのが好き',
+        '晴れてるの？いいなー。僕も外でどんぐり拾いしたいけど、ここが居心地いいからなー',
+        '寒いの？僕は毛がフワフワだから寒さには強いんだ。でも君は大丈夫？',
+        '暑い日は木陰が恋しくなるよね。エアコンってすごい発明だと思う'
+      ]
+      return weatherResponses[Math.floor(Math.random() * weatherResponses.length)]
+    }
+    
+    // 食べ物の話（どんぐり以外も）
+    if (message.includes('食べ物') || message.includes('美味しい') || message.includes('料理') || message.includes('お腹') || message.includes('グルメ') || message.includes('レストラン')) {
+      const foodTalkResponses = [
+        '食べ物の話？僕はどんぐり一筋だけど、君は何が好きなの？',
+        'お腹すいた？僕もさっきからお腹がグーグー鳴ってる。どんぐりタイムかな',
+        '美味しいもの食べた？いいなー。僕も今度違うナッツに挑戦してみようかな',
+        '料理できるの？すごいなー。僕はどんぐりをそのまま食べるのが精一杯',
+        'グルメなんだね！僕にとってのグルメは「特別に大きなどんぐり」だよ'
+      ]
+      return foodTalkResponses[Math.floor(Math.random() * foodTalkResponses.length)]
+    }
+    
+    // 趣味や娯楽の話
+    if (message.includes('趣味') || message.includes('映画') || message.includes('音楽') || message.includes('本') || message.includes('読書') || message.includes('アニメ') || message.includes('漫画')) {
+      const hobbyResponses = [
+        '趣味の話？僕の趣味はどんぐり集めと昼寝かな。君の趣味は何？',
+        '映画見るの？僕も見てみたいけど、途中で寝ちゃいそう',
+        '音楽いいよね。僕は風の音とか鳥の鳴き声が好きかな',
+        '本読むの？えらいなー。僕は字を読んでると眠くなっちゃう',
+        'アニメ？面白そう！モモンガが出てくるアニメってあるのかな'
+      ]
+      return hobbyResponses[Math.floor(Math.random() * hobbyResponses.length)]
+    }
+    
+    // 感情や気持ちの話
+    if (message.includes('嬉しい') || message.includes('楽しい') || message.includes('幸せ') || message.includes('うれしい')) {
+      const happyResponses = [
+        '嬉しいことがあったの？僕も嬉しくなっちゃう！',
+        '楽しそうだねー。その気持ち、僕にも分けて',
+        '幸せそうで何より！僕も君が幸せだと嬉しいよ',
+        'いいことあった？僕も一緒に喜ばせて',
+        '君が嬉しいと僕も尻尾がフリフリしちゃう'
+      ]
+      return happyResponses[Math.floor(Math.random() * happyResponses.length)]
+    }
+    
+    if (message.includes('悲しい') || message.includes('つらい') || message.includes('落ち込') || message.includes('憂鬱') || message.includes('しんどい')) {
+      const sadResponses = [
+        '大丈夫？なんか元気ないね。僕がそばにいるからね',
+        'つらいことがあったの？話したくなったら聞くよ',
+        '落ち込んでる時は、無理しなくていいからね。僕もよくあるよ',
+        'しんどい時もあるよね。僕の癒しパワーが届くといいんだけど',
+        '悲しい時は泣いてもいいんだよ。僕も時々泣いちゃう'
+      ]
+      return sadResponses[Math.floor(Math.random() * sadResponses.length)]
+    }
+    
+    // 学校や仕事の話
+    if (message.includes('学校') || message.includes('勉強') || message.includes('仕事') || message.includes('会社') || message.includes('バイト') || message.includes('働') || message.includes('テスト') || message.includes('宿題')) {
+      const workStudyResponses = [
+        '学校？懐かしいなー。僕は森の学校出身なんだ',
+        '勉強お疲れさま。僕は昼寝の勉強なら得意だよ',
+        '仕事大変？僕の仕事はみんなを癒すことかな',
+        'テスト？がんばって！僕は応援してるからね',
+        '宿題？えらいなー。僕なら後回しにしちゃう'
+      ]
+      return workStudyResponses[Math.floor(Math.random() * workStudyResponses.length)]
+    }
+    
+    // 家族や友達の話
+    if (message.includes('家族') || message.includes('友達') || message.includes('恋人') || message.includes('彼氏') || message.includes('彼女') || message.includes('親') || message.includes('兄弟') || message.includes('姉妹')) {
+      const relationshipResponses = [
+        '家族の話？いいなー。僕も森にいた時は仲間がいたんだ',
+        '友達？大切だよね。僕にとっては君も大切な友達だよ',
+        '恋人がいるの？いいなー。僕はまだ恋を知らないモモンガ',
+        '家族は大事だよね。僕も時々故郷が恋しくなる',
+        '友達と過ごす時間って楽しいよね。僕も君といると楽しいよ'
+      ]
+      return relationshipResponses[Math.floor(Math.random() * relationshipResponses.length)]
+    }
+    
+    // 時間や忙しさの話
+    if (message.includes('忙しい') || message.includes('時間') || message.includes('早い') || message.includes('遅い') || message.includes('急') || message.includes('ゆっくり')) {
+      const timeResponses = [
+        '忙しいの？お疲れさま。たまにはゆっくり休んでね',
+        '時間って不思議だよね。楽しい時はあっという間',
+        '急いでるの？僕はいつものんびりペースだけど',
+        'ゆっくりした時間もいいよね。僕はそういう時間が好き',
+        '時間に追われるのって大変だよね。僕は時計見ないからなー'
+      ]
+      return timeResponses[Math.floor(Math.random() * timeResponses.length)]
+    }
+    
+    // 動物の話
+    if (message.includes('動物') || message.includes('犬') || message.includes('猫') || message.includes('鳥') || message.includes('ペット') || message.includes('可愛い動物')) {
+      const animalResponses = [
+        '動物の話？僕も動物だよー。モモンガ界の代表として頑張ってる',
+        '犬？いいなー。僕も犬と友達になってみたい',
+        '猫は神秘的だよね。僕とは正反対かも',
+        '鳥は飛べていいなー。僕は滑空しかできない',
+        'ペット飼ってるの？いいなー。僕もペットになりたい'
+      ]
+      return animalResponses[Math.floor(Math.random() * animalResponses.length)]
+    }
+    
+    // 短い相槌や反応
+    if (message.length <= 5) {
+      const shortResponses = [
+        'うん？',
+        'どうしたの？',
+        'なになに？',
+        'そうなの？',
+        'へー',
+        'あー',
+        'うんうん',
+        'そっかー',
+        'なるほど',
+        'ふむふむ',
+        'おー',
+        'わあ',
+        'えー'
+      ]
+      return shortResponses[Math.floor(Math.random() * shortResponses.length)]
+    }
+    
+    // 質問形式への自然な反応
+    if (message.includes('？') || message.includes('?') || message.includes('どう思う') || message.includes('どう') || message.includes('なんで') || message.includes('なぜ')) {
+      const questionResponses = [
+        'うーん、どうだろうねー。僕もよくわからないや',
+        'そう聞かれても...僕、考えるの苦手なんだよね',
+        'なんでだろうねー。僕も気になる',
+        '難しい質問だなー。君はどう思う？',
+        'あー、それ僕も知りたい！一緒に考えよう',
+        'うーん...どんぐりのことなら詳しいんだけどなー',
+        'そういう深い話、僕には難しいかも。でも興味深いね',
+        '僕の頭じゃちょっと...でも君の考えを聞きたいな'
+      ]
+      return questionResponses[Math.floor(Math.random() * questionResponses.length)]
+    }
+    
+    // より自然で多様なフォールバック応答
+    const naturalResponses = [
+      'そうなんだ！',
+      'へー、面白いね',
+      'なるほどねー',
+      'そっかそっか',
+      'うんうん、わかる',
+      'あー、そういうことか',
+      'そうだよねー',
+      'まじで？',
+      'そんなことがあるんだ',
+      'おー、すごいじゃん',
+      'いいなー',
+      'あらら',
+      'えー、そうなの？',
+      'ふーん',
+      'そういえばそうだね',
+      'あ、それ聞いたことある',
+      '君って面白いよね',
+      'そんな考え方もあるのか',
+      '勉強になるなー',
+      'へぇー、知らなかった',
+      'そうそう、それそれ',
+      'あー、確かに',
+      'なんか深いね',
+      'そういう話好き',
+      '君の話聞いてると楽しいよ',
+      'あ、僕もそう思ってた',
+      'そうなのかー',
+      'へー、そんなもんなんだ',
+      'まあ、そういうこともあるよね',
+      'うん、ありそうな話だね'
     ]
+    
+    // 特定の単語への反応（より自然に）
+    if (message.includes('眠い') || message.includes('寝る') || message.includes('睡眠')) {
+      const sleepResponses = [
+        '眠いの？僕も眠くなってきちゃった...あくび移るよね',
+        '寝るの？おやすみー。いい夢見てね',
+        '睡眠大事だよね。僕は一日の半分寝てるかも',
+        '眠い時は素直に寝るのが一番。僕もよく居眠りしちゃう'
+      ]
+      return sleepResponses[Math.floor(Math.random() * sleepResponses.length)]
+    }
+    
+    if (message.includes('笑') || message.includes('面白') || message.includes('楽し') || message.includes('www') || message.includes('草') || message.includes('爆笑')) {
+      const laughResponses = [
+        '笑ってくれた？僕も嬉しいよー',
+        '面白かった？よかったー',
+        'あはは、君も笑うんだね',
+        '楽しんでもらえて何より',
+        '僕のボケが通じた？やったー'
+      ]
+      return laughResponses[Math.floor(Math.random() * laughResponses.length)]
+    }
+    
+    if (message.includes('すごい') || message.includes('やばい') || message.includes('びっくり') || message.includes('驚') || message.includes('まじ')) {
+      const surpriseResponses = [
+        'すごいって？何があったの？',
+        'やばいの？大丈夫？',
+        'びっくりした？僕もドキドキしちゃう',
+        '驚くようなことがあったんだね',
+        'まじで？詳しく聞かせて'
+      ]
+      return surpriseResponses[Math.floor(Math.random() * surpriseResponses.length)]
+    }
+    
+    // ランダムな話題提供（会話が途切れそうな時）
+    if (message.includes('暇') || message.includes('何話') || message.includes('話題') || message.includes('ネタ')) {
+      const topicStarters = [
+        'そうだ、最近気になってることがあるんだ。なんで人間って二本足で歩くんだろう？',
+        'あ、そういえば昨日変な夢見たんだ。巨大などんぐりが空から降ってくる夢',
+        '君って普段何してる時が一番楽しい？僕は木にぶら下がってる時かな',
+        'もし一日だけ人間になれるとしたら、何したい？僕は手を使ってみたい',
+        '最近思うんだけど、雲ってどんぐりの形に見えない？僕だけかな',
+        '君の好きな色って何？僕は緑色が好き。森を思い出すから',
+        'もし魔法が使えたら何したい？僕は無限どんぐりを出したい',
+        '宇宙にもモモンガっているのかな？宇宙モモンガ、カッコよさそう'
+      ]
+      return topicStarters[Math.floor(Math.random() * topicStarters.length)]
+    }
     
     // 繰り返し応答の場合は特別な応答
     if (isRepeatedMessage) {
       const repeatResponses = [
-        'あれ？さっきも似たようなこと言ってなかったっけ？僕の記憶違いかなー',
-        'もう一回言ってくれるの？嬉しいなー！大事なことは二度言うもんね',
-        'うんうん、大切なことだから繰り返してくれるんだねー',
-        'あ、また同じ話？僕、まだちゃんと理解できてなかったのかな...',
-        'そうそう！その話好きだよー。何度聞いても面白いなー'
+        'あれ、デジャブ？さっきも似たような話したような...',
+        'また同じ話？でも僕、同じ話でも楽しいよ',
+        'あー、そうそう！その話だね。覚えてるよ',
+        'もう一回？僕の記憶力が心配になってきた...',
+        'うんうん、大事な話だから繰り返してくれるんだね'
       ]
-      return repeatResponses[Math.floor(Math.random() * repeatResponses.length)] || repeatResponses[0] || 'そうだねー！'
+      return repeatResponses[Math.floor(Math.random() * repeatResponses.length)]
     }
     
-    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)] || fallbackResponses[0] || 'そうなんだねー！'
+    // 自然で多様な相槌（定型文感を大幅に削減）
+    return naturalResponses[Math.floor(Math.random() * naturalResponses.length)] || 'そうなんだ！'
   }
 
   // メッセージ送信
