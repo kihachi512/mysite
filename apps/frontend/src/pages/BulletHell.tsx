@@ -421,14 +421,15 @@ const BulletHell: React.FC = () => {
         return
       }
 
-      // Check if there's a boss alive - if so, don't spawn regular enemies
+      // Check if there's a boss alive or if this is a boss wave - if so, don't spawn regular enemies
       const hasBoss = enemiesRef.current.some(e => e.isBoss)
+      const isBossWave = wave >= 5 && (wave % 5 === 0)
       
       // spawn enemies in formations (Touhou-style) - More balanced progression
       const baseSpawnRate = 360 // Slower initial spawn rate
       const spawnRate = Math.max(180, baseSpawnRate - wave * 8) // More gradual progression
       
-      if (currentTime % spawnRate === 0 && !hasBoss) {
+      if (currentTime % spawnRate === 0 && !hasBoss && !isBossWave) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
         // More balanced formation selection with weighted probability
@@ -842,6 +843,8 @@ const BulletHell: React.FC = () => {
 
       // player bullets hit enemies
       const beforeEnemyCount = enemiesRef.current.length
+      const beforeBossCount = enemiesRef.current.filter(e => e.isBoss).length
+      
       bulletsRef.current.filter(b => b.from === 'player').forEach(b => {
         for (const e of enemiesRef.current) {
           const dx = e.x - b.x, dy = e.y - b.y
@@ -860,42 +863,50 @@ const BulletHell: React.FC = () => {
       })
       enemiesRef.current = enemiesRef.current.filter(e => e.hp > 0)
       
+      // ボス撃破チェック
+      const afterBossCount = enemiesRef.current.filter(e => e.isBoss).length
+      const bossKilled = beforeBossCount > 0 && afterBossCount === 0
+      
       // 敵を倒すと追加スコア
-      const killedEnemies = enemiesRef.current.length - beforeEnemyCount
-      if (killedEnemies < 0) {
-        // Check if any bosses were killed for bonus points
-        const killedEnemyCount = Math.abs(killedEnemies)
+      const killedEnemies = beforeEnemyCount - enemiesRef.current.length
+      if (killedEnemies > 0) {
         let bossBonus = 0
         
-        // Simple check: if we killed fewer enemies than expected, some might have been bosses
-        // In a real implementation, you'd track this more precisely
-        for (let i = 0; i < killedEnemyCount; i++) {
-          // Assume boss if we're on a boss wave
-          if ((wave + 1) % 3 === 0) {
-            // ボス撃破音
-            playSound(300, 0.8, 'square')
-            bossBonus += 500 // Boss kill bonus
-          } else {
-            // 敵撃破音
-            playSound(1000, 0.2, 'triangle')
-            bossBonus += 50 // Normal enemy
-          }
+        if (bossKilled) {
+          // ボス撃破音
+          playSound(300, 0.8, 'square')
+          bossBonus += 500 // Boss kill bonus
+          
+          // ボス撃破時にウェーブ進行
+          const nextWave = wave + 1
+          setWave(nextWave)
+          setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
+          
+          // ウェーブクリア音
+          playSound(1500, 0.5, 'sine')
+        } else {
+          // 通常敵撃破音
+          playSound(1000, 0.2, 'triangle')
+          bossBonus += 50 * killedEnemies // Normal enemies
         }
         
         setScore(prev => prev + bossBonus)
       }
 
-      // ウェーブ進行チェック（30秒ごと）とボス出現
-      if (currentTime > 0 && currentTime % 1800 === 0) {
-        // ウェーブクリア音
-        playSound(1500, 0.5, 'sine')
-        
+      // ウェーブ進行チェック（30秒ごと）とボス出現 - ボスがいない場合のみ
+      const hasBossAlive = enemiesRef.current.some(e => e.isBoss)
+      const isNextWaveBossWave = (wave + 1) >= 5 && ((wave + 1) % 5 === 0)
+      
+      if (currentTime > 0 && currentTime % 1800 === 0 && !hasBossAlive) {
         const nextWave = wave + 1
         setWave(nextWave)
         setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
         
+        // ウェーブクリア音
+        playSound(1500, 0.5, 'sine')
+        
         // Boss appears every 5th wave, starting from wave 5
-        if (nextWave >= 5 && (nextWave % 5 === 0)) {
+        if (isNextWaveBossWave) {
           // ボス出現時に既存の敵を全て消去
           enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
           
@@ -922,6 +933,35 @@ const BulletHell: React.FC = () => {
             bossType: bossType
           })
         }
+      }
+      
+      // ボス撃破後の次のボス出現処理
+      if (bossKilled && isNextWaveBossWave) {
+        // ボス出現時に既存の敵を全て消去
+        enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
+        
+        // ボス出現音
+        playSound(150, 1.0, 'square')
+        
+        const bossTier = Math.floor(wave / 5) // 現在のwaveを使用（既に+1されている）
+        const bossType = ((bossTier - 1) % 3) + 1 // 1, 2, 3, 1, 2, 3...
+        const bossHp = 40 + bossTier * 20 // 60, 80, 100, 120...
+        
+        // ボスタイプに応じたサイズと位置
+        const bossSize = bossType === 1 ? 18 : bossType === 2 ? 22 : 25
+        const startY = bossType === 3 ? 40 : 50
+        
+        enemiesRef.current.push({
+          x: w / 2,
+          y: startY,
+          r: bossSize,
+          hp: bossHp,
+          maxHp: bossHp,
+          pattern: 6, // Boss pattern
+          isBoss: true,
+          bossPhase: 1,
+          bossType: bossType
+        })
       }
 
       // draw
