@@ -7,6 +7,7 @@ interface SEOProps {
   ogTitle?: string;
   ogDescription?: string;
   canonicalUrl?: string;
+  iconUrl?: string;
 }
 
 export const useSEO = ({
@@ -15,7 +16,8 @@ export const useSEO = ({
   keywords,
   ogTitle,
   ogDescription,
-  canonicalUrl
+  canonicalUrl,
+  iconUrl
 }: SEOProps) => {
   useEffect(() => {
     try {
@@ -97,10 +99,30 @@ export const useSEO = ({
           console.log('Canonical URL update error:', e);
         }
       }
+
+      // アイコン設定（動的に変更可能）
+      if (iconUrl && typeof iconUrl === 'string' && iconUrl.trim()) {
+        try {
+          // Open Graph画像の更新
+          updatePropertyTag('og:image', iconUrl);
+          updatePropertyTag('og:image:secure_url', `https://sasurai-momonga-carnival.com${iconUrl}`);
+          
+          // Twitter画像の更新
+          updatePropertyTag('twitter:image', `https://sasurai-momonga-carnival.com${iconUrl}`);
+          
+          // favicon の動的更新
+          let favicon = document.querySelector('link[rel="icon"][type="image/png"]') as HTMLLinkElement;
+          if (favicon) {
+            favicon.href = iconUrl;
+          }
+        } catch (e) {
+          console.log('Icon update error:', e);
+        }
+      }
     } catch (e) {
       console.log('SEO update error:', e);
     }
-  }, [title, description, keywords, ogTitle, ogDescription, canonicalUrl]);
+  }, [title, description, keywords, ogTitle, ogDescription, canonicalUrl, iconUrl]);
 };
 
 // 各ページ用のSEO設定プリセット
@@ -111,7 +133,8 @@ export const SEO_PRESETS = {
     keywords: 'モモンガ,弾幕ゲーム,シューティングゲーム,おみくじ,チャット,ファイル管理,日本語ゲーム,無料ゲーム,ブラウザゲーム,エンターテイメント,MOMOPay,演習林,公会堂,宝物庫,癒し系,カジュアルゲーム',
     ogTitle: 'さすらいのモモンガカーニバル | 弾幕ゲーム・おみくじ・チャット',
     ogDescription: 'モモンガくんと一緒に楽しむ癒し系エンターテイメントサイト。弾幕ゲーム、おみくじ、チャット機能を完全無料で楽しめます。',
-    canonicalUrl: 'https://sasurai-momonga-carnival.com/'
+    canonicalUrl: 'https://sasurai-momonga-carnival.com/',
+    iconUrl: '/momonga-icon.png'
   },
   games: {
     title: '遊技場',

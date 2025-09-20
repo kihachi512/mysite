@@ -109,7 +109,7 @@ const Favorites: React.FC = () => {
         
         const item: FavoriteItem = {
           id: genId(),
-          name: escapeHtml(name.trim()), // ファイル名をエスケープ
+          name: name.trim(), // ファイル名はdataURL破損を防ぐためエスケープしない
           kind: 'file',
           dataUrl,
           mime: file.type || detectedMime, // フォールバック
@@ -190,9 +190,9 @@ const Favorites: React.FC = () => {
     
     const item: FavoriteItem = {
       id: genId(),
-      name: escapeHtml(textName.trim()), // タイトルをエスケープ
+      name: textName.trim(), // タイトルはlocalStorage破損を防ぐためエスケープしない
       kind: 'text',
-      text: escapeHtml(textBody.trim()), // テキストをエスケープ
+      text: textBody.trim(), // テキストもlocalStorage破損を防ぐためエスケープしない
       createdAt: new Date().toISOString(),
     }
     addFavorite(item)
@@ -226,7 +226,7 @@ const Favorites: React.FC = () => {
             margin: 0,
             width: '100%'
           }}>
-            {item.text && item.text.length > 100 ? `${item.text.substring(0, 100)}...` : (item.text || '')}
+            {escapeHtml(item.text && item.text.length > 100 ? `${item.text.substring(0, 100)}...` : (item.text || ''))}
           </p>
         </div>
       )
@@ -252,9 +252,9 @@ const Favorites: React.FC = () => {
             if (newWindow) {
               newWindow.document.write(`
                 <html>
-                  <head><title>${name}</title></head>
+                  <head><title>${escapeHtml(name)}</title></head>
                   <body style="margin:0;background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;">
-                    <img src="${dataUrl}" alt="${name}" style="max-width:100%;max-height:100vh;object-fit:contain;" />
+                    <img src="${dataUrl}" alt="${escapeHtml(name)}" style="max-width:100%;max-height:100vh;object-fit:contain;" />
                   </body>
                 </html>
               `)
@@ -326,7 +326,7 @@ const Favorites: React.FC = () => {
       }}>
         <div className="font-icon-md">📄</div>
         <div className="comic-text font-body-sm" style={{ color: '#c8e6c9' }}>
-          {name}
+          {escapeHtml(name)}
         </div>
       </div>
     )
@@ -473,7 +473,7 @@ const Favorites: React.FC = () => {
                     paddingRight: '12px',
                     paddingLeft: '80px' // ファイルタイプインジケーター分のスペース確保
                   }}>
-                    {item.name}
+                    {escapeHtml(item.name)}
                   </h4>
                   <button 
                     onClick={(e) => {

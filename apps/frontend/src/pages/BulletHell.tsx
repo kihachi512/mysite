@@ -4,7 +4,7 @@ import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 
 type Player = { x: number; y: number; r: number; fireRate: number; power: number; displayR?: number }
 type Bullet = { x: number; y: number; vx: number; vy: number; r: number; from: 'player' | 'enemy'; power?: number }
-type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; maxHp: number; isBoss?: boolean; bossPhase?: number }
+type Enemy = { x: number; y: number; r: number; hp: number; pattern: number; maxHp: number; isBoss?: boolean; bossPhase?: number; bossType?: number }
 type PowerUp = { x: number; y: number; r: number; type: 'fireRate' | 'power' | 'shield'; collected: boolean }
 
 // ガチャシステム用の型定義
@@ -424,20 +424,33 @@ const BulletHell: React.FC = () => {
       // Check if there's a boss alive - if so, don't spawn regular enemies
       const hasBoss = enemiesRef.current.some(e => e.isBoss)
       
-      // spawn enemies in formations (Touhou-style) - Much more gradual progression
-      const baseSpawnRate = 300 // Much slower initial spawn rate
-      const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
+      // spawn enemies in formations (Touhou-style) - More balanced progression
+      const baseSpawnRate = 360 // Slower initial spawn rate
+      const spawnRate = Math.max(180, baseSpawnRate - wave * 8) // More gradual progression
       
       if (currentTime % spawnRate === 0 && !hasBoss) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
-        // Limit formation complexity based on wave
-        let maxFormationType = 0 // Start with single enemies only
-        if (wave >= 2) maxFormationType = 1 // Line formation from wave 2
-        if (wave >= 4) maxFormationType = 2 // V formation from wave 4
-        if (wave >= 6) maxFormationType = 3 // Wave formation from wave 6
+        // More balanced formation selection with weighted probability
+        let formationType = 0 // Default to single enemy
+        const rand = Math.random()
         
-        const formationType = Math.floor(Math.random() * (maxFormationType + 1))
+        if (wave >= 6) {
+          // Wave 6+: 50% single, 25% line, 15% V, 10% wave
+          if (rand < 0.5) formationType = 0
+          else if (rand < 0.75) formationType = 1
+          else if (rand < 0.9) formationType = 2
+          else formationType = 3
+        } else if (wave >= 4) {
+          // Wave 4-5: 60% single, 25% line, 15% V
+          if (rand < 0.6) formationType = 0
+          else if (rand < 0.85) formationType = 1
+          else formationType = 2
+        } else if (wave >= 2) {
+          // Wave 2-3: 70% single, 30% line
+          if (rand < 0.7) formationType = 0
+          else formationType = 1
+        }
         
         // Formation-based spawning
         if (formationType === 0) {
@@ -483,11 +496,12 @@ const BulletHell: React.FC = () => {
             })
           })
         } else if (formationType === 3 && wave >= 6) {
-          // Wave formation (3 enemies instead of 5) - only from wave 6
-          for (let i = 0; i < 3; i++) {
+          // Wave formation (2 enemies initially, 3 from wave 8) - more gradual
+          const waveEnemyCount = wave >= 8 ? 3 : 2
+          for (let i = 0; i < waveEnemyCount; i++) {
             enemiesRef.current.push({ 
-              x: (w / 4) * (i + 1), 
-              y: -10 - Math.sin(i * 0.8) * 15, 
+              x: (w / (waveEnemyCount + 1)) * (i + 1), 
+              y: -10 - Math.sin(i * 0.8) * 12, 
               r: 10, 
               hp: enemyHp, 
               maxHp: enemyHp,
@@ -512,11 +526,11 @@ const BulletHell: React.FC = () => {
           })
         }
       }
-      // enemies shoot with varied patterns - scaled by wave
+      // enemies shoot with varied patterns - more balanced scaling by wave
       enemiesRef.current.forEach((e, idx) => {
-        // Slower shooting in early waves
-        const baseShootInterval = 90 + (idx % 30) // Longer base interval
-        const shootInterval = Math.max(45, baseShootInterval - wave * 5) // Gradually faster
+        // More balanced shooting intervals
+        const baseShootInterval = 100 + (idx % 40) // Longer base interval
+        const shootInterval = Math.max(60, baseShootInterval - wave * 4) // More gradual progression
         
         if (currentTime % shootInterval === 0) {
           const bulletSpeed = Math.min(0.8 + wave * 0.1, 1.5) // Slower bullets early game
@@ -562,9 +576,9 @@ const BulletHell: React.FC = () => {
                 r: 2.5, from: 'enemy' 
               })
             }
-          } else if (e.pattern === 4 && wave >= 8) {
-            // Circular pattern (danmaku style) - reduced bullets, later waves only
-            const numBullets = Math.min(4 + wave, 8) // Start with 4, max 8
+          } else if (e.pattern === 4 && wave >= 10) {
+            // Circular pattern (danmaku style) - reduced bullets, much later waves only
+            const numBullets = Math.min(3 + Math.floor(wave / 2), 6) // Start with 3, max 6
             for (let i = 0; i < numBullets; i++) {
               const ang = (currentTime * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
               bulletsRef.current.push({ 
@@ -575,34 +589,94 @@ const BulletHell: React.FC = () => {
               })
             }
           } else if (e.pattern === 6 && e.isBoss) {
-            // Boss patterns - reduced complexity
-            if (e.bossPhase === 1) {
-              // Phase 1: Spiral bullets (reduced count)
-              const numBullets = Math.min(6 + Math.floor(wave / 5), 10) // Start with 6, max 10
-              for (let i = 0; i < numBullets; i++) {
-                const ang = (currentTime * 0.03 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
-                bulletsRef.current.push({ 
-                  x: e.x, y: e.y, 
-                  vx: Math.cos(ang) * bulletSpeed * 0.8, 
-                  vy: Math.sin(ang) * bulletSpeed * 0.8, 
-                  r: 3, from: 'enemy' 
-                })
+            // Boss patterns - diverse patterns based on boss type
+            const bossType = e.bossType || 1
+            const hpRatio = e.hp / e.maxHp
+            
+            if (bossType === 1) {
+              // Forest Guardian - Spiral and nature patterns
+              if (e.bossPhase === 1) {
+                // Phase 1: Gentle spiral (nature theme)
+                const numBullets = Math.min(5 + Math.floor(wave / 5), 8)
+                for (let i = 0; i < numBullets; i++) {
+                  const ang = (currentTime * 0.02 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                  bulletsRef.current.push({ 
+                    x: e.x, y: e.y, 
+                    vx: Math.cos(ang) * bulletSpeed * 0.7, 
+                    vy: Math.sin(ang) * bulletSpeed * 0.7, 
+                    r: 2.5, from: 'enemy' 
+                  })
+                }
+              } else if (e.bossPhase === 2) {
+                // Phase 2: Leaf scatter pattern
+                for (let i = -3; i <= 3; i++) {
+                  const ang = Math.PI / 2 + i * 0.2 + Math.sin(currentTime * 0.05) * 0.4
+                  bulletsRef.current.push({ 
+                    x: e.x, y: e.y, 
+                    vx: Math.cos(ang) * bulletSpeed * 0.9, 
+                    vy: Math.sin(ang) * bulletSpeed * 0.9, 
+                    r: 3, from: 'enemy' 
+                  })
+                }
               }
-            } else if (e.bossPhase === 2) {
-              // Phase 2: Wave pattern (reduced spread)
-              for (let i = -2; i <= 2; i++) {
-                const ang = Math.PI / 2 + i * 0.15 + Math.sin(currentTime * 0.08) * 0.3
-                bulletsRef.current.push({ 
-                  x: e.x, y: e.y, 
-                  vx: Math.cos(ang) * bulletSpeed, 
-                  vy: Math.sin(ang) * bulletSpeed, 
-                  r: 3, from: 'enemy' 
-                })
+            } else if (bossType === 2) {
+              // Storm Lord - Lightning and wind patterns
+              if (e.bossPhase === 1) {
+                // Phase 1: Lightning bolts (aimed shots)
+                const playerAng = Math.atan2(playerRef.current.y - e.y, playerRef.current.x - e.x)
+                for (let i = -1; i <= 1; i++) {
+                  const ang = playerAng + i * 0.3
+                  bulletsRef.current.push({ 
+                    x: e.x, y: e.y, 
+                    vx: Math.cos(ang) * bulletSpeed * 1.2, 
+                    vy: Math.sin(ang) * bulletSpeed * 1.2, 
+                    r: 3.5, from: 'enemy' 
+                  })
+                }
+              } else if (e.bossPhase === 2) {
+                // Phase 2: Wind vortex
+                const numBullets = 6
+                for (let i = 0; i < numBullets; i++) {
+                  const ang = (currentTime * 0.08 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                  const distance = 30 + Math.sin(currentTime * 0.1) * 15
+                  bulletsRef.current.push({ 
+                    x: e.x + Math.cos(ang) * distance, 
+                    y: e.y + Math.sin(ang) * distance, 
+                    vx: Math.cos(ang + Math.PI/2) * bulletSpeed * 0.8, 
+                    vy: Math.sin(ang + Math.PI/2) * bulletSpeed * 0.8, 
+                    r: 2.5, from: 'enemy' 
+                  })
+                }
+              }
+            } else if (bossType === 3) {
+              // Ancient Colossus - Massive and slow patterns
+              if (e.bossPhase === 1) {
+                // Phase 1: Slow massive bullets
+                const numBullets = 4
+                for (let i = 0; i < numBullets; i++) {
+                  const ang = (currentTime * 0.01 + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
+                  bulletsRef.current.push({ 
+                    x: e.x, y: e.y, 
+                    vx: Math.cos(ang) * bulletSpeed * 0.5, 
+                    vy: Math.sin(ang) * bulletSpeed * 0.5, 
+                    r: 5, from: 'enemy' 
+                  })
+                }
+              } else if (e.bossPhase === 2) {
+                // Phase 2: Earthquake waves (horizontal spread)
+                for (let i = -4; i <= 4; i++) {
+                  const ang = Math.PI / 2 + i * 0.1
+                  bulletsRef.current.push({ 
+                    x: e.x, y: e.y, 
+                    vx: Math.cos(ang) * bulletSpeed * 0.6, 
+                    vy: Math.sin(ang) * bulletSpeed * 0.6, 
+                    r: 4, from: 'enemy' 
+                  })
+                }
               }
             }
             
             // Boss phase progression based on HP
-            const hpRatio = e.hp / e.maxHp
             if (hpRatio < 0.5 && e.bossPhase === 1) {
               e.bossPhase = 2
             }
@@ -642,11 +716,26 @@ const BulletHell: React.FC = () => {
           e.y += Math.sin(spiral) * 0.6 + 0.7
         }
         if (e.pattern === 6 && e.isBoss) {
-          // Boss movement - slow horizontal movement
-          e.x += Math.sin(currentTime * 0.01) * 1.0
-          // Keep boss near top of screen
-          if (e.y > 80) e.y -= 0.2
-          if (e.y < 40) e.y += 0.2
+          // Boss movement - type specific patterns
+          const bossType = e.bossType || 1
+          
+          if (bossType === 1) {
+            // Forest Guardian - Gentle swaying movement
+            e.x += Math.sin(currentTime * 0.008) * 0.8
+            if (e.y > 70) e.y -= 0.15
+            if (e.y < 45) e.y += 0.15
+          } else if (bossType === 2) {
+            // Storm Lord - More aggressive movement
+            e.x += Math.sin(currentTime * 0.015) * 1.5
+            e.y += Math.cos(currentTime * 0.012) * 0.3
+            if (e.y > 85) e.y -= 0.3
+            if (e.y < 35) e.y += 0.3
+          } else {
+            // Ancient Colossus - Slow but imposing movement
+            e.x += Math.sin(currentTime * 0.005) * 0.5
+            if (e.y > 75) e.y -= 0.1
+            if (e.y < 50) e.y += 0.1
+          }
         }
       })
 
@@ -813,16 +902,24 @@ const BulletHell: React.FC = () => {
           // ボス出現音
           playSound(150, 1.0, 'square')
           
-          const bossHp = 50 + Math.floor(nextWave / 5) * 25 // Much higher HP: starts at 50, increases by 25 per tier
+          const bossTier = Math.floor(nextWave / 5) // 1, 2, 3, 4...
+          const bossType = ((bossTier - 1) % 3) + 1 // 1, 2, 3, 1, 2, 3...
+          const bossHp = 40 + bossTier * 20 // 60, 80, 100, 120...
+          
+          // ボスタイプに応じたサイズと位置
+          const bossSize = bossType === 1 ? 18 : bossType === 2 ? 22 : 25
+          const startY = bossType === 3 ? 40 : 50
+          
           enemiesRef.current.push({
             x: w / 2,
-            y: 50,
-            r: 20,
+            y: startY,
+            r: bossSize,
             hp: bossHp,
             maxHp: bossHp,
             pattern: 6, // Boss pattern
             isBoss: true,
-            bossPhase: 1
+            bossPhase: 1,
+            bossType: bossType
           })
         }
       }
@@ -834,15 +931,64 @@ const BulletHell: React.FC = () => {
       // enemies with HP bars
       for (const e of enemiesRef.current) {
         if (e.isBoss) {
-          // Boss appearance - larger, different color, with glow effect
-          ctx.shadowColor = '#ff6b6b'
-          ctx.shadowBlur = 15
-          ctx.fillStyle = e.bossPhase === 2 ? '#ff4444' : '#ff6b6b'
+          // Boss appearance - varied by type
+          const bossType = e.bossType || 1
+          let shadowColor, fillColor, coreColor, bossName
+          
+          if (bossType === 1) {
+            // Forest Guardian - Green/Nature theme
+            shadowColor = '#4caf50'
+            fillColor = e.bossPhase === 2 ? '#2e7d32' : '#4caf50'
+            coreColor = '#8bc34a'
+            bossName = e.bossPhase === 2 ? 'FURY' : 'GUARDIAN'
+          } else if (bossType === 2) {
+            // Storm Lord - Blue/Electric theme
+            shadowColor = '#2196f3'
+            fillColor = e.bossPhase === 2 ? '#1565c0' : '#2196f3'
+            coreColor = '#64b5f6'
+            bossName = e.bossPhase === 2 ? 'STORM' : 'LORD'
+          } else {
+            // Ancient Colossus - Purple/Dark theme
+            shadowColor = '#9c27b0'
+            fillColor = e.bossPhase === 2 ? '#6a1b9a' : '#9c27b0'
+            coreColor = '#ba68c8'
+            bossName = e.bossPhase === 2 ? 'ANCIENT' : 'COLOSSUS'
+          }
+          
+          ctx.shadowColor = shadowColor
+          ctx.shadowBlur = 20
+          ctx.fillStyle = fillColor
           ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2); ctx.fill()
           
-          // Boss inner core
-          ctx.fillStyle = '#ffffff'
+          // Boss inner core with type-specific color
+          ctx.fillStyle = coreColor
           ctx.beginPath(); ctx.arc(e.x, e.y, e.r * 0.4, 0, Math.PI * 2); ctx.fill()
+          
+          // Additional visual effects for each type
+          if (bossType === 1) {
+            // Nature rings
+            ctx.strokeStyle = shadowColor
+            ctx.lineWidth = 2
+            ctx.setLineDash([4, 4])
+            ctx.lineDashOffset = -currentTime * 0.05
+            ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 8, 0, Math.PI * 2); ctx.stroke()
+            ctx.setLineDash([])
+          } else if (bossType === 2) {
+            // Lightning effect
+            ctx.strokeStyle = shadowColor
+            ctx.lineWidth = 3
+            if (currentTime % 20 < 10) {
+              ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 5, 0, Math.PI * 2); ctx.stroke()
+            }
+          } else {
+            // Ancient aura
+            ctx.shadowColor = shadowColor
+            ctx.shadowBlur = 30
+            ctx.strokeStyle = shadowColor
+            ctx.lineWidth = 1
+            ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 12, 0, Math.PI * 2); ctx.stroke()
+          }
+          
           ctx.shadowBlur = 0
           
           // Boss HP bar (larger)
@@ -853,12 +999,11 @@ const BulletHell: React.FC = () => {
           ctx.fillStyle = '#44ff44'
           ctx.fillRect(e.x - barWidth/2, e.y - e.r - 15, barWidth * (e.hp / e.maxHp), barHeight)
           
-          // Boss name/phase indicator - compact
+          // Boss name/phase indicator - type specific
           ctx.fillStyle = '#ffffff'
-          ctx.font = 'bold 10px Arial'
+          ctx.font = 'bold 9px Arial'
           ctx.textAlign = 'center'
-          const bossText = e.bossPhase === 2 ? 'RAGE' : 'BOSS'
-          ctx.fillText(bossText, e.x, e.y - e.r - 18)
+          ctx.fillText(bossName, e.x, e.y - e.r - 18)
         } else {
           // Normal enemy
           ctx.fillStyle = '#FFD166'
@@ -978,11 +1123,11 @@ const BulletHell: React.FC = () => {
       ctx.fillStyle = '#ffffff'
       ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill()
       
-      // draw UI - improved text sizing and positioning
+      // draw UI - improved text sizing and positioning with better margins
       ctx.fillStyle = '#fff3e0'
       ctx.font = 'bold 14px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       ctx.textAlign = 'left'
-      ctx.fillText(`スコア: ${score}`, 8, 20)
+      ctx.fillText(`スコア: ${score}`, 16, 20)
       
       // ウェーブ表示（右上） - 余裕をもって配置
       ctx.textAlign = 'right'
@@ -996,59 +1141,60 @@ const BulletHell: React.FC = () => {
       }
       
       
-      // power-up status with equipment indicators - compact display
+      // power-up status with equipment indicators - improved display with better margins
       ctx.font = 'bold 10px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       let yOffset = 50
+      const leftMargin = 16 // より大きなマージンを設定
       
-      // Fire rate - compact display
+      // Fire rate - improved display
       const totalFireRate = playerRef.current.fireRate
       const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
       const powerUpFireRateBonus = powerUpBonuses.fireRate
       
       if (equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0) {
         ctx.fillStyle = '#4ecdc4' // Bonus color
-        ctx.fillText(`連射:${totalFireRate.toFixed(1)}⚡`, 8, yOffset)
+        ctx.fillText(`連射:${totalFireRate.toFixed(1)}⚡`, leftMargin, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`連射:${totalFireRate.toFixed(1)}`, 8, yOffset)
+        ctx.fillText(`連射:${totalFireRate.toFixed(1)}`, leftMargin, yOffset)
       }
       yOffset += 12
       
-      // Power - compact display
+      // Power - improved display
       const totalPower = playerRef.current.power
       const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
       const powerUpPowerBonus = powerUpBonuses.power
       
       if (equipmentPowerBonus > 0 || powerUpPowerBonus > 0) {
         ctx.fillStyle = '#ff6b6b' // Bonus color
-        ctx.fillText(`威力:${totalPower.toFixed(1)}💥`, 8, yOffset)
+        ctx.fillText(`威力:${totalPower.toFixed(1)}💥`, leftMargin, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`威力:${totalPower.toFixed(1)}`, 8, yOffset)
+        ctx.fillText(`威力:${totalPower.toFixed(1)}`, leftMargin, yOffset)
       }
       yOffset += 12
       
-      // Shield with equipment bonus - shortened
+      // Shield with equipment bonus - improved display
       if (inventory.equippedShield) {
         ctx.fillStyle = '#ffd93d'
         const shieldIcon = inventory.equippedShield.icon
-        // 装備名を短縮
-        const shortName = inventory.equippedShield.name.length > 6 
-          ? inventory.equippedShield.name.substring(0, 6) + '...'
+        // 装備名を適切に表示（短縮しすぎないように）
+        const displayName = inventory.equippedShield.name.length > 8 
+          ? inventory.equippedShield.name.substring(0, 8) + '..'
           : inventory.equippedShield.name
-        ctx.fillText(`${shieldIcon}${shortName}`, 8, yOffset)
+        ctx.fillText(`${shieldIcon}${displayName}`, leftMargin, yOffset)
         yOffset += 12
       }
       
-      // Special equipment effects - shortened
+      // Special equipment effects - improved display
       if (inventory.equippedSpecial) {
         ctx.fillStyle = '#9c27b0'
         const specialIcon = inventory.equippedSpecial.icon
-        // 装備名を短縮
-        const shortName = inventory.equippedSpecial.name.length > 6 
-          ? inventory.equippedSpecial.name.substring(0, 6) + '...'
+        // 装備名を適切に表示（短縮しすぎないように）
+        const displayName = inventory.equippedSpecial.name.length > 8 
+          ? inventory.equippedSpecial.name.substring(0, 8) + '..'
           : inventory.equippedSpecial.name
-        ctx.fillText(`${specialIcon}${shortName}`, 8, yOffset)
+        ctx.fillText(`${specialIcon}${displayName}`, leftMargin, yOffset)
         yOffset += 12
       }
 
@@ -1269,7 +1415,15 @@ const BulletHell: React.FC = () => {
         ref={canvasRef} 
         width={400} 
         height={280} 
-        style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} 
+        style={{ 
+          border: '4px solid #333', 
+          borderRadius: 12, 
+          background: '#0b1020', 
+          width: 'min(92vw, 480px)', 
+          height: 'auto', 
+          touchAction: 'none',
+          boxSizing: 'border-box' // 境界線を外側に配置
+        }} 
         onClick={shoot}
         role="application"
         aria-label="演習林での修行。矢印キーで移動、スペースキーで発射。"

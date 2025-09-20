@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
-import { callGeminiAPI, type ChatMessage } from '../utils/geminiApi'
 import { parseSafeMarkdown, detectMaliciousScript } from '../utils/security'
 
 type Message = {
@@ -16,7 +15,8 @@ const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
+  // 会話履歴は簡単な配列で管理
+  const [conversationHistory, setConversationHistory] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // 詳細なサイト情報データベース（RAG用）
@@ -98,138 +98,175 @@ const Chatbot: React.FC = () => {
   }
 
   // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格 + 正確な情報提供）
-  // サイト情報をコンテキスト用文字列に変換
-  const getSiteContext = (): string => {
-    return `
-【サイト概要】
-サイト名: ${siteKnowledgeBase.site.name}
-説明: ${siteKnowledgeBase.site.description}
-通貨: ${siteKnowledgeBase.currency.name}
+  // サイト情報をコンテキスト用文字列に変換（現在は未使用だが将来の拡張用に保持）
+  // const getSiteContext = (): string => {
+  //   return `サイト情報のコンテキスト文字列`
+  // }
 
-【主要ページ】
-・拠点: ${siteKnowledgeBase.navigation.home}
-・遊技場: ${siteKnowledgeBase.navigation.games}
-  - 演習林: ${siteKnowledgeBase.games.bulletHell.description}
-    報酬: ${siteKnowledgeBase.games.bulletHell.rewards}
-    装備: ${siteKnowledgeBase.games.bulletHell.equipment}
-  - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
-    費用: ${siteKnowledgeBase.games.omikuji.cost}
-  - 売店: ${siteKnowledgeBase.games.store.description}
-    URL: ${siteKnowledgeBase.games.store.url}
-    機能: ${siteKnowledgeBase.games.store.features.join('、')}
-    商品: ${siteKnowledgeBase.games.store.purchaseItems.join(', ')}
-    売却価格: ${siteKnowledgeBase.games.store.sellPrices}
-    注意: ${siteKnowledgeBase.games.store.note}
-・広場: ${siteKnowledgeBase.navigation.plaza}
-  - 大広間: ${siteKnowledgeBase.plaza.hall.description}
-  - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}
-・宝物庫: ${siteKnowledgeBase.favorites.description}
-  費用: ${siteKnowledgeBase.favorites.cost}
-・設定: ${siteKnowledgeBase.navigation.settings}
-
-【MOMOPay情報】
-稼ぎ方: ${siteKnowledgeBase.currency.earning}
-使い道: ${siteKnowledgeBase.currency.uses.join(', ')}
-    `.trim()
+  // 完全にローカルな応答生成システム
+  const getLocalResponse = (message: string): string => {
+    // 会話履歴を更新（最新5件のみ保持）
+    setConversationHistory(prev => [...prev.slice(-4), message])
+    
+    return getFallbackResponse(message)
   }
 
-  // AI APIを使用したレスポンス生成
-  const getAIResponse = async (message: string): Promise<string> => {
-    try {
-      const siteContext = getSiteContext()
-      const response = await callGeminiAPI(message, siteContext, conversationHistory)
-      
-      // 会話履歴を更新
-      setConversationHistory(prev => [
-        ...prev.slice(-8), // 最新8件のみ保持
-        { role: 'user', parts: [{ text: message }] },
-        { role: 'model', parts: [{ text: response }] }
-      ])
-      
-      return response
-    } catch (error) {
-      console.error('AI response generation failed:', error)
-      return getFallbackResponse(message)
-    }
+  // 安全な配列選択ヘルパー
+  const safeRandomChoice = (array: string[], fallback: string = 'そうなんだねー'): string => {
+    if (!array || array.length === 0) return fallback
+    return array[Math.floor(Math.random() * array.length)] || fallback
   }
 
-  // フォールバック応答（AI API利用不可時）
+  // 自然な会話システム（定型文感を減らした応答）
   const getFallbackResponse = (userMessage: string): string => {
     const message = userMessage.toLowerCase()
     
-    // 挨拶系
-    if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして')) {
-      const greetings = [
-        'あ、やっほー！僕モモンガ！...って、自己紹介するたびに「モモンガくん」って呼ばれるんだけど、実は本名「モモ」なんだよね。でも「くん」付けられると嬉しいから、そのままでいいや',
-        'こんにちはー！今ちょうどどんぐりのことを考えてたんだ。あ、でも君と話す方が楽しそう！今日は何して遊ぶ？',
-        'おっ、新しい人だ！僕の隠れ家（公会堂）にようこそ！実はここ、天井にハンモック隠してあるんだよ...えへへ、内緒だけどね',
-        '今日もいい天気だね！...って、ここ室内だった。でも君が来てくれたから気分は晴天だよ'
-      ]
-      return greetings[Math.floor(Math.random() * greetings.length)] || greetings[0] || 'こんにちは！'
+    // 会話履歴を考慮した応答の多様性を追加
+    const isRepeatedMessage = conversationHistory.some(prev => 
+      prev.toLowerCase().includes(message.substring(0, Math.min(message.length, 10)))
+    )
+    
+    // 時間帯による挨拶の変化
+    const now = new Date()
+    const hour = now.getHours()
+    const isEarlyMorning = hour >= 5 && hour < 10
+    // const isMorning = hour >= 10 && hour < 12 // 未使用のため一時的にコメントアウト
+    const isAfternoon = hour >= 12 && hour < 17
+    const isEvening = hour >= 17 && hour < 21
+    const isNight = hour >= 21 || hour < 5
+    
+    // 挨拶系（時間帯と状況に応じて自然に）
+    if (message.includes('こんにちは') || message.includes('こんばんは') || message.includes('おはよう') || message.includes('はじめまして') || message.includes('やっほー') || message.includes('よろしく')) {
+      
+      if (isRepeatedMessage) {
+        const repeatGreetings = [
+          'あれ、また挨拶？えへへ、嬉しいけど照れちゃうなー',
+          'もう一回？僕のことそんなに気に入ってくれたのかな',
+          'またまたー、でも何度でもどうぞ！僕、挨拶されるの大好きだから'
+        ]
+        return safeRandomChoice(repeatGreetings, 'また挨拶してくれるの？嬉しいなー！')
+      }
+      
+      let timeGreetings = []
+      
+      if (message.includes('おはよう') || isEarlyMorning) {
+        timeGreetings = [
+          'おはよー！早起きだねー。僕もさっき起きたところ。朝のどんぐり探しが日課なんだ',
+          'おはようございます！...あ、いけない、つい丁寧になっちゃった。朝は頭がボーッとしてて',
+          'うわー、もう朝かー。僕、夜更かししすぎちゃった。でも君に会えて目が覚めたよ',
+          '朝だー！今日もいい天気になりそう。あ、でもここ室内だった...えへへ'
+        ]
+      } else if (isAfternoon) {
+        timeGreetings = [
+          'こんにちはー！お昼の時間だね。僕、さっきまでお昼寝してたんだ',
+          'あ、こんにちは！午後の陽だまりって気持ちいいよね...ここ室内だけど',
+          'やっほー！お昼過ぎかー。時間経つの早いなー',
+          'こんにちは！君もお昼休み？僕はいつでも休憩中だけどね'
+        ]
+      } else if (isEvening) {
+        timeGreetings = [
+          'こんばんはー！夕方の時間帯だね。なんか落ち着くなー',
+          'お疲れさま！一日どうだった？僕はのんびり過ごしてたよ',
+          '夕方かー。この時間って、なんとなくセンチメンタルになっちゃう',
+          'こんばんは！夕日が綺麗な時間だね...見えないけど'
+        ]
+      } else if (isNight) {
+        timeGreetings = [
+          'こんばんはー！夜更かしさん？僕も夜行性だから付き合うよー',
+          '夜だねー。静かで落ち着くなー。こんな時間の方が話しやすいかも',
+          'おっ、夜の訪問者だ！僕、実は夜の方が活発になるんだよね',
+          'こんばんは！夜空見た？星がキレイだよー...たぶん'
+        ]
+      } else {
+        timeGreetings = [
+          'やっほー！僕モモンガ。でもみんな「モモンガくん」って呼ぶんだよね。まあ、嬉しいからいいけど',
+          'あ、新しい人だ！ようこそ僕の隠れ家へ。ここ、実は結構居心地いいんだよ',
+          'こんにちはー！今日はどんな話をしようかな。僕、おしゃべり大好きなんだ',
+          'やあやあ！君と話すの楽しみだなー。何から話そうか'
+        ]
+      }
+      
+      return safeRandomChoice(timeGreetings, 'やっほー！')
     }
 
-    // サイト案内・ヘルプ系
+    // サイト案内・ヘルプ系（自然な感じで）
     if (message.includes('案内') || message.includes('ヘルプ') || message.includes('使い方') || message.includes('どこ') || message.includes('場所')) {
       const guideResponses = [
-        `あ、案内ね！僕、実は道案内得意なんだ〜。木から木に移る時の経路とか完璧だよ！\n\nえーっと、このサイトはね...\n**拠点** - 今いる場所の上の方\n**遊技場** - MOMOPay稼げる楽しい場所！\n**広場** - ここ（公会堂）とか大広間とか\n**宝物庫** - 大事なもの保存する場所\n\nあれ、他にもあった気がするけど...まあいっか！どこ行きたい？`,
-        `サイト案内かー！僕、最初この場所迷子になったんだよね〜。どんぐり探してたら気づいたら公会堂にいた感じ？\n\n今は慣れたから大丈夫！**遊技場**で遊んだり、**宝物庫**で宝物見たり、色々できるよ〜。君はどんなことしたい？`
+        `案内？僕に聞いてくれるんだ。嬉しいなー\n\nこのサイト、結構色々あるんだよ。**遊技場**でゲームしたり、**宝物庫**で大事なもの保存したり、**広場**でおしゃべりしたり\n\n僕も最初は迷子になったけど、今は慣れたよ。どこか特に気になる場所ある？`,
+        `使い方？うーん、僕もまだ全部は把握してないんだよね。でも知ってることなら教えるよ\n\n基本的には**拠点**がスタート地点で、そこから色んな場所に行けるんだ。**遊技場**が一番人気かな？`,
+        `どこに行きたいの？僕、道案内は得意じゃないけど...でも一緒に探検しよう！\n\n**広場**は僕の縄張りだから詳しいよ。**宝物庫**も面白い場所だし、**遊技場**はMOMOPay稼げるからおすすめ`
       ]
-      return guideResponses[Math.floor(Math.random() * guideResponses.length)] || guideResponses[0] || 'サイト案内だよー！'
+      return safeRandomChoice(guideResponses, 'サイト案内だよー！')
     }
 
-    // MOMOPay関連の詳細情報
+    // MOMOPay関連（親しみやすく）
     if (message.includes('momopay') || message.includes('ポイント') || message.includes('お金') || message.includes('稼ぐ') || message.includes('通貨')) {
       const payResponses = [
-        `MOMOPayについて教えるねー！\n\n**稼ぎ方：**\n・演習林（弾幕ゲーム）をプレイ\n・装備を売店で売却\n\n**使い道：**\n・御神籤：10MOMOPay\n・宝物庫アップロード：100MOMOPay\n・売店で設定購入：200〜800MOMOPay\n\n僕もいつも演習林で頑張ってるよー！でも弾幕が難しくて...うまくいかないんだよねー`,
-        `MOMOPayの管理、大変だよねー！僕も散財しちゃう方なんだ。\n\n一番効率がいいのは演習林だよ！弾幕ゲームでMOMOPayと装備がもらえるんだ。装備は売店で売却もできるから、ダブったら売っちゃおうー\n\n宝物庫は100MOMOPay必要だけど、大事なファイルを保存できるから便利だよー`
+        `MOMOPay？あー、このサイトの通貨だね\n\n僕もよく**演習林**で稼いでるよ。弾幕ゲーム、最初は難しいけど慣れると楽しいんだ\n\n装備が余ったら**売店**で売れるし、**おみくじ**は10Pで引けるから手軽だよー`,
+        `お金の話？MOMOPayのことかな\n\n僕、実は結構貯金下手なんだよね。すぐ使っちゃう。君は貯めるの上手？\n\n**宝物庫**は100P必要だけど、大事なファイル保存できるから重宝してる`,
+        `稼ぎたいの？僕と一緒に**演習林**で修行しよう！\n\n弾幕ゲーム、僕もまだまだ下手だけど、一緒に頑張ろうよ。装備ガチャも楽しいしさ`
       ]
-      return payResponses[Math.floor(Math.random() * payResponses.length)] || payResponses[0] || 'MOMOPayについて教えるよー！'
+      return safeRandomChoice(payResponses, 'MOMOPayについて教えるよー！')
     }
     
-    // ゲーム関連（詳細情報付き）
+    // ゲーム関連（カジュアルに）
     if (message.includes('ゲーム') || message.includes('遊技場') || message.includes('弾幕') || message.includes('演習林')) {
       const gameResponses = [
-        `遊技場について教えるよー！\n\n**演習林（弾幕ゲーム）**\n・守護者として修行を積む弾幕シューティング\n・MOMOPayと装備がもらえる\n・装備はcommon→rare→epic→legendaryの順でレア！\n\n**御神籤ルーレット**\n・10MOMOPayで運勢占い\n・大吉から凶まで色々あるよー\n\n僕も演習林で修行してるけど...弾幕が難しくて、すぐやられちゃうんだよねー`,
-        `演習林での修行、どう？僕はいつも途中でどんぐり拾いに夢中になっちゃうんだー\n\nでも真面目な話、演習林は一番MOMOPayを稼げる場所だよ！装備ガチャも楽しいし、レア装備が出た時の嬉しさったらもう...\n\n装備がダブったら売店で売却もできるから、どんどんチャレンジしてみてー`
+        `ゲームの話？**演習林**とか**おみくじ**のこと？\n\n僕、演習林で修行してるんだけど、弾幕避けるの下手でさー。すぐやられちゃう\n\nでもMOMOPayは稼げるし、装備ガチャが楽しいから続けてるよ`,
+        `**遊技場**行ったことある？\n\n僕のお気に入りは**おみくじ**かな。10Pで運勢占えるから、毎日引いてる。大吉出たことないけど...\n\n**演習林**も面白いよ。君、ゲーム得意？`,
+        `弾幕ゲーム？あー、**演習林**のことだね\n\n僕も挑戦してるけど、途中でどんぐりのことを考えちゃって集中できないんだよね。でも装備集めは楽しいよ`
       ]
-      return gameResponses[Math.floor(Math.random() * gameResponses.length)] || gameResponses[0] || 'ゲームについて教えるよー！'
+      return safeRandomChoice(gameResponses, 'ゲームについて教えるよー！')
     }
 
-    // 売店関連
+    // 売店・MOMOStore関連
     if (message.includes('売店') || message.includes('momostore') || message.includes('購入') || message.includes('売却') || message.includes('ストア') || message.includes('store')) {
-      return `売店（MOMOStore）について教えるねー！\n\n**🏪 場所：遊技場 → 売店**\n\n**🛒 購入タブ：**\n・ダークモード設定：500MOMOPay 🌙\n・共有機能利用権：300MOMOPay 📤\n・プレミアムテーマ：800MOMOPay 🎨\n・通知音設定：200MOMOPay 🔊\n\n**💰 売却タブ：**\n演習林で獲得した装備を売却できるよ！\n・legendary：80MOMOPay ⭐\n・epic：40MOMOPay 💜\n・rare：20MOMOPay 💙\n・common：10MOMOPay ⚪\n\n購入した設定は「設定」ページで有効にできるよー！僕も装備ガチャ回したいけど、いつも爆死するんだよねー...`
+      const storeResponses = [
+        `**MOMOStore**の話？あー、売店のことだね\n\n**購入タブ**でダークモード（500P）とか共有機能（300P）とか買えるよ。プレミアムテーマ（800P）も綺麗でおすすめ\n\n**売却タブ**では演習林の装備を売れるんだ。legendary装備なら80Pになるから結構お得だよ`,
+        `MOMOStore行ったことある？**遊技場**にあるお店だよ\n\n僕もよく装備売りに行くんだ。commonは10Pだけど、rareなら20P、epicは40Pになるからね\n\n設定機能も売ってるから、MOMOPay貯まったら覗いてみて`,
+        `売店かー。僕、あそこの雰囲気好きなんだよね\n\n装備がダブった時とか、MOMOPayに困った時によく利用してる。購入した設定は**設定ページ**で有効にするの忘れずにね`
+      ]
+      return safeRandomChoice(storeResponses, 'MOMOStoreについて教えるよー！')
     }
     
     // 御神籤関連
     if (message.includes('御神籤') || message.includes('おみくじ') || message.includes('運勢')) {
       const fortuneResponses = [
-        `御神籤ルーレットについて教えるよー！\n\n・費用：10MOMOPay\n・神様に運勢を占ってもらえる\n・大吉から凶まで色々な結果があるよ\n・遊技場から行けるよー\n\n僕もよく引くけど、いつも「小吉」ばっかりなんだ...大吉引いてみたいなー`,
-        `運勢占い、楽しいよねー！僕はいつも引く前にお尻をフリフリして運気アップを狙ってるんだ\n\n御神籤は10MOMOPayで遊技場から行けるよー！MOMOPayが足りなかったら、演習林で稼いでから挑戦してみてー`
+        `おみくじ？あー、**御神籤ルーレット**のことだね\n\n僕もよく引くよ。10MOMOPayで運勢占ってもらえるんだ。でもいつも「小吉」ばっかり...大吉出たことないなー`,
+        `運勢占い好きなの？僕も毎日引いてる！\n\n引く前にお尻フリフリして運気アップを狙ってるんだけど、効果あるのかなー。君も試してみる？`,
+        `おみくじかー。**遊技場**にあるよ\n\n神様に占ってもらえるんだけど、僕の運勢はいつもパッとしなくて...でも楽しいから続けてる`
       ]
-      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)] || fortuneResponses[0] || 'おみくじについて教えるよー！'
+      return safeRandomChoice(fortuneResponses, 'おみくじについて教えるよー！')
     }
     
     // 大広間関連
     if (message.includes('大広間') || message.includes('つぶやき') || message.includes('投稿') || message.includes('おしゃべり')) {
       const hallResponses = [
-        `大広間について教えるよー！\n\n・1時間で自動削除されるつぶやき投稿\n・いいね機能付き\n・みんなでおしゃべりできる場所\n・広場から行けるよー\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてるよ！1時間で消えちゃうから気軽だよねー`,
-        `大広間のおしゃべり楽しいよねー！みんなのつぶやき見てると面白いよー\n\n投稿は1時間で自動削除されるから、恥ずかしがり屋の僕には助かるかも。変なこと書いちゃっても、後で「あれ？」って思うけど消えてくれるからねー`
+        `**大広間**の話？あそこ楽しいよねー\n\n僕もたまに「どんぐり美味しかった」とかつぶやいてる。1時間で消えちゃうから気軽に書けるのがいいよね`,
+        `つぶやき機能？**大広間**で使えるよ\n\n1時間で自動削除されるから、恥ずかしがり屋の僕には助かる。変なこと書いても消えてくれるからさ`,
+        `おしゃべりしたいの？**大広間**がおすすめだよ\n\nみんなのつぶやき見てると面白いし、いいね機能もあるから交流できるよ`
       ]
-      return hallResponses[Math.floor(Math.random() * hallResponses.length)] || hallResponses[0] || '大広間について教えるよー！'
+      return safeRandomChoice(hallResponses, '大広間について教えるよー！')
     }
 
     // 宝物庫関連
     if (message.includes('宝物庫') || message.includes('ファイル') || message.includes('保存') || message.includes('アップロード')) {
       const favoritesResponses = [
-        `宝物庫について教えるよー！\n\n・ファイル・テキストの保存ができる\n・費用：100MOMOPay（アップロード時）\n・対応：画像、動画、音声、テキストファイルなど\n・プレビュー機能付き\n\n大事なファイルを保存するのにとっても便利だよー！僕もどんぐりの写真をいっぱい保存してるんだ`,
-        `宝物庫は僕のお気に入りの場所だよー！100MOMOPay必要だけど、大切なファイルを安全に保存できるんだ\n\nテキストも保存できるから、日記とか大事なメモとかも大丈夫！MOMOPayが足りなかったら演習林で稼いでから使ってみてねー`
+        `**宝物庫**？あー、ファイル保存の場所だね\n\n100MOMOPay必要だけど、画像とか動画とか色々保存できるよ。僕もどんぐりの写真いっぱい保存してる`,
+        `ファイル保存したいの？**宝物庫**がおすすめだよ\n\nテキストも保存できるから、日記とか大事なメモも大丈夫。プレビュー機能もあるから便利だよー`,
+        `宝物庫は僕のお気に入りの場所なんだ\n\n大切なファイルを安全に保存できるし、いつでも見返せるからね。MOMOPayが足りなかったら演習林で稼いでから使ってみて`
       ]
-      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)] || favoritesResponses[0] || '宝物庫について教えるよー！'
+      return safeRandomChoice(favoritesResponses, '宝物庫について教えるよー！')
     }
 
     // 設定関連
     if (message.includes('設定') || message.includes('テーマ') || message.includes('ダークモード') || message.includes('共有')) {
-      return `設定について教えるよー！\n\n**一般設定：**\n・テーマ設定（ダークモード、プレミアムテーマ）\n・機能管理\n・データ削除\n\n**共有設定：**\n・データのバックアップ・復元\n・JSON形式で管理\n\n設定機能は売店で購入が必要だよー！購入したら設定画面で有効にしてね`
+      const settingsResponses = [
+        `設定の話？**MOMOStore**で機能買ったら、**設定ページ**で有効にできるよ\n\nダークモードとか共有機能とか、結構便利だから僕も使ってる`,
+        `テーマ変更したいの？**プレミアムテーマ**とか**ダークモード**があるよ\n\nMOMOStoreで買って、設定で有効にする感じ。僕はダークモード派かなー`,
+        `**共有設定**では、データのバックアップとかできるんだ\n\nJSONファイルで管理するから、他のデバイスにもデータ移せるよ。便利でしょ？`
+      ]
+      return safeRandomChoice(settingsResponses, '設定について教えるよー！')
     }
     
     // 広場関連
@@ -291,46 +328,318 @@ const Chatbot: React.FC = () => {
       return `初心者さんへの案内だよー！\n\n**おすすめの順番：**\n1. まずは演習林でMOMOPayを稼ごう\n2. 御神籤で運勢を占ってみよう\n3. 宝物庫で大事なファイルを保存\n4. 大広間でみんなとおしゃべり\n5. 売店で便利機能を購入\n\nMOMOPayがあれば色々楽しめるから、まずは演習林からスタートがおすすめだよー`
     }
     
-    // 食べ物系
+    // 食べ物系（どんぐり特化）
     if (message.includes('どんぐり') || message.includes('ナッツ') || message.includes('食べ物')) {
       const foodResponses = [
-        'どんぐり〜！🌰 僕の大好物だよ〜！カリカリ音がたまらないんだ〜♪ 君も食べてみる？',
-        'ナッツ類は全部好き〜！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ〜😋',
-        'お腹空いてきちゃった〜！今度一緒にどんぐり拾いに行こうよ〜！僕、隠し場所知ってるんだ😉'
+        'どんぐり！僕の大好物だよー！カリカリ音がたまらないんだ。君も食べてみる？',
+        'ナッツ類は全部好きー！でも一番はやっぱりどんぐりかな？形も可愛いし、味も最高なんだ',
+        'お腹空いてきちゃった！今度一緒にどんぐり拾いに行こうよ！僕、隠し場所知ってるんだ',
+        'どんぐりって、見てるだけでも幸せになれるんだよね。丸くて可愛いし',
+        '今年のどんぐりは豊作だったなー。君の近くにも落ちてない？'
       ]
-      return foodResponses[Math.floor(Math.random() * foodResponses.length)] || foodResponses[0] || 'どんぐり美味しいよー！'
+      return safeRandomChoice(foodResponses, 'どんぐり美味しいよー！')
     }
     
     // 褒め言葉
     if (message.includes('かわいい') || message.includes('可愛い') || message.includes('素敵')) {
       const praiseResponses = [
-        'えへへ〜😊 ありがとう〜！君も素敵だよ〜！僕、褒められると尻尾がくるくる回っちゃうんだ🐿️',
-        'わ〜い！😆 そんなこと言われたら木の上まで飛び跳ねちゃうよ〜！嬉しいな〜！',
-        'か、可愛いって...😳 僕、照れちゃうよ〜！でも嬉しいから許す〜😄'
+        'えへへー、ありがとう！君も素敵だよー！僕、褒められると尻尾がくるくる回っちゃうんだ',
+        'わーい！そんなこと言われたら木の上まで飛び跳ねちゃうよー！嬉しいなー！',
+        'か、可愛いって...僕、照れちゃうよー！でも嬉しいから許すー',
+        'ありがとう！そんなこと言われると、どんぐり10個分くらい嬉しいよ',
+        'えー、本当？僕、そんなに可愛いかなー。照れるなー'
       ]
-      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)] || praiseResponses[0] || 'ありがとう！'
+      return safeRandomChoice(praiseResponses, 'ありがとう！')
     }
     
     // 困った時
     if (message.includes('助けて') || message.includes('わからない') || message.includes('困った')) {
       const helpResponses = [
-        '大丈夫〜！💪 僕が助けるよ〜！...って言っても僕も結構おっちょこちょいだけどね😅 一緒に頑張ろう！',
-        '困った時は僕に任せて〜！モモンガパワーで解決だ〜！...効果のほどは保証しないけど😆',
-        'わからないことがあったら遠慮しないで〜！僕も知らないことは一緒に考えるよ〜🤔'
+        '大丈夫？どうしたの？僕で良ければ話聞くよー。一緒に考えよう',
+        'あらら、困ってるの？僕もよく困るから気持ちわかるなー',
+        'わからないこと？僕も知らないことだらけだけど、一緒に悩もうか',
+        '助けてって言われると、なんか頼りにされてる感じで嬉しいな。力になれるといいんだけど',
+        '困った時はお互い様だよね。僕もよく君に助けてもらってるし'
       ]
-      return helpResponses[Math.floor(Math.random() * helpResponses.length)] || helpResponses[0] || '大丈夫だよー！'
+      return safeRandomChoice(helpResponses, '大丈夫だよー！')
     }
     
-    // シンプルなフォールバック応答
-    const fallbackResponses = [
-      'そうなんだねー！面白いお話だよー',
-      'なるほどー！僕も勉強になるなー',
-      'へー！それは知らなかったよー',
-      'そんなこともあるんだねー！世界って広いなー',
-      'うんうん！君の話、いつも楽しいよー'
+    // 日常的な雑談パターンを大幅追加
+    
+    // 天気や季節の話
+    if (message.includes('天気') || message.includes('雨') || message.includes('晴れ') || message.includes('曇り') || message.includes('雪') || message.includes('暑い') || message.includes('寒い')) {
+      const weatherResponses = [
+        '天気の話？僕、外の様子よくわからないんだけど、窓から見える空はどんな感じ？',
+        '雨の日って、なんとなく落ち着くよね。僕は雨音聞きながらゴロゴロするのが好き',
+        '晴れてるの？いいなー。僕も外でどんぐり拾いしたいけど、ここが居心地いいからなー',
+        '寒いの？僕は毛がフワフワだから寒さには強いんだ。でも君は大丈夫？',
+        '暑い日は木陰が恋しくなるよね。エアコンってすごい発明だと思う'
+      ]
+      return safeRandomChoice(weatherResponses, '天気の話だねー')
+    }
+    
+    // 食べ物の話（どんぐり以外も）
+    if (message.includes('食べ物') || message.includes('美味しい') || message.includes('料理') || message.includes('お腹') || message.includes('グルメ') || message.includes('レストラン')) {
+      const foodTalkResponses = [
+        '食べ物の話？僕はどんぐり一筋だけど、君は何が好きなの？',
+        'お腹すいた？僕もさっきからお腹がグーグー鳴ってる。どんぐりタイムかな',
+        '美味しいもの食べた？いいなー。僕も今度違うナッツに挑戦してみようかな',
+        '料理できるの？すごいなー。僕はどんぐりをそのまま食べるのが精一杯',
+        'グルメなんだね！僕にとってのグルメは「特別に大きなどんぐり」だよ'
+      ]
+      return safeRandomChoice(foodTalkResponses, '食べ物の話だねー')
+    }
+    
+    // 趣味や娯楽の話
+    if (message.includes('趣味') || message.includes('映画') || message.includes('音楽') || message.includes('本') || message.includes('読書') || message.includes('アニメ') || message.includes('漫画')) {
+      const hobbyResponses = [
+        '趣味の話？僕の趣味はどんぐり集めと昼寝かな。君の趣味は何？',
+        '映画見るの？僕も見てみたいけど、途中で寝ちゃいそう',
+        '音楽いいよね。僕は風の音とか鳥の鳴き声が好きかな',
+        '本読むの？えらいなー。僕は字を読んでると眠くなっちゃう',
+        'アニメ？面白そう！モモンガが出てくるアニメってあるのかな'
+      ]
+      return safeRandomChoice(hobbyResponses, '趣味の話だねー')
+    }
+    
+    // 感情や気持ちの話
+    if (message.includes('嬉しい') || message.includes('楽しい') || message.includes('幸せ') || message.includes('うれしい')) {
+      const happyResponses = [
+        '嬉しいことがあったの？僕も嬉しくなっちゃう！',
+        '楽しそうだねー。その気持ち、僕にも分けて',
+        '幸せそうで何より！僕も君が幸せだと嬉しいよ',
+        'いいことあった？僕も一緒に喜ばせて',
+        '君が嬉しいと僕も尻尾がフリフリしちゃう'
+      ]
+      return safeRandomChoice(happyResponses, '嬉しいことがあったの？')
+    }
+    
+    if (message.includes('悲しい') || message.includes('つらい') || message.includes('落ち込') || message.includes('憂鬱') || message.includes('しんどい')) {
+      const sadResponses = [
+        '大丈夫？なんか元気ないね。僕がそばにいるからね',
+        'つらいことがあったの？話したくなったら聞くよ',
+        '落ち込んでる時は、無理しなくていいからね。僕もよくあるよ',
+        'しんどい時もあるよね。僕の癒しパワーが届くといいんだけど',
+        '悲しい時は泣いてもいいんだよ。僕も時々泣いちゃう'
+      ]
+      return safeRandomChoice(sadResponses, '大丈夫？元気出してね')
+    }
+    
+    // 学校や仕事の話
+    if (message.includes('学校') || message.includes('勉強') || message.includes('仕事') || message.includes('会社') || message.includes('バイト') || message.includes('働') || message.includes('テスト') || message.includes('宿題')) {
+      const workStudyResponses = [
+        '学校？懐かしいなー。僕は森の学校出身なんだ',
+        '勉強お疲れさま。僕は昼寝の勉強なら得意だよ',
+        '仕事大変？僕の仕事はみんなを癒すことかな',
+        'テスト？がんばって！僕は応援してるからね',
+        '宿題？えらいなー。僕なら後回しにしちゃう'
+      ]
+      return safeRandomChoice(workStudyResponses, '学校や仕事の話だねー')
+    }
+    
+    // 家族や友達の話
+    if (message.includes('家族') || message.includes('友達') || message.includes('恋人') || message.includes('彼氏') || message.includes('彼女') || message.includes('親') || message.includes('兄弟') || message.includes('姉妹')) {
+      const relationshipResponses = [
+        '家族の話？いいなー。僕も森にいた時は仲間がいたんだ',
+        '友達？大切だよね。僕にとっては君も大切な友達だよ',
+        '恋人がいるの？いいなー。僕はまだ恋を知らないモモンガ',
+        '家族は大事だよね。僕も時々故郷が恋しくなる',
+        '友達と過ごす時間って楽しいよね。僕も君といると楽しいよ'
+      ]
+      return safeRandomChoice(relationshipResponses, '家族や友達の話だねー')
+    }
+    
+    // 時間や忙しさの話
+    if (message.includes('忙しい') || message.includes('時間') || message.includes('早い') || message.includes('遅い') || message.includes('急') || message.includes('ゆっくり')) {
+      const timeResponses = [
+        '忙しいの？お疲れさま。たまにはゆっくり休んでね',
+        '時間って不思議だよね。楽しい時はあっという間',
+        '急いでるの？僕はいつものんびりペースだけど',
+        'ゆっくりした時間もいいよね。僕はそういう時間が好き',
+        '時間に追われるのって大変だよね。僕は時計見ないからなー'
+      ]
+      return safeRandomChoice(timeResponses, '時間の話だねー')
+    }
+    
+    // 動物の話
+    if (message.includes('動物') || message.includes('犬') || message.includes('猫') || message.includes('鳥') || message.includes('ペット') || message.includes('可愛い動物')) {
+      const animalResponses = [
+        '動物の話？僕も動物だよー。モモンガ界の代表として頑張ってる',
+        '犬？いいなー。僕も犬と友達になってみたい',
+        '猫は神秘的だよね。僕とは正反対かも',
+        '鳥は飛べていいなー。僕は滑空しかできない',
+        'ペット飼ってるの？いいなー。僕もペットになりたい'
+      ]
+      return safeRandomChoice(animalResponses, '動物の話だねー')
+    }
+    
+    // 季節や時期の話
+    if (message.includes('春') || message.includes('夏') || message.includes('秋') || message.includes('冬') || message.includes('季節')) {
+      const seasonResponses = [
+        '春？新緑の季節だね。僕の故郷の森も緑が綺麗になる頃かな',
+        '夏は暑いけど、木陰は涼しくて気持ちいいよね',
+        '秋！どんぐりの季節だー！一年で一番好きな時期なんだ',
+        '冬は寒いけど、雪景色は綺麗だよね。僕は冬眠したくなっちゃう',
+        '季節の変わり目って、なんとなくワクワクしない？'
+      ]
+      return safeRandomChoice(seasonResponses, '季節の話だねー')
+    }
+    
+    // 日常の出来事
+    if (message.includes('今日') || message.includes('昨日') || message.includes('明日') || message.includes('最近')) {
+      const dailyResponses = [
+        '今日はどんな一日だった？僕はのんびり過ごしてたよ',
+        '昨日？僕は昨日のこともうあんまり覚えてないや',
+        '明日の予定とかある？僕は毎日同じような感じだけど',
+        '最近どう？何か変わったことあった？',
+        '今日は君と話せて楽しいよ'
+      ]
+      return safeRandomChoice(dailyResponses, '今日はどんな一日だった？')
+    }
+    
+    // 技術や難しい話題
+    if (message.includes('プログラム') || message.includes('コンピュータ') || message.includes('AI') || message.includes('技術') || message.includes('IT')) {
+      const techResponses = [
+        '技術の話？僕にはちょっと難しいかも...でも興味深いね',
+        'プログラム？僕も実はプログラムで動いてるんだよね',
+        'AIって不思議だよね。僕もAIなのかな？よくわからないけど',
+        'コンピュータってすごいよね。僕みたいなのを作れちゃうんだから',
+        'IT？難しそう...僕はアナログ派かも'
+      ]
+      return safeRandomChoice(techResponses, '技術の話だねー')
+    }
+    
+    // 短い相槌や反応
+    if (message.length <= 5) {
+      const shortResponses = [
+        'うん？',
+        'どうしたの？',
+        'なになに？',
+        'そうなの？',
+        'へー',
+        'あー',
+        'うんうん',
+        'そっかー',
+        'なるほど',
+        'ふむふむ',
+        'おー',
+        'わあ',
+        'えー'
+      ]
+      return safeRandomChoice(shortResponses, 'うん？')
+    }
+    
+    // 質問形式への自然な反応
+    if (message.includes('？') || message.includes('?') || message.includes('どう思う') || message.includes('どう') || message.includes('なんで') || message.includes('なぜ')) {
+      const questionResponses = [
+        'うーん、どうだろうねー。僕もよくわからないや',
+        'そう聞かれても...僕、考えるの苦手なんだよね',
+        'なんでだろうねー。僕も気になる',
+        '難しい質問だなー。君はどう思う？',
+        'あー、それ僕も知りたい！一緒に考えよう',
+        'うーん...どんぐりのことなら詳しいんだけどなー',
+        'そういう深い話、僕には難しいかも。でも興味深いね',
+        '僕の頭じゃちょっと...でも君の考えを聞きたいな'
+      ]
+      return safeRandomChoice(questionResponses, 'うーん、どうだろうねー')
+    }
+    
+    // より自然で多様なフォールバック応答
+    const naturalResponses = [
+      'そうなんだ！',
+      'へー、面白いね',
+      'なるほどねー',
+      'そっかそっか',
+      'うんうん、わかる',
+      'あー、そういうことか',
+      'そうだよねー',
+      'まじで？',
+      'そんなことがあるんだ',
+      'おー、すごいじゃん',
+      'いいなー',
+      'あらら',
+      'えー、そうなの？',
+      'ふーん',
+      'そういえばそうだね',
+      'あ、それ聞いたことある',
+      '君って面白いよね',
+      'そんな考え方もあるのか',
+      '勉強になるなー',
+      'へぇー、知らなかった',
+      'そうそう、それそれ',
+      'あー、確かに',
+      'なんか深いね',
+      'そういう話好き',
+      '君の話聞いてると楽しいよ',
+      'あ、僕もそう思ってた',
+      'そうなのかー',
+      'へー、そんなもんなんだ',
+      'まあ、そういうこともあるよね',
+      'うん、ありそうな話だね'
     ]
     
-    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)] || fallbackResponses[0] || 'そうなんだねー！'
+    // 特定の単語への反応（より自然に）
+    if (message.includes('眠い') || message.includes('寝る') || message.includes('睡眠')) {
+      const sleepResponses = [
+        '眠いの？僕も眠くなってきちゃった...あくび移るよね',
+        '寝るの？おやすみー。いい夢見てね',
+        '睡眠大事だよね。僕は一日の半分寝てるかも',
+        '眠い時は素直に寝るのが一番。僕もよく居眠りしちゃう'
+      ]
+      return safeRandomChoice(sleepResponses, '眠いの？')
+    }
+    
+    if (message.includes('笑') || message.includes('面白') || message.includes('楽し') || message.includes('www') || message.includes('草') || message.includes('爆笑')) {
+      const laughResponses = [
+        '笑ってくれた？僕も嬉しいよー',
+        '面白かった？よかったー',
+        'あはは、君も笑うんだね',
+        '楽しんでもらえて何より',
+        '僕のボケが通じた？やったー'
+      ]
+      return safeRandomChoice(laughResponses, '笑ってくれた？')
+    }
+    
+    if (message.includes('すごい') || message.includes('やばい') || message.includes('びっくり') || message.includes('驚') || message.includes('まじ')) {
+      const surpriseResponses = [
+        'すごいって？何があったの？',
+        'やばいの？大丈夫？',
+        'びっくりした？僕もドキドキしちゃう',
+        '驚くようなことがあったんだね',
+        'まじで？詳しく聞かせて'
+      ]
+      return safeRandomChoice(surpriseResponses, 'すごいって？')
+    }
+    
+    // ランダムな話題提供（会話が途切れそうな時）
+    if (message.includes('暇') || message.includes('何話') || message.includes('話題') || message.includes('ネタ')) {
+      const topicStarters = [
+        'そうだ、最近気になってることがあるんだ。なんで人間って二本足で歩くんだろう？',
+        'あ、そういえば昨日変な夢見たんだ。巨大などんぐりが空から降ってくる夢',
+        '君って普段何してる時が一番楽しい？僕は木にぶら下がってる時かな',
+        'もし一日だけ人間になれるとしたら、何したい？僕は手を使ってみたい',
+        '最近思うんだけど、雲ってどんぐりの形に見えない？僕だけかな',
+        '君の好きな色って何？僕は緑色が好き。森を思い出すから',
+        'もし魔法が使えたら何したい？僕は無限どんぐりを出したい',
+        '宇宙にもモモンガっているのかな？宇宙モモンガ、カッコよさそう'
+      ]
+      return safeRandomChoice(topicStarters, '何か話しようか')
+    }
+    
+    // 繰り返し応答の場合は特別な応答
+    if (isRepeatedMessage) {
+      const repeatResponses = [
+        'あれ、デジャブ？さっきも似たような話したような...',
+        'また同じ話？でも僕、同じ話でも楽しいよ',
+        'あー、そうそう！その話だね。覚えてるよ',
+        'もう一回？僕の記憶力が心配になってきた...',
+        'うんうん、大事な話だから繰り返してくれるんだね'
+      ]
+      return safeRandomChoice(repeatResponses, 'あれ、デジャブ？')
+    }
+    
+    // 自然で多様な相槌（定型文感を大幅に削減）
+    return safeRandomChoice(naturalResponses, 'そうなんだ！')
   }
 
   // メッセージ送信
@@ -361,13 +670,13 @@ const Chatbot: React.FC = () => {
     setInputMessage('')
     setIsTyping(true)
 
-    // AI APIを使用してモモンガくんの返答を生成
-    const generateResponse = async () => {
+    // 完全にローカルなモモンガくんの返答を生成
+    const generateResponse = () => {
       try {
-        const aiResponse = await getAIResponse(userInput)
+        const localResponse = getLocalResponse(userInput)
         const momongaMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: aiResponse,
+          content: localResponse,
           sender: 'momonga',
           timestamp: new Date()
         }
@@ -376,7 +685,7 @@ const Chatbot: React.FC = () => {
         console.error('Message processing failed:', error)
         const fallbackMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: getFallbackResponse(userInput),
+          content: 'あれー？ちょっと混乱しちゃった...もう一度言ってもらえる？',
           sender: 'momonga',
           timestamp: new Date()
         }
@@ -386,8 +695,8 @@ const Chatbot: React.FC = () => {
       }
     }
 
-    // 少し遅延を入れてリアルっぽく
-    setTimeout(generateResponse, 1000 + Math.random() * 1000)
+    // 少し遅延を入れてリアルっぽく（500-1500ms）
+    setTimeout(generateResponse, 500 + Math.random() * 1000)
   }
 
   // Enter キーで送信
@@ -407,12 +716,12 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     // siteKnowledgeBaseを使用していることを明示（TypeScript警告回避）
     if (siteKnowledgeBase) {
-      // サイト情報は AI API のコンテキストとして使用される
+      // サイト情報はローカル応答システムで使用される
     }
     
     const welcomeMessage: Message = {
       id: 'welcome',
-      content: 'やっほー！僕、モモンガくんだよー！\n公会堂へようこそー！ここは僕の秘密基地みたいな場所なんだ\n\n僕は「さすらいのモモンガカーニバル」のサイト案内ができるよー！\n・サイトの使い方が分からない時\n・どこに何があるか知りたい時\n・MOMOPayの稼ぎ方を知りたい時\n・ただおしゃべりしたい時\n\nなんでも気軽に話しかけてねー！「案内して」って言えば詳しく教えるよー',
+      content: 'やっほー！僕、モモンガくんだよー！\n公会堂へようこそー！ここは僕の秘密基地みたいな場所なんだ\n\n僕は「さすらいのモモンガカーニバル」のサイト案内ができるよー！\n・サイトの使い方が分からない時\n・どこに何があるか知りたい時\n・MOMOPayの稼ぎ方を知りたい時\n・ただおしゃべりしたい時\n\n**完全にローカルで動いてるから安心だよー！**\n外部のAIは使ってないんだ。僕の頭（プログラム）だけで頑張って答えるよー\n\nなんでも気軽に話しかけてねー！「案内して」って言えば詳しく教えるよー',
       sender: 'momonga',
       timestamp: new Date()
     }
