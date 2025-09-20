@@ -98,40 +98,10 @@ const Chatbot: React.FC = () => {
   }
 
   // モモンガくんの応答パターン（親しみやすく茶目っ気のある性格 + 正確な情報提供）
-  // サイト情報をコンテキスト用文字列に変換
-  const getSiteContext = (): string => {
-    return `
-【サイト概要】
-サイト名: ${siteKnowledgeBase.site.name}
-説明: ${siteKnowledgeBase.site.description}
-通貨: ${siteKnowledgeBase.currency.name}
-
-【主要ページ】
-・拠点: ${siteKnowledgeBase.navigation.home}
-・遊技場: ${siteKnowledgeBase.navigation.games}
-  - 演習林: ${siteKnowledgeBase.games.bulletHell.description}
-    報酬: ${siteKnowledgeBase.games.bulletHell.rewards}
-    装備: ${siteKnowledgeBase.games.bulletHell.equipment}
-  - 御神籤: ${siteKnowledgeBase.games.omikuji.description}
-    費用: ${siteKnowledgeBase.games.omikuji.cost}
-  - 売店: ${siteKnowledgeBase.games.store.description}
-    URL: ${siteKnowledgeBase.games.store.url}
-    機能: ${siteKnowledgeBase.games.store.features.join('、')}
-    商品: ${siteKnowledgeBase.games.store.purchaseItems.join(', ')}
-    売却価格: ${siteKnowledgeBase.games.store.sellPrices}
-    注意: ${siteKnowledgeBase.games.store.note}
-・広場: ${siteKnowledgeBase.navigation.plaza}
-  - 大広間: ${siteKnowledgeBase.plaza.hall.description}
-  - 公会堂: ${siteKnowledgeBase.plaza.chatbot.description}
-・宝物庫: ${siteKnowledgeBase.favorites.description}
-  費用: ${siteKnowledgeBase.favorites.cost}
-・設定: ${siteKnowledgeBase.navigation.settings}
-
-【MOMOPay情報】
-稼ぎ方: ${siteKnowledgeBase.currency.earning}
-使い道: ${siteKnowledgeBase.currency.uses.join(', ')}
-    `.trim()
-  }
+  // サイト情報をコンテキスト用文字列に変換（現在は未使用だが将来の拡張用に保持）
+  // const getSiteContext = (): string => {
+  //   return `サイト情報のコンテキスト文字列`
+  // }
 
   // 完全にローカルな応答生成システム
   const getLocalResponse = (message: string): string => {
@@ -139,6 +109,12 @@ const Chatbot: React.FC = () => {
     setConversationHistory(prev => [...prev.slice(-4), message])
     
     return getFallbackResponse(message)
+  }
+
+  // 安全な配列選択ヘルパー
+  const safeRandomChoice = (array: string[], fallback: string = 'そうなんだねー'): string => {
+    if (!array || array.length === 0) return fallback
+    return array[Math.floor(Math.random() * array.length)] || fallback
   }
 
   // 自然な会話システム（定型文感を減らした応答）
@@ -154,7 +130,7 @@ const Chatbot: React.FC = () => {
     const now = new Date()
     const hour = now.getHours()
     const isEarlyMorning = hour >= 5 && hour < 10
-    const isMorning = hour >= 10 && hour < 12
+    // const isMorning = hour >= 10 && hour < 12 // 未使用のため一時的にコメントアウト
     const isAfternoon = hour >= 12 && hour < 17
     const isEvening = hour >= 17 && hour < 21
     const isNight = hour >= 21 || hour < 5
@@ -168,7 +144,7 @@ const Chatbot: React.FC = () => {
           'もう一回？僕のことそんなに気に入ってくれたのかな',
           'またまたー、でも何度でもどうぞ！僕、挨拶されるの大好きだから'
         ]
-        return repeatGreetings[Math.floor(Math.random() * repeatGreetings.length)]
+        return safeRandomChoice(repeatGreetings, 'また挨拶してくれるの？嬉しいなー！')
       }
       
       let timeGreetings = []
@@ -210,7 +186,7 @@ const Chatbot: React.FC = () => {
         ]
       }
       
-      return timeGreetings[Math.floor(Math.random() * timeGreetings.length)] || 'やっほー！'
+      return safeRandomChoice(timeGreetings, 'やっほー！')
     }
 
     // サイト案内・ヘルプ系（自然な感じで）
@@ -220,7 +196,7 @@ const Chatbot: React.FC = () => {
         `使い方？うーん、僕もまだ全部は把握してないんだよね。でも知ってることなら教えるよ\n\n基本的には**拠点**がスタート地点で、そこから色んな場所に行けるんだ。**遊技場**が一番人気かな？`,
         `どこに行きたいの？僕、道案内は得意じゃないけど...でも一緒に探検しよう！\n\n**広場**は僕の縄張りだから詳しいよ。**宝物庫**も面白い場所だし、**遊技場**はMOMOPay稼げるからおすすめ`
       ]
-      return guideResponses[Math.floor(Math.random() * guideResponses.length)]
+      return safeRandomChoice(guideResponses, 'サイト案内だよー！')
     }
 
     // MOMOPay関連（親しみやすく）
@@ -230,7 +206,7 @@ const Chatbot: React.FC = () => {
         `お金の話？MOMOPayのことかな\n\n僕、実は結構貯金下手なんだよね。すぐ使っちゃう。君は貯めるの上手？\n\n**宝物庫**は100P必要だけど、大事なファイル保存できるから重宝してる`,
         `稼ぎたいの？僕と一緒に**演習林**で修行しよう！\n\n弾幕ゲーム、僕もまだまだ下手だけど、一緒に頑張ろうよ。装備ガチャも楽しいしさ`
       ]
-      return payResponses[Math.floor(Math.random() * payResponses.length)]
+      return safeRandomChoice(payResponses, 'MOMOPayについて教えるよー！')
     }
     
     // ゲーム関連（カジュアルに）
@@ -240,7 +216,7 @@ const Chatbot: React.FC = () => {
         `**遊技場**行ったことある？\n\n僕のお気に入りは**おみくじ**かな。10Pで運勢占えるから、毎日引いてる。大吉出たことないけど...\n\n**演習林**も面白いよ。君、ゲーム得意？`,
         `弾幕ゲーム？あー、**演習林**のことだね\n\n僕も挑戦してるけど、途中でどんぐりのことを考えちゃって集中できないんだよね。でも装備集めは楽しいよ`
       ]
-      return gameResponses[Math.floor(Math.random() * gameResponses.length)]
+      return safeRandomChoice(gameResponses, 'ゲームについて教えるよー！')
     }
 
     // 売店・MOMOStore関連
@@ -250,7 +226,7 @@ const Chatbot: React.FC = () => {
         `MOMOStore行ったことある？**遊技場**にあるお店だよ\n\n僕もよく装備売りに行くんだ。commonは10Pだけど、rareなら20P、epicは40Pになるからね\n\n設定機能も売ってるから、MOMOPay貯まったら覗いてみて`,
         `売店かー。僕、あそこの雰囲気好きなんだよね\n\n装備がダブった時とか、MOMOPayに困った時によく利用してる。購入した設定は**設定ページ**で有効にするの忘れずにね`
       ]
-      return storeResponses[Math.floor(Math.random() * storeResponses.length)]
+      return safeRandomChoice(storeResponses, 'MOMOStoreについて教えるよー！')
     }
     
     // 御神籤関連
@@ -260,7 +236,7 @@ const Chatbot: React.FC = () => {
         `運勢占い好きなの？僕も毎日引いてる！\n\n引く前にお尻フリフリして運気アップを狙ってるんだけど、効果あるのかなー。君も試してみる？`,
         `おみくじかー。**遊技場**にあるよ\n\n神様に占ってもらえるんだけど、僕の運勢はいつもパッとしなくて...でも楽しいから続けてる`
       ]
-      return fortuneResponses[Math.floor(Math.random() * fortuneResponses.length)]
+      return safeRandomChoice(fortuneResponses, 'おみくじについて教えるよー！')
     }
     
     // 大広間関連
@@ -270,7 +246,7 @@ const Chatbot: React.FC = () => {
         `つぶやき機能？**大広間**で使えるよ\n\n1時間で自動削除されるから、恥ずかしがり屋の僕には助かる。変なこと書いても消えてくれるからさ`,
         `おしゃべりしたいの？**大広間**がおすすめだよ\n\nみんなのつぶやき見てると面白いし、いいね機能もあるから交流できるよ`
       ]
-      return hallResponses[Math.floor(Math.random() * hallResponses.length)]
+      return safeRandomChoice(hallResponses, '大広間について教えるよー！')
     }
 
     // 宝物庫関連
@@ -280,7 +256,7 @@ const Chatbot: React.FC = () => {
         `ファイル保存したいの？**宝物庫**がおすすめだよ\n\nテキストも保存できるから、日記とか大事なメモも大丈夫。プレビュー機能もあるから便利だよー`,
         `宝物庫は僕のお気に入りの場所なんだ\n\n大切なファイルを安全に保存できるし、いつでも見返せるからね。MOMOPayが足りなかったら演習林で稼いでから使ってみて`
       ]
-      return favoritesResponses[Math.floor(Math.random() * favoritesResponses.length)]
+      return safeRandomChoice(favoritesResponses, '宝物庫について教えるよー！')
     }
 
     // 設定関連
@@ -290,7 +266,7 @@ const Chatbot: React.FC = () => {
         `テーマ変更したいの？**プレミアムテーマ**とか**ダークモード**があるよ\n\nMOMOStoreで買って、設定で有効にする感じ。僕はダークモード派かなー`,
         `**共有設定**では、データのバックアップとかできるんだ\n\nJSONファイルで管理するから、他のデバイスにもデータ移せるよ。便利でしょ？`
       ]
-      return settingsResponses[Math.floor(Math.random() * settingsResponses.length)]
+      return safeRandomChoice(settingsResponses, '設定について教えるよー！')
     }
     
     // 広場関連
@@ -361,7 +337,7 @@ const Chatbot: React.FC = () => {
         'どんぐりって、見てるだけでも幸せになれるんだよね。丸くて可愛いし',
         '今年のどんぐりは豊作だったなー。君の近くにも落ちてない？'
       ]
-      return foodResponses[Math.floor(Math.random() * foodResponses.length)]
+      return safeRandomChoice(foodResponses, 'どんぐり美味しいよー！')
     }
     
     // 褒め言葉
@@ -373,7 +349,7 @@ const Chatbot: React.FC = () => {
         'ありがとう！そんなこと言われると、どんぐり10個分くらい嬉しいよ',
         'えー、本当？僕、そんなに可愛いかなー。照れるなー'
       ]
-      return praiseResponses[Math.floor(Math.random() * praiseResponses.length)]
+      return safeRandomChoice(praiseResponses, 'ありがとう！')
     }
     
     // 困った時
@@ -385,7 +361,7 @@ const Chatbot: React.FC = () => {
         '助けてって言われると、なんか頼りにされてる感じで嬉しいな。力になれるといいんだけど',
         '困った時はお互い様だよね。僕もよく君に助けてもらってるし'
       ]
-      return helpResponses[Math.floor(Math.random() * helpResponses.length)] || helpResponses[0] || '大丈夫だよー！'
+      return safeRandomChoice(helpResponses, '大丈夫だよー！')
     }
     
     // 日常的な雑談パターンを大幅追加
@@ -399,7 +375,7 @@ const Chatbot: React.FC = () => {
         '寒いの？僕は毛がフワフワだから寒さには強いんだ。でも君は大丈夫？',
         '暑い日は木陰が恋しくなるよね。エアコンってすごい発明だと思う'
       ]
-      return weatherResponses[Math.floor(Math.random() * weatherResponses.length)]
+      return safeRandomChoice(weatherResponses, '天気の話だねー')
     }
     
     // 食べ物の話（どんぐり以外も）
@@ -411,7 +387,7 @@ const Chatbot: React.FC = () => {
         '料理できるの？すごいなー。僕はどんぐりをそのまま食べるのが精一杯',
         'グルメなんだね！僕にとってのグルメは「特別に大きなどんぐり」だよ'
       ]
-      return foodTalkResponses[Math.floor(Math.random() * foodTalkResponses.length)]
+      return safeRandomChoice(foodTalkResponses, '食べ物の話だねー')
     }
     
     // 趣味や娯楽の話
@@ -423,7 +399,7 @@ const Chatbot: React.FC = () => {
         '本読むの？えらいなー。僕は字を読んでると眠くなっちゃう',
         'アニメ？面白そう！モモンガが出てくるアニメってあるのかな'
       ]
-      return hobbyResponses[Math.floor(Math.random() * hobbyResponses.length)]
+      return safeRandomChoice(hobbyResponses, '趣味の話だねー')
     }
     
     // 感情や気持ちの話
@@ -435,7 +411,7 @@ const Chatbot: React.FC = () => {
         'いいことあった？僕も一緒に喜ばせて',
         '君が嬉しいと僕も尻尾がフリフリしちゃう'
       ]
-      return happyResponses[Math.floor(Math.random() * happyResponses.length)]
+      return safeRandomChoice(happyResponses, '嬉しいことがあったの？')
     }
     
     if (message.includes('悲しい') || message.includes('つらい') || message.includes('落ち込') || message.includes('憂鬱') || message.includes('しんどい')) {
@@ -446,7 +422,7 @@ const Chatbot: React.FC = () => {
         'しんどい時もあるよね。僕の癒しパワーが届くといいんだけど',
         '悲しい時は泣いてもいいんだよ。僕も時々泣いちゃう'
       ]
-      return sadResponses[Math.floor(Math.random() * sadResponses.length)]
+      return safeRandomChoice(sadResponses, '大丈夫？元気出してね')
     }
     
     // 学校や仕事の話
@@ -458,7 +434,7 @@ const Chatbot: React.FC = () => {
         'テスト？がんばって！僕は応援してるからね',
         '宿題？えらいなー。僕なら後回しにしちゃう'
       ]
-      return workStudyResponses[Math.floor(Math.random() * workStudyResponses.length)]
+      return safeRandomChoice(workStudyResponses, '学校や仕事の話だねー')
     }
     
     // 家族や友達の話
@@ -470,7 +446,7 @@ const Chatbot: React.FC = () => {
         '家族は大事だよね。僕も時々故郷が恋しくなる',
         '友達と過ごす時間って楽しいよね。僕も君といると楽しいよ'
       ]
-      return relationshipResponses[Math.floor(Math.random() * relationshipResponses.length)]
+      return safeRandomChoice(relationshipResponses, '家族や友達の話だねー')
     }
     
     // 時間や忙しさの話
@@ -482,7 +458,7 @@ const Chatbot: React.FC = () => {
         'ゆっくりした時間もいいよね。僕はそういう時間が好き',
         '時間に追われるのって大変だよね。僕は時計見ないからなー'
       ]
-      return timeResponses[Math.floor(Math.random() * timeResponses.length)]
+      return safeRandomChoice(timeResponses, '時間の話だねー')
     }
     
     // 動物の話
@@ -494,7 +470,7 @@ const Chatbot: React.FC = () => {
         '鳥は飛べていいなー。僕は滑空しかできない',
         'ペット飼ってるの？いいなー。僕もペットになりたい'
       ]
-      return animalResponses[Math.floor(Math.random() * animalResponses.length)]
+      return safeRandomChoice(animalResponses, '動物の話だねー')
     }
     
     // 季節や時期の話
@@ -506,7 +482,7 @@ const Chatbot: React.FC = () => {
         '冬は寒いけど、雪景色は綺麗だよね。僕は冬眠したくなっちゃう',
         '季節の変わり目って、なんとなくワクワクしない？'
       ]
-      return seasonResponses[Math.floor(Math.random() * seasonResponses.length)]
+      return safeRandomChoice(seasonResponses, '季節の話だねー')
     }
     
     // 日常の出来事
@@ -518,7 +494,7 @@ const Chatbot: React.FC = () => {
         '最近どう？何か変わったことあった？',
         '今日は君と話せて楽しいよ'
       ]
-      return dailyResponses[Math.floor(Math.random() * dailyResponses.length)]
+      return safeRandomChoice(dailyResponses, '今日はどんな一日だった？')
     }
     
     // 技術や難しい話題
@@ -530,7 +506,7 @@ const Chatbot: React.FC = () => {
         'コンピュータってすごいよね。僕みたいなのを作れちゃうんだから',
         'IT？難しそう...僕はアナログ派かも'
       ]
-      return techResponses[Math.floor(Math.random() * techResponses.length)]
+      return safeRandomChoice(techResponses, '技術の話だねー')
     }
     
     // 短い相槌や反応
@@ -550,7 +526,7 @@ const Chatbot: React.FC = () => {
         'わあ',
         'えー'
       ]
-      return shortResponses[Math.floor(Math.random() * shortResponses.length)]
+      return safeRandomChoice(shortResponses, 'うん？')
     }
     
     // 質問形式への自然な反応
@@ -565,7 +541,7 @@ const Chatbot: React.FC = () => {
         'そういう深い話、僕には難しいかも。でも興味深いね',
         '僕の頭じゃちょっと...でも君の考えを聞きたいな'
       ]
-      return questionResponses[Math.floor(Math.random() * questionResponses.length)]
+      return safeRandomChoice(questionResponses, 'うーん、どうだろうねー')
     }
     
     // より自然で多様なフォールバック応答
@@ -610,7 +586,7 @@ const Chatbot: React.FC = () => {
         '睡眠大事だよね。僕は一日の半分寝てるかも',
         '眠い時は素直に寝るのが一番。僕もよく居眠りしちゃう'
       ]
-      return sleepResponses[Math.floor(Math.random() * sleepResponses.length)]
+      return safeRandomChoice(sleepResponses, '眠いの？')
     }
     
     if (message.includes('笑') || message.includes('面白') || message.includes('楽し') || message.includes('www') || message.includes('草') || message.includes('爆笑')) {
@@ -621,7 +597,7 @@ const Chatbot: React.FC = () => {
         '楽しんでもらえて何より',
         '僕のボケが通じた？やったー'
       ]
-      return laughResponses[Math.floor(Math.random() * laughResponses.length)]
+      return safeRandomChoice(laughResponses, '笑ってくれた？')
     }
     
     if (message.includes('すごい') || message.includes('やばい') || message.includes('びっくり') || message.includes('驚') || message.includes('まじ')) {
@@ -632,7 +608,7 @@ const Chatbot: React.FC = () => {
         '驚くようなことがあったんだね',
         'まじで？詳しく聞かせて'
       ]
-      return surpriseResponses[Math.floor(Math.random() * surpriseResponses.length)]
+      return safeRandomChoice(surpriseResponses, 'すごいって？')
     }
     
     // ランダムな話題提供（会話が途切れそうな時）
@@ -647,7 +623,7 @@ const Chatbot: React.FC = () => {
         'もし魔法が使えたら何したい？僕は無限どんぐりを出したい',
         '宇宙にもモモンガっているのかな？宇宙モモンガ、カッコよさそう'
       ]
-      return topicStarters[Math.floor(Math.random() * topicStarters.length)]
+      return safeRandomChoice(topicStarters, '何か話しようか')
     }
     
     // 繰り返し応答の場合は特別な応答
@@ -659,11 +635,11 @@ const Chatbot: React.FC = () => {
         'もう一回？僕の記憶力が心配になってきた...',
         'うんうん、大事な話だから繰り返してくれるんだね'
       ]
-      return repeatResponses[Math.floor(Math.random() * repeatResponses.length)]
+      return safeRandomChoice(repeatResponses, 'あれ、デジャブ？')
     }
     
     // 自然で多様な相槌（定型文感を大幅に削減）
-    return naturalResponses[Math.floor(Math.random() * naturalResponses.length)] || 'そうなんだ！'
+    return safeRandomChoice(naturalResponses, 'そうなんだ！')
   }
 
   // メッセージ送信
