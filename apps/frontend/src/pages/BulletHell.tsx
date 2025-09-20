@@ -1144,33 +1144,57 @@ const BulletHell: React.FC = () => {
       // power-up status with equipment indicators - improved display with better margins
       ctx.font = 'bold 10px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       let yOffset = 50
-      const leftMargin = 16 // より大きなマージンを設定
+      const leftMargin = 8 // 左マージンを小さくして画面内に収める
+      const maxTextWidth = w - leftMargin - 8 // 最大テキスト幅を設定（右マージン8px）
       
-      // Fire rate - improved display
+      // Helper function to truncate text if it's too long
+      const truncateText = (text: string, maxWidth: number) => {
+        const textWidth = ctx.measureText(text).width
+        if (textWidth <= maxWidth) return text
+        
+        // テキストが長すぎる場合は短縮
+        let truncated = text
+        while (ctx.measureText(truncated + '..').width > maxWidth && truncated.length > 5) {
+          truncated = truncated.slice(0, -1)
+        }
+        return truncated + '..'
+      }
+      
+      // Fire rate - improved display with text truncation
       const totalFireRate = playerRef.current.fireRate
       const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
       const powerUpFireRateBonus = powerUpBonuses.fireRate
       
+      const fireRateText = equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0 
+        ? `連射:${totalFireRate.toFixed(1)}⚡`
+        : `連射:${totalFireRate.toFixed(1)}`
+      const truncatedFireRateText = truncateText(fireRateText, maxTextWidth)
+      
       if (equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0) {
         ctx.fillStyle = '#4ecdc4' // Bonus color
-        ctx.fillText(`連射:${totalFireRate.toFixed(1)}⚡`, leftMargin, yOffset)
+        ctx.fillText(truncatedFireRateText, leftMargin, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`連射:${totalFireRate.toFixed(1)}`, leftMargin, yOffset)
+        ctx.fillText(truncatedFireRateText, leftMargin, yOffset)
       }
       yOffset += 12
       
-      // Power - improved display
+      // Power - improved display with text truncation
       const totalPower = playerRef.current.power
       const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
       const powerUpPowerBonus = powerUpBonuses.power
       
+      const powerText = equipmentPowerBonus > 0 || powerUpPowerBonus > 0
+        ? `威力:${totalPower.toFixed(1)}💥`
+        : `威力:${totalPower.toFixed(1)}`
+      const truncatedPowerText = truncateText(powerText, maxTextWidth)
+      
       if (equipmentPowerBonus > 0 || powerUpPowerBonus > 0) {
         ctx.fillStyle = '#ff6b6b' // Bonus color
-        ctx.fillText(`威力:${totalPower.toFixed(1)}💥`, leftMargin, yOffset)
+        ctx.fillText(truncatedPowerText, leftMargin, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`威力:${totalPower.toFixed(1)}`, leftMargin, yOffset)
+        ctx.fillText(truncatedPowerText, leftMargin, yOffset)
       }
       yOffset += 12
       
