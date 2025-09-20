@@ -978,11 +978,11 @@ const BulletHell: React.FC = () => {
       ctx.fillStyle = '#ffffff'
       ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill()
       
-      // draw UI - improved text sizing and positioning
+      // draw UI - improved text sizing and positioning with better margins
       ctx.fillStyle = '#fff3e0'
       ctx.font = 'bold 14px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       ctx.textAlign = 'left'
-      ctx.fillText(`スコア: ${score}`, 8, 20)
+      ctx.fillText(`スコア: ${score}`, 16, 20)
       
       // ウェーブ表示（右上） - 余裕をもって配置
       ctx.textAlign = 'right'
@@ -996,59 +996,60 @@ const BulletHell: React.FC = () => {
       }
       
       
-      // power-up status with equipment indicators - compact display
+      // power-up status with equipment indicators - improved display with better margins
       ctx.font = 'bold 10px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
       let yOffset = 50
+      const leftMargin = 16 // より大きなマージンを設定
       
-      // Fire rate - compact display
+      // Fire rate - improved display
       const totalFireRate = playerRef.current.fireRate
       const equipmentFireRateBonus = (inventory.equippedWeapon?.effect.fireRate || 0)
       const powerUpFireRateBonus = powerUpBonuses.fireRate
       
       if (equipmentFireRateBonus > 0 || powerUpFireRateBonus > 0) {
         ctx.fillStyle = '#4ecdc4' // Bonus color
-        ctx.fillText(`連射:${totalFireRate.toFixed(1)}⚡`, 8, yOffset)
+        ctx.fillText(`連射:${totalFireRate.toFixed(1)}⚡`, leftMargin, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`連射:${totalFireRate.toFixed(1)}`, 8, yOffset)
+        ctx.fillText(`連射:${totalFireRate.toFixed(1)}`, leftMargin, yOffset)
       }
       yOffset += 12
       
-      // Power - compact display
+      // Power - improved display
       const totalPower = playerRef.current.power
       const equipmentPowerBonus = (inventory.equippedWeapon?.effect.power || 0)
       const powerUpPowerBonus = powerUpBonuses.power
       
       if (equipmentPowerBonus > 0 || powerUpPowerBonus > 0) {
         ctx.fillStyle = '#ff6b6b' // Bonus color
-        ctx.fillText(`威力:${totalPower.toFixed(1)}💥`, 8, yOffset)
+        ctx.fillText(`威力:${totalPower.toFixed(1)}💥`, leftMargin, yOffset)
       } else {
         ctx.fillStyle = '#fff3e0'
-        ctx.fillText(`威力:${totalPower.toFixed(1)}`, 8, yOffset)
+        ctx.fillText(`威力:${totalPower.toFixed(1)}`, leftMargin, yOffset)
       }
       yOffset += 12
       
-      // Shield with equipment bonus - shortened
+      // Shield with equipment bonus - improved display
       if (inventory.equippedShield) {
         ctx.fillStyle = '#ffd93d'
         const shieldIcon = inventory.equippedShield.icon
-        // 装備名を短縮
-        const shortName = inventory.equippedShield.name.length > 6 
-          ? inventory.equippedShield.name.substring(0, 6) + '...'
+        // 装備名を適切に表示（短縮しすぎないように）
+        const displayName = inventory.equippedShield.name.length > 8 
+          ? inventory.equippedShield.name.substring(0, 8) + '..'
           : inventory.equippedShield.name
-        ctx.fillText(`${shieldIcon}${shortName}`, 8, yOffset)
+        ctx.fillText(`${shieldIcon}${displayName}`, leftMargin, yOffset)
         yOffset += 12
       }
       
-      // Special equipment effects - shortened
+      // Special equipment effects - improved display
       if (inventory.equippedSpecial) {
         ctx.fillStyle = '#9c27b0'
         const specialIcon = inventory.equippedSpecial.icon
-        // 装備名を短縮
-        const shortName = inventory.equippedSpecial.name.length > 6 
-          ? inventory.equippedSpecial.name.substring(0, 6) + '...'
+        // 装備名を適切に表示（短縮しすぎないように）
+        const displayName = inventory.equippedSpecial.name.length > 8 
+          ? inventory.equippedSpecial.name.substring(0, 8) + '..'
           : inventory.equippedSpecial.name
-        ctx.fillText(`${specialIcon}${shortName}`, 8, yOffset)
+        ctx.fillText(`${specialIcon}${displayName}`, leftMargin, yOffset)
         yOffset += 12
       }
 
@@ -1269,7 +1270,15 @@ const BulletHell: React.FC = () => {
         ref={canvasRef} 
         width={400} 
         height={280} 
-        style={{ border: '4px solid #333', borderRadius: 12, background: '#0b1020', width: 'min(92vw, 480px)', height: 'auto', touchAction: 'none' }} 
+        style={{ 
+          border: '4px solid #333', 
+          borderRadius: 12, 
+          background: '#0b1020', 
+          width: 'min(92vw, 480px)', 
+          height: 'auto', 
+          touchAction: 'none',
+          boxSizing: 'border-box' // 境界線を外側に配置
+        }} 
         onClick={shoot}
         role="application"
         aria-label="演習林での修行。矢印キーで移動、スペースキーで発射。"
