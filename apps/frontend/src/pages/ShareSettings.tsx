@@ -28,6 +28,10 @@ const ShareSettings: React.FC = () => {
     }
     
     try {
+      // 最新のデータをlocalStorageから直接取得（AppDataContextの状態と同期）
+      const favoritesData = localStorage.getItem('favoriteUploads')
+      const parsedFavorites = favoritesData ? JSON.parse(favoritesData) : []
+      
       // MOMOStoreの購入状況を取得
       const momoStorePurchases = localStorage.getItem('momostore-purchases')
       const parsedPurchases = momoStorePurchases ? JSON.parse(momoStorePurchases) : []
@@ -40,16 +44,23 @@ const ShareSettings: React.FC = () => {
       const bulletHellInventory = localStorage.getItem('bullet-hell-inventory')
       const parsedInventory = bulletHellInventory ? JSON.parse(bulletHellInventory) : { items: [] }
       
+      // MOMOPayとハイスコアも最新データを取得
+      const momoPayData = localStorage.getItem('momoPayPoints')
+      const parsedMomoPay = momoPayData ? parseInt(momoPayData, 10) : momoPayPoints
+      
+      const highScoresData = localStorage.getItem('bullet-hell-all-time-scores')
+      const parsedHighScores = highScoresData ? JSON.parse(highScoresData) : highScores
+      
       const data = {
-        favorites,
+        favorites: parsedFavorites,
         // tweets は除外（1時間で自動削除されるため）
-        momoPayPoints,
-        highScores,
+        momoPayPoints: parsedMomoPay,
+        highScores: parsedHighScores,
         momoStorePurchases: parsedPurchases,
         appSettings: parsedSettings,
         bulletHellInventory: parsedInventory,
         exportDate: new Date().toISOString(),
-        version: '4.2'
+        version: '4.3' // バージョンアップ
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -92,7 +103,7 @@ const ShareSettings: React.FC = () => {
       try {
         const jsonData = JSON.parse(e.target?.result as string)
         
-        if (jsonData.favorites && jsonData.tweets) {
+        if (jsonData.favorites) {
           // データの確認
           const momoPayPointsInfo = jsonData.momoPayPoints !== undefined ? `\n- MOMOPay: ${jsonData.momoPayPoints}` : ''
           const highScoresInfo = jsonData.highScores && jsonData.highScores.length > 0 ? `\n- ハイスコア: TOP${jsonData.highScores.length}` : ''
@@ -101,43 +112,87 @@ const ShareSettings: React.FC = () => {
           const confirmMessage = `インポートしようとしているデータ:\n- 宝物庫: ${jsonData.favorites.length}件${momoPayPointsInfo}${highScoresInfo}${purchasesInfo}${inventoryInfo}\n\n現在のデータは上書きされます。続行しますか？`
           
           if (confirm(confirmMessage)) {
-            localStorage.setItem('favoriteUploads', JSON.stringify(jsonData.favorites))
-            // tweets は処理しない（1時間で自動削除されるため）
+            // データの検証とサニタイゼーション
+            const validatedFavorites = Array.isArray(jsonData.favorites) ? 
+              jsonData.favorites.slice(0, 100).filter((item: any) => 
+                item && typeof item === 'object' && 
+                typeof item.id === 'string' && 
+                typeof item.name === 'string' &&
+                ['text', 'file'].includes(item.kind)
+              ) : []
             
-            // MOMOPayがあればインポート
-            if (jsonData.momoPayPoints !== undefined) {
+            // 宝物庫データをインポート
+            localStorage.setItem('favoriteUploads', JSON.stringify(validatedFavorites))
+            
+            // MOMOPayがあればインポート（範囲チェック付き）
+            if (typeof jsonData.momoPayPoints === 'number' && 
+                jsonData.momoPayPoints >= 0 && 
+                jsonData.momoPayPoints <= 10000000) {
               localStorage.setItem('momoPayPoints', jsonData.momoPayPoints.toString())
             }
             
-            // ハイスコアがあればインポート
-            if (jsonData.highScores && Array.isArray(jsonData.highScores)) {
-              localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(jsonData.highScores))
+            // ハイスコアがあればインポート（検証付き）
+            if (Array.isArray(jsonData.highScores)) {
+              const validScores = jsonData.highScores
+                .slice(0, 10)
+                .filter((score: any) => typeof score === 'number' && score >= 0 && score <= 100000000)
+                .sort((a: number, b: number) => b - a)
+              localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(validScores))
             }
             
-            // MOMOStore購入状況があればインポート
-            if (jsonData.momoStorePurchases && Array.isArray(jsonData.momoStorePurchases)) {
-              localStorage.setItem('momostore-purchases', JSON.stringify(jsonData.momoStorePurchases))
+            // MOMOStore購入状況があればインポート（検証付き）
+            if (Array.isArray(jsonData.momoStorePurchases)) {
+              const validPurchases = jsonData.momoStorePurchases
+                .slice(0, 50)
+                .filter((item: any) => typeof item === 'string')
+              localStorage.setItem('momostore-purchases', JSON.stringify(validPurchases))
             }
             
-            // アプリ設定があればインポート
+            // アプリ設定があればインポート（検証付き）
             if (jsonData.appSettings && typeof jsonData.appSettings === 'object') {
-              localStorage.setItem('app-settings', JSON.stringify(jsonData.appSettings))
+              // 危険な設定値をフィルタリング
+              const safeSettings: Record<string, any> = {}
+              const allowedKeys = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound']
+              
+              for (const [key, value] of Object.entries(jsonData.appSettings)) {
+                if (allowedKeys.includes(key) && typeof value === 'boolean') {
+                  safeSettings[key] = value
+                }
+              }
+              
+              localStorage.setItem('app-settings', JSON.stringify(safeSettings))
             }
             
-            // 弾幕ゲームのインベントリがあればインポート
-            if (jsonData.bulletHellInventory && typeof jsonData.bulletHellInventory === 'object') {
-              localStorage.setItem('bullet-hell-inventory', JSON.stringify(jsonData.bulletHellInventory))
+            // 弾幕ゲームのインベントリがあればインポート（検証付き）
+            if (jsonData.bulletHellInventory && 
+                typeof jsonData.bulletHellInventory === 'object' &&
+                Array.isArray(jsonData.bulletHellInventory.items)) {
+              
+              const validInventory = {
+                items: jsonData.bulletHellInventory.items
+                  .slice(0, 200) // 最大200アイテム
+                  .filter((item: any) => 
+                    item && typeof item === 'object' && 
+                    typeof item.id === 'string' &&
+                    typeof item.name === 'string'
+                  ),
+                equippedWeapon: jsonData.bulletHellInventory.equippedWeapon || undefined,
+                equippedShield: jsonData.bulletHellInventory.equippedShield || undefined,
+                equippedSpecial: jsonData.bulletHellInventory.equippedSpecial || undefined
+              }
+              
+              localStorage.setItem('bullet-hell-inventory', JSON.stringify(validInventory))
             }
             
             alert('JSONファイルからデータをインポートしました！ページを再読み込みします。')
             window.location.reload()
           }
         } else {
-          alert('無効なJSONファイル形式です')
+          alert('無効なJSONファイル形式です。正しいエクスポートファイルを選択してください。')
         }
       } catch (error) {
         console.error('Failed to import JSON:', error)
-        alert('JSONファイルの読み込みに失敗しました')
+        alert('JSONファイルの読み込みに失敗しました。ファイルが破損しているか、形式が正しくない可能性があります。')
       }
     }
     
