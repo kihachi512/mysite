@@ -263,7 +263,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 }
 
 // Custom hook to use the context
-export function useAppData() {
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAppData = () => {
   const context = useContext(AppDataContext)
   if (context === undefined) {
     throw new Error('useAppData must be used within an AppDataProvider')

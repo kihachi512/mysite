@@ -234,18 +234,40 @@ export const validateFileType = (file: File, allowedTypes: string[]): boolean =>
     return false;
   }
   
-  // ファイル拡張子の検証
+  // ファイル拡張子の検証（より柔軟に）
   const extension = file.name.split('.').pop()?.toLowerCase();
-  const allowedExtensions = allowedTypes.map(type => {
-    const ext = type.split('/')[1];
-    return ext === 'jpeg' ? 'jpg' : ext;
-  });
-  
-  if (!extension || !allowedExtensions.includes(extension)) {
+  if (!extension) {
     return false;
   }
   
-  return true;
+  // MIMEタイプと拡張子のマッピングを改善
+  const mimeToExtensions: Record<string, string[]> = {
+    'image/jpeg': ['jpg', 'jpeg'],
+    'image/jpg': ['jpg', 'jpeg'],
+    'image/png': ['png'],
+    'image/gif': ['gif'],
+    'image/webp': ['webp'],
+    'video/mp4': ['mp4'],
+    'video/webm': ['webm'],
+    'video/ogg': ['ogv', 'ogg'],
+    'audio/mp3': ['mp3'],
+    'audio/mpeg': ['mp3', 'mpeg'],
+    'audio/wav': ['wav'],
+    'audio/ogg': ['ogg', 'oga'],
+    'text/plain': ['txt'],
+    'application/json': ['json'],
+    'application/pdf': ['pdf']
+  };
+  
+  // 該当するMIMEタイプの拡張子リストを取得
+  const validExtensions = mimeToExtensions[file.type] || [];
+  
+  if (validExtensions.length === 0) {
+    // MIMEタイプがマッピングにない場合は、基本的な検証のみ
+    return true;
+  }
+  
+  return validExtensions.includes(extension);
 };
 
 /**

@@ -39,10 +39,10 @@ const GACHA_ITEMS: GachaItem[] = [
   { id: 'w4', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
   
   // シールド (Shields) - 森の守りシリーズ
-  { id: 's1', name: '木の皮バリア', description: 'シールド+20', rarity: 'common', type: 'shield', effect: { shield: 20 }, icon: '🌳' },
-  { id: 's2', name: '森の加護', description: 'シールド+40', rarity: 'rare', type: 'shield', effect: { shield: 40 }, icon: '🌲' },
-  { id: 's3', name: '古樹の盾', description: 'シールド+80', rarity: 'epic', type: 'shield', effect: { shield: 80 }, icon: '🌿' },
-  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+150', rarity: 'legendary', type: 'shield', effect: { shield: 150 }, icon: '👑' },
+  { id: 's1', name: '木の皮バリア', description: 'シールド+5', rarity: 'common', type: 'shield', effect: { shield: 5 }, icon: '🌳' },
+  { id: 's2', name: '森の加護', description: 'シールド+10', rarity: 'rare', type: 'shield', effect: { shield: 10 }, icon: '🌲' },
+  { id: 's3', name: '古樹の盾', description: 'シールド+20', rarity: 'epic', type: 'shield', effect: { shield: 20 }, icon: '🌿' },
+  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+35', rarity: 'legendary', type: 'shield', effect: { shield: 35 }, icon: '👑' },
   
   // 特殊能力 (Special) - 森の魔法シリーズ
   { id: 'sp1', name: '風のささやき', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🍃' },
@@ -103,7 +103,7 @@ const BulletHell: React.FC = () => {
     } catch (error) {
       console.log('AudioContext creation failed:', error)
     }
-  }, [soundEnabled])
+  }, [audioContext, soundEnabled])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -807,6 +807,12 @@ const BulletHell: React.FC = () => {
         
         // Boss appears every 5th wave, starting from wave 5
         if (nextWave >= 5 && (nextWave % 5 === 0)) {
+          // ボス出現時に既存の敵を全て消去
+          enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
+          
+          // ボス出現音
+          playSound(150, 1.0, 'square')
+          
           const bossHp = 50 + Math.floor(nextWave / 5) * 25 // Much higher HP: starts at 50, increases by 25 per tier
           enemiesRef.current.push({
             x: w / 2,
@@ -977,6 +983,17 @@ const BulletHell: React.FC = () => {
       ctx.textAlign = 'left'
       ctx.fillText(`スコア: ${score}`, 10, 25)
       
+      // ウェーブ表示（右上）
+      ctx.textAlign = 'right'
+      ctx.fillStyle = '#fff3e0'
+      ctx.fillText(`ウェーブ: ${wave}`, w - 10, 25)
+      
+      // シールド表示（右上、ウェーブの下）
+      if (shield > 0) {
+        ctx.fillStyle = '#ffd93d'
+        ctx.fillText(`🛡️ シールド: ${shield}`, w - 10, 45)
+      }
+      
       
       // power-up status with equipment indicators
       ctx.font = 'bold 12px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
@@ -1011,6 +1028,13 @@ const BulletHell: React.FC = () => {
       yOffset += 15
       
       // Shield with equipment bonus
+      if (inventory.equippedShield) {
+        ctx.fillStyle = '#ffd93d'
+        const shieldName = inventory.equippedShield.name
+        const shieldIcon = inventory.equippedShield.icon
+        ctx.fillText(`シールド: ${shieldIcon} ${shieldName}`, 10, yOffset)
+        yOffset += 15
+      }
       
       // Special equipment effects
       if (inventory.equippedSpecial) {
@@ -1033,7 +1057,7 @@ const BulletHell: React.FC = () => {
         rafRef.current = null
       }
     }
-  }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound])
+  }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound, addMomoPayPoints, invincible, invincibleTime, startInvincibility, updateHighScores])
 
   const start = useCallback(() => {
     
@@ -1058,13 +1082,17 @@ const BulletHell: React.FC = () => {
     setLives(1)
     setTime(0)
     setScore(0)
-    setShield(10)
+    
+    // シールド初期値を装備に応じて設定（装備なしなら0）
+    const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
+    setShield(equipmentShieldBonus)
+    
     setWave(1)
     setGameOver(false)
     
     // ゲームを開始
     setRunning(true)
-  }, [playSound])
+  }, [playSound, inventory])
 
   // ガチャ機能
   const performGacha = useCallback(() => {
@@ -1190,10 +1218,10 @@ const BulletHell: React.FC = () => {
     modifiedPlayer.fireRate += powerUpBonuses.fireRate
     modifiedPlayer.power += powerUpBonuses.power
 
-    // シールド効果（ゲーム開始時に適用）- 装備効果も調整
+    // シールド効果（装備効果を常時適用）
     if (inventory.equippedShield && !running) {
-      const shieldBonus = Math.floor((inventory.equippedShield?.effect.shield || 0) * 0.3) // 30%に減少
-      setShield(prev => prev + shieldBonus)
+      const shieldBonus = inventory.equippedShield?.effect.shield || 0 // 100%の効果を適用
+      setShield(shieldBonus) // 装備ボーナスのみ（基本値なし）
     }
 
     playerRef.current = modifiedPlayer
@@ -1217,15 +1245,9 @@ const BulletHell: React.FC = () => {
     <div style={{ display: 'grid', justifyItems: 'center', gap: 12 }}>
       <div style={{ color: '#fff3e0', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
-          <div className="comic-text" style={{ fontSize: 'clamp(1.1rem, 3.5vw, 1.3rem)', textShadow: '3px 3px 0px #2e7d32, 0 0 10px rgba(255,255,255,0.3)' }}>ウェーブ: {wave}</div>
           <div className="momopay-status" style={{ textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
             💰 MOMOPay: {momoPayPoints}
           </div>
-          {shield > 0 && (
-            <div className="comic-text" style={{ fontSize: '1.2rem', color: '#ffd93d', textShadow: '2px 2px 0px #f57f17, 0 0 8px rgba(255,217,61,0.5)' }}>
-              🛡️ シールド: {shield}
-            </div>
-          )}
         </div>
         <div className="comic-text" style={{ fontSize: '1rem', marginTop: 6, color: '#c8e6c9' }}>
           矢印キーで移動 / スペースでショット / パワーアップ(F:連射 P:威力 S:シールド)を取ろう！

@@ -80,7 +80,8 @@ declare global {
 }
 
 // PWA関連
-interface BeforeInstallPromptEvent extends Event {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[]
   readonly userChoice: Promise<{
     outcome: 'accepted' | 'dismissed'
