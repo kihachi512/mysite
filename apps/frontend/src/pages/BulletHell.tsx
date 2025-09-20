@@ -1198,27 +1198,23 @@ const BulletHell: React.FC = () => {
       }
       yOffset += 12
       
-      // Shield with equipment bonus - improved display
+      // Shield with equipment bonus - improved display with text truncation
       if (inventory.equippedShield) {
         ctx.fillStyle = '#ffd93d'
         const shieldIcon = inventory.equippedShield.icon
-        // 装備名を適切に表示（短縮しすぎないように）
-        const displayName = inventory.equippedShield.name.length > 8 
-          ? inventory.equippedShield.name.substring(0, 8) + '..'
-          : inventory.equippedShield.name
-        ctx.fillText(`${shieldIcon}${displayName}`, leftMargin, yOffset)
+        const shieldText = `${shieldIcon}${inventory.equippedShield.name}`
+        const truncatedShieldText = truncateText(shieldText, maxTextWidth)
+        ctx.fillText(truncatedShieldText, leftMargin, yOffset)
         yOffset += 12
       }
       
-      // Special equipment effects - improved display
+      // Special equipment effects - improved display with text truncation
       if (inventory.equippedSpecial) {
         ctx.fillStyle = '#9c27b0'
         const specialIcon = inventory.equippedSpecial.icon
-        // 装備名を適切に表示（短縮しすぎないように）
-        const displayName = inventory.equippedSpecial.name.length > 8 
-          ? inventory.equippedSpecial.name.substring(0, 8) + '..'
-          : inventory.equippedSpecial.name
-        ctx.fillText(`${specialIcon}${displayName}`, leftMargin, yOffset)
+        const specialText = `${specialIcon}${inventory.equippedSpecial.name}`
+        const truncatedSpecialText = truncateText(specialText, maxTextWidth)
+        ctx.fillText(truncatedSpecialText, leftMargin, yOffset)
         yOffset += 12
       }
 
