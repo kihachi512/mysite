@@ -424,20 +424,33 @@ const BulletHell: React.FC = () => {
       // Check if there's a boss alive - if so, don't spawn regular enemies
       const hasBoss = enemiesRef.current.some(e => e.isBoss)
       
-      // spawn enemies in formations (Touhou-style) - Much more gradual progression
-      const baseSpawnRate = 300 // Much slower initial spawn rate
-      const spawnRate = Math.max(150, baseSpawnRate - wave * 10) // Slower progression
+      // spawn enemies in formations (Touhou-style) - More balanced progression
+      const baseSpawnRate = 360 // Slower initial spawn rate
+      const spawnRate = Math.max(180, baseSpawnRate - wave * 8) // More gradual progression
       
       if (currentTime % spawnRate === 0 && !hasBoss) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
-        // Limit formation complexity based on wave
-        let maxFormationType = 0 // Start with single enemies only
-        if (wave >= 2) maxFormationType = 1 // Line formation from wave 2
-        if (wave >= 4) maxFormationType = 2 // V formation from wave 4
-        if (wave >= 6) maxFormationType = 3 // Wave formation from wave 6
+        // More balanced formation selection with weighted probability
+        let formationType = 0 // Default to single enemy
+        const rand = Math.random()
         
-        const formationType = Math.floor(Math.random() * (maxFormationType + 1))
+        if (wave >= 6) {
+          // Wave 6+: 50% single, 25% line, 15% V, 10% wave
+          if (rand < 0.5) formationType = 0
+          else if (rand < 0.75) formationType = 1
+          else if (rand < 0.9) formationType = 2
+          else formationType = 3
+        } else if (wave >= 4) {
+          // Wave 4-5: 60% single, 25% line, 15% V
+          if (rand < 0.6) formationType = 0
+          else if (rand < 0.85) formationType = 1
+          else formationType = 2
+        } else if (wave >= 2) {
+          // Wave 2-3: 70% single, 30% line
+          if (rand < 0.7) formationType = 0
+          else formationType = 1
+        }
         
         // Formation-based spawning
         if (formationType === 0) {
@@ -483,11 +496,12 @@ const BulletHell: React.FC = () => {
             })
           })
         } else if (formationType === 3 && wave >= 6) {
-          // Wave formation (3 enemies instead of 5) - only from wave 6
-          for (let i = 0; i < 3; i++) {
+          // Wave formation (2 enemies initially, 3 from wave 8) - more gradual
+          const waveEnemyCount = wave >= 8 ? 3 : 2
+          for (let i = 0; i < waveEnemyCount; i++) {
             enemiesRef.current.push({ 
-              x: (w / 4) * (i + 1), 
-              y: -10 - Math.sin(i * 0.8) * 15, 
+              x: (w / (waveEnemyCount + 1)) * (i + 1), 
+              y: -10 - Math.sin(i * 0.8) * 12, 
               r: 10, 
               hp: enemyHp, 
               maxHp: enemyHp,
@@ -512,11 +526,11 @@ const BulletHell: React.FC = () => {
           })
         }
       }
-      // enemies shoot with varied patterns - scaled by wave
+      // enemies shoot with varied patterns - more balanced scaling by wave
       enemiesRef.current.forEach((e, idx) => {
-        // Slower shooting in early waves
-        const baseShootInterval = 90 + (idx % 30) // Longer base interval
-        const shootInterval = Math.max(45, baseShootInterval - wave * 5) // Gradually faster
+        // More balanced shooting intervals
+        const baseShootInterval = 100 + (idx % 40) // Longer base interval
+        const shootInterval = Math.max(60, baseShootInterval - wave * 4) // More gradual progression
         
         if (currentTime % shootInterval === 0) {
           const bulletSpeed = Math.min(0.8 + wave * 0.1, 1.5) // Slower bullets early game
@@ -562,9 +576,9 @@ const BulletHell: React.FC = () => {
                 r: 2.5, from: 'enemy' 
               })
             }
-          } else if (e.pattern === 4 && wave >= 8) {
-            // Circular pattern (danmaku style) - reduced bullets, later waves only
-            const numBullets = Math.min(4 + wave, 8) // Start with 4, max 8
+          } else if (e.pattern === 4 && wave >= 10) {
+            // Circular pattern (danmaku style) - reduced bullets, much later waves only
+            const numBullets = Math.min(3 + Math.floor(wave / 2), 6) // Start with 3, max 6
             for (let i = 0; i < numBullets; i++) {
               const ang = (currentTime * 0.02 + idx + i * (Math.PI * 2 / numBullets)) % (Math.PI * 2)
               bulletsRef.current.push({ 
