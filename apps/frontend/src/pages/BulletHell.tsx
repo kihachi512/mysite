@@ -1143,8 +1143,9 @@ const BulletHell: React.FC = () => {
       
       // power-up status with equipment indicators - improved display with better margins
       ctx.font = 'bold 10px "Comic Sans MS", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Meiryo", cursive, fantasy, sans-serif'
+      ctx.textAlign = 'left' // 左寄せに明示的に設定（右上表示の後なので必須）
       let yOffset = 50
-      const leftMargin = 8 // 左マージンを小さくして画面内に収める
+      const leftMargin = 16 // 左マージンを元に戻す
       const maxTextWidth = w - leftMargin - 8 // 最大テキスト幅を設定（右マージン8px）
       
       // Helper function to truncate text if it's too long
