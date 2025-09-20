@@ -7,6 +7,7 @@ import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performance'
 
 // ホームページコンポーネント
+// eslint-disable-next-line react-refresh/only-export-components
 const HomePage: React.FC = () => {
   useSEO(SEO_PRESETS.home);
   return (
@@ -113,8 +114,11 @@ logger.info('Application starting', {
 // パフォーマンス監視開始
 performanceMonitor.reportVitals()
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+// eslint-disable-next-line react-refresh/only-export-components
+const Main = () => (
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
 )
+
+ReactDOM.createRoot(document.getElementById('root')!).render(<Main />)

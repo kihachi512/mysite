@@ -174,7 +174,7 @@ const Chatbot: React.FC = () => {
         `あ、案内ね！僕、実は道案内得意なんだ〜。木から木に移る時の経路とか完璧だよ！\n\nえーっと、このサイトはね...\n**拠点** - 今いる場所の上の方\n**遊技場** - MOMOPay稼げる楽しい場所！\n**広場** - ここ（公会堂）とか大広間とか\n**宝物庫** - 大事なもの保存する場所\n\nあれ、他にもあった気がするけど...まあいっか！どこ行きたい？`,
         `サイト案内かー！僕、最初この場所迷子になったんだよね〜。どんぐり探してたら気づいたら公会堂にいた感じ？\n\n今は慣れたから大丈夫！**遊技場**で遊んだり、**宝物庫**で宝物見たり、色々できるよ〜。君はどんなことしたい？`
       ]
-      return guideResponses[Math.floor(Math.random() * guideResponses.length)]
+      return guideResponses[Math.floor(Math.random() * guideResponses.length)] || guideResponses[0] || 'サイト案内だよー！'
     }
 
     // MOMOPay関連の詳細情報

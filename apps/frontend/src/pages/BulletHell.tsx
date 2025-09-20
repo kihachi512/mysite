@@ -103,7 +103,7 @@ const BulletHell: React.FC = () => {
     } catch (error) {
       console.log('AudioContext creation failed:', error)
     }
-  }, [soundEnabled])
+  }, [audioContext, soundEnabled])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -1057,7 +1057,7 @@ const BulletHell: React.FC = () => {
         rafRef.current = null
       }
     }
-  }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound])
+  }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound, addMomoPayPoints, invincible, invincibleTime, startInvincibility, updateHighScores])
 
   const start = useCallback(() => {
     
