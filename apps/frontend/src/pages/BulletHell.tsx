@@ -33,21 +33,74 @@ type PlayerInventory = {
 // ガチャアイテムデータ（森・モモンガテーマ）
 const GACHA_ITEMS: GachaItem[] = [
   // 武器 (Weapons) - 森の武器シリーズ
-  { id: 'w1', name: 'どんぐりシューター', description: '連射速度+0.5', rarity: 'common', type: 'weapon', effect: { fireRate: 0.5 }, icon: '🌰' },
-  { id: 'w2', name: '森の雷撃砲', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
-  { id: 'w3', name: 'ツインリーフブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🍃' },
-  { id: 'w4', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
+  // Common武器
+  { id: 'w1', name: 'どんぐりシューター', description: '連射速度+0.3', rarity: 'common', type: 'weapon', effect: { fireRate: 0.3 }, icon: '🌰' },
+  { id: 'w2', name: '小枝の弓', description: '威力+0.5', rarity: 'common', type: 'weapon', effect: { power: 0.5 }, icon: '🏹' },
+  { id: 'w3', name: '石つぶて投げ器', description: '連射速度+0.4', rarity: 'common', type: 'weapon', effect: { fireRate: 0.4 }, icon: '🪨' },
+  { id: 'w4', name: '木の実ガン', description: '威力+0.6', rarity: 'common', type: 'weapon', effect: { power: 0.6 }, icon: '🥜' },
+  { id: 'w5', name: '竹筒砲', description: '連射速度+0.2, 威力+0.3', rarity: 'common', type: 'weapon', effect: { fireRate: 0.2, power: 0.3 }, icon: '🎋' },
+  
+  // Rare武器
+  { id: 'w6', name: '森の雷撃砲', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
+  { id: 'w7', name: '風切りブラスター', description: '連射速度+0.7', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.7 }, icon: '💨' },
+  { id: 'w8', name: '月光の弩', description: '威力+0.8, 連射速度+0.3', rarity: 'rare', type: 'weapon', effect: { power: 0.8, fireRate: 0.3 }, icon: '🌙' },
+  { id: 'w9', name: '炎の種砲', description: '威力+1.2', rarity: 'rare', type: 'weapon', effect: { power: 1.2 }, icon: '🔥' },
+  { id: 'w10', name: '氷結シューター', description: '連射速度+0.6, 威力+0.4', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.6, power: 0.4 }, icon: '❄️' },
+  { id: 'w11', name: '星屑ランチャー', description: '威力+0.9, 連射速度+0.2', rarity: 'rare', type: 'weapon', effect: { power: 0.9, fireRate: 0.2 }, icon: '⭐' },
+  
+  // Epic武器
+  { id: 'w12', name: 'ツインリーフブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🍃' },
+  { id: 'w13', name: '嵐の咆哮砲', description: '威力+1.5, 連射速度+0.4', rarity: 'epic', type: 'weapon', effect: { power: 1.5, fireRate: 0.4 }, icon: '🌪️' },
+  { id: 'w14', name: '虹色プリズムガン', description: '連射速度+1.0, 威力+0.8', rarity: 'epic', type: 'weapon', effect: { fireRate: 1.0, power: 0.8 }, icon: '🌈' },
+  { id: 'w15', name: '古代樹の杖', description: '威力+1.3, 連射速度+0.6', rarity: 'epic', type: 'weapon', effect: { power: 1.3, fireRate: 0.6 }, icon: '🌳' },
+  { id: 'w16', name: '流星群キャノン', description: '威力+1.8', rarity: 'epic', type: 'weapon', effect: { power: 1.8 }, icon: '☄️' },
+  
+  // Legendary武器
+  { id: 'w17', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
+  { id: 'w18', name: '森神の祝福砲', description: '神々しい威力', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.2, power: 2.5 }, icon: '✨' },
+  { id: 'w19', name: '世界樹の怒り', description: '自然の力を宿す', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.8, power: 1.8 }, icon: '🌍' },
   
   // シールド (Shields) - 森の守りシリーズ
-  { id: 's1', name: '木の皮バリア', description: 'シールド+5', rarity: 'common', type: 'shield', effect: { shield: 5 }, icon: '🌳' },
-  { id: 's2', name: '森の加護', description: 'シールド+10', rarity: 'rare', type: 'shield', effect: { shield: 10 }, icon: '🌲' },
-  { id: 's3', name: '古樹の盾', description: 'シールド+20', rarity: 'epic', type: 'shield', effect: { shield: 20 }, icon: '🌿' },
-  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+35', rarity: 'legendary', type: 'shield', effect: { shield: 35 }, icon: '👑' },
+  // Common シールド
+  { id: 's1', name: '木の皮バリア', description: 'シールド+10', rarity: 'common', type: 'shield', effect: { shield: 10 }, icon: '🌳' },
+  { id: 's2', name: '葉っぱの盾', description: 'シールド+15', rarity: 'common', type: 'shield', effect: { shield: 15 }, icon: '🍀' },
+  { id: 's3', name: '石の守り', description: 'シールド+12', rarity: 'common', type: 'shield', effect: { shield: 12 }, icon: '🪨' },
+  { id: 's4', name: '蔦の結界', description: 'シールド+18', rarity: 'common', type: 'shield', effect: { shield: 18 }, icon: '🌿' },
+  
+  // Rare シールド
+  { id: 's5', name: '森の加護', description: 'シールド+25', rarity: 'rare', type: 'shield', effect: { shield: 25 }, icon: '🌲' },
+  { id: 's6', name: '水晶の盾', description: 'シールド+30', rarity: 'rare', type: 'shield', effect: { shield: 30 }, icon: '💎' },
+  { id: 's7', name: '風の結界', description: 'シールド+28', rarity: 'rare', type: 'shield', effect: { shield: 28 }, icon: '💨' },
+  { id: 's8', name: '炎の守護', description: 'シールド+32', rarity: 'rare', type: 'shield', effect: { shield: 32 }, icon: '🔥' },
+  { id: 's9', name: '氷の壁', description: 'シールド+35', rarity: 'rare', type: 'shield', effect: { shield: 35 }, icon: '🧊' },
+  
+  // Epic シールド
+  { id: 's10', name: '古樹の盾', description: 'シールド+45', rarity: 'epic', type: 'shield', effect: { shield: 45 }, icon: '🌳' },
+  { id: 's11', name: '雷光の結界', description: 'シールド+50', rarity: 'epic', type: 'shield', effect: { shield: 50 }, icon: '⚡' },
+  { id: 's12', name: '月の加護', description: 'シールド+48', rarity: 'epic', type: 'shield', effect: { shield: 48 }, icon: '🌙' },
+  { id: 's13', name: '虹の盾', description: 'シールド+55', rarity: 'epic', type: 'shield', effect: { shield: 55 }, icon: '🌈' },
+  
+  // Legendary シールド
+  { id: 's14', name: 'モモンガ王の結界', description: 'シールド+70', rarity: 'legendary', type: 'shield', effect: { shield: 70 }, icon: '👑' },
+  { id: 's15', name: '森神の守護', description: 'シールド+80', rarity: 'legendary', type: 'shield', effect: { shield: 80 }, icon: '✨' },
+  { id: 's16', name: '世界樹の加護', description: 'シールド+75', rarity: 'legendary', type: 'shield', effect: { shield: 75 }, icon: '🌍' },
   
   // 特殊能力 (Special) - 森の魔法シリーズ
+  // Rare 特殊
   { id: 'sp1', name: '風のささやき', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🍃' },
-  { id: 'sp2', name: '森の恵み', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌸' },
-  { id: 'sp3', name: 'モモンガ時間操術', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏳' }
+  { id: 'sp2', name: '小鳥の歌声', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🐦' },
+  { id: 'sp3', name: '川のせせらぎ', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🌊' },
+  
+  // Epic 特殊
+  { id: 'sp4', name: '森の恵み', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌸' },
+  { id: 'sp5', name: '月光の癒し', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌙' },
+  { id: 'sp6', name: '星の祝福', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '⭐' },
+  { id: 'sp7', name: '時の流れ', description: '敵弾減速効果', rarity: 'epic', type: 'special', effect: { special: 'timeslow' }, icon: '⏰' },
+  
+  // Legendary 特殊
+  { id: 'sp8', name: 'モモンガ時間操術', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏳' },
+  { id: 'sp9', name: '森神の恩恵', description: '自動回復機能', rarity: 'legendary', type: 'special', effect: { special: 'heal' }, icon: '✨' },
+  { id: 'sp10', name: '世界樹の加速', description: '移動速度向上', rarity: 'legendary', type: 'special', effect: { special: 'speed' }, icon: '🌍' }
 ]
 
 // レアリティ別確率設定
@@ -817,7 +870,7 @@ const BulletHell: React.FC = () => {
           if (shield > 0) {
             // シールドヒット音
             playSound(400, 0.2, 'square')
-            setShield(s => Math.max(0, s - 5))
+            setShield(s => Math.max(0, s - 10))
             // シールド破壊時も無敵時間を付与
             startInvincibility(30) // 0.5秒間
           } else {
