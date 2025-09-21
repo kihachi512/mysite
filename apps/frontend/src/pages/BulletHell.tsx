@@ -33,21 +33,74 @@ type PlayerInventory = {
 // ガチャアイテムデータ（森・モモンガテーマ）
 const GACHA_ITEMS: GachaItem[] = [
   // 武器 (Weapons) - 森の武器シリーズ
-  { id: 'w1', name: 'どんぐりシューター', description: '連射速度+0.5', rarity: 'common', type: 'weapon', effect: { fireRate: 0.5 }, icon: '🌰' },
-  { id: 'w2', name: '森の雷撃砲', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
-  { id: 'w3', name: 'ツインリーフブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🍃' },
-  { id: 'w4', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
+  // Common武器
+  { id: 'w1', name: 'どんぐりシューター', description: '連射速度+0.3', rarity: 'common', type: 'weapon', effect: { fireRate: 0.3 }, icon: '🌰' },
+  { id: 'w2', name: '小枝の弓', description: '威力+0.5', rarity: 'common', type: 'weapon', effect: { power: 0.5 }, icon: '🏹' },
+  { id: 'w3', name: '松ぼっくり投げ器', description: '連射速度+0.4', rarity: 'common', type: 'weapon', effect: { fireRate: 0.4 }, icon: '🌲' },
+  { id: 'w4', name: '木の実ガン', description: '威力+0.6', rarity: 'common', type: 'weapon', effect: { power: 0.6 }, icon: '🥜' },
+  { id: 'w5', name: '竹筒砲', description: '連射速度+0.2, 威力+0.3', rarity: 'common', type: 'weapon', effect: { fireRate: 0.2, power: 0.3 }, icon: '🎋' },
+  
+  // Rare武器
+  { id: 'w6', name: '森の雷撃砲', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
+  { id: 'w7', name: '木の葉ブラスター', description: '連射速度+0.7', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.7 }, icon: '🍃' },
+  { id: 'w8', name: '樹液の弩', description: '威力+0.8, 連射速度+0.3', rarity: 'rare', type: 'weapon', effect: { power: 0.8, fireRate: 0.3 }, icon: '🌳' },
+  { id: 'w9', name: '花粉砲', description: '威力+1.2', rarity: 'rare', type: 'weapon', effect: { power: 1.2 }, icon: '🌸' },
+  { id: 'w10', name: '苔玉シューター', description: '連射速度+0.6, 威力+0.4', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.6, power: 0.4 }, icon: '🌿' },
+  { id: 'w11', name: '木の実ランチャー', description: '威力+0.9, 連射速度+0.2', rarity: 'rare', type: 'weapon', effect: { power: 0.9, fireRate: 0.2 }, icon: '🌰' },
+  
+  // Epic武器
+  { id: 'w12', name: 'ツインリーフブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🍃' },
+  { id: 'w13', name: '大樹の咆哮砲', description: '威力+1.5, 連射速度+0.4', rarity: 'epic', type: 'weapon', effect: { power: 1.5, fireRate: 0.4 }, icon: '🌳' },
+  { id: 'w14', name: '森の光線砲', description: '連射速度+1.0, 威力+0.8', rarity: 'epic', type: 'weapon', effect: { fireRate: 1.0, power: 0.8 }, icon: '✨' },
+  { id: 'w15', name: '古代樹の杖', description: '威力+1.3, 連射速度+0.6', rarity: 'epic', type: 'weapon', effect: { power: 1.3, fireRate: 0.6 }, icon: '🌳' },
+  { id: 'w16', name: '森の種キャノン', description: '威力+1.8', rarity: 'epic', type: 'weapon', effect: { power: 1.8 }, icon: '🌱' },
+  
+  // Legendary武器
+  { id: 'w17', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
+  { id: 'w18', name: '森神の祝福砲', description: '神々しい威力', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.2, power: 2.5 }, icon: '✨' },
+  { id: 'w19', name: '世界樹の怒り', description: '自然の力を宿す', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.8, power: 1.8 }, icon: '🌍' },
   
   // シールド (Shields) - 森の守りシリーズ
-  { id: 's1', name: '木の皮バリア', description: 'シールド+5', rarity: 'common', type: 'shield', effect: { shield: 5 }, icon: '🌳' },
-  { id: 's2', name: '森の加護', description: 'シールド+10', rarity: 'rare', type: 'shield', effect: { shield: 10 }, icon: '🌲' },
-  { id: 's3', name: '古樹の盾', description: 'シールド+20', rarity: 'epic', type: 'shield', effect: { shield: 20 }, icon: '🌿' },
-  { id: 's4', name: 'モモンガ王の結界', description: 'シールド+35', rarity: 'legendary', type: 'shield', effect: { shield: 35 }, icon: '👑' },
+  // Common シールド
+  { id: 's1', name: '木の皮バリア', description: 'シールド+10', rarity: 'common', type: 'shield', effect: { shield: 10 }, icon: '🌳' },
+  { id: 's2', name: '葉っぱの盾', description: 'シールド+15', rarity: 'common', type: 'shield', effect: { shield: 15 }, icon: '🍀' },
+  { id: 's3', name: 'どんぐりの殻', description: 'シールド+12', rarity: 'common', type: 'shield', effect: { shield: 12 }, icon: '🌰' },
+  { id: 's4', name: '蔦の結界', description: 'シールド+18', rarity: 'common', type: 'shield', effect: { shield: 18 }, icon: '🌿' },
+  
+  // Rare シールド
+  { id: 's5', name: '森の加護', description: 'シールド+25', rarity: 'rare', type: 'shield', effect: { shield: 25 }, icon: '🌲' },
+  { id: 's6', name: '樹液の盾', description: 'シールド+30', rarity: 'rare', type: 'shield', effect: { shield: 30 }, icon: '🌳' },
+  { id: 's7', name: '木の葉の結界', description: 'シールド+28', rarity: 'rare', type: 'shield', effect: { shield: 28 }, icon: '🍃' },
+  { id: 's8', name: '花びらの守護', description: 'シールド+32', rarity: 'rare', type: 'shield', effect: { shield: 32 }, icon: '🌸' },
+  { id: 's9', name: 'モモンガの毛皮', description: 'シールド+35', rarity: 'rare', type: 'shield', effect: { shield: 35 }, icon: '🐿️' },
+  
+  // Epic シールド
+  { id: 's10', name: '古樹の盾', description: 'シールド+45', rarity: 'epic', type: 'shield', effect: { shield: 45 }, icon: '🌳' },
+  { id: 's11', name: '森の雷鳴結界', description: 'シールド+50', rarity: 'epic', type: 'shield', effect: { shield: 50 }, icon: '⚡' },
+  { id: 's12', name: '森の月光守護', description: 'シールド+48', rarity: 'epic', type: 'shield', effect: { shield: 48 }, icon: '🌙' },
+  { id: 's13', name: 'モモンガ族の盾', description: 'シールド+55', rarity: 'epic', type: 'shield', effect: { shield: 55 }, icon: '🐿️' },
+  
+  // Legendary シールド
+  { id: 's14', name: 'モモンガ王の結界', description: 'シールド+70', rarity: 'legendary', type: 'shield', effect: { shield: 70 }, icon: '👑' },
+  { id: 's15', name: '森神の守護', description: 'シールド+80', rarity: 'legendary', type: 'shield', effect: { shield: 80 }, icon: '✨' },
+  { id: 's16', name: '世界樹の加護', description: 'シールド+75', rarity: 'legendary', type: 'shield', effect: { shield: 75 }, icon: '🌍' },
   
   // 特殊能力 (Special) - 森の魔法シリーズ
+  // Rare 特殊
   { id: 'sp1', name: '風のささやき', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🍃' },
-  { id: 'sp2', name: '森の恵み', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌸' },
-  { id: 'sp3', name: 'モモンガ時間操術', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏳' }
+  { id: 'sp2', name: '小鳥の歌声', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🐦' },
+  { id: 'sp3', name: 'モモンガの俊敏性', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🐿️' },
+  
+  // Epic 特殊
+  { id: 'sp4', name: '森の恵み', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌸' },
+  { id: 'sp5', name: '森の月光癒し', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌙' },
+  { id: 'sp6', name: '木漏れ日の祝福', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '☀️' },
+  { id: 'sp7', name: '森の時間操作', description: '敵弾減速効果', rarity: 'epic', type: 'special', effect: { special: 'timeslow' }, icon: '🌳' },
+  
+  // Legendary 特殊
+  { id: 'sp8', name: 'モモンガ時間操術', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏳' },
+  { id: 'sp9', name: '森神の恩恵', description: '自動回復機能', rarity: 'legendary', type: 'special', effect: { special: 'heal' }, icon: '✨' },
+  { id: 'sp10', name: '世界樹の加速', description: '移動速度向上', rarity: 'legendary', type: 'special', effect: { special: 'speed' }, icon: '🌍' }
 ]
 
 // レアリティ別確率設定
@@ -421,14 +474,15 @@ const BulletHell: React.FC = () => {
         return
       }
 
-      // Check if there's a boss alive - if so, don't spawn regular enemies
+      // Check if there's a boss alive or if this is a boss wave - if so, don't spawn regular enemies
       const hasBoss = enemiesRef.current.some(e => e.isBoss)
+      const isBossWave = wave >= 5 && (wave % 5 === 0)
       
       // spawn enemies in formations (Touhou-style) - More balanced progression
       const baseSpawnRate = 360 // Slower initial spawn rate
       const spawnRate = Math.max(180, baseSpawnRate - wave * 8) // More gradual progression
       
-      if (currentTime % spawnRate === 0 && !hasBoss) {
+      if (currentTime % spawnRate === 0 && !hasBoss && !isBossWave) {
         const enemyHp = Math.min(1 + Math.floor(wave / 3), 6) // Start with 1 HP, slower HP growth
         
         // More balanced formation selection with weighted probability
@@ -683,58 +737,64 @@ const BulletHell: React.FC = () => {
           }
         }
         
-        // Smoother movement patterns
+        // Optimized movement patterns with switch statement
         const moveSpeed = 0.8
-        if (e.pattern === 0) {
-          // Gentle sine wave horizontal movement
-          e.x += Math.sin(currentTime * 0.03 + idx) * moveSpeed
-          e.y += 0.5
-        }
-        if (e.pattern === 1) {
-          // Vertical sine wave
-          e.y += Math.sin(currentTime * 0.05 + idx) * 0.4 + 0.4
-        }
-        if (e.pattern === 2) {
-          // Smooth circular motion
-          e.x += Math.cos(currentTime * 0.04 + idx) * 0.8
-          e.y += Math.sin(currentTime * 0.04 + idx) * 0.3 + 0.5
-        }
-        if (e.pattern === 3) {
-          // Larger horizontal waves
-          e.x += Math.sin(currentTime * 0.02 + idx) * 1.5
-          e.y += 0.6
-        }
-        if (e.pattern === 4) {
-          // Figure-8 pattern
-          e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
-          e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
-        }
-        if (e.pattern === 5) {
-          // Spiral descent
-          const spiral = currentTime * 0.02 + idx
-          e.x += Math.cos(spiral) * 1.4
-          e.y += Math.sin(spiral) * 0.6 + 0.7
+        switch (e.pattern) {
+          case 0:
+            // Gentle sine wave horizontal movement
+            e.x += Math.sin(currentTime * 0.03 + idx) * moveSpeed
+            e.y += 0.5
+            break
+          case 1:
+            // Vertical sine wave
+            e.y += Math.sin(currentTime * 0.05 + idx) * 0.4 + 0.4
+            break
+          case 2:
+            // Smooth circular motion
+            e.x += Math.cos(currentTime * 0.04 + idx) * 0.8
+            e.y += Math.sin(currentTime * 0.04 + idx) * 0.3 + 0.5
+            break
+          case 3:
+            // Larger horizontal waves
+            e.x += Math.sin(currentTime * 0.02 + idx) * 1.5
+            e.y += 0.6
+            break
+          case 4:
+            // Figure-8 pattern
+            e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
+            e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
+            break
+          case 5:
+            // Spiral descent
+            const spiral = currentTime * 0.02 + idx
+            e.x += Math.cos(spiral) * 1.4
+            e.y += Math.sin(spiral) * 0.6 + 0.7
+            break
         }
         if (e.pattern === 6 && e.isBoss) {
-          // Boss movement - type specific patterns
+          // Boss movement - type specific patterns (optimized)
           const bossType = e.bossType || 1
           
-          if (bossType === 1) {
-            // Forest Guardian - Gentle swaying movement
-            e.x += Math.sin(currentTime * 0.008) * 0.8
-            if (e.y > 70) e.y -= 0.15
-            if (e.y < 45) e.y += 0.15
-          } else if (bossType === 2) {
-            // Storm Lord - More aggressive movement
-            e.x += Math.sin(currentTime * 0.015) * 1.5
-            e.y += Math.cos(currentTime * 0.012) * 0.3
-            if (e.y > 85) e.y -= 0.3
-            if (e.y < 35) e.y += 0.3
-          } else {
-            // Ancient Colossus - Slow but imposing movement
-            e.x += Math.sin(currentTime * 0.005) * 0.5
-            if (e.y > 75) e.y -= 0.1
-            if (e.y < 50) e.y += 0.1
+          switch (bossType) {
+            case 1:
+              // Forest Guardian - Gentle swaying movement
+              e.x += Math.sin(currentTime * 0.008) * 0.8
+              if (e.y > 70) e.y -= 0.15
+              else if (e.y < 45) e.y += 0.15
+              break
+            case 2:
+              // Storm Lord - More aggressive movement
+              e.x += Math.sin(currentTime * 0.015) * 1.5
+              e.y += Math.cos(currentTime * 0.012) * 0.3
+              if (e.y > 85) e.y -= 0.3
+              else if (e.y < 35) e.y += 0.3
+              break
+            default:
+              // Ancient Colossus - Slow but imposing movement
+              e.x += Math.sin(currentTime * 0.005) * 0.5
+              if (e.y > 75) e.y -= 0.1
+              else if (e.y < 50) e.y += 0.1
+              break
           }
         }
       })
@@ -754,9 +814,13 @@ const BulletHell: React.FC = () => {
       p.x = Math.max(boundaryRadius, Math.min(w - boundaryRadius, p.x))
       p.y = Math.max(boundaryRadius, Math.min(h - boundaryRadius, p.y))
 
-      // move bullets (with time slow effect)
+      // move bullets (with time slow effect) - optimized for performance
       const bulletSpeedMultiplier = inventory.equippedSpecial?.effect.special === 'timeslow' ? 0.5 : 1.0
-      bulletsRef.current.forEach(b => { 
+      const bullets = bulletsRef.current
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i]
+        if (!b) continue
+        
         if (b.from === 'enemy') {
           b.x += b.vx * bulletSpeedMultiplier
           b.y += b.vy * bulletSpeedMultiplier
@@ -764,8 +828,12 @@ const BulletHell: React.FC = () => {
           b.x += b.vx
           b.y += b.vy
         }
-      })
-      bulletsRef.current = bulletsRef.current.filter(b => b.x > -10 && b.x < w + 10 && b.y > -10 && b.y < h + 10)
+        
+        // Remove bullets that are off-screen (optimized bounds check)
+        if (b.x < -10 || b.x > w + 10 || b.y < -10 || b.y > h + 10) {
+          bullets.splice(i, 1)
+        }
+      }
 
       // Auto heal effect - disabled since lives is now 1
       // if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 1) {
@@ -802,53 +870,73 @@ const BulletHell: React.FC = () => {
         }
       }
 
-      // collision: enemy bullets with player
-      for (const b of bulletsRef.current.filter(b => b.from === 'enemy')) {
-        const dx = p.x - b.x, dy = p.y - b.y
-        if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
-          // 無敵時間中は被弾しない
-          if (invincible) {
-            break
-          }
+      // collision: enemy bullets with player (optimized)
+      if (!invincible) {
+        const bullets = bulletsRef.current
+        for (let i = bullets.length - 1; i >= 0; i--) {
+          const b = bullets[i]
+          if (!b || b.from !== 'enemy') continue
           
-          bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+          const dx = p.x - b.x, dy = p.y - b.y
+          const distanceSquared = dx * dx + dy * dy
+          const radiusSum = p.r + b.r
           
-          if (shield > 0) {
-            // シールドヒット音
-            playSound(400, 0.2, 'square')
-            setShield(s => Math.max(0, s - 5))
-            // シールド破壊時も無敵時間を付与
-            startInvincibility(30) // 0.5秒間
-          } else {
-            // ダメージ音
-            playSound(200, 0.5, 'triangle')
-            setLives(v => Math.max(0, v - 1))
-            // 被弾時に無敵時間を付与
-            startInvincibility(60) // 1秒間
-            if (lives - 1 <= 0) {
-              setRunning(false)
-              setGameOver(true)
-              // ハイスコアに追加（TOP3のみ保持）
-              updateHighScores(score)
-              // スコアをMOMOPayに変換（10スコア = 1MOMOPay）
-              const earnedPoints = Math.floor(score / 10)
-              if (earnedPoints > 0) {
-                addMomoPayPoints(earnedPoints)
+          if (distanceSquared < radiusSum * radiusSum) {
+            bullets.splice(i, 1)
+            
+            if (shield > 0) {
+              // シールドヒット音
+              playSound(400, 0.2, 'square')
+              setShield(s => Math.max(0, s - 10))
+              // シールド破壊時も無敵時間を付与
+              startInvincibility(30) // 0.5秒間
+            } else {
+              // ダメージ音
+              playSound(200, 0.5, 'triangle')
+              setLives(v => Math.max(0, v - 1))
+              // 被弾時に無敵時間を付与
+              startInvincibility(60) // 1秒間
+              if (lives - 1 <= 0) {
+                setRunning(false)
+                setGameOver(true)
+                // ハイスコアに追加（TOP3のみ保持）
+                updateHighScores(score)
+                // スコアをMOMOPayに変換（10スコア = 1MOMOPay）
+                const earnedPoints = Math.floor(score / 10)
+                if (earnedPoints > 0) {
+                  addMomoPayPoints(earnedPoints)
+                }
               }
             }
+            break // 1発のみ処理して終了
           }
         }
       }
 
       // player bullets hit enemies
       const beforeEnemyCount = enemiesRef.current.length
-      bulletsRef.current.filter(b => b.from === 'player').forEach(b => {
-        for (const e of enemiesRef.current) {
+      const beforeBossCount = enemiesRef.current.filter(e => e.isBoss).length
+      
+      // Optimized player bullet collision detection
+      const playerBullets = bulletsRef.current
+      const enemies = enemiesRef.current
+      
+      for (let i = playerBullets.length - 1; i >= 0; i--) {
+        const b = playerBullets[i]
+        if (!b || b.from !== 'player') continue
+        
+        for (let j = 0; j < enemies.length; j++) {
+          const e = enemies[j]
+          if (!e) continue
+          
           const dx = e.x - b.x, dy = e.y - b.y
-          if (dx * dx + dy * dy < (e.r + b.r) * (e.r + b.r)) {
+          const distanceSquared = dx * dx + dy * dy
+          const radiusSum = e.r + b.r
+          
+          if (distanceSquared < radiusSum * radiusSum) {
             const damage = Math.floor(playerRef.current.power)
             e.hp -= damage
-            bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+            playerBullets.splice(i, 1)
             
             // 敵ヒット音
             playSound(600, 0.1, 'sine')
@@ -857,45 +945,87 @@ const BulletHell: React.FC = () => {
             break
           }
         }
-      })
+      }
       enemiesRef.current = enemiesRef.current.filter(e => e.hp > 0)
       
+      // ボス撃破チェック
+      const afterBossCount = enemiesRef.current.filter(e => e.isBoss).length
+      const bossKilled = beforeBossCount > 0 && afterBossCount === 0
+      
       // 敵を倒すと追加スコア
-      const killedEnemies = enemiesRef.current.length - beforeEnemyCount
-      if (killedEnemies < 0) {
-        // Check if any bosses were killed for bonus points
-        const killedEnemyCount = Math.abs(killedEnemies)
+      const killedEnemies = beforeEnemyCount - enemiesRef.current.length
+      if (killedEnemies > 0) {
         let bossBonus = 0
         
-        // Simple check: if we killed fewer enemies than expected, some might have been bosses
-        // In a real implementation, you'd track this more precisely
-        for (let i = 0; i < killedEnemyCount; i++) {
-          // Assume boss if we're on a boss wave
-          if ((wave + 1) % 3 === 0) {
-            // ボス撃破音
-            playSound(300, 0.8, 'square')
-            bossBonus += 500 // Boss kill bonus
-          } else {
-            // 敵撃破音
-            playSound(1000, 0.2, 'triangle')
-            bossBonus += 50 // Normal enemy
-          }
+        if (bossKilled) {
+          // ボス撃破音
+          playSound(300, 0.8, 'square')
+          bossBonus += 500 // Boss kill bonus
+          
+          // ボス撃破時にウェーブ進行
+          const nextWave = wave + 1
+          setWave(nextWave)
+          setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
+          
+          // ウェーブクリア音
+          playSound(1500, 0.5, 'sine')
+        } else {
+          // 通常敵撃破音
+          playSound(1000, 0.2, 'triangle')
+          bossBonus += 50 * killedEnemies // Normal enemies
         }
         
         setScore(prev => prev + bossBonus)
       }
 
-      // ウェーブ進行チェック（30秒ごと）とボス出現
-      if (currentTime > 0 && currentTime % 1800 === 0) {
-        // ウェーブクリア音
-        playSound(1500, 0.5, 'sine')
-        
+      // ウェーブ進行チェック（30秒ごと）とボス出現 - ボスがいない場合のみ
+      const hasBossAlive = enemiesRef.current.some(e => e.isBoss)
+      const isNextWaveBossWave = (wave + 1) >= 5 && ((wave + 1) % 5 === 0)
+      
+      if (currentTime > 0 && currentTime % 1800 === 0 && !hasBossAlive) {
         const nextWave = wave + 1
         setWave(nextWave)
         setScore(prev => prev + wave * 100) // ウェーブクリアボーナス
         
+        // ウェーブクリア音
+        playSound(1500, 0.5, 'sine')
+        
         // Boss appears every 5th wave, starting from wave 5
-        if (nextWave >= 5 && (nextWave % 5 === 0)) {
+        if (isNextWaveBossWave) {
+          // ボス出現時に既存の敵を全て消去
+          enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
+          
+          // ボス出現音
+          playSound(150, 1.0, 'square')
+          
+          const bossTier = Math.floor(nextWave / 5) // 1, 2, 3, 4...
+          const bossType = ((bossTier - 1) % 3) + 1 // 1, 2, 3, 1, 2, 3...
+          const bossHp = 40 + bossTier * 20 // 60, 80, 100, 120...
+          
+          // ボスタイプに応じたサイズと位置
+          const bossSize = bossType === 1 ? 18 : bossType === 2 ? 22 : 25
+          const startY = bossType === 3 ? 40 : 50
+          
+          enemiesRef.current.push({
+            x: w / 2,
+            y: startY,
+            r: bossSize,
+            hp: bossHp,
+            maxHp: bossHp,
+            pattern: 6, // Boss pattern
+            isBoss: true,
+            bossPhase: 1,
+            bossType: bossType
+          })
+        }
+      }
+      
+      // ボス撃破後の次のボス出現処理
+      if (bossKilled) {
+        const nextWave = wave // ウェーブは既に+1されている
+        const isNextBossWave = nextWave >= 5 && (nextWave % 5 === 0)
+        
+        if (isNextBossWave) {
           // ボス出現時に既存の敵を全て消去
           enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
           
@@ -1491,70 +1621,100 @@ const BulletHell: React.FC = () => {
         </div>
       )}
       
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-        {/* スタートボタン - 最も重要なので一番大きく */}
-        <button 
-          onClick={start} 
-          disabled={running} 
-          className="comic-button font-button-lg"
-          style={{ 
-            background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
-            color: 'white', 
-            borderColor: running ? '#333' : '#2e7d32',
-            fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
-            padding: 'min(16px 32px, 4vw 8vw)',
-            fontWeight: 'bold'
-          }}
-          aria-label={running ? 'ゲーム実行中' : 'ゲームを開始する'}
-        >
-          {running ? '🎮 プレイ中' : '🚀 スタート'}
-        </button>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        gap: 'min(12px, 3vw)', 
+        alignItems: 'center',
+        maxWidth: 'min(600px, 95vw)',
+        margin: '0 auto'
+      }}>
+        {/* 1行目: スタートボタン（メイン） */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <button 
+            onClick={start} 
+            disabled={running} 
+            className="comic-button font-button-lg"
+            style={{ 
+              background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+              color: 'white', 
+              borderColor: running ? '#333' : '#2e7d32',
+              fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
+              padding: 'clamp(12px 24px, 3vw 6vw, 16px 32px)',
+              fontWeight: 'bold',
+              minWidth: 'clamp(140px, 35vw, 200px)'
+            }}
+            aria-label={running ? 'ゲーム実行中' : 'ゲームを開始する'}
+          >
+            {running ? 'プレイ中' : 'スタート'}
+          </button>
+        </div>
         
-        {/* 装備関連ボタン - 中サイズ */}
-        <button 
-          onClick={() => setShowInventory(true)} 
-          disabled={running} 
-          className="comic-button font-button-sm"
-          style={{ 
-            background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
-            color: 'white', 
-            borderColor: running ? '#333' : '#1976d2'
-          }}
-          aria-label="インベントリを開く"
-        >
-          🎒 装備 ({inventory.items.length})
-        </button>
-        
-        <button 
-          onClick={() => setShowEquipmentCatalog(true)} 
-          disabled={running} 
-          className="comic-button font-button-sm"
-          style={{ 
-            background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
-            color: 'white', 
-            borderColor: running ? '#333' : '#4a148c'
-          }}
-          aria-label="装備図鑑を開く"
-        >
-          📖 装備図鑑
-        </button>
-        
-        {/* ガチャボタン - 誤タップ防止のため小さく */}
-        <button 
-          onClick={() => setShowGacha(true)} 
-          disabled={running || momoPayPoints < 1000} 
-          className="comic-button font-button-xs"
-          style={{ 
-            background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
-            color: 'white', 
-            borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f',
-            fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
-            padding: 'min(8px 16px, 2vw 4vw)'
-          }}
-          aria-label="ガチャを引く（1000MOMOPay）"
-        >
-          <span className="momopay-small">🌲 ガチャ</span>
-        </button>
+        {/* 2行目: 装備・図鑑・ガチャボタン */}
+        <div style={{ 
+          display: 'flex', 
+          gap: 'clamp(8px, 2vw, 12px)', 
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          width: '100%'
+        }}>
+          <button 
+            onClick={() => setShowInventory(true)} 
+            disabled={running} 
+            className="comic-button font-button-sm"
+            style={{ 
+              background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
+              color: 'white', 
+              borderColor: running ? '#333' : '#1976d2',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              padding: 'clamp(8px 12px, 2.5vw 3.5vw, 12px 16px)',
+              minWidth: 'clamp(100px, 28vw, 140px)',
+              flex: '1 1 auto',
+              maxWidth: '160px'
+            }}
+            aria-label="インベントリを開く"
+          >
+            装備 ({inventory.items.length})
+          </button>
+          
+          <button 
+            onClick={() => setShowEquipmentCatalog(true)} 
+            disabled={running} 
+            className="comic-button font-button-sm"
+            style={{ 
+              background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
+              color: 'white', 
+              borderColor: running ? '#333' : '#4a148c',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              padding: 'clamp(8px 12px, 2.5vw 3.5vw, 12px 16px)',
+              minWidth: 'clamp(100px, 28vw, 140px)',
+              flex: '1 1 auto',
+              maxWidth: '160px'
+            }}
+            aria-label="装備図鑑を開く"
+          >
+            装備図鑑
+          </button>
+          
+          <button 
+            onClick={() => setShowGacha(true)} 
+            disabled={running || momoPayPoints < 1000} 
+            className="comic-button font-button-sm"
+            style={{ 
+              background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+              color: 'white', 
+              borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              padding: 'clamp(8px 12px, 2.5vw 3.5vw, 12px 16px)',
+              minWidth: 'clamp(100px, 28vw, 140px)',
+              flex: '1 1 auto',
+              maxWidth: '160px'
+            }}
+            aria-label="ガチャを引く（1000MOMOPay）"
+          >
+            <span className="momopay-small">ガチャ</span>
+          </button>
+        </div>
       </div>
 
       {/* ガチャモーダル */}
@@ -1562,13 +1722,14 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '8px'
+          zIndex: 1000, padding: 'min(8px, 2vw)'
         }}>
           <div className="comic-card gacha-modal" style={{
             background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 82, 82, 0.1))',
-            padding: 'min(32px, 4vw)', borderColor: '#ff5252', 
-            maxWidth: 'min(400px, 95vw)', width: '100%',
-            textAlign: 'center'
+            padding: 'clamp(20px, 4vw, 32px)', borderColor: '#ff5252', 
+            maxWidth: 'min(450px, 98vw)', width: '100%',
+            textAlign: 'center',
+            margin: 'auto'
           }}>
             <div className="comic-text" style={{ 
               color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
@@ -1590,7 +1751,7 @@ const BulletHell: React.FC = () => {
               🌰 コモン: 60%
             </div>
             
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
               <button 
                 onClick={performGacha} 
                 disabled={momoPayPoints < 1000}
@@ -1599,7 +1760,9 @@ const BulletHell: React.FC = () => {
                   background: momoPayPoints < 1000 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
                   color: momoPayPoints < 1000 ? '#ccc' : '#000', 
                   borderColor: momoPayPoints < 1000 ? '#333' : '#f57f17',
-                  minWidth: '120px'
+                  minWidth: 'clamp(140px, 35vw, 200px)',
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                  padding: 'clamp(10px 16px, 2.5vw 4vw, 12px 20px)'
                 }}
               >
                 <span className="momopay-small">🌰 ガチャ (1000MOMOPay)</span>
@@ -1637,7 +1800,8 @@ const BulletHell: React.FC = () => {
                         gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.95), rgba(142, 36, 170, 0.9))' :
                         gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(30, 136, 229, 0.9))' :
                         'linear-gradient(135deg, rgba(158, 158, 158, 0.95), rgba(117, 117, 117, 0.9))',
-              padding: '32px', textAlign: 'center', minWidth: '350px', maxWidth: '90vw',
+              padding: 'clamp(20px, 5vw, 32px)', textAlign: 'center', 
+              minWidth: 'clamp(280px, 70vw, 350px)', maxWidth: 'min(400px, 95vw)',
               borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
                           gachaResult.rarity === 'epic' ? '#9c27b0' :
                           gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
@@ -1648,28 +1812,31 @@ const BulletHell: React.FC = () => {
                         '0 10px 30px rgba(0,0,0,0.5)'
             }}>
               <div style={{ 
-                fontSize: '4rem', 
-                marginBottom: '16px',
+                fontSize: 'clamp(3rem, 8vw, 4rem)', 
+                marginBottom: 'clamp(12px, 3vw, 16px)',
                 filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))'
               }}>
                 {gachaResult.icon}
               </div>
               <div className="comic-text" style={{ 
                 color: '#ffffff', 
-                fontSize: '1.6rem', 
-                marginBottom: '12px',
+                fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', 
+                marginBottom: 'clamp(8px, 2vw, 12px)',
                 textShadow: gachaResult.rarity === 'legendary' ? '3px 3px 0px #b8860b, 0 0 15px #ffd700' : 
                            gachaResult.rarity === 'epic' ? '3px 3px 0px #6a1b9a, 0 0 15px #9c27b0' :
                            gachaResult.rarity === 'rare' ? '3px 3px 0px #0d47a1, 0 0 15px #2196f3' :
-                           '3px 3px 0px rgba(0,0,0,0.8)'
+                           '3px 3px 0px rgba(0,0,0,0.8)',
+                lineHeight: '1.2',
+                wordBreak: 'break-word'
               }}>
                 {gachaResult.name}
               </div>
               <div className="comic-text" style={{ 
                 color: '#f0f0f0', 
-                fontSize: '1.1rem', 
-                marginBottom: '16px',
-                textShadow: '2px 2px 0px rgba(0,0,0,0.8)'
+                fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
+                marginBottom: 'clamp(12px, 3vw, 16px)',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+                lineHeight: '1.3'
               }}>
                 {gachaResult.description}
               </div>
@@ -1677,10 +1844,10 @@ const BulletHell: React.FC = () => {
                 color: gachaResult.rarity === 'legendary' ? '#ffd700' :
                       gachaResult.rarity === 'epic' ? '#e1bee7' :
                       gachaResult.rarity === 'rare' ? '#bbdefb' : '#e0e0e0',
-                fontSize: '1.3rem', 
+                fontSize: 'clamp(1.1rem, 3vw, 1.3rem)', 
                 fontWeight: 'bold',
                 textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
-                marginBottom: '16px'
+                marginBottom: 'clamp(12px, 3vw, 16px)'
               }}>
                 ★ {gachaResult.rarity.toUpperCase()} ★
               </div>
@@ -1706,12 +1873,12 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, overflow: 'auto', padding: '8px'
+          zIndex: 1000, overflow: 'auto', padding: 'min(8px, 2vw)'
         }}>
           <div className="comic-card inventory-modal" style={{
             background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.2), rgba(33, 150, 243, 0.1))',
-            padding: 'min(32px, 4vw)', borderColor: '#2196f3', 
-            maxWidth: 'min(600px, 95vw)', width: '100%',
+            padding: 'min(20px, 3vw)', borderColor: '#2196f3', 
+            maxWidth: 'min(700px, 98vw)', width: '100%',
             maxHeight: 'min(90vh, 800px)', overflow: 'auto',
             margin: 'auto'
           }}>
@@ -1925,13 +2092,14 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, overflow: 'auto', padding: '8px'
+          zIndex: 1000, overflow: 'auto', padding: 'min(8px, 2vw)'
         }}>
           <div className="comic-card inventory-modal" style={{
             background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.1))',
-            padding: 'min(32px, 4vw)', borderColor: '#9c27b0', 
-            maxWidth: 'min(700px, 95vw)', width: '100%',
-            maxHeight: 'min(80vh, 600px)', position: 'relative'
+            padding: 'min(20px, 3vw)', borderColor: '#9c27b0', 
+            maxWidth: 'min(800px, 98vw)', width: '100%',
+            maxHeight: 'min(90vh, 700px)', position: 'relative',
+            margin: 'auto'
           }}>
             <div className="comic-text" style={{ 
               color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
@@ -1948,17 +2116,18 @@ const BulletHell: React.FC = () => {
             </div>
             
             <div className="inventory-scroll" style={{
-              maxHeight: 'min(60vh, 400px)', overflowY: 'auto',
-              padding: 'min(4px, 1vw)',
+              maxHeight: 'min(70vh, 500px)', overflowY: 'auto',
+              padding: 'min(8px, 2vw)',
               border: '2px solid rgba(156, 39, 176, 0.3)',
               borderRadius: '10px',
-              background: 'rgba(0, 0, 0, 0.2)'
+              background: 'rgba(0, 0, 0, 0.2)',
+              overflowX: 'hidden'
             }}>
               {/* 装備カテゴリー別表示 */}
-              {['weapon', 'shield', 'accessory'].map(category => {
+              {['weapon', 'shield', 'special'].map(category => {
                 const categoryItems = GACHA_ITEMS.filter(item => item.type === category)
-                const categoryName = category === 'weapon' ? '武器' : category === 'shield' ? '盾' : 'アクセサリー'
-                const categoryIcon = category === 'weapon' ? '⚔️' : category === 'shield' ? '🛡️' : '💎'
+                const categoryName = category === 'weapon' ? '武器' : category === 'shield' ? '盾' : '特殊能力'
+                const categoryIcon = category === 'weapon' ? '⚔️' : category === 'shield' ? '🛡️' : '✨'
                 
                 return (
                   <div key={category} style={{ marginBottom: '20px' }}>
@@ -1970,88 +2139,112 @@ const BulletHell: React.FC = () => {
                       {categoryIcon} {categoryName}
                     </div>
                     
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(min(250px, 90vw), 1fr))',
-                      gap: 'min(12px, 3vw)'
-                    }}>
-                      {categoryItems.map(item => {
-                        const ownedCount = inventory.items.filter(invItem => invItem.id === item.id).length
-                        const rarityColor = item.rarity === 'legendary' ? '#ffd700' :
-                                          item.rarity === 'epic' ? '#9c27b0' :
-                                          item.rarity === 'rare' ? '#2196f3' : '#4caf50'
-                        const rarityText = item.rarity === 'legendary' ? 'レジェンド' :
-                                         item.rarity === 'epic' ? 'エピック' :
-                                         item.rarity === 'rare' ? 'レア' : 'コモン'
-                        
-                        return (
-                          <div key={item.id} className="comic-card" style={{
-                            padding: 'min(16px, 4vw)',
-                            background: ownedCount > 0 
-                              ? `linear-gradient(135deg, ${rarityColor}20, ${rarityColor}10)`
-                              : 'linear-gradient(135deg, rgba(100, 100, 100, 0.2), rgba(80, 80, 80, 0.1))',
-                            borderColor: ownedCount > 0 ? rarityColor : '#666',
-                            opacity: ownedCount > 0 ? 1 : 0.6,
-                            position: 'relative'
+                    {/* レアリティごとにグループ化 */}
+                    {['legendary', 'epic', 'rare', 'common'].map(rarity => {
+                      const rarityItems = categoryItems.filter(item => item.rarity === rarity)
+                      if (rarityItems.length === 0) return null
+                      
+                      const rarityColor = rarity === 'legendary' ? '#ffd700' :
+                                        rarity === 'epic' ? '#9c27b0' :
+                                        rarity === 'rare' ? '#2196f3' : '#4caf50'
+                      const rarityText = rarity === 'legendary' ? 'レジェンド' :
+                                       rarity === 'epic' ? 'エピック' :
+                                       rarity === 'rare' ? 'レア' : 'コモン'
+                      
+                      return (
+                        <div key={rarity} style={{ marginBottom: '16px' }}>
+                          <div className="comic-text" style={{
+                            color: rarityColor,
+                            fontSize: 'clamp(0.9rem, 3vw, 1rem)',
+                            fontWeight: 'bold',
+                            marginBottom: '8px',
+                            textAlign: 'center',
+                            textShadow: '1px 1px 0px rgba(0,0,0,0.5)'
                           }}>
-                            {/* 所持数バッジ */}
-                            {ownedCount > 0 && (
-                              <div style={{
-                                position: 'absolute', top: '-8px', right: '-8px',
-                                background: rarityColor, color: 'white',
-                                borderRadius: '50%', width: '24px', height: '24px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: '0.8rem', fontWeight: 'bold',
-                                border: '2px solid white'
-                              }}>
-                                {ownedCount}
-                              </div>
-                            )}
-                            
-                            <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                              <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: '4px' }}>
-                                {item.icon}
-                              </div>
-                              <div className="comic-text" style={{ 
-                                fontSize: 'clamp(0.9rem, 3vw, 1.1rem)', 
-                                color: ownedCount > 0 ? '#fff3e0' : '#aaa',
-                                marginBottom: '4px'
-                              }}>
-                                {item.name}
-                              </div>
-                              <div style={{
-                                fontSize: 'clamp(0.7rem, 2.5vw, 0.8rem)',
-                                color: rarityColor,
-                                fontWeight: 'bold',
-                                marginBottom: '8px'
-                              }}>
-                                {rarityText}
-                              </div>
-                            </div>
-                            
-                            <div className="comic-text" style={{ 
-                              fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
-                              color: ownedCount > 0 ? '#c8e6c9' : '#888',
-                              textAlign: 'center',
-                              lineHeight: '1.3'
-                            }}>
-                              {item.description}
-                            </div>
-                            
-                            {ownedCount === 0 && (
-                              <div className="comic-text" style={{
-                                fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
-                                color: '#ff6b6b',
-                                textAlign: 'center',
-                                marginTop: '8px'
-                              }}>
-                                未所持
-                              </div>
-                            )}
+                            ★ {rarityText} ★
                           </div>
-                        )
-                      })}
-                    </div>
+                          
+                          <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 40vw), 1fr))',
+                            gap: 'min(12px, 3vw)',
+                            justifyItems: 'stretch'
+                          }}>
+                            {rarityItems.map(item => {
+                              const ownedCount = inventory.items.filter(invItem => invItem.id === item.id).length
+                              
+                              return (
+                                <div key={item.id} className="comic-card" style={{
+                                  padding: 'clamp(8px, 2.5vw, 16px)',
+                                  background: ownedCount > 0 
+                                    ? `linear-gradient(135deg, ${rarityColor}20, ${rarityColor}10)`
+                                    : 'linear-gradient(135deg, rgba(100, 100, 100, 0.2), rgba(80, 80, 80, 0.1))',
+                                  borderColor: ownedCount > 0 ? rarityColor : '#666',
+                                  opacity: ownedCount > 0 ? 1 : 0.6,
+                                  position: 'relative',
+                                  minHeight: 'clamp(120px, 25vw, 160px)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'space-between'
+                                }}>
+                                  {/* 所持数バッジ */}
+                                  {ownedCount > 0 && (
+                                    <div style={{
+                                      position: 'absolute', top: '-6px', right: '-6px',
+                                      background: rarityColor, color: 'white',
+                                      borderRadius: '50%', width: '20px', height: '20px',
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      fontSize: '0.7rem', fontWeight: 'bold',
+                                      border: '2px solid white'
+                                    }}>
+                                      {ownedCount}
+                                    </div>
+                                  )}
+                                  
+                                  <div style={{ textAlign: 'center', flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: 'clamp(4px, 1vw, 8px)' }}>
+                                      {item.icon}
+                                    </div>
+                                    <div className="comic-text" style={{ 
+                                      fontSize: 'clamp(0.75rem, 2.2vw, 1rem)', 
+                                      color: ownedCount > 0 ? '#fff3e0' : '#aaa',
+                                      marginBottom: 'clamp(4px, 1vw, 8px)',
+                                      lineHeight: '1.1',
+                                      wordBreak: 'break-word',
+                                      hyphens: 'auto'
+                                    }}>
+                                      {item.name}
+                                    </div>
+                                    
+                                    <div className="comic-text" style={{ 
+                                      fontSize: 'clamp(0.65rem, 1.8vw, 0.85rem)', 
+                                      color: ownedCount > 0 ? '#c8e6c9' : '#888',
+                                      textAlign: 'center',
+                                      lineHeight: '1.2',
+                                      wordBreak: 'break-word',
+                                      hyphens: 'auto'
+                                    }}>
+                                      {item.description}
+                                    </div>
+                                    
+                                    {ownedCount === 0 && (
+                                      <div className="comic-text" style={{
+                                        fontSize: 'clamp(0.6rem, 1.6vw, 0.75rem)',
+                                        color: '#ff6b6b',
+                                        textAlign: 'center',
+                                        marginTop: 'clamp(2px, 0.5vw, 4px)'
+                                      }}>
+                                        未所持
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 )
               })}

@@ -30,32 +30,6 @@ const Games: React.FC = () => {
         margin: '0 auto', 
         padding: '0 10px' 
       }}>
-        <Link to="/games/omikuji" style={{ textDecoration: 'none' }}>
-          <div className="comic-card home-card" style={{ 
-            background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', 
-            padding: 'min(32px, 8vw)', 
-            borderColor: '#ffc107', 
-            cursor: 'pointer', 
-            transition: 'all 0.3s ease',
-            minHeight: '180px'
-          }}>
-            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🔮</div>
-            <div className="comic-text font-title-sm" style={{ 
-              color: '#fff3e0',
-              marginBottom: '12px'
-            }}>
-              御神籤
-            </div>
-            <div className="comic-text font-body-md" style={{ 
-              color: '#c8e6c9', 
-              lineHeight: '1.4'
-            }}>
-              神様に運勢を占ってもらおう<br />
-              <span className="momopay-small">費用: 10MOMOPay</span>
-            </div>
-          </div>
-        </Link>
-
         <Link to="/games/bullet-hell" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ 
             background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))', 
@@ -78,6 +52,32 @@ const Games: React.FC = () => {
             }}>
               守護者として修行を積もう<br />
               <span style={{ color: '#ffd93d' }} className="font-body-sm">装備ガチャで強化！</span>
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/games/omikuji" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#ffc107', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🔮</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              御神籤
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              神様に運勢を占ってもらおう<br />
+              <span className="momopay-small">費用: 10MOMOPay</span>
             </div>
           </div>
         </Link>
