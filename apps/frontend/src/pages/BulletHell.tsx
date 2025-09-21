@@ -2214,9 +2214,8 @@ const BulletHell: React.FC = () => {
                       )
                     })}
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
             </div>
             
             <div style={{ textAlign: 'center', marginTop: '16px' }}>
