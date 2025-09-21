@@ -1799,12 +1799,12 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, overflow: 'auto', padding: '8px'
+          zIndex: 1000, overflow: 'auto', padding: 'min(8px, 2vw)'
         }}>
           <div className="comic-card inventory-modal" style={{
             background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.2), rgba(33, 150, 243, 0.1))',
-            padding: 'min(32px, 4vw)', borderColor: '#2196f3', 
-            maxWidth: 'min(600px, 95vw)', width: '100%',
+            padding: 'min(20px, 3vw)', borderColor: '#2196f3', 
+            maxWidth: 'min(700px, 98vw)', width: '100%',
             maxHeight: 'min(90vh, 800px)', overflow: 'auto',
             margin: 'auto'
           }}>
@@ -2018,13 +2018,14 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, overflow: 'auto', padding: '8px'
+          zIndex: 1000, overflow: 'auto', padding: 'min(8px, 2vw)'
         }}>
           <div className="comic-card inventory-modal" style={{
             background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.1))',
-            padding: 'min(32px, 4vw)', borderColor: '#9c27b0', 
-            maxWidth: 'min(700px, 95vw)', width: '100%',
-            maxHeight: 'min(80vh, 600px)', position: 'relative'
+            padding: 'min(20px, 3vw)', borderColor: '#9c27b0', 
+            maxWidth: 'min(800px, 98vw)', width: '100%',
+            maxHeight: 'min(90vh, 700px)', position: 'relative',
+            margin: 'auto'
           }}>
             <div className="comic-text" style={{ 
               color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
@@ -2041,11 +2042,12 @@ const BulletHell: React.FC = () => {
             </div>
             
             <div className="inventory-scroll" style={{
-              maxHeight: 'min(60vh, 400px)', overflowY: 'auto',
-              padding: 'min(4px, 1vw)',
+              maxHeight: 'min(70vh, 500px)', overflowY: 'auto',
+              padding: 'min(8px, 2vw)',
               border: '2px solid rgba(156, 39, 176, 0.3)',
               borderRadius: '10px',
-              background: 'rgba(0, 0, 0, 0.2)'
+              background: 'rgba(0, 0, 0, 0.2)',
+              overflowX: 'hidden'
             }}>
               {/* 装備カテゴリー別表示 */}
               {['weapon', 'shield', 'special'].map(category => {
@@ -2090,21 +2092,26 @@ const BulletHell: React.FC = () => {
                           
                           <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(min(200px, 85vw), 1fr))',
-                            gap: 'min(8px, 2vw)'
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 40vw), 1fr))',
+                            gap: 'min(12px, 3vw)',
+                            justifyItems: 'stretch'
                           }}>
                             {rarityItems.map(item => {
                               const ownedCount = inventory.items.filter(invItem => invItem.id === item.id).length
                               
                               return (
                                 <div key={item.id} className="comic-card" style={{
-                                  padding: 'min(12px, 3vw)',
+                                  padding: 'clamp(8px, 2.5vw, 16px)',
                                   background: ownedCount > 0 
                                     ? `linear-gradient(135deg, ${rarityColor}20, ${rarityColor}10)`
                                     : 'linear-gradient(135deg, rgba(100, 100, 100, 0.2), rgba(80, 80, 80, 0.1))',
                                   borderColor: ownedCount > 0 ? rarityColor : '#666',
                                   opacity: ownedCount > 0 ? 1 : 0.6,
-                                  position: 'relative'
+                                  position: 'relative',
+                                  minHeight: 'clamp(120px, 25vw, 160px)',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  justifyContent: 'space-between'
                                 }}>
                                   {/* 所持数バッジ */}
                                   {ownedCount > 0 && (
@@ -2120,38 +2127,43 @@ const BulletHell: React.FC = () => {
                                     </div>
                                   )}
                                   
-                                  <div style={{ textAlign: 'center', marginBottom: '6px' }}>
-                                    <div style={{ fontSize: 'clamp(1.2rem, 3.5vw, 1.5rem)', marginBottom: '2px' }}>
+                                  <div style={{ textAlign: 'center', flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', marginBottom: 'clamp(4px, 1vw, 8px)' }}>
                                       {item.icon}
                                     </div>
                                     <div className="comic-text" style={{ 
-                                      fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)', 
+                                      fontSize: 'clamp(0.75rem, 2.2vw, 1rem)', 
                                       color: ownedCount > 0 ? '#fff3e0' : '#aaa',
-                                      marginBottom: '4px'
+                                      marginBottom: 'clamp(4px, 1vw, 8px)',
+                                      lineHeight: '1.1',
+                                      wordBreak: 'break-word',
+                                      hyphens: 'auto'
                                     }}>
                                       {item.name}
                                     </div>
-                                  </div>
-                                  
-                                  <div className="comic-text" style={{ 
-                                    fontSize: 'clamp(0.7rem, 2vw, 0.8rem)', 
-                                    color: ownedCount > 0 ? '#c8e6c9' : '#888',
-                                    textAlign: 'center',
-                                    lineHeight: '1.2'
-                                  }}>
-                                    {item.description}
-                                  </div>
-                                  
-                                  {ownedCount === 0 && (
-                                    <div className="comic-text" style={{
-                                      fontSize: 'clamp(0.6rem, 1.8vw, 0.7rem)',
-                                      color: '#ff6b6b',
+                                    
+                                    <div className="comic-text" style={{ 
+                                      fontSize: 'clamp(0.65rem, 1.8vw, 0.85rem)', 
+                                      color: ownedCount > 0 ? '#c8e6c9' : '#888',
                                       textAlign: 'center',
-                                      marginTop: '4px'
+                                      lineHeight: '1.2',
+                                      wordBreak: 'break-word',
+                                      hyphens: 'auto'
                                     }}>
-                                      未所持
+                                      {item.description}
                                     </div>
-                                  )}
+                                    
+                                    {ownedCount === 0 && (
+                                      <div className="comic-text" style={{
+                                        fontSize: 'clamp(0.6rem, 1.6vw, 0.75rem)',
+                                        color: '#ff6b6b',
+                                        textAlign: 'center',
+                                        marginTop: 'clamp(2px, 0.5vw, 4px)'
+                                      }}>
+                                        未所持
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               )
                             })}
