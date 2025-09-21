@@ -1689,9 +1689,10 @@ const BulletHell: React.FC = () => {
         }}>
           <div className="comic-card gacha-modal" style={{
             background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 82, 82, 0.1))',
-            padding: 'min(32px, 4vw)', borderColor: '#ff5252', 
-            maxWidth: 'min(400px, 95vw)', width: '100%',
-            textAlign: 'center'
+            padding: 'clamp(20px, 4vw, 32px)', borderColor: '#ff5252', 
+            maxWidth: 'min(450px, 98vw)', width: '100%',
+            textAlign: 'center',
+            margin: 'auto'
           }}>
             <div className="comic-text" style={{ 
               color: '#fff3e0', fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 

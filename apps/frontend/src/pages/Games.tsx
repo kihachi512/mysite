@@ -12,7 +12,7 @@ const Games: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🎮 遊技場 🎮
+        遊技場
       </div>
       <div className="comic-text font-body-lg" style={{ 
         marginBottom: 'min(36px, 8vw)', 
@@ -116,7 +116,7 @@ const Games: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🏠 秘密基地に戻る
+            秘密基地に戻る
           </button>
         </Link>
       </div>
