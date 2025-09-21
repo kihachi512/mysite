@@ -1584,70 +1584,100 @@ const BulletHell: React.FC = () => {
         </div>
       )}
       
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-        {/* スタートボタン - 最も重要なので一番大きく */}
-        <button 
-          onClick={start} 
-          disabled={running} 
-          className="comic-button font-button-lg"
-          style={{ 
-            background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
-            color: 'white', 
-            borderColor: running ? '#333' : '#2e7d32',
-            fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
-            padding: 'min(16px 32px, 4vw 8vw)',
-            fontWeight: 'bold'
-          }}
-          aria-label={running ? 'ゲーム実行中' : 'ゲームを開始する'}
-        >
-          {running ? '🎮 プレイ中' : '🚀 スタート'}
-        </button>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        gap: 'min(12px, 3vw)', 
+        alignItems: 'center',
+        maxWidth: 'min(600px, 95vw)',
+        margin: '0 auto'
+      }}>
+        {/* 1行目: スタートボタン（メイン） */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <button 
+            onClick={start} 
+            disabled={running} 
+            className="comic-button font-button-lg"
+            style={{ 
+              background: running ? '#666' : 'linear-gradient(45deg, #66bb6a, #4caf50)', 
+              color: 'white', 
+              borderColor: running ? '#333' : '#2e7d32',
+              fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
+              padding: 'clamp(12px 24px, 3vw 6vw, 16px 32px)',
+              fontWeight: 'bold',
+              minWidth: 'clamp(140px, 35vw, 200px)'
+            }}
+            aria-label={running ? 'ゲーム実行中' : 'ゲームを開始する'}
+          >
+            {running ? 'プレイ中' : 'スタート'}
+          </button>
+        </div>
         
-        {/* 装備関連ボタン - 中サイズ */}
-        <button 
-          onClick={() => setShowInventory(true)} 
-          disabled={running} 
-          className="comic-button font-button-sm"
-          style={{ 
-            background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
-            color: 'white', 
-            borderColor: running ? '#333' : '#1976d2'
-          }}
-          aria-label="インベントリを開く"
-        >
-          🎒 装備 ({inventory.items.length})
-        </button>
-        
-        <button 
-          onClick={() => setShowEquipmentCatalog(true)} 
-          disabled={running} 
-          className="comic-button font-button-sm"
-          style={{ 
-            background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
-            color: 'white', 
-            borderColor: running ? '#333' : '#4a148c'
-          }}
-          aria-label="装備図鑑を開く"
-        >
-          📖 装備図鑑
-        </button>
-        
-        {/* ガチャボタン - 誤タップ防止のため小さく */}
-        <button 
-          onClick={() => setShowGacha(true)} 
-          disabled={running || momoPayPoints < 1000} 
-          className="comic-button font-button-xs"
-          style={{ 
-            background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
-            color: 'white', 
-            borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f',
-            fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)',
-            padding: 'min(8px 16px, 2vw 4vw)'
-          }}
-          aria-label="ガチャを引く（1000MOMOPay）"
-        >
-          <span className="momopay-small">🌲 ガチャ</span>
-        </button>
+        {/* 2行目: 装備・図鑑・ガチャボタン */}
+        <div style={{ 
+          display: 'flex', 
+          gap: 'clamp(8px, 2vw, 12px)', 
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          width: '100%'
+        }}>
+          <button 
+            onClick={() => setShowInventory(true)} 
+            disabled={running} 
+            className="comic-button font-button-sm"
+            style={{ 
+              background: running ? '#666' : 'linear-gradient(45deg, #42a5f5, #2196f3)', 
+              color: 'white', 
+              borderColor: running ? '#333' : '#1976d2',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              padding: 'clamp(8px 12px, 2.5vw 3.5vw, 12px 16px)',
+              minWidth: 'clamp(100px, 28vw, 140px)',
+              flex: '1 1 auto',
+              maxWidth: '160px'
+            }}
+            aria-label="インベントリを開く"
+          >
+            装備 ({inventory.items.length})
+          </button>
+          
+          <button 
+            onClick={() => setShowEquipmentCatalog(true)} 
+            disabled={running} 
+            className="comic-button font-button-sm"
+            style={{ 
+              background: running ? '#666' : 'linear-gradient(45deg, #9c27b0, #7b1fa2)', 
+              color: 'white', 
+              borderColor: running ? '#333' : '#4a148c',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              padding: 'clamp(8px 12px, 2.5vw 3.5vw, 12px 16px)',
+              minWidth: 'clamp(100px, 28vw, 140px)',
+              flex: '1 1 auto',
+              maxWidth: '160px'
+            }}
+            aria-label="装備図鑑を開く"
+          >
+            装備図鑑
+          </button>
+          
+          <button 
+            onClick={() => setShowGacha(true)} 
+            disabled={running || momoPayPoints < 1000} 
+            className="comic-button font-button-sm"
+            style={{ 
+              background: (running || momoPayPoints < 1000) ? '#666' : 'linear-gradient(45deg, #ff6b6b, #ff5252)', 
+              color: 'white', 
+              borderColor: (running || momoPayPoints < 1000) ? '#333' : '#d32f2f',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              padding: 'clamp(8px 12px, 2.5vw 3.5vw, 12px 16px)',
+              minWidth: 'clamp(100px, 28vw, 140px)',
+              flex: '1 1 auto',
+              maxWidth: '160px'
+            }}
+            aria-label="ガチャを引く（1000MOMOPay）"
+          >
+            <span className="momopay-small">ガチャ</span>
+          </button>
+        </div>
       </div>
 
       {/* ガチャモーダル */}
