@@ -64,21 +64,21 @@ const GACHA_ITEMS: GachaItem[] = [
   // Common シールド
   { id: 's1', name: '木の皮バリア', description: 'シールド+10', rarity: 'common', type: 'shield', effect: { shield: 10 }, icon: '🌳' },
   { id: 's2', name: '葉っぱの盾', description: 'シールド+15', rarity: 'common', type: 'shield', effect: { shield: 15 }, icon: '🍀' },
-  { id: 's3', name: '石の守り', description: 'シールド+12', rarity: 'common', type: 'shield', effect: { shield: 12 }, icon: '🪨' },
+  { id: 's3', name: 'どんぐりの殻', description: 'シールド+12', rarity: 'common', type: 'shield', effect: { shield: 12 }, icon: '🌰' },
   { id: 's4', name: '蔦の結界', description: 'シールド+18', rarity: 'common', type: 'shield', effect: { shield: 18 }, icon: '🌿' },
   
   // Rare シールド
   { id: 's5', name: '森の加護', description: 'シールド+25', rarity: 'rare', type: 'shield', effect: { shield: 25 }, icon: '🌲' },
-  { id: 's6', name: '水晶の盾', description: 'シールド+30', rarity: 'rare', type: 'shield', effect: { shield: 30 }, icon: '💎' },
-  { id: 's7', name: '風の結界', description: 'シールド+28', rarity: 'rare', type: 'shield', effect: { shield: 28 }, icon: '💨' },
-  { id: 's8', name: '炎の守護', description: 'シールド+32', rarity: 'rare', type: 'shield', effect: { shield: 32 }, icon: '🔥' },
-  { id: 's9', name: '氷の壁', description: 'シールド+35', rarity: 'rare', type: 'shield', effect: { shield: 35 }, icon: '🧊' },
+  { id: 's6', name: '樹液の盾', description: 'シールド+30', rarity: 'rare', type: 'shield', effect: { shield: 30 }, icon: '🌳' },
+  { id: 's7', name: '木の葉の結界', description: 'シールド+28', rarity: 'rare', type: 'shield', effect: { shield: 28 }, icon: '🍃' },
+  { id: 's8', name: '花びらの守護', description: 'シールド+32', rarity: 'rare', type: 'shield', effect: { shield: 32 }, icon: '🌸' },
+  { id: 's9', name: 'モモンガの毛皮', description: 'シールド+35', rarity: 'rare', type: 'shield', effect: { shield: 35 }, icon: '🐿️' },
   
   // Epic シールド
   { id: 's10', name: '古樹の盾', description: 'シールド+45', rarity: 'epic', type: 'shield', effect: { shield: 45 }, icon: '🌳' },
-  { id: 's11', name: '雷光の結界', description: 'シールド+50', rarity: 'epic', type: 'shield', effect: { shield: 50 }, icon: '⚡' },
-  { id: 's12', name: '月の加護', description: 'シールド+48', rarity: 'epic', type: 'shield', effect: { shield: 48 }, icon: '🌙' },
-  { id: 's13', name: '虹の盾', description: 'シールド+55', rarity: 'epic', type: 'shield', effect: { shield: 55 }, icon: '🌈' },
+  { id: 's11', name: '森の雷鳴結界', description: 'シールド+50', rarity: 'epic', type: 'shield', effect: { shield: 50 }, icon: '⚡' },
+  { id: 's12', name: '森の月光守護', description: 'シールド+48', rarity: 'epic', type: 'shield', effect: { shield: 48 }, icon: '🌙' },
+  { id: 's13', name: 'モモンガ族の盾', description: 'シールド+55', rarity: 'epic', type: 'shield', effect: { shield: 55 }, icon: '🐿️' },
   
   // Legendary シールド
   { id: 's14', name: 'モモンガ王の結界', description: 'シールド+70', rarity: 'legendary', type: 'shield', effect: { shield: 70 }, icon: '👑' },
@@ -89,13 +89,13 @@ const GACHA_ITEMS: GachaItem[] = [
   // Rare 特殊
   { id: 'sp1', name: '風のささやき', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🍃' },
   { id: 'sp2', name: '小鳥の歌声', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🐦' },
-  { id: 'sp3', name: '川のせせらぎ', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🌊' },
+  { id: 'sp3', name: 'モモンガの俊敏性', description: '移動速度向上', rarity: 'rare', type: 'special', effect: { special: 'speed' }, icon: '🐿️' },
   
   // Epic 特殊
   { id: 'sp4', name: '森の恵み', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌸' },
-  { id: 'sp5', name: '月光の癒し', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌙' },
-  { id: 'sp6', name: '星の祝福', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '⭐' },
-  { id: 'sp7', name: '時の流れ', description: '敵弾減速効果', rarity: 'epic', type: 'special', effect: { special: 'timeslow' }, icon: '⏰' },
+  { id: 'sp5', name: '森の月光癒し', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '🌙' },
+  { id: 'sp6', name: '木漏れ日の祝福', description: '自動回復機能', rarity: 'epic', type: 'special', effect: { special: 'heal' }, icon: '☀️' },
+  { id: 'sp7', name: '森の時間操作', description: '敵弾減速効果', rarity: 'epic', type: 'special', effect: { special: 'timeslow' }, icon: '🌳' },
   
   // Legendary 特殊
   { id: 'sp8', name: 'モモンガ時間操術', description: '敵弾減速効果', rarity: 'legendary', type: 'special', effect: { special: 'timeslow' }, icon: '⏳' },
