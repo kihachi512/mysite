@@ -36,24 +36,24 @@ const GACHA_ITEMS: GachaItem[] = [
   // Common武器
   { id: 'w1', name: 'どんぐりシューター', description: '連射速度+0.3', rarity: 'common', type: 'weapon', effect: { fireRate: 0.3 }, icon: '🌰' },
   { id: 'w2', name: '小枝の弓', description: '威力+0.5', rarity: 'common', type: 'weapon', effect: { power: 0.5 }, icon: '🏹' },
-  { id: 'w3', name: '石つぶて投げ器', description: '連射速度+0.4', rarity: 'common', type: 'weapon', effect: { fireRate: 0.4 }, icon: '🪨' },
+  { id: 'w3', name: '松ぼっくり投げ器', description: '連射速度+0.4', rarity: 'common', type: 'weapon', effect: { fireRate: 0.4 }, icon: '🌲' },
   { id: 'w4', name: '木の実ガン', description: '威力+0.6', rarity: 'common', type: 'weapon', effect: { power: 0.6 }, icon: '🥜' },
   { id: 'w5', name: '竹筒砲', description: '連射速度+0.2, 威力+0.3', rarity: 'common', type: 'weapon', effect: { fireRate: 0.2, power: 0.3 }, icon: '🎋' },
   
   // Rare武器
   { id: 'w6', name: '森の雷撃砲', description: '威力+1.0', rarity: 'rare', type: 'weapon', effect: { power: 1.0 }, icon: '⚡' },
-  { id: 'w7', name: '風切りブラスター', description: '連射速度+0.7', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.7 }, icon: '💨' },
-  { id: 'w8', name: '月光の弩', description: '威力+0.8, 連射速度+0.3', rarity: 'rare', type: 'weapon', effect: { power: 0.8, fireRate: 0.3 }, icon: '🌙' },
-  { id: 'w9', name: '炎の種砲', description: '威力+1.2', rarity: 'rare', type: 'weapon', effect: { power: 1.2 }, icon: '🔥' },
-  { id: 'w10', name: '氷結シューター', description: '連射速度+0.6, 威力+0.4', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.6, power: 0.4 }, icon: '❄️' },
-  { id: 'w11', name: '星屑ランチャー', description: '威力+0.9, 連射速度+0.2', rarity: 'rare', type: 'weapon', effect: { power: 0.9, fireRate: 0.2 }, icon: '⭐' },
+  { id: 'w7', name: '木の葉ブラスター', description: '連射速度+0.7', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.7 }, icon: '🍃' },
+  { id: 'w8', name: '樹液の弩', description: '威力+0.8, 連射速度+0.3', rarity: 'rare', type: 'weapon', effect: { power: 0.8, fireRate: 0.3 }, icon: '🌳' },
+  { id: 'w9', name: '花粉砲', description: '威力+1.2', rarity: 'rare', type: 'weapon', effect: { power: 1.2 }, icon: '🌸' },
+  { id: 'w10', name: '苔玉シューター', description: '連射速度+0.6, 威力+0.4', rarity: 'rare', type: 'weapon', effect: { fireRate: 0.6, power: 0.4 }, icon: '🌿' },
+  { id: 'w11', name: '木の実ランチャー', description: '威力+0.9, 連射速度+0.2', rarity: 'rare', type: 'weapon', effect: { power: 0.9, fireRate: 0.2 }, icon: '🌰' },
   
   // Epic武器
   { id: 'w12', name: 'ツインリーフブラスター', description: '連射+0.8, 威力+0.5', rarity: 'epic', type: 'weapon', effect: { fireRate: 0.8, power: 0.5 }, icon: '🍃' },
-  { id: 'w13', name: '嵐の咆哮砲', description: '威力+1.5, 連射速度+0.4', rarity: 'epic', type: 'weapon', effect: { power: 1.5, fireRate: 0.4 }, icon: '🌪️' },
-  { id: 'w14', name: '虹色プリズムガン', description: '連射速度+1.0, 威力+0.8', rarity: 'epic', type: 'weapon', effect: { fireRate: 1.0, power: 0.8 }, icon: '🌈' },
+  { id: 'w13', name: '大樹の咆哮砲', description: '威力+1.5, 連射速度+0.4', rarity: 'epic', type: 'weapon', effect: { power: 1.5, fireRate: 0.4 }, icon: '🌳' },
+  { id: 'w14', name: '森の光線砲', description: '連射速度+1.0, 威力+0.8', rarity: 'epic', type: 'weapon', effect: { fireRate: 1.0, power: 0.8 }, icon: '✨' },
   { id: 'w15', name: '古代樹の杖', description: '威力+1.3, 連射速度+0.6', rarity: 'epic', type: 'weapon', effect: { power: 1.3, fireRate: 0.6 }, icon: '🌳' },
-  { id: 'w16', name: '流星群キャノン', description: '威力+1.8', rarity: 'epic', type: 'weapon', effect: { power: 1.8 }, icon: '☄️' },
+  { id: 'w16', name: '森の種キャノン', description: '威力+1.8', rarity: 'epic', type: 'weapon', effect: { power: 1.8 }, icon: '🌱' },
   
   // Legendary武器
   { id: 'w17', name: 'モモンガ究極奥義砲', description: '全能力大幅強化', rarity: 'legendary', type: 'weapon', effect: { fireRate: 1.5, power: 2.0 }, icon: '🐿️' },
