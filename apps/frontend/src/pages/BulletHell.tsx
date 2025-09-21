@@ -737,58 +737,64 @@ const BulletHell: React.FC = () => {
           }
         }
         
-        // Smoother movement patterns
+        // Optimized movement patterns with switch statement
         const moveSpeed = 0.8
-        if (e.pattern === 0) {
-          // Gentle sine wave horizontal movement
-          e.x += Math.sin(currentTime * 0.03 + idx) * moveSpeed
-          e.y += 0.5
-        }
-        if (e.pattern === 1) {
-          // Vertical sine wave
-          e.y += Math.sin(currentTime * 0.05 + idx) * 0.4 + 0.4
-        }
-        if (e.pattern === 2) {
-          // Smooth circular motion
-          e.x += Math.cos(currentTime * 0.04 + idx) * 0.8
-          e.y += Math.sin(currentTime * 0.04 + idx) * 0.3 + 0.5
-        }
-        if (e.pattern === 3) {
-          // Larger horizontal waves
-          e.x += Math.sin(currentTime * 0.02 + idx) * 1.5
-          e.y += 0.6
-        }
-        if (e.pattern === 4) {
-          // Figure-8 pattern
-          e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
-          e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
-        }
-        if (e.pattern === 5) {
-          // Spiral descent
-          const spiral = currentTime * 0.02 + idx
-          e.x += Math.cos(spiral) * 1.4
-          e.y += Math.sin(spiral) * 0.6 + 0.7
+        switch (e.pattern) {
+          case 0:
+            // Gentle sine wave horizontal movement
+            e.x += Math.sin(currentTime * 0.03 + idx) * moveSpeed
+            e.y += 0.5
+            break
+          case 1:
+            // Vertical sine wave
+            e.y += Math.sin(currentTime * 0.05 + idx) * 0.4 + 0.4
+            break
+          case 2:
+            // Smooth circular motion
+            e.x += Math.cos(currentTime * 0.04 + idx) * 0.8
+            e.y += Math.sin(currentTime * 0.04 + idx) * 0.3 + 0.5
+            break
+          case 3:
+            // Larger horizontal waves
+            e.x += Math.sin(currentTime * 0.02 + idx) * 1.5
+            e.y += 0.6
+            break
+          case 4:
+            // Figure-8 pattern
+            e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
+            e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
+            break
+          case 5:
+            // Spiral descent
+            const spiral = currentTime * 0.02 + idx
+            e.x += Math.cos(spiral) * 1.4
+            e.y += Math.sin(spiral) * 0.6 + 0.7
+            break
         }
         if (e.pattern === 6 && e.isBoss) {
-          // Boss movement - type specific patterns
+          // Boss movement - type specific patterns (optimized)
           const bossType = e.bossType || 1
           
-          if (bossType === 1) {
-            // Forest Guardian - Gentle swaying movement
-            e.x += Math.sin(currentTime * 0.008) * 0.8
-            if (e.y > 70) e.y -= 0.15
-            if (e.y < 45) e.y += 0.15
-          } else if (bossType === 2) {
-            // Storm Lord - More aggressive movement
-            e.x += Math.sin(currentTime * 0.015) * 1.5
-            e.y += Math.cos(currentTime * 0.012) * 0.3
-            if (e.y > 85) e.y -= 0.3
-            if (e.y < 35) e.y += 0.3
-          } else {
-            // Ancient Colossus - Slow but imposing movement
-            e.x += Math.sin(currentTime * 0.005) * 0.5
-            if (e.y > 75) e.y -= 0.1
-            if (e.y < 50) e.y += 0.1
+          switch (bossType) {
+            case 1:
+              // Forest Guardian - Gentle swaying movement
+              e.x += Math.sin(currentTime * 0.008) * 0.8
+              if (e.y > 70) e.y -= 0.15
+              else if (e.y < 45) e.y += 0.15
+              break
+            case 2:
+              // Storm Lord - More aggressive movement
+              e.x += Math.sin(currentTime * 0.015) * 1.5
+              e.y += Math.cos(currentTime * 0.012) * 0.3
+              if (e.y > 85) e.y -= 0.3
+              else if (e.y < 35) e.y += 0.3
+              break
+            default:
+              // Ancient Colossus - Slow but imposing movement
+              e.x += Math.sin(currentTime * 0.005) * 0.5
+              if (e.y > 75) e.y -= 0.1
+              else if (e.y < 50) e.y += 0.1
+              break
           }
         }
       })
@@ -808,9 +814,13 @@ const BulletHell: React.FC = () => {
       p.x = Math.max(boundaryRadius, Math.min(w - boundaryRadius, p.x))
       p.y = Math.max(boundaryRadius, Math.min(h - boundaryRadius, p.y))
 
-      // move bullets (with time slow effect)
+      // move bullets (with time slow effect) - optimized for performance
       const bulletSpeedMultiplier = inventory.equippedSpecial?.effect.special === 'timeslow' ? 0.5 : 1.0
-      bulletsRef.current.forEach(b => { 
+      const bullets = bulletsRef.current
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i]
+        if (!b) continue
+        
         if (b.from === 'enemy') {
           b.x += b.vx * bulletSpeedMultiplier
           b.y += b.vy * bulletSpeedMultiplier
@@ -818,8 +828,12 @@ const BulletHell: React.FC = () => {
           b.x += b.vx
           b.y += b.vy
         }
-      })
-      bulletsRef.current = bulletsRef.current.filter(b => b.x > -10 && b.x < w + 10 && b.y > -10 && b.y < h + 10)
+        
+        // Remove bullets that are off-screen (optimized bounds check)
+        if (b.x < -10 || b.x > w + 10 || b.y < -10 || b.y > h + 10) {
+          bullets.splice(i, 1)
+        }
+      }
 
       // Auto heal effect - disabled since lives is now 1
       // if (inventory.equippedSpecial?.effect.special === 'heal' && time % 300 === 0 && lives < 1) {
@@ -856,40 +870,45 @@ const BulletHell: React.FC = () => {
         }
       }
 
-      // collision: enemy bullets with player
-      for (const b of bulletsRef.current.filter(b => b.from === 'enemy')) {
-        const dx = p.x - b.x, dy = p.y - b.y
-        if (dx * dx + dy * dy < (p.r + b.r) * (p.r + b.r)) {
-          // 無敵時間中は被弾しない
-          if (invincible) {
-            break
-          }
+      // collision: enemy bullets with player (optimized)
+      if (!invincible) {
+        const bullets = bulletsRef.current
+        for (let i = bullets.length - 1; i >= 0; i--) {
+          const b = bullets[i]
+          if (!b || b.from !== 'enemy') continue
           
-          bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+          const dx = p.x - b.x, dy = p.y - b.y
+          const distanceSquared = dx * dx + dy * dy
+          const radiusSum = p.r + b.r
           
-          if (shield > 0) {
-            // シールドヒット音
-            playSound(400, 0.2, 'square')
-            setShield(s => Math.max(0, s - 10))
-            // シールド破壊時も無敵時間を付与
-            startInvincibility(30) // 0.5秒間
-          } else {
-            // ダメージ音
-            playSound(200, 0.5, 'triangle')
-            setLives(v => Math.max(0, v - 1))
-            // 被弾時に無敵時間を付与
-            startInvincibility(60) // 1秒間
-            if (lives - 1 <= 0) {
-              setRunning(false)
-              setGameOver(true)
-              // ハイスコアに追加（TOP3のみ保持）
-              updateHighScores(score)
-              // スコアをMOMOPayに変換（10スコア = 1MOMOPay）
-              const earnedPoints = Math.floor(score / 10)
-              if (earnedPoints > 0) {
-                addMomoPayPoints(earnedPoints)
+          if (distanceSquared < radiusSum * radiusSum) {
+            bullets.splice(i, 1)
+            
+            if (shield > 0) {
+              // シールドヒット音
+              playSound(400, 0.2, 'square')
+              setShield(s => Math.max(0, s - 10))
+              // シールド破壊時も無敵時間を付与
+              startInvincibility(30) // 0.5秒間
+            } else {
+              // ダメージ音
+              playSound(200, 0.5, 'triangle')
+              setLives(v => Math.max(0, v - 1))
+              // 被弾時に無敵時間を付与
+              startInvincibility(60) // 1秒間
+              if (lives - 1 <= 0) {
+                setRunning(false)
+                setGameOver(true)
+                // ハイスコアに追加（TOP3のみ保持）
+                updateHighScores(score)
+                // スコアをMOMOPayに変換（10スコア = 1MOMOPay）
+                const earnedPoints = Math.floor(score / 10)
+                if (earnedPoints > 0) {
+                  addMomoPayPoints(earnedPoints)
+                }
               }
             }
+            break // 1発のみ処理して終了
           }
         }
       }
@@ -898,13 +917,26 @@ const BulletHell: React.FC = () => {
       const beforeEnemyCount = enemiesRef.current.length
       const beforeBossCount = enemiesRef.current.filter(e => e.isBoss).length
       
-      bulletsRef.current.filter(b => b.from === 'player').forEach(b => {
-        for (const e of enemiesRef.current) {
+      // Optimized player bullet collision detection
+      const playerBullets = bulletsRef.current
+      const enemies = enemiesRef.current
+      
+      for (let i = playerBullets.length - 1; i >= 0; i--) {
+        const b = playerBullets[i]
+        if (!b || b.from !== 'player') continue
+        
+        for (let j = 0; j < enemies.length; j++) {
+          const e = enemies[j]
+          if (!e) continue
+          
           const dx = e.x - b.x, dy = e.y - b.y
-          if (dx * dx + dy * dy < (e.r + b.r) * (e.r + b.r)) {
+          const distanceSquared = dx * dx + dy * dy
+          const radiusSum = e.r + b.r
+          
+          if (distanceSquared < radiusSum * radiusSum) {
             const damage = Math.floor(playerRef.current.power)
             e.hp -= damage
-            bulletsRef.current.splice(bulletsRef.current.indexOf(b), 1)
+            playerBullets.splice(i, 1)
             
             // 敵ヒット音
             playSound(600, 0.1, 'sine')
@@ -913,7 +945,7 @@ const BulletHell: React.FC = () => {
             break
           }
         }
-      })
+      }
       enemiesRef.current = enemiesRef.current.filter(e => e.hp > 0)
       
       // ボス撃破チェック
