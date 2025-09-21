@@ -60,7 +60,7 @@ const Chatbot: React.FC = () => {
           'プレミアムテーマ（800MOMOPay）🎨',
           '通知音設定（200MOMOPay）🔊'
         ],
-        sellPrices: 'legendary:80P⭐, epic:40P💜, rare:20P💙, common:10P⚪',
+        sellPrices: 'legendary:80P, epic:40P, rare:20P, common:10P',
         location: '遊技場から行けるよ',
         note: '購入した設定は設定ページで有効化が必要'
       }

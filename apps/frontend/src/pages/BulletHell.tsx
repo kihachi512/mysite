@@ -1685,7 +1685,7 @@ const BulletHell: React.FC = () => {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000, padding: '8px'
+          zIndex: 1000, padding: 'min(8px, 2vw)'
         }}>
           <div className="comic-card gacha-modal" style={{
             background: 'linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 82, 82, 0.1))',
@@ -1714,7 +1714,7 @@ const BulletHell: React.FC = () => {
               🌰 コモン: 60%
             </div>
             
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
               <button 
                 onClick={performGacha} 
                 disabled={momoPayPoints < 1000}
@@ -1723,7 +1723,9 @@ const BulletHell: React.FC = () => {
                   background: momoPayPoints < 1000 ? '#666' : 'linear-gradient(45deg, #ffd93d, #ffb300)', 
                   color: momoPayPoints < 1000 ? '#ccc' : '#000', 
                   borderColor: momoPayPoints < 1000 ? '#333' : '#f57f17',
-                  minWidth: '120px'
+                  minWidth: 'clamp(140px, 35vw, 200px)',
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                  padding: 'clamp(10px 16px, 2.5vw 4vw, 12px 20px)'
                 }}
               >
                 <span className="momopay-small">🌰 ガチャ (1000MOMOPay)</span>
@@ -1761,7 +1763,8 @@ const BulletHell: React.FC = () => {
                         gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.95), rgba(142, 36, 170, 0.9))' :
                         gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(30, 136, 229, 0.9))' :
                         'linear-gradient(135deg, rgba(158, 158, 158, 0.95), rgba(117, 117, 117, 0.9))',
-              padding: '32px', textAlign: 'center', minWidth: '350px', maxWidth: '90vw',
+              padding: 'clamp(20px, 5vw, 32px)', textAlign: 'center', 
+              minWidth: 'clamp(280px, 70vw, 350px)', maxWidth: 'min(400px, 95vw)',
               borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
                           gachaResult.rarity === 'epic' ? '#9c27b0' :
                           gachaResult.rarity === 'rare' ? '#2196f3' : '#9e9e9e',
@@ -1772,28 +1775,31 @@ const BulletHell: React.FC = () => {
                         '0 10px 30px rgba(0,0,0,0.5)'
             }}>
               <div style={{ 
-                fontSize: '4rem', 
-                marginBottom: '16px',
+                fontSize: 'clamp(3rem, 8vw, 4rem)', 
+                marginBottom: 'clamp(12px, 3vw, 16px)',
                 filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))'
               }}>
                 {gachaResult.icon}
               </div>
               <div className="comic-text" style={{ 
                 color: '#ffffff', 
-                fontSize: '1.6rem', 
-                marginBottom: '12px',
+                fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', 
+                marginBottom: 'clamp(8px, 2vw, 12px)',
                 textShadow: gachaResult.rarity === 'legendary' ? '3px 3px 0px #b8860b, 0 0 15px #ffd700' : 
                            gachaResult.rarity === 'epic' ? '3px 3px 0px #6a1b9a, 0 0 15px #9c27b0' :
                            gachaResult.rarity === 'rare' ? '3px 3px 0px #0d47a1, 0 0 15px #2196f3' :
-                           '3px 3px 0px rgba(0,0,0,0.8)'
+                           '3px 3px 0px rgba(0,0,0,0.8)',
+                lineHeight: '1.2',
+                wordBreak: 'break-word'
               }}>
                 {gachaResult.name}
               </div>
               <div className="comic-text" style={{ 
                 color: '#f0f0f0', 
-                fontSize: '1.1rem', 
-                marginBottom: '16px',
-                textShadow: '2px 2px 0px rgba(0,0,0,0.8)'
+                fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', 
+                marginBottom: 'clamp(12px, 3vw, 16px)',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
+                lineHeight: '1.3'
               }}>
                 {gachaResult.description}
               </div>
@@ -1801,10 +1807,10 @@ const BulletHell: React.FC = () => {
                 color: gachaResult.rarity === 'legendary' ? '#ffd700' :
                       gachaResult.rarity === 'epic' ? '#e1bee7' :
                       gachaResult.rarity === 'rare' ? '#bbdefb' : '#e0e0e0',
-                fontSize: '1.3rem', 
+                fontSize: 'clamp(1.1rem, 3vw, 1.3rem)', 
                 fontWeight: 'bold',
                 textShadow: '2px 2px 0px rgba(0,0,0,0.8)',
-                marginBottom: '16px'
+                marginBottom: 'clamp(12px, 3vw, 16px)'
               }}>
                 ★ {gachaResult.rarity.toUpperCase()} ★
               </div>
