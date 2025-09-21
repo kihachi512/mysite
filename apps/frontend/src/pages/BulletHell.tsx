@@ -989,32 +989,37 @@ const BulletHell: React.FC = () => {
       }
       
       // ボス撃破後の次のボス出現処理
-      if (bossKilled && isNextWaveBossWave) {
-        // ボス出現時に既存の敵を全て消去
-        enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
+      if (bossKilled) {
+        const nextWave = wave // ウェーブは既に+1されている
+        const isNextBossWave = nextWave >= 5 && (nextWave % 5 === 0)
         
-        // ボス出現音
-        playSound(150, 1.0, 'square')
-        
-        const bossTier = Math.floor(wave / 5) // 現在のwaveを使用（既に+1されている）
-        const bossType = ((bossTier - 1) % 3) + 1 // 1, 2, 3, 1, 2, 3...
-        const bossHp = 40 + bossTier * 20 // 60, 80, 100, 120...
-        
-        // ボスタイプに応じたサイズと位置
-        const bossSize = bossType === 1 ? 18 : bossType === 2 ? 22 : 25
-        const startY = bossType === 3 ? 40 : 50
-        
-        enemiesRef.current.push({
-          x: w / 2,
-          y: startY,
-          r: bossSize,
-          hp: bossHp,
-          maxHp: bossHp,
-          pattern: 6, // Boss pattern
-          isBoss: true,
-          bossPhase: 1,
-          bossType: bossType
-        })
+        if (isNextBossWave) {
+          // ボス出現時に既存の敵を全て消去
+          enemiesRef.current = enemiesRef.current.filter(e => e.isBoss)
+          
+          // ボス出現音
+          playSound(150, 1.0, 'square')
+          
+          const bossTier = Math.floor(nextWave / 5) // 1, 2, 3, 4...
+          const bossType = ((bossTier - 1) % 3) + 1 // 1, 2, 3, 1, 2, 3...
+          const bossHp = 40 + bossTier * 20 // 60, 80, 100, 120...
+          
+          // ボスタイプに応じたサイズと位置
+          const bossSize = bossType === 1 ? 18 : bossType === 2 ? 22 : 25
+          const startY = bossType === 3 ? 40 : 50
+          
+          enemiesRef.current.push({
+            x: w / 2,
+            y: startY,
+            r: bossSize,
+            hp: bossHp,
+            maxHp: bossHp,
+            pattern: 6, // Boss pattern
+            isBoss: true,
+            bossPhase: 1,
+            bossType: bossType
+          })
+        }
       }
 
       // draw
@@ -2209,9 +2214,9 @@ const BulletHell: React.FC = () => {
                       )
                     })}
                   </div>
-                  </div>
-                )
-              })}
+                </div>
+              )
+            })}
             </div>
             
             <div style={{ textAlign: 'center', marginTop: '16px' }}>
