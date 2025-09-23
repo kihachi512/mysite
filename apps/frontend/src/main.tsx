@@ -5,15 +5,97 @@ import App from './App.tsx'
 import { useSEO, SEO_PRESETS } from './hooks/useSEO'
 import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performance'
+import { getDailyBonus, claimDailyBonus, getActiveEvents } from './utils/economyEvents'
+import { useAppData } from './contexts/AppDataContext'
 
 // ホームページコンポーネント
 // eslint-disable-next-line react-refresh/only-export-components
 const HomePage: React.FC = () => {
   useSEO(SEO_PRESETS.home);
+  const { addMomoPayPoints } = useAppData()
+  const [dailyBonus, setDailyBonus] = React.useState(getDailyBonus())
+  const [activeEvents, setActiveEvents] = React.useState(getActiveEvents())
+
+  const handleClaimBonus = () => {
+    const amount = claimDailyBonus()
+    if (amount > 0) {
+      addMomoPayPoints(amount)
+      setDailyBonus(getDailyBonus()) // Refresh to show claimed state
+      alert(`🎁 デイリーボーナス獲得！\n+${amount}MOMOPay`)
+    }
+  }
+
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
       <div className="comic-text font-title-xl" style={{ marginBottom: 'min(24px, 6vw)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', color: '#fff3e0', lineHeight: '1.2' }}>🌲 秘密基地へようこそ！ 🌲</div>
-      <div className="comic-text font-title-sm" style={{ marginBottom: 'min(36px, 8vw)', color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>さすらいのモモンガカーニバル</div>
+      <div className="comic-text font-title-sm" style={{ marginBottom: 'min(24px, 6vw)', color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>さすらいのモモンガカーニバル</div>
+
+      {/* デイリーボーナス */}
+      {dailyBonus && !dailyBonus.claimed && (
+        <div className="comic-card animate-bounce-in" style={{
+          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.4), rgba(255, 152, 0, 0.3))',
+          borderColor: '#ffc107',
+          padding: 'min(16px, 4vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '500px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div style={{ fontSize: '2rem', marginBottom: '8px' }}>
+            {dailyBonus.icon}
+          </div>
+          <div className="comic-text font-title-sm" style={{ 
+            color: '#fff3e0',
+            marginBottom: '8px'
+          }}>
+            {dailyBonus.title}
+          </div>
+          <div className="comic-text font-body-sm" style={{ 
+            color: '#c8e6c9',
+            marginBottom: '12px'
+          }}>
+            {dailyBonus.description}
+          </div>
+          <button
+            onClick={handleClaimBonus}
+            className="comic-button font-button-md"
+            style={{
+              background: 'linear-gradient(45deg, #ffc107, #ffb300)',
+              color: '#000',
+              borderColor: '#f57f17',
+              animation: 'pulse 2s infinite'
+            }}
+          >
+            🎁 {dailyBonus.amount}MOMOPay受け取る
+          </button>
+        </div>
+      )}
+
+      {/* アクティブな経済イベント */}
+      {activeEvents.length > 0 && (
+        <div className="comic-card animate-glow" style={{
+          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))',
+          borderColor: '#9c27b0',
+          padding: 'min(16px, 4vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '600px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div className="comic-text font-title-sm" style={{ 
+            color: '#fff3e0',
+            marginBottom: '12px'
+          }}>
+            🎪 開催中イベント
+          </div>
+          {activeEvents.map(event => (
+            <div key={event.id} style={{ marginBottom: '8px' }}>
+              <span style={{ fontSize: '1.5rem', marginRight: '8px' }}>{event.icon}</span>
+              <span className="comic-text font-body-sm" style={{ color: '#c8e6c9' }}>
+                {event.title}: {event.description}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '800px', margin: '0 auto', padding: '0 10px' }}>
         <Link to="/games" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
@@ -57,6 +139,13 @@ const HomePage: React.FC = () => {
             <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>預金・投資・融資</div>
           </div>
         </Link>
+        <Link to="/avatar" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#9c27b0', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>👗</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>着せ替え</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>アバターカスタマイズ</div>
+          </div>
+        </Link>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.3), rgba(33, 150, 243, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#2196f3', cursor: 'pointer', transition: 'all 0.3s ease' }}>
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>⚙️</div>
@@ -88,6 +177,7 @@ import MemoryGame from './pages/MemoryGame.tsx'
 import AudioSettings from './pages/AudioSettings.tsx'
 import DailyMissions from './pages/DailyMissions.tsx'
 import MOMOBank from './pages/MOMOBank.tsx'
+import AvatarCustomization from './pages/AvatarCustomization.tsx'
 
 const router = createBrowserRouter([
   {
@@ -113,6 +203,7 @@ const router = createBrowserRouter([
             { path: 'achievements', element: <Achievements /> },
             { path: 'daily-missions', element: <DailyMissions /> },
             { path: 'momo-bank', element: <MOMOBank /> },
+            { path: 'avatar', element: <AvatarCustomization /> },
     ],
   },
 ])
