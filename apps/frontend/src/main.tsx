@@ -50,6 +50,13 @@ const HomePage: React.FC = () => {
             <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>デイリーミッション</div>
           </div>
         </Link>
+        <Link to="/momo-bank" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>🏦</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>銀行</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>預金・投資・融資</div>
+          </div>
+        </Link>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.3), rgba(33, 150, 243, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#2196f3', cursor: 'pointer', transition: 'all 0.3s ease' }}>
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>⚙️</div>
@@ -80,6 +87,7 @@ import NumberPuzzle from './pages/NumberPuzzle.tsx'
 import MemoryGame from './pages/MemoryGame.tsx'
 import AudioSettings from './pages/AudioSettings.tsx'
 import DailyMissions from './pages/DailyMissions.tsx'
+import MOMOBank from './pages/MOMOBank.tsx'
 
 const router = createBrowserRouter([
   {
@@ -104,6 +112,7 @@ const router = createBrowserRouter([
             { path: 'settings/audio', element: <AudioSettings /> },
             { path: 'achievements', element: <Achievements /> },
             { path: 'daily-missions', element: <DailyMissions /> },
+            { path: 'momo-bank', element: <MOMOBank /> },
     ],
   },
 ])
