@@ -205,6 +205,7 @@ const AvatarCustomization: React.FC = () => {
   const [activeEvents] = useState(getActiveEvents())
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isTabChanging, setIsTabChanging] = useState(false)
 
   // Track area visit
   useEffect(() => {
@@ -241,11 +242,13 @@ const AvatarCustomization: React.FC = () => {
         setCurrentAvatar(JSON.parse(savedAvatar))
       }
       
-      // デバッグログ追加
-      console.log('Avatar data loaded successfully', {
-        ownedItems: savedOwned ? JSON.parse(savedOwned) : [],
-        currentAvatar: savedAvatar ? JSON.parse(savedAvatar) : {}
-      })
+      // デバッグログ（開発環境のみ）
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Avatar data loaded:', {
+          ownedItems: savedOwned ? JSON.parse(savedOwned).length : 0,
+          currentAvatar: savedAvatar ? Object.keys(JSON.parse(savedAvatar)).length : 0
+        })
+      }
     } catch (error) {
       console.error('Failed to load avatar data:', error)
       // エラー時のフォールバック
@@ -508,6 +511,13 @@ const AvatarCustomization: React.FC = () => {
   }
 
   const filteredItems = COSTUME_ITEMS.filter(item => item.category === selectedCategory)
+  
+  // カテゴリ変更時のデバッグ（開発環境のみ）
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Category changed to:', selectedCategory, 'Items:', filteredItems.length)
+    }
+  }, [selectedCategory, filteredItems])
 
   // ローディング状態とエラー状態の処理
   if (isLoading) {
@@ -728,7 +738,13 @@ const AvatarCustomization: React.FC = () => {
             ].map((category: { id: string; label: string }) => (
             <button
               key={category.id}
-              onClick={() => setSelectedCategory(category.id as 'hat' | 'accessory' | 'outfit' | 'special' | 'background')}
+              onClick={() => {
+                if (selectedCategory === category.id) return // 同じタブをクリックした場合は何もしない
+                setIsTabChanging(true)
+                setSelectedCategory(category.id as 'hat' | 'accessory' | 'outfit' | 'special' | 'background')
+                // アニメーション用のスムーズなタイミング調整
+                setTimeout(() => setIsTabChanging(false), 150)
+              }}
               className="comic-button font-button-sm"
               style={{
                 background: selectedCategory === category.id 
@@ -744,11 +760,17 @@ const AvatarCustomization: React.FC = () => {
         </div>
 
         {/* Items Grid */}
-        <div className="costume-items-grid stagger-children" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 90vw), 1fr))', 
-          gap: 'min(20px, 5vw)'
-        }}>
+        <div 
+          key={selectedCategory} 
+          className={`costume-items-grid ${!isTabChanging ? 'stagger-children' : ''}`}
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 90vw), 1fr))', 
+            gap: 'min(20px, 5vw)',
+            opacity: isTabChanging ? 0 : 1,
+            transition: 'opacity 0.2s ease-in-out'
+          }}
+        >
           {filteredItems.map((item) => {
             const isOwned = ownedItems.includes(item.id)
             const isEquipped = currentAvatar[item.category] === item.id
