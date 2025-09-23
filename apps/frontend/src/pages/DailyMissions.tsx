@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
 import { trackAreaVisited, AREAS } from '../utils/achievements'
+import { getEarningMultiplier, getActiveEvents } from '../utils/economyEvents'
 
 type MissionType = 'play_games' | 'earn_momopay' | 'post_tweet' | 'omikuji' | 'login' | 'achievements' | 'files'
 
@@ -45,6 +46,7 @@ const DailyMissions: React.FC = () => {
   const [weeklyEvent, setWeeklyEvent] = useState<WeeklyEvent | null>(null)
   const [consecutiveDays, setConsecutiveDays] = useState(0)
   const [lastLoginDate, setLastLoginDate] = useState<string>('')
+  const [activeEvents, setActiveEvents] = useState(getActiveEvents())
 
   // Track area visit
   useEffect(() => {
@@ -346,6 +348,10 @@ const DailyMissions: React.FC = () => {
     if (weeklyEvent && weeklyEvent.affectedTypes.includes(mission.type)) {
       reward = Math.floor(reward * weeklyEvent.multiplier)
     }
+
+    // Apply economy event multiplier
+    const economyMultiplier = getEarningMultiplier('missions')
+    reward = Math.floor(reward * economyMultiplier)
 
     // Apply consecutive days bonus
     const streakBonus = Math.min(consecutiveDays * 0.1, 0.5) // Max 50% bonus

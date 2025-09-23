@@ -82,6 +82,25 @@ const ShareSettings: React.FC = () => {
         sfxVolume: 0.5
       }
       
+      // 銀行・アバターデータも含める
+      const bankAccountData = localStorage.getItem('momo-bank-account')
+      const parsedBankAccount = bankAccountData ? JSON.parse(bankAccountData) : null
+      
+      const bankInvestmentsData = localStorage.getItem('momo-bank-investments')
+      const parsedBankInvestments = bankInvestmentsData ? JSON.parse(bankInvestmentsData) : []
+      
+      const bankLoansData = localStorage.getItem('momo-bank-loans')
+      const parsedBankLoans = bankLoansData ? JSON.parse(bankLoansData) : []
+      
+      const avatarOwnedData = localStorage.getItem('avatar-owned-items')
+      const parsedAvatarOwned = avatarOwnedData ? JSON.parse(avatarOwnedData) : []
+      
+      const avatarCurrentData = localStorage.getItem('avatar-current')
+      const parsedAvatarCurrent = avatarCurrentData ? JSON.parse(avatarCurrentData) : {}
+      
+      const economyEventsData = localStorage.getItem('economy-events')
+      const parsedEconomyEvents = economyEventsData ? JSON.parse(economyEventsData) : null
+      
       const data = {
         favorites: parsedFavorites,
         // tweets は除外（1時間で自動削除されるため）
@@ -95,8 +114,14 @@ const ShareSettings: React.FC = () => {
         dailyMissions: parsedDailyMissions,
         loginStreak: parsedLoginStreak,
         audioSettings: parsedAudioSettings,
+        bankAccount: parsedBankAccount,
+        bankInvestments: parsedBankInvestments,
+        bankLoans: parsedBankLoans,
+        avatarOwned: parsedAvatarOwned,
+        avatarCurrent: parsedAvatarCurrent,
+        economyEvents: parsedEconomyEvents,
         exportDate: new Date().toISOString(),
-        version: '5.0' // 実績・ミッション対応でメジャーバージョンアップ
+        version: '6.0' // 経済システム・アバター対応でメジャーバージョンアップ
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -268,7 +293,47 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('audio-settings', JSON.stringify(validAudioSettings))
             }
             
-            alert('JSONファイルからデータをインポートしました！\n\n✅ 含まれるデータ:\n• 宝物庫（ファイル・テキスト）\n• MOMOPay・ハイスコア\n• 購入済み機能・設定\n• 装備インベントリ\n• 🏆 実績・統計データ\n• 📋 デイリーミッション・ログインストリーク\n• 🔊 音声設定\n\nページを再読み込みします。')
+            // 銀行データがあればインポート（検証付き）
+            if (jsonData.bankAccount && typeof jsonData.bankAccount === 'object') {
+              const validAccount = {
+                balance: Math.max(0, Math.min(100000000, jsonData.bankAccount.balance || 0)),
+                interestRate: Math.max(0, Math.min(10, jsonData.bankAccount.interestRate || 1)),
+                lastUpdate: typeof jsonData.bankAccount.lastUpdate === 'string' 
+                  ? jsonData.bankAccount.lastUpdate 
+                  : new Date().toISOString().split('T')[0],
+                accountType: ['basic', 'premium', 'vip'].includes(jsonData.bankAccount.accountType) 
+                  ? jsonData.bankAccount.accountType 
+                  : 'basic'
+              }
+              localStorage.setItem('momo-bank-account', JSON.stringify(validAccount))
+            }
+            
+            if (Array.isArray(jsonData.bankInvestments)) {
+              localStorage.setItem('momo-bank-investments', JSON.stringify(jsonData.bankInvestments.slice(0, 100)))
+            }
+            
+            if (Array.isArray(jsonData.bankLoans)) {
+              localStorage.setItem('momo-bank-loans', JSON.stringify(jsonData.bankLoans.slice(0, 50)))
+            }
+            
+            // アバターデータがあればインポート（検証付き）
+            if (Array.isArray(jsonData.avatarOwned)) {
+              const validOwned = jsonData.avatarOwned
+                .slice(0, 1000)
+                .filter((item: any) => typeof item === 'string')
+              localStorage.setItem('avatar-owned-items', JSON.stringify(validOwned))
+            }
+            
+            if (jsonData.avatarCurrent && typeof jsonData.avatarCurrent === 'object') {
+              localStorage.setItem('avatar-current', JSON.stringify(jsonData.avatarCurrent))
+            }
+            
+            // 経済イベントデータがあればインポート
+            if (jsonData.economyEvents && typeof jsonData.economyEvents === 'object') {
+              localStorage.setItem('economy-events', JSON.stringify(jsonData.economyEvents))
+            }
+            
+            alert('JSONファイルからデータをインポートしました！\n\n✅ 含まれるデータ:\n• 宝物庫（ファイル・テキスト）\n• MOMOPay・ハイスコア\n• 購入済み機能・設定\n• 装備インベントリ\n• 🏆 実績・統計データ\n• 📋 デイリーミッション・ログインストリーク\n• 🔊 音声設定\n• 🏦 銀行データ（預金・投資・融資）\n• 👗 アバター（衣装・設定）\n• 🎪 経済イベント\n\nページを再読み込みします。')
             window.location.reload()
           }
         } else {
@@ -417,7 +482,7 @@ const ShareSettings: React.FC = () => {
           lineHeight: '1.4'
         }}>
           {hasSharedFeature 
-            ? '全データをJSONファイルでバックアップ・復元\n（宝物庫・MOMOPay・ハイスコア・購入設定・装備・🏆実績・📋ミッション・🔊音声設定）'
+            ? '全データをJSONファイルでバックアップ・復元\n（宝物庫・MOMOPay・ハイスコア・購入設定・装備・🏆実績・📋ミッション・🔊音声設定・🏦銀行・👗アバター・🎪イベント）'
             : '共有機能は売店で購入が必要です。'
           }
         </p>
