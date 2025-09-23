@@ -148,7 +148,7 @@ const Games: React.FC = () => {
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              売店
+              森の売店
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
@@ -156,6 +156,32 @@ const Games: React.FC = () => {
             }}>
               装備売却・設定機能の購入<br />
               <span className="momopay-small">MOMOStoreへようこそ！</span>
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/momo-economy" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.3), rgba(184, 134, 11, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#daa520', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🌰</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              どんぐり銀座
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              森の経済活動の中心地<br />
+              <span className="momopay-small">銀行・宝物庫</span>
             </div>
           </div>
         </Link>
@@ -168,7 +194,7 @@ const Games: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🏠 秘密基地に戻る
+            🌲 森の拠点に戻る
           </button>
         </Link>
       </div>

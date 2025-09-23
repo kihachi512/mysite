@@ -158,6 +158,8 @@ import AudioSettings from './pages/AudioSettings.tsx'
 import DailyMissions from './pages/DailyMissions.tsx'
 import MOMOBank from './pages/MOMOBank.tsx'
 import AvatarCustomization from './pages/AvatarCustomization.tsx'
+import PersonalHub from './pages/PersonalHub.tsx'
+import EconomyHub from './pages/EconomyHub.tsx'
 
 const router = createBrowserRouter([
   {
@@ -184,6 +186,8 @@ const router = createBrowserRouter([
             { path: 'daily-missions', element: <DailyMissions /> },
             { path: 'momo-bank', element: <MOMOBank /> },
             { path: 'avatar', element: <AvatarCustomization /> },
+            { path: 'personal', element: <PersonalHub /> },
+            { path: 'momo-economy', element: <EconomyHub /> },
     ],
   },
 ])
