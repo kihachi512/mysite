@@ -316,8 +316,8 @@ const MemoryGame: React.FC = () => {
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${config.gridCols}, 1fr)`,
-            gap: '8px',
-            maxWidth: difficulty === 'hard' ? 'min(500px, 95vw)' : 'min(400px, 90vw)',
+            gap: '12px',
+            maxWidth: difficulty === 'hard' ? 'min(600px, 95vw)' : 'min(500px, 90vw)',
             margin: '0 auto min(24px, 6vw) auto',
             padding: '16px',
             background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(123, 31, 162, 0.1))',
@@ -334,7 +334,7 @@ const MemoryGame: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: difficulty === 'hard' ? '1.2rem' : '1.5rem',
+                fontSize: difficulty === 'hard' ? '2rem' : '2.5rem',
                 cursor: (!card.isFlipped && !card.isMatched && !isChecking) ? 'pointer' : 'default',
                 background: card.isFlipped || card.isMatched
                   ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))'
@@ -344,8 +344,10 @@ const MemoryGame: React.FC = () => {
                 transition: 'all 0.3s ease',
                 transform: card.isMatched ? 'scale(0.9)' : 'scale(1)',
                 opacity: card.isMatched ? 0.7 : 1,
-                minHeight: '60px',
-                minWidth: '60px'
+                minHeight: 'clamp(80px, 15vw, 120px)',
+                minWidth: 'clamp(80px, 15vw, 120px)',
+                padding: '8px',
+                boxSizing: 'border-box'
               }}
               onMouseEnter={(e) => {
                 if (!card.isFlipped && !card.isMatched && !isChecking) {
