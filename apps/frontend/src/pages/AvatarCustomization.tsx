@@ -15,6 +15,8 @@ type CostumeItem = {
   rarity: 'common' | 'rare' | 'epic' | 'legendary'
   preview: string // Emoji or text representation
   owned?: boolean
+  isDuplicate?: boolean
+  compensationAmount?: number
 }
 
 type AvatarState = {
@@ -196,7 +198,7 @@ const AvatarCustomization: React.FC = () => {
     ogDescription: 'モモンガくんを自分好みにカスタマイズ！豊富な衣装でオリジナルアバターを作ろう。'
   });
 
-  const { momoPayPoints, spendMomoPayPoints } = useAppData()
+  const { momoPayPoints, spendMomoPayPoints, addMomoPayPoints } = useAppData()
   const [ownedItems, setOwnedItems] = useState<string[]>([])
   const [currentAvatar, setCurrentAvatar] = useState<AvatarState>({})
   const [selectedCategory, setSelectedCategory] = useState<'hat' | 'accessory' | 'outfit' | 'special' | 'background'>('hat')
@@ -237,44 +239,82 @@ const AvatarCustomization: React.FC = () => {
     }
   }
 
-  const purchaseItem = (item: CostumeItem) => {
-    if (ownedItems.includes(item.id)) {
-      alert('すでに持っているアイテムです！')
+  // ガチャシステムの状態
+  const [showGacha, setShowGacha] = useState(false)
+  const [gachaResult, setGachaResult] = useState<CostumeItem | null>(null)
+
+  // レアリティ別排出率
+  const GACHA_RATES = {
+    legendary: 0.03,  // 3%
+    epic: 0.12,       // 12% 
+    rare: 0.25,       // 25%
+    common: 0.60      // 60%
+  }
+
+  // ガチャを実行
+  const performGacha = () => {
+    const gachaCost = 500 // 500MOMOPay
+    if (momoPayPoints < gachaCost) {
+      alert('MOMOPayが不足しています！')
       return
     }
 
-    // 経済イベントによる割引価格を計算
-    const originalPrice = item.price
-    const discountedPrice = getDiscountPrice(originalPrice, 'avatar-items')
-    const specialOffer = hasSpecialOffer(item.id)
-    const finalPrice = specialOffer ? specialOffer.sale : discountedPrice
+    // MOMOPay消費
+    if (!spendMomoPayPoints(gachaCost)) return
 
-    if (momoPayPoints < finalPrice) {
-      alert(`MOMOPayが足りません！\n必要: ${finalPrice}P\n現在: ${momoPayPoints}P`)
-      return
-    }
-
-    let confirmMessage = `${item.name}を${finalPrice}MOMOPayで購入しますか？\n\n${item.description}`
+    // レアリティ抽選
+    const random = Math.random()
+    let selectedRarity: CostumeItem['rarity'] = 'common'
     
-    if (finalPrice < originalPrice) {
-      const discount = originalPrice - finalPrice
-      confirmMessage += `\n\n🎉 特別価格！${discount}P割引`
+    if (random < GACHA_RATES.legendary) {
+      selectedRarity = 'legendary'
+    } else if (random < GACHA_RATES.legendary + GACHA_RATES.epic) {
+      selectedRarity = 'epic'
+    } else if (random < GACHA_RATES.legendary + GACHA_RATES.epic + GACHA_RATES.rare) {
+      selectedRarity = 'rare'
+    } else {
+      selectedRarity = 'common'
     }
 
-    if (confirm(confirmMessage)) {
-      if (spendMomoPayPoints(finalPrice)) {
-        const newOwned = [...ownedItems, item.id]
-        setOwnedItems(newOwned)
-        saveAvatarData(newOwned, currentAvatar)
-        
-        let successMessage = `🎉 ${item.name}を購入しました！\n\n「装備する」ボタンで着用できます。`
-        if (finalPrice < originalPrice) {
-          successMessage += `\n💰 ${originalPrice - finalPrice}P節約しました！`
-        }
-        
-        alert(successMessage)
-      }
+    // 選択されたレアリティのアイテムから抽選
+    const availableItems = COSTUME_ITEMS.filter(item => item.rarity === selectedRarity)
+    const selectedItem = availableItems[Math.floor(Math.random() * availableItems.length)]
+
+    if (!selectedItem) {
+      console.error('No item selected from gacha')
+      return
     }
+
+    // 重複チェック
+    const isDuplicate = ownedItems.includes(selectedItem.id)
+
+    if (isDuplicate) {
+      // 重複の場合はMOMOPayで返金
+      const compensation = Math.floor(selectedItem.price * 0.3) // 30%返金
+      addMomoPayPoints(compensation)
+    } else {
+      // 新規アイテムの場合はインベントリに追加
+      const newOwned = [...ownedItems, selectedItem.id]
+      setOwnedItems(newOwned)
+      saveAvatarData(newOwned, currentAvatar)
+    }
+
+    setGachaResult({ ...selectedItem, isDuplicate, compensationAmount: isDuplicate ? Math.floor(selectedItem.price * 0.3) : undefined })
+    setShowGacha(false)
+
+    // ガチャ結果音（レアリティに応じて変化）
+    setTimeout(() => {
+      if (selectedItem.rarity === 'legendary') {
+        // レジェンダリー音は鳴らないが、視覚的演出を重視
+        console.log('Legendary item obtained!')
+      } else if (selectedItem.rarity === 'epic') {
+        console.log('Epic item obtained!')
+      } else if (selectedItem.rarity === 'rare') {
+        console.log('Rare item obtained!')
+      } else {
+        console.log('Common item obtained!')
+      }
+    }, 100)
   }
 
   const equipItem = (item: CostumeItem) => {
@@ -326,15 +366,121 @@ const AvatarCustomization: React.FC = () => {
     return itemId ? COSTUME_ITEMS.find(item => item.id === itemId) || null : null
   }
 
-  const generateAvatarDisplay = (): string => {
-    let display = '🐿️' // Base momonga
-    
-    if (currentAvatar.special) {
-      const special = COSTUME_ITEMS.find(item => item.id === currentAvatar.special)
-      if (special) display += special.preview
+  const generateAvatarDisplay = () => {
+    return (
+      <div style={{ 
+        position: 'relative', 
+        display: 'inline-block',
+        width: 'clamp(4rem, 12vw, 8rem)',
+        height: 'clamp(4rem, 12vw, 8rem)'
+      }}>
+        {/* Base momonga image */}
+        <img 
+          src="/momonga-icon.png" 
+          alt="モモンガアバター"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '50%',
+            position: 'relative',
+            zIndex: 1
+          }}
+        />
+        
+        {/* Hat overlay */}
+        {currentAvatar.hat && (
+          <div style={{
+            position: 'absolute',
+            top: '-10%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+            zIndex: 3
+          }}>
+            {getHatEmoji(currentAvatar.hat)}
+          </div>
+        )}
+
+        {/* Accessory overlay */}
+        {currentAvatar.accessory && (
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            zIndex: 3
+          }}>
+            {getAccessoryEmoji(currentAvatar.accessory)}
+          </div>
+        )}
+
+        {/* Special effects overlay */}
+        {currentAvatar.special && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
+            zIndex: 4,
+            animation: currentAvatar.special === 'sparkles' ? 'sparkle 2s infinite' : 'none'
+          }}>
+            {getSpecialEffectEmoji(currentAvatar.special)}
+          </div>
+        )}
+
+        {/* Outfit indicator */}
+        {currentAvatar.outfit && (
+          <div style={{
+            position: 'absolute',
+            bottom: '-5%',
+            right: '-5%',
+            fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
+            zIndex: 3
+          }}>
+            {getOutfitEmoji(currentAvatar.outfit)}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const getHatEmoji = (hatId: string): string => {
+    const hats: { [key: string]: string } = {
+      'santa-hat': '🎅',
+      'crown': '👑',
+      'chef-hat': '👨‍🍳',
+      'wizard-hat': '🧙‍♂️'
     }
-    
-    return display
+    return hats[hatId] || ''
+  }
+
+  const getAccessoryEmoji = (accessoryId: string): string => {
+    const accessories: { [key: string]: string } = {
+      'sunglasses': '🕶️',
+      'monocle': '🧐',
+      'heart-eyes': '💕'
+    }
+    return accessories[accessoryId] || ''
+  }
+
+  const getOutfitEmoji = (outfitId: string): string => {
+    const outfits: { [key: string]: string } = {
+      'tuxedo': '🤵',
+      'ninja-outfit': '🥷',
+      'superhero-cape': '🦸'
+    }
+    return outfits[outfitId] || ''
+  }
+
+  const getSpecialEffectEmoji = (specialId: string): string => {
+    const effects: { [key: string]: string } = {
+      'sparkles': '✨',
+      'rainbow-trail': '🌈'
+    }
+    return effects[specialId] || ''
   }
 
   const filteredItems = COSTUME_ITEMS.filter(item => item.category === selectedCategory)
@@ -396,9 +542,11 @@ const AvatarCustomization: React.FC = () => {
           </div>
           
           <div className="avatar-current-display" style={{ 
-            fontSize: 'clamp(4rem, 12vw, 8rem)',
             marginBottom: '16px',
-            position: 'relative'
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}>
             {generateAvatarDisplay()}
           </div>
@@ -446,6 +594,50 @@ const AvatarCustomization: React.FC = () => {
           }}>
             💰 所持MOMOPay: {momoPayPoints} | 所持アイテム: {ownedItems.length}個
           </div>
+        </div>
+
+        {/* ガチャボタン */}
+        <div className="comic-card" style={{
+          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
+          borderColor: '#ffc107',
+          padding: 'min(20px, 5vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '500px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div className="comic-text font-title-sm" style={{ 
+            color: '#fff3e0',
+            marginBottom: '12px'
+          }}>
+            🎰 コスチュームガチャ
+          </div>
+          
+          <div className="comic-text font-body-sm" style={{ 
+            color: '#c8e6c9',
+            marginBottom: '16px',
+            lineHeight: '1.6'
+          }}>
+            🏆 レジェンド: 3% | ⚡ エピック: 12%<br/>
+            🌟 レア: 25% | 🌿 コモン: 60%<br/>
+            重複時は30%分のMOMOPayで返金！
+          </div>
+
+          <button
+            onClick={() => setShowGacha(true)}
+            className="comic-button font-button-lg"
+            style={{
+              background: momoPayPoints >= 500 
+                ? 'linear-gradient(45deg, #ffc107, #ffb300)'
+                : 'linear-gradient(45deg, #666, #555)',
+              color: momoPayPoints >= 500 ? '#000' : '#ccc',
+              borderColor: momoPayPoints >= 500 ? '#f57f17' : '#333',
+              fontSize: 'clamp(1rem, 3vw, 1.3rem)',
+              padding: 'min(12px 24px, 3vw 6vw, 16px 32px)'
+            }}
+            disabled={momoPayPoints < 500}
+          >
+            🎰 ガチャを引く (500P)
+          </button>
         </div>
 
         {/* Category Selector */}
@@ -578,27 +770,187 @@ const AvatarCustomization: React.FC = () => {
                     装備する
                   </button>
                 ) : (
-                  <button
-                    onClick={() => purchaseItem(item)}
-                    disabled={momoPayPoints < finalPrice}
-                    className="comic-button font-button-sm"
-                    style={{
-                      background: momoPayPoints >= finalPrice
-                        ? (isOnSale ? 'linear-gradient(45deg, #4caf50, #45a049)' : 'linear-gradient(45deg, #ffc107, #ffb300)')
-                        : 'linear-gradient(45deg, #666, #555)',
-                      color: momoPayPoints >= finalPrice ? (isOnSale ? 'white' : '#000') : '#ccc',
-                      borderColor: momoPayPoints >= finalPrice ? (isOnSale ? '#2e7d32' : '#f57f17') : '#333',
-                      width: '100%'
-                    }}
-                  >
-                    購入する
-                  </button>
+                  <div className="comic-text font-body-sm" style={{
+                    color: '#999',
+                    fontStyle: 'italic'
+                  }}>
+                    🎰 ガチャで入手可能
+                  </div>
                 )}
               </div>
             )
           })}
         </div>
       </div>
+
+      {/* ガチャモーダル */}
+      {showGacha && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: 'min(8px, 2vw)'
+        }}>
+          <div className="comic-card" style={{
+            background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 152, 0, 0.8))',
+            padding: 'clamp(20px, 4vw, 32px)', borderColor: '#ffc107', 
+            maxWidth: 'min(450px, 98vw)', width: '100%',
+            textAlign: 'center',
+            margin: 'auto'
+          }}>
+            <div className="comic-text font-title-md" style={{ 
+              color: '#fff3e0', 
+              marginBottom: '16px' 
+            }}>
+              🎰 コスチュームガチャ 👗
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#000',
+              marginBottom: '16px' 
+            }}>
+              💰 現在のMOMOPay: {momoPayPoints}
+            </div>
+            <div className="comic-text font-body-sm" style={{ 
+              color: '#333', 
+              marginBottom: '24px', 
+              lineHeight: '1.4'
+            }}>
+              🏆 レジェンド: 3%<br/>
+              ⚡ エピック: 12% | 🌟 レア: 25%<br/>
+              🌿 コモン: 60%
+            </div>
+            
+            <div style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', justifyContent: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+              <button 
+                onClick={performGacha} 
+                disabled={momoPayPoints < 500}
+                className="comic-button font-button-md"
+                style={{ 
+                  background: momoPayPoints < 500 ? '#666' : 'linear-gradient(45deg, #4caf50, #45a049)', 
+                  color: 'white',
+                  borderColor: momoPayPoints < 500 ? '#333' : '#2e7d32',
+                  minWidth: 'clamp(140px, 35vw, 200px)',
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                  padding: 'clamp(10px 16px, 2.5vw 4vw, 12px 20px)'
+                }}
+              >
+                🎰 ガチャを引く (500P)
+              </button>
+            </div>
+            
+            <button 
+              onClick={() => setShowGacha(false)} 
+              className="comic-button font-button-sm"
+              style={{ 
+                background: 'linear-gradient(45deg, #666, #555)', 
+                color: 'white', 
+                borderColor: '#333'
+              }}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ガチャ結果表示 */}
+      {gachaResult && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0, 0, 0, 0.9)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1001, animation: 'fadeIn 0.3s ease-in-out'
+        }}>
+          <div style={{
+            animation: 'bounce 0.5s ease-in-out'
+          }}>
+            <div className="comic-card" style={{
+              background: gachaResult.rarity === 'legendary' ? 'linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 193, 7, 0.9))' :
+                        gachaResult.rarity === 'epic' ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.95), rgba(142, 36, 170, 0.9))' :
+                        gachaResult.rarity === 'rare' ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.95), rgba(30, 136, 229, 0.9))' :
+                        'linear-gradient(135deg, rgba(76, 175, 80, 0.95), rgba(139, 195, 74, 0.9))',
+              padding: 'clamp(20px, 5vw, 32px)', textAlign: 'center', 
+              minWidth: 'clamp(280px, 70vw, 350px)', maxWidth: 'min(400px, 95vw)',
+              borderColor: gachaResult.rarity === 'legendary' ? '#ffd700' :
+                          gachaResult.rarity === 'epic' ? '#9c27b0' :
+                          gachaResult.rarity === 'rare' ? '#2196f3' : '#4caf50',
+              borderWidth: '4px',
+              boxShadow: gachaResult.rarity === 'legendary' ? '0 0 30px rgba(255, 215, 0, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        gachaResult.rarity === 'epic' ? '0 0 30px rgba(156, 39, 176, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        gachaResult.rarity === 'rare' ? '0 0 30px rgba(33, 150, 243, 0.6), 0 10px 30px rgba(0,0,0,0.5)' :
+                        '0 0 20px rgba(76, 175, 80, 0.6), 0 10px 30px rgba(0,0,0,0.5)'
+            }}>
+              <div style={{ 
+                fontSize: 'clamp(3rem, 8vw, 5rem)', 
+                marginBottom: '12px',
+                filter: gachaResult.rarity === 'legendary' ? 'drop-shadow(0 0 10px gold)' : 
+                       gachaResult.rarity === 'epic' ? 'drop-shadow(0 0 8px purple)' :
+                       gachaResult.rarity === 'rare' ? 'drop-shadow(0 0 6px blue)' : 'none'
+              }}>
+                {gachaResult.icon}
+              </div>
+              
+              <div className="comic-text font-title-md" style={{ 
+                color: gachaResult.rarity === 'legendary' ? '#000' : '#fff', 
+                marginBottom: '8px',
+                textShadow: gachaResult.rarity === 'legendary' ? 'none' : '2px 2px 4px rgba(0,0,0,0.7)'
+              }}>
+                {gachaResult.isDuplicate ? '重複！' : '新アイテム！'}
+              </div>
+              
+              <div className="comic-text font-title-sm" style={{ 
+                color: gachaResult.rarity === 'legendary' ? '#000' : '#fff',
+                marginBottom: '8px' 
+              }}>
+                {gachaResult.name}
+              </div>
+              
+              <div className="comic-text font-body-sm" style={{ 
+                color: gachaResult.rarity === 'legendary' ? '#333' : '#f0f0f0',
+                marginBottom: '12px' 
+              }}>
+                {gachaResult.description}
+              </div>
+              
+              <div style={{
+                background: gachaResult.rarity === 'legendary' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                padding: '8px 12px',
+                borderRadius: '12px',
+                marginBottom: '16px'
+              }}>
+                <div className="comic-text font-body-sm" style={{
+                  color: gachaResult.rarity === 'legendary' ? '#000' : '#fff',
+                  fontWeight: 'bold'
+                }}>
+                  {gachaResult.rarity === 'legendary' ? '🏆 LEGENDARY' :
+                   gachaResult.rarity === 'epic' ? '⚡ EPIC' :
+                   gachaResult.rarity === 'rare' ? '🌟 RARE' : '🌿 COMMON'}
+                </div>
+                {gachaResult.isDuplicate && gachaResult.compensationAmount && (
+                  <div className="comic-text font-body-sm" style={{
+                    color: gachaResult.rarity === 'legendary' ? '#000' : '#ffd93d',
+                    marginTop: '4px'
+                  }}>
+                    💰 +{gachaResult.compensationAmount}P 返金
+                  </div>
+                )}
+              </div>
+              
+              <button 
+                onClick={() => setGachaResult(null)} 
+                className="comic-button font-button-md"
+                style={{
+                  background: gachaResult.rarity === 'legendary' ? 'linear-gradient(45deg, #000, #333)' : 'linear-gradient(45deg, #fff, #ddd)',
+                  color: gachaResult.rarity === 'legendary' ? '#fff' : '#000',
+                  borderColor: gachaResult.rarity === 'legendary' ? '#000' : '#ccc',
+                  width: '100%'
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <div style={{ 

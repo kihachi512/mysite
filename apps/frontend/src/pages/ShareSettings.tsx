@@ -64,9 +64,6 @@ const ShareSettings: React.FC = () => {
         areasVisited: []
       }
       
-      // デイリーミッションデータを取得
-      const dailyMissionsData = localStorage.getItem('daily-missions')
-      const parsedDailyMissions = dailyMissionsData ? JSON.parse(dailyMissionsData) : null
       
       const loginStreakData = localStorage.getItem('login-streak')
       const parsedLoginStreak = loginStreakData ? JSON.parse(loginStreakData) : {
@@ -74,13 +71,6 @@ const ShareSettings: React.FC = () => {
         consecutiveDays: 0
       }
       
-      // 音声設定も含める
-      const audioSettingsData = localStorage.getItem('audio-settings')
-      const parsedAudioSettings = audioSettingsData ? JSON.parse(audioSettingsData) : {
-        isMuted: false,
-        bgmVolume: 0.3,
-        sfxVolume: 0.5
-      }
       
       // 銀行・アバターデータも含める
       const bankAccountData = localStorage.getItem('momo-bank-account')
@@ -111,9 +101,7 @@ const ShareSettings: React.FC = () => {
         bulletHellInventory: parsedInventory,
         achievements: parsedAchievements,
         achievementStats: parsedAchievementStats,
-        dailyMissions: parsedDailyMissions,
         loginStreak: parsedLoginStreak,
-        audioSettings: parsedAudioSettings,
         bankAccount: parsedBankAccount,
         bankInvestments: parsedBankInvestments,
         bankLoans: parsedBankLoans,
@@ -267,10 +255,6 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('achievement-stats', JSON.stringify(validStats))
             }
             
-            // デイリーミッションデータがあればインポート（検証付き）
-            if (jsonData.dailyMissions && typeof jsonData.dailyMissions === 'object') {
-              localStorage.setItem('daily-missions', JSON.stringify(jsonData.dailyMissions))
-            }
             
             // ログインストリークがあればインポート（検証付き）
             if (jsonData.loginStreak && typeof jsonData.loginStreak === 'object') {
@@ -283,15 +267,6 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('login-streak', JSON.stringify(validStreak))
             }
             
-            // 音声設定があればインポート（検証付き）
-            if (jsonData.audioSettings && typeof jsonData.audioSettings === 'object') {
-              const validAudioSettings = {
-                isMuted: Boolean(jsonData.audioSettings.isMuted),
-                bgmVolume: Math.max(0, Math.min(1, jsonData.audioSettings.bgmVolume || 0.3)),
-                sfxVolume: Math.max(0, Math.min(1, jsonData.audioSettings.sfxVolume || 0.5))
-              }
-              localStorage.setItem('audio-settings', JSON.stringify(validAudioSettings))
-            }
             
             // 銀行データがあればインポート（検証付き）
             if (jsonData.bankAccount && typeof jsonData.bankAccount === 'object') {

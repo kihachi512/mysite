@@ -352,6 +352,24 @@ const BulletHell: React.FC = () => {
     }
   }, [])
 
+  // ローカルストレージから効果音設定を読み込み
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('app-settings')
+    if (savedSettings) {
+      try {
+        const settings = JSON.parse(savedSettings)
+        const soundSetting = settings['sound-effects'] || false
+        setSoundEnabled(soundSetting)
+        console.log('Sound setting loaded:', soundSetting)
+      } catch {
+        setSoundEnabled(false)
+        console.log('Failed to load sound settings, defaulting to false')
+      }
+    } else {
+      console.log('No saved settings found, sound disabled')
+    }
+  }, [])
+
   // AudioContextを効果音設定に応じて初期化
   useEffect(() => {
     console.log('Sound effect:', { soundEnabled, hasAudioContext: !!audioContext })
@@ -406,7 +424,7 @@ const BulletHell: React.FC = () => {
       if (e.key === 'app-settings' && e.newValue) {
         try {
           const settings = JSON.parse(e.newValue)
-          const newSoundSetting = settings['notification-sound'] || false
+          const newSoundSetting = settings['sound-effects'] || false
           if (newSoundSetting !== soundEnabled) {
             setSoundEnabled(newSoundSetting)
             console.log('Sound setting updated via storage change:', newSoundSetting)

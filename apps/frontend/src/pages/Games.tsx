@@ -134,6 +134,32 @@ const Games: React.FC = () => {
           </div>
         </Link>
 
+        <Link to="/games/slot-machine" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(211, 47, 47, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#f44336', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🎰</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              スロットマシン
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#ffcdd2', 
+              lineHeight: '1.4'
+            }}>
+              本格ギャンブルで一攫千金！<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">⚠️ 18歳未満プレイ禁止</span>
+            </div>
+          </div>
+        </Link>
+
         <Link to="/games/store" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ 
             background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(142, 36, 170, 0.2))', 

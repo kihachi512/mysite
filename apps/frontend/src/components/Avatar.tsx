@@ -50,6 +50,7 @@ const Avatar: React.FC<AvatarProps> = ({
   }
 
   const getAvatarDisplay = () => {
+    const sizeStyles = getSizeStyles(size)
     const baseStyle = {
       position: 'relative' as const,
       display: 'inline-flex',
@@ -57,50 +58,8 @@ const Avatar: React.FC<AvatarProps> = ({
       justifyContent: 'center',
       borderRadius: '50%',
       overflow: 'hidden',
-      ...getSizeStyles(size),
+      ...sizeStyles,
       ...style
-    }
-
-    let avatarContent = '🐿️' // Base momonga
-
-    // Add special effects
-    if (avatarState.special) {
-      const specialEffects: { [key: string]: string } = {
-        'sparkles': '✨',
-        'rainbow-trail': '🌈'
-      }
-      const effect = specialEffects[avatarState.special]
-      if (effect) {
-        avatarContent += effect
-      }
-    }
-
-    // Add hat
-    if (avatarState.hat) {
-      const hats: { [key: string]: string } = {
-        'santa-hat': '🎄',
-        'crown': '👑',
-        'chef-hat': '👨‍🍳',
-        'wizard-hat': '🧙‍♂️'
-      }
-      const hat = hats[avatarState.hat]
-      if (hat) {
-        avatarContent = hat + avatarContent
-      }
-    }
-
-    // Add accessories (overlay on face)
-    if (avatarState.accessory) {
-      const accessories: { [key: string]: string } = {
-        'sunglasses': '😎',
-        'monocle': '🧐',
-        'heart-eyes': '😍'
-      }
-      const accessory = accessories[avatarState.accessory]
-      if (accessory && avatarState.accessory !== 'sunglasses') {
-        // Replace base face for some accessories
-        avatarContent = avatarContent.replace('🐿️', accessory)
-      }
     }
 
     const backgroundStyle = showBackground && avatarState.background 
@@ -116,11 +75,112 @@ const Avatar: React.FC<AvatarProps> = ({
         }}
         title="アバター（カスタマイズ画面で変更可能）"
       >
-        <span style={{ position: 'relative', zIndex: 2 }}>
-          {avatarContent}
-        </span>
+        {/* Base momonga image */}
+        <img 
+          src="/momonga-icon.png" 
+          alt="モモンガアバター"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            position: 'relative',
+            zIndex: 1
+          }}
+        />
+        
+        {/* Hat overlay */}
+        {avatarState.hat && (
+          <div style={{
+            position: 'absolute',
+            top: '-10%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: `${parseInt(sizeStyles.fontSize) * 0.6}rem`,
+            zIndex: 3
+          }}>
+            {getHatEmoji(avatarState.hat)}
+          </div>
+        )}
+
+        {/* Accessory overlay */}
+        {avatarState.accessory && (
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: `${parseInt(sizeStyles.fontSize) * 0.5}rem`,
+            zIndex: 3
+          }}>
+            {getAccessoryEmoji(avatarState.accessory)}
+          </div>
+        )}
+
+        {/* Special effects overlay */}
+        {avatarState.special && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: `${parseInt(sizeStyles.fontSize) * 0.4}rem`,
+            zIndex: 4,
+            animation: avatarState.special === 'sparkles' ? 'sparkle 2s infinite' : 'none'
+          }}>
+            {getSpecialEffectEmoji(avatarState.special)}
+          </div>
+        )}
+
+        {/* Outfit indicator (small icon) */}
+        {avatarState.outfit && (
+          <div style={{
+            position: 'absolute',
+            bottom: '-5%',
+            right: '-5%',
+            fontSize: `${parseInt(sizeStyles.fontSize) * 0.3}rem`,
+            zIndex: 3
+          }}>
+            {getOutfitEmoji(avatarState.outfit)}
+          </div>
+        )}
       </div>
     )
+  }
+
+  const getHatEmoji = (hatId: string): string => {
+    const hats: { [key: string]: string } = {
+      'santa-hat': '🎅',
+      'crown': '👑',
+      'chef-hat': '👨‍🍳',
+      'wizard-hat': '🧙‍♂️'
+    }
+    return hats[hatId] || ''
+  }
+
+  const getAccessoryEmoji = (accessoryId: string): string => {
+    const accessories: { [key: string]: string } = {
+      'sunglasses': '🕶️',
+      'monocle': '🧐',
+      'heart-eyes': '💕'
+    }
+    return accessories[accessoryId] || ''
+  }
+
+  const getOutfitEmoji = (outfitId: string): string => {
+    const outfits: { [key: string]: string } = {
+      'tuxedo': '🤵',
+      'ninja-outfit': '🥷',
+      'superhero-cape': '🦸'
+    }
+    return outfits[outfitId] || ''
+  }
+
+  const getSpecialEffectEmoji = (specialId: string): string => {
+    const effects: { [key: string]: string } = {
+      'sparkles': '✨',
+      'rainbow-trail': '🌈'
+    }
+    return effects[specialId] || ''
   }
 
   const getBackgroundStyle = (backgroundId: string): React.CSSProperties => {

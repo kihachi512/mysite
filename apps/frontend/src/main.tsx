@@ -160,12 +160,12 @@ import BulletHell from './pages/BulletHell.tsx'
 import Achievements from './pages/Achievements.tsx'
 import NumberPuzzle from './pages/NumberPuzzle.tsx'
 import MemoryGame from './pages/MemoryGame.tsx'
-import AudioSettings from './pages/AudioSettings.tsx'
-import DailyMissions from './pages/DailyMissions.tsx'
 import MOMOBank from './pages/MOMOBank.tsx'
 import AvatarCustomization from './pages/AvatarCustomization.tsx'
 import PersonalHub from './pages/PersonalHub.tsx'
 import EconomyHub from './pages/EconomyHub.tsx'
+import AudioSettings from './pages/AudioSettings.tsx'
+import SlotMachine from './pages/SlotMachine.tsx'
 
 const router = createBrowserRouter([
   {
@@ -178,6 +178,7 @@ const router = createBrowserRouter([
             { path: 'games/bullet-hell', element: <BulletHell /> },
             { path: 'games/number-puzzle', element: <NumberPuzzle /> },
             { path: 'games/memory', element: <MemoryGame /> },
+            { path: 'games/slot-machine', element: <SlotMachine /> },
             { path: 'games/store', element: <MOMOStore /> },
             { path: 'plaza', element: <Plaza /> },
             { path: 'plaza/hall', element: <Tweets /> },
@@ -189,7 +190,6 @@ const router = createBrowserRouter([
             { path: 'settings/share', element: <ShareSettings /> },
             { path: 'settings/audio', element: <AudioSettings /> },
             { path: 'achievements', element: <Achievements /> },
-            { path: 'daily-missions', element: <DailyMissions /> },
             { path: 'momo-bank', element: <MOMOBank /> },
             { path: 'avatar', element: <AvatarCustomization /> },
             { path: 'personal', element: <PersonalHub /> },

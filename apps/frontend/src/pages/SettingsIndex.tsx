@@ -91,22 +91,23 @@ const SettingsIndex: React.FC = () => {
             transition: 'all 0.3s ease',
             minHeight: '180px'
           }}>
-            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🎵</div>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🔊</div>
             <div className="comic-text font-title-sm" style={{ 
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              音声
+              効果音
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              BGMと効果音の設定<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">音量調節・ミュート</span>
+              ゲーム内効果音の設定<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">SE音量・オン/オフ</span>
             </div>
           </div>
         </Link>
+
       </div>
 
       <div style={{ marginTop: 'min(40px, 10vw)' }}>

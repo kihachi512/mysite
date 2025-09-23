@@ -20,6 +20,26 @@
   box-sizing: border-box;
 }
 
+/* Avatar Sparkle Animation */
+@keyframes sparkle {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(0.8) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translate(-50%, -50%) scale(1.1) rotate(270deg);
+    opacity: 0.9;
+  }
+}
+
 body {
   font-family: 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', cursive, fantasy, sans-serif;
   background: linear-gradient(135deg, #2d5016 0%, #1a3d0a 30%, #0f2818 70%, #0a1f0f 100%);
