@@ -235,7 +235,7 @@ const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'bank-regular',
-    title: '銀行常連',
+    title: 'MOMOBank常連',
     description: 'MOMOBankを10回訪問した',
     icon: '🏦',
     type: 'money',

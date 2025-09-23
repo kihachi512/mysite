@@ -626,7 +626,7 @@ const SlotMachine: React.FC = () => {
             color: '#000',
             borderColor: '#f57f17'
           }}>
-            🏦 銀行でMOMOPay稼ぐ
+            🏦 MOMOBankでMOMOPay稼ぐ
           </button>
         </Link>
         

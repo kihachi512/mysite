@@ -100,10 +100,10 @@ const LOAN_OFFERS: LoanOffer[] = [
 
 const MOMOBank: React.FC = () => {
   useSEO({
-    title: 'どんぐり銀行',
+    title: 'MOMOBank',
     description: 'MOMOPayの預金・投資・融資サービス。どんぐりのように資産をコツコツ増やし、森の恵みで豊かになろう。利息・投資・融資の総合金融サービス。',
-    keywords: 'どんぐり銀行,MOMOBank,銀行,預金,投資,融資,利息,資産運用,MOMOPay,森の経済',
-    ogTitle: 'どんぐり銀行 | モモンガカーニバル',
+    keywords: 'MOMOBank,銀行,預金,投資,融資,利息,資産運用,MOMOPay,森の経済',
+    ogTitle: 'MOMOBank | モモンガカーニバル',
     ogDescription: 'どんぐりのように資産をコツコツ増やそう！預金・投資・融資の総合金融サービス。'
   });
 
@@ -373,7 +373,7 @@ const MOMOBank: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🌰 どんぐり銀行 🏦
+        🌰 MOMOBank 🏦
       </div>
       
       <div className="comic-text font-body-lg" style={{ 
