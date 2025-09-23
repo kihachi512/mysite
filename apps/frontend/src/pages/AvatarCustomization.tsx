@@ -987,50 +987,6 @@ const AvatarCustomization: React.FC = () => {
           </div>
         </div>
 
-        {/* ガチャボタン */}
-        <div className="comic-card" style={{
-          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
-          borderColor: '#ffc107',
-          padding: 'min(20px, 5vw)',
-          marginBottom: 'min(24px, 6vw)',
-          maxWidth: '500px',
-          margin: '0 auto min(24px, 6vw) auto'
-        }}>
-          <div className="comic-text font-title-sm" style={{ 
-            color: '#fff3e0',
-            marginBottom: '12px'
-          }}>
-            🎰 コスチュームガチャ
-          </div>
-          
-          <div className="comic-text font-body-sm" style={{ 
-            color: '#c8e6c9',
-            marginBottom: '16px',
-            lineHeight: '1.6'
-          }}>
-            🏆 レジェンド: 3% | ⚡ エピック: 12%<br/>
-            🌟 レア: 25% | 🌿 コモン: 60%<br/>
-            重複時は30%分のMOMOPayで返金！
-          </div>
-
-          <button
-            onClick={() => setShowGacha(true)}
-            className="comic-button font-button-lg"
-            style={{
-              background: momoPayPoints >= 500 
-                ? 'linear-gradient(45deg, #ffc107, #ffb300)'
-                : 'linear-gradient(45deg, #666, #555)',
-              color: momoPayPoints >= 500 ? '#000' : '#ccc',
-              borderColor: momoPayPoints >= 500 ? '#f57f17' : '#333',
-              fontSize: 'clamp(1rem, 3vw, 1.3rem)',
-              padding: 'min(12px 24px, 3vw 6vw, 16px 32px)'
-            }}
-            disabled={momoPayPoints < 500}
-          >
-            🎰 ガチャを引く (500P)
-          </button>
-        </div>
-
         {/* Costume Inventory */}
         {showInventory && (
           <div className="comic-card" style={{
@@ -1199,6 +1155,50 @@ const AvatarCustomization: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* ガチャボタン */}
+        <div className="comic-card" style={{
+          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
+          borderColor: '#ffc107',
+          padding: 'min(20px, 5vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '500px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div className="comic-text font-title-sm" style={{ 
+            color: '#fff3e0',
+            marginBottom: '12px'
+          }}>
+            🎰 コスチュームガチャ
+          </div>
+          
+          <div className="comic-text font-body-sm" style={{ 
+            color: '#c8e6c9',
+            marginBottom: '16px',
+            lineHeight: '1.6'
+          }}>
+            🏆 レジェンド: 3% | ⚡ エピック: 12%<br/>
+            🌟 レア: 25% | 🌿 コモン: 60%<br/>
+            重複時は30%分のMOMOPayで返金！
+          </div>
+
+          <button
+            onClick={() => setShowGacha(true)}
+            className="comic-button font-button-lg"
+            style={{
+              background: momoPayPoints >= 500 
+                ? 'linear-gradient(45deg, #ffc107, #ffb300)'
+                : 'linear-gradient(45deg, #666, #555)',
+              color: momoPayPoints >= 500 ? '#000' : '#ccc',
+              borderColor: momoPayPoints >= 500 ? '#f57f17' : '#333',
+              fontSize: 'clamp(1rem, 3vw, 1.3rem)',
+              padding: 'min(12px 24px, 3vw 6vw, 16px 32px)'
+            }}
+            disabled={momoPayPoints < 500}
+          >
+            🎰 ガチャを引く (500P)
+          </button>
+        </div>
       </div>
 
       {/* ガチャモーダル */}
