@@ -105,31 +105,6 @@ const PersonalHub: React.FC = () => {
           </div>
         </Link>
 
-        <Link to="/daily-missions" style={{ textDecoration: 'none' }}>
-          <div className="comic-card home-card" style={{ 
-            background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.3), rgba(216, 27, 96, 0.2))', 
-            padding: 'min(32px, 8vw)', 
-            borderColor: '#e91e63', 
-            cursor: 'pointer', 
-            transition: 'all 0.3s ease',
-            minHeight: '180px'
-          }}>
-            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>📋</div>
-            <div className="comic-text font-title-sm" style={{ 
-              color: '#fff3e0',
-              marginBottom: '12px'
-            }}>
-              森の日課帳
-            </div>
-            <div className="comic-text font-body-md" style={{ 
-              color: '#c8e6c9', 
-              lineHeight: '1.4'
-            }}>
-              毎日の森での任務をこなそう<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">継続は力なり！</span>
-            </div>
-          </div>
-        </Link>
 
         <Link to="/avatar" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ 

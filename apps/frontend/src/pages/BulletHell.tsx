@@ -130,33 +130,14 @@ const BulletHell: React.FC = () => {
   // パワーアップアイテムによる追加能力値を管理
   const [powerUpBonuses, setPowerUpBonuses] = useState({ fireRate: 0, power: 0 })
   
-  // 効果音設定の状態
-  const [soundEnabled, setSoundEnabled] = useState(false)
-  const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
+  // 効果音設定を無効化（BGM機能廃止に伴い）
+  const soundEnabled = false
   
   
-  // AudioContextを初期化する関数
+  // AudioContext機能を無効化
   const initializeAudio = useCallback(() => {
-    if (audioContext || !soundEnabled) return
-    
-    try {
-      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-      const ctx = new AudioContextClass()
-      setAudioContext(ctx)
-      console.log('AudioContext created, state:', ctx.state)
-      
-      // AudioContextが suspend 状態の場合は resume を試行
-      if (ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          console.log('AudioContext resumed successfully')
-        }).catch(() => {
-          console.log('AudioContext resume failed, will try on next user interaction')
-        })
-      }
-    } catch (error) {
-      console.log('AudioContext creation failed:', error)
-    }
-  }, [audioContext, soundEnabled])
+    // 効果音機能は廃止されました
+  }, [])
   
   // 実際の音声再生処理
   const playActualSound = useCallback((ctx: AudioContext, frequency: number, duration: number, type: 'sine' | 'square' | 'triangle') => {
@@ -181,34 +162,10 @@ const BulletHell: React.FC = () => {
     }
   }, [])
   
-  // 効果音再生関数
-  const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
-    if (!soundEnabled || !audioContext) {
-      console.log('Sound disabled or no AudioContext:', { soundEnabled, hasAudioContext: !!audioContext })
-      return
-    }
-    
-    try {
-      // AudioContextが suspended 状態の場合は resume を試行
-      if (audioContext.state === 'suspended') {
-        console.log('AudioContext suspended, attempting resume...')
-        audioContext.resume().then(() => {
-          console.log('AudioContext resumed, playing sound')
-          // resume 成功後に再度音声を再生
-          playActualSound(audioContext, frequency, duration, type)
-        }).catch(() => {
-          console.log('AudioContext resume failed')
-        })
-      } else if (audioContext.state === 'running') {
-        console.log('AudioContext running, playing sound')
-        playActualSound(audioContext, frequency, duration, type)
-      } else {
-        console.log('AudioContext in unexpected state:', audioContext.state)
-      }
-    } catch (error) {
-      console.log('Sound play error:', error)
-    }
-  }, [soundEnabled, audioContext, playActualSound])
+  // 効果音再生関数を無効化
+  const playSound = useCallback(() => {
+    // 効果音機能は廃止されました
+  }, [])
   
   
   
@@ -352,89 +309,14 @@ const BulletHell: React.FC = () => {
     }
   }, [])
 
-  // AudioContextを効果音設定に応じて初期化
-  useEffect(() => {
-    console.log('Sound effect:', { soundEnabled, hasAudioContext: !!audioContext })
-    if (soundEnabled && !audioContext) {
-      console.log('Initializing AudioContext...')
-      initializeAudio()
-    } else if (!soundEnabled && audioContext) {
-      // 効果音が無効になった場合はAudioContextをクローズ
-      console.log('Closing AudioContext...')
-      audioContext.close().then(() => {
-        setAudioContext(null)
-        console.log('AudioContext closed')
-      }).catch((error) => {
-        console.log('Failed to close AudioContext:', error)
-      })
-    }
-  }, [soundEnabled, audioContext, initializeAudio])
+  // AudioContext関連のuseEffectを無効化
 
-  // ユーザーインタラクション時にAudioContextをresumeする
-  useEffect(() => {
-    const handleUserInteraction = () => {
-      console.log('User interaction detected')
-      if (soundEnabled && !audioContext) {
-        console.log('Creating AudioContext on user interaction')
-        initializeAudio()
-      } else if (audioContext && audioContext.state === 'suspended') {
-        console.log('Resuming AudioContext on user interaction')
-        audioContext.resume().then(() => {
-          console.log('AudioContext resumed after user interaction')
-        }).catch((error) => {
-          console.log('Failed to resume AudioContext:', error)
-        })
-      }
-    }
+  // ユーザーインタラクション処理を無効化
 
-    // ユーザーインタラクションイベントをリスン
-    const events = ['click', 'touchstart', 'keydown']
-    events.forEach(event => {
-      document.addEventListener(event, handleUserInteraction, { once: false })
-    })
-
-    return () => {
-      events.forEach(event => {
-        document.removeEventListener(event, handleUserInteraction)
-      })
-    }
-  }, [audioContext, soundEnabled, initializeAudio])
-
-  // 設定変更を監視してリアルタイムで効果音設定を更新
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'app-settings' && e.newValue) {
-        try {
-          const settings = JSON.parse(e.newValue)
-          const newSoundSetting = settings['notification-sound'] || false
-          if (newSoundSetting !== soundEnabled) {
-            setSoundEnabled(newSoundSetting)
-            console.log('Sound setting updated via storage change:', newSoundSetting)
-          }
-        } catch (error) {
-          console.log('Failed to parse updated settings:', error)
-        }
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-    }
-  }, [soundEnabled])
+  // 設定変更監視を無効化
 
 
-  // コンポーネントアンマウント時のクリーンアップ
-  useEffect(() => {
-    return () => {
-      // AudioContextをクローズ
-      if (audioContext) {
-        audioContext.close().catch((error) => {
-          console.log('Failed to close AudioContext on unmount:', error)
-        })
-      }
-    }
-  }, [audioContext])
+  // クリーンアップ処理を無効化
 
   // Save inventory to localStorage
   useEffect(() => {
@@ -1372,8 +1254,7 @@ const BulletHell: React.FC = () => {
       rafRef.current = null
     }
     
-    // 効果音のテスト（ゲーム開始音）
-    playSound(440, 0.2, 'sine')
+    // 効果音機能は廃止されました
     
     // ゲーム状態を完全にリセット
     bulletsRef.current = []
