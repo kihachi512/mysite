@@ -447,7 +447,7 @@ const SlotMachine: React.FC = () => {
             flexWrap: 'wrap',
             marginBottom: '16px'
           }}>
-            {[1, 5, 10, 25, 50, 100, 500].map(amount => (
+            {[10, 50, 100, 1000].map(amount => (
               <button
                 key={amount}
                 onClick={() => changeBet(amount)}
