@@ -175,11 +175,11 @@ const ShareSettings: React.FC = () => {
           if (confirm(confirmMessage)) {
             // データの検証とサニタイゼーション
             const validatedFavorites = Array.isArray(jsonData.favorites) ? 
-              jsonData.favorites.slice(0, 100).filter((item: any) => 
+              jsonData.favorites.slice(0, 100).filter((item: unknown) => 
                 item && typeof item === 'object' && 
-                typeof item.id === 'string' && 
-                typeof item.name === 'string' &&
-                ['text', 'file'].includes(item.kind)
+                typeof (item as Record<string, unknown>).id === 'string' && 
+                typeof (item as Record<string, unknown>).name === 'string' &&
+                ['text', 'file'].includes((item as Record<string, unknown>).kind as string)
               ) : []
             
             // 宝物庫データをインポート
@@ -196,7 +196,7 @@ const ShareSettings: React.FC = () => {
             if (Array.isArray(jsonData.highScores)) {
               const validScores = jsonData.highScores
                 .slice(0, 10)
-                .filter((score: any) => typeof score === 'number' && score >= 0 && score <= 100000000)
+                .filter((score: unknown) => typeof score === 'number' && score >= 0 && score <= 100000000)
                 .sort((a: number, b: number) => b - a)
               localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(validScores))
             }
@@ -205,14 +205,14 @@ const ShareSettings: React.FC = () => {
             if (Array.isArray(jsonData.momoStorePurchases)) {
               const validPurchases = jsonData.momoStorePurchases
                 .slice(0, 50)
-                .filter((item: any) => typeof item === 'string')
+                .filter((item: unknown) => typeof item === 'string')
               localStorage.setItem('momostore-purchases', JSON.stringify(validPurchases))
             }
             
             // アプリ設定があればインポート（検証付き）
             if (jsonData.appSettings && typeof jsonData.appSettings === 'object') {
               // 危険な設定値をフィルタリング
-              const safeSettings: Record<string, any> = {}
+              const safeSettings: Record<string, boolean> = {}
               const allowedKeys = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound']
               
               for (const [key, value] of Object.entries(jsonData.appSettings)) {
@@ -232,10 +232,10 @@ const ShareSettings: React.FC = () => {
               const validInventory = {
                 items: jsonData.bulletHellInventory.items
                   .slice(0, 200) // 最大200アイテム
-                  .filter((item: any) => 
+                  .filter((item: unknown) => 
                     item && typeof item === 'object' && 
-                    typeof item.id === 'string' &&
-                    typeof item.name === 'string'
+                    typeof (item as Record<string, unknown>).id === 'string' &&
+                    typeof (item as Record<string, unknown>).name === 'string'
                   ),
                 equippedWeapon: jsonData.bulletHellInventory.equippedWeapon || undefined,
                 equippedShield: jsonData.bulletHellInventory.equippedShield || undefined,
@@ -249,7 +249,7 @@ const ShareSettings: React.FC = () => {
             if (Array.isArray(jsonData.achievements)) {
               const validAchievements = jsonData.achievements
                 .slice(0, 1000)
-                .filter((achievement: any) => typeof achievement === 'string')
+                .filter((achievement: unknown) => typeof achievement === 'string')
               localStorage.setItem('achievements', JSON.stringify(validAchievements))
             }
             
@@ -320,7 +320,7 @@ const ShareSettings: React.FC = () => {
             if (Array.isArray(jsonData.avatarOwned)) {
               const validOwned = jsonData.avatarOwned
                 .slice(0, 1000)
-                .filter((item: any) => typeof item === 'string')
+                .filter((item: unknown) => typeof item === 'string')
               localStorage.setItem('avatar-owned-items', JSON.stringify(validOwned))
             }
             

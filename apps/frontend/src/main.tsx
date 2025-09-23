@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { useSEO, SEO_PRESETS } from './hooks/useSEO'
 import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performance'
+import { initStorageMonitor } from './utils/storageMonitor'
 import { getDailyBonus, claimDailyBonus, getActiveEvents, economyEventManager } from './utils/economyEvents'
 import { useAppData } from './contexts/AppDataContext'
 
@@ -226,6 +227,9 @@ logger.info('Application starting', {
 
 // パフォーマンス監視開始
 performanceMonitor.reportVitals()
+
+// ストレージ監視開始
+initStorageMonitor()
 
 // eslint-disable-next-line react-refresh/only-export-components
 const Main = () => (

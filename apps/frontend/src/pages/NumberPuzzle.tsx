@@ -114,7 +114,7 @@ const NumberPuzzle: React.FC = () => {
     const solved: (number | null)[] = Array.from({ length: size * size - 1 }, (_, i) => i + 1)
     solved.push(null)
     
-    let board = [...solved]
+    const board = [...solved]
     const moves = size * size * 10 // Make many random moves
     
     for (let i = 0; i < moves; i++) {

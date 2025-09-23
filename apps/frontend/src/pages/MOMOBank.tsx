@@ -116,7 +116,7 @@ const MOMOBank: React.FC = () => {
     accountType: 'basic'
   })
   const [investments, setInvestments] = useState<UserInvestment[]>([])
-  const [currentLoans, setCurrentLoans] = useState<any[]>([])
+  const [currentLoans, setCurrentLoans] = useState<LoanOffer[]>([])
 
   // Track area visit
   useEffect(() => {
@@ -127,6 +127,7 @@ const MOMOBank: React.FC = () => {
   useEffect(() => {
     loadBankData()
     updateDailyInterest()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadBankData = () => {
@@ -150,7 +151,7 @@ const MOMOBank: React.FC = () => {
     }
   }
 
-  const saveBankData = (account: BankAccount, userInvestments: UserInvestment[], loans: any[]) => {
+  const saveBankData = (account: BankAccount, userInvestments: UserInvestment[], loans: LoanOffer[]) => {
     try {
       localStorage.setItem('momo-bank-account', JSON.stringify(account))
       localStorage.setItem('momo-bank-investments', JSON.stringify(userInvestments))
@@ -388,10 +389,10 @@ const MOMOBank: React.FC = () => {
             { id: 'account', label: '🏦 預金', desc: '利息で増える' },
             { id: 'investment', label: '📈 投資', desc: 'リターンを狙う' },
             { id: 'loan', label: '💳 融資', desc: '資金調達' }
-          ].map(tab => (
+            ].map((tab: { id: string; label: string; desc: string }) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'account' | 'investment' | 'loan')}
               className="comic-button font-button-md"
               style={{
                 background: activeTab === tab.id 

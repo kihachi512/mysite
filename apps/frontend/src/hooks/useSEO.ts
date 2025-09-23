@@ -111,7 +111,7 @@ export const useSEO = ({
           updatePropertyTag('twitter:image', `https://sasurai-momonga-carnival.com${iconUrl}`);
           
           // favicon の動的更新
-          let favicon = document.querySelector('link[rel="icon"][type="image/png"]') as HTMLLinkElement;
+          const favicon = document.querySelector('link[rel="icon"][type="image/png"]') as HTMLLinkElement;
           if (favicon) {
             favicon.href = iconUrl;
           }

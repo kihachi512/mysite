@@ -462,10 +462,10 @@ const AvatarCustomization: React.FC = () => {
             { id: 'outfit', label: '👔 衣装' },
             { id: 'special', label: '✨ 特殊' },
             { id: 'background', label: '🖼️ 背景' }
-          ].map(category => (
+            ].map((category: { id: string; label: string }) => (
             <button
               key={category.id}
-              onClick={() => setSelectedCategory(category.id as any)}
+              onClick={() => setSelectedCategory(category.id as 'hat' | 'accessory' | 'outfit' | 'special' | 'background')}
               className="comic-button font-button-sm"
               style={{
                 background: selectedCategory === category.id 
