@@ -46,7 +46,7 @@ const INVESTMENTS: Investment[] = [
     id: 'momonga-bonds',
     name: 'モモンガ債券',
     icon: '📜',
-    description: '安定した低リスク投資。毎日少しずつ利益',
+    description: '安定した低リスク投資。期待リターン14%（±20%変動）',
     minInvestment: 100,
     expectedReturn: 2, // 2% per day
     risk: 'low',
@@ -56,7 +56,7 @@ const INVESTMENTS: Investment[] = [
     id: 'acorn-futures',
     name: 'どんぐり先物',
     icon: '🌰',
-    description: '季節による価格変動あり。中リスク中リターン',
+    description: '季節変動あり。期待リターン15%（±50%変動）',
     minInvestment: 300,
     expectedReturn: 5,
     risk: 'medium',
@@ -66,7 +66,7 @@ const INVESTMENTS: Investment[] = [
     id: 'forest-stocks',
     name: '森林株',
     icon: '🌲',
-    description: '高リスク高リターン！大きく稼ぐチャンス',
+    description: '期待リターン10%（±80%変動）。ハイリスク・ハイリターン！',
     minInvestment: 500,
     expectedReturn: 10,
     risk: 'high',
@@ -161,6 +161,35 @@ const MOMOBank: React.FC = () => {
     }
   }
 
+  // 実際のリターンを計算（ランダム変動付き）
+  const calculateActualReturn = (amount: number, expectedReturnPercent: number, risk: 'low' | 'medium' | 'high') => {
+    // リスクレベルに応じた変動幅
+    const volatility = {
+      low: 0.2,    // ±20%の変動
+      medium: 0.5, // ±50%の変動
+      high: 0.8    // ±80%の変動
+    }
+    
+    const baseReturn = expectedReturnPercent / 100
+    const maxVariation = volatility[risk]
+    
+    // -maxVariation から +maxVariation の範囲でランダム変動
+    const randomFactor = (Math.random() - 0.5) * 2 * maxVariation
+    const actualReturnPercent = baseReturn * (1 + randomFactor)
+    
+    // 最悪でも元本の30%は残る（完全な損失を防ぐ）
+    const minReturnPercent = -0.7
+    const finalReturnPercent = Math.max(actualReturnPercent, minReturnPercent)
+    
+    const totalAmount = Math.floor(amount * (1 + finalReturnPercent))
+    
+    return {
+      totalAmount,
+      actualReturnPercent: finalReturnPercent * 100,
+      profit: totalAmount - amount
+    }
+  }
+
   const updateDailyInterest = () => {
     const today = new Date().toISOString().split('T')[0]!
     
@@ -187,8 +216,13 @@ const MOMOBank: React.FC = () => {
 
     if (maturedInvestments.length > 0) {
       let totalReturn = 0
+      let resultMessages: string[] = []
+      
       maturedInvestments.forEach(inv => {
-        totalReturn += inv.amount + Math.floor(inv.amount * (inv.expectedReturn / 100))
+        const investment = INVESTMENTS.find(i => i.id === inv.investmentId)!
+        const actualReturn = calculateActualReturn(inv.amount, inv.expectedReturn, investment.risk)
+        totalReturn += actualReturn.totalAmount
+        resultMessages.push(`${investment.name}: ${actualReturn.totalAmount - inv.amount > 0 ? '+' : ''}${actualReturn.totalAmount - inv.amount}P (${actualReturn.actualReturnPercent.toFixed(1)}%)`)
       })
       
       const remainingInvestments = investments.filter(inv => {
@@ -197,11 +231,18 @@ const MOMOBank: React.FC = () => {
       })
       
       setInvestments(remainingInvestments)
-      addMomoPayPoints(totalReturn)
       
-      if (totalReturn > 0) {
-        alert(`📈 投資が満期になりました！\n+${totalReturn}MOMOPay`)
+      const newAccount: BankAccount = {
+        ...bankAccount,
+        balance: bankAccount.balance + totalReturn
       }
+      setBankAccount(newAccount)
+      
+      const totalInvested = maturedInvestments.reduce((sum, inv) => sum + inv.amount, 0)
+      const totalProfit = totalReturn - totalInvested
+      const profitIcon = totalProfit > 0 ? '📈' : totalProfit < 0 ? '📉' : '📊'
+      
+      alert(`${profitIcon} 投資が満期になりました！\n\n${resultMessages.join('\n')}\n\n投資額: ${totalInvested}P\n受取額: ${totalReturn}P\n損益: ${totalProfit > 0 ? '+' : ''}${totalProfit}P`)
     }
   }
 
@@ -593,6 +634,24 @@ const MOMOBank: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* 投資リスク説明 */}
+            <div className="comic-card" style={{
+              background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(255, 111, 0, 0.1))',
+              borderColor: '#ff9800',
+              padding: 'min(16px, 4vw)',
+              marginBottom: 'min(24px, 6vw)'
+            }}>
+              <div className="comic-text font-title-sm" style={{ color: '#fff3e0', marginBottom: '12px' }}>
+                ⚠️ 投資リスク説明
+              </div>
+              <div className="comic-text font-body-sm" style={{ color: '#c8e6c9', textAlign: 'left', lineHeight: '1.6' }}>
+                • 投資には元本割れのリスクがあります<br/>
+                • 高リスク商品ほど大きな損失の可能性があります<br/>
+                • 期待リターンは目安であり、実際の結果は変動します<br/>
+                • 余裕資金での投資をおすすめします
+              </div>
+            </div>
 
             {/* 投資商品 */}
             <div className="investment-grid" style={{ 
