@@ -218,6 +218,26 @@ const AvatarCustomization: React.FC = () => {
     trackAreaVisited(AREAS.GAMES)
   }, [])
 
+  // コンポーネントアンマウント時のクリーンアップ
+  useEffect(() => {
+    return () => {
+      // ドラッグ状態をクリア
+      setIsDragging(false)
+      setDraggedCostume(null)
+      
+      // スタイルをリセット
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+      
+      // 残っている可能性のあるイベントリスナーを削除
+      document.removeEventListener('mousemove', () => {})
+      document.removeEventListener('mouseup', () => {})
+      document.removeEventListener('touchmove', () => {})
+      document.removeEventListener('touchend', () => {})
+      document.removeEventListener('touchcancel', () => {})
+    }
+  }, [])
+
   // Load avatar data
   useEffect(() => {
     const initializeAvatar = async () => {
@@ -257,7 +277,19 @@ const AvatarCustomization: React.FC = () => {
           if (parsed.background) costumes.push({ id: parsed.background, x: 50, y: 50, scale: 1.5, rotation: 0, zIndex: 1 })
           setCurrentAvatar({ costumes })
         } else {
-          setCurrentAvatar(parsed)
+          // 新形式のデータ検証
+          if (parsed.costumes && Array.isArray(parsed.costumes)) {
+            // 無効なコスチュームをフィルタリング
+            const validCostumes = parsed.costumes.filter((c: any) => 
+              c && c.id && COSTUME_ITEMS.some(item => item.id === c.id) &&
+              typeof c.x === 'number' && typeof c.y === 'number' &&
+              typeof c.scale === 'number' && typeof c.rotation === 'number' &&
+              typeof c.zIndex === 'number'
+            )
+            setCurrentAvatar({ costumes: validCostumes })
+          } else {
+            setCurrentAvatar({ costumes: [] })
+          }
         }
       }
       
@@ -334,15 +366,21 @@ const AvatarCustomization: React.FC = () => {
     // 重複チェック
     const isDuplicate = ownedItems.includes(selectedItem.id)
 
-    if (isDuplicate) {
-      // 重複の場合はMOMOPayで返金
-      const compensation = Math.floor(selectedItem.price * 0.3) // 30%返金
-      addMomoPayPoints(compensation)
-    } else {
-      // 新規アイテムの場合はインベントリに追加
-      const newOwned = [...ownedItems, selectedItem.id]
-      setOwnedItems(newOwned)
-      saveAvatarData(newOwned, currentAvatar)
+    try {
+      if (isDuplicate) {
+        // 重複の場合はMOMOPayで返金
+        const compensation = Math.floor(selectedItem.price * 0.3) // 30%返金
+        addMomoPayPoints(compensation)
+      } else {
+        // 新規アイテムの場合はインベントリに追加
+        const newOwned = [...(ownedItems || []), selectedItem.id]
+        setOwnedItems(newOwned)
+        saveAvatarData(newOwned, currentAvatar)
+      }
+    } catch (error) {
+      console.error('Failed to process gacha result:', error)
+      alert('ガチャ結果の処理中にエラーが発生しました')
+      return
     }
 
     setGachaResult({ ...selectedItem, isDuplicate, compensationAmount: isDuplicate ? Math.floor(selectedItem.price * 0.3) : undefined })
@@ -436,14 +474,20 @@ const AvatarCustomization: React.FC = () => {
 
   // コスチューム位置更新
   const updateCostumePosition = (costumeId: string, updates: Partial<CostumePosition>) => {
-    const newAvatar = {
-      ...currentAvatar,
-      costumes: currentAvatar.costumes.map(c => 
-        c.id === costumeId ? { ...c, ...updates } : c
-      )
+    if (!costumeId || !currentAvatar.costumes) return
+    
+    try {
+      const newAvatar = {
+        ...currentAvatar,
+        costumes: currentAvatar.costumes.map(c => 
+          c && c.id === costumeId ? { ...c, ...updates } : c
+        ).filter(Boolean) // null/undefined を除去
+      }
+      setCurrentAvatar(newAvatar)
+      saveAvatarData(ownedItems, newAvatar)
+    } catch (error) {
+      console.error('Failed to update costume position:', error)
     }
-    setCurrentAvatar(newAvatar)
-    saveAvatarData(ownedItems, newAvatar)
   }
 
   const getCategoryName = (category: string): string => {
@@ -470,15 +514,17 @@ const AvatarCustomization: React.FC = () => {
   // 統合ドラッグハンドル（マウス & タッチ対応）
   const handleCostumeDragStart = (e: React.MouseEvent | React.TouchEvent, costume: CostumePosition) => {
     e.preventDefault()
+    e.stopPropagation()
     
     const isTouch = 'touches' in e
-    const clientX = isTouch ? e.touches[0].clientX : e.clientX
-    const clientY = isTouch ? e.touches[0].clientY : e.clientY
+    const touch = isTouch ? e.touches[0] : null
+    const clientX = isTouch ? (touch?.clientX || 0) : (e as React.MouseEvent).clientX
+    const clientY = isTouch ? (touch?.clientY || 0) : (e as React.MouseEvent).clientY
     
     const startX = clientX
     const startY = clientY
     const avatarContainer = e.currentTarget.closest('[data-avatar-container]') as HTMLElement
-    if (!avatarContainer) return
+    if (!avatarContainer || !costume) return
 
     const avatarRect = avatarContainer.getBoundingClientRect()
     const startCostumeX = costume.x
@@ -487,38 +533,58 @@ const AvatarCustomization: React.FC = () => {
     // タッチデバイスでスクロールを防止
     if (isTouch) {
       document.body.style.overflow = 'hidden'
+      document.body.style.touchAction = 'none'
     }
 
     const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
-      const moveClientX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX
-      const moveClientY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY
+      moveEvent.preventDefault()
+      
+      let moveClientX, moveClientY
+      if ('touches' in moveEvent) {
+        const moveTouch = moveEvent.touches[0]
+        if (!moveTouch) return
+        moveClientX = moveTouch.clientX
+        moveClientY = moveTouch.clientY
+      } else {
+        moveClientX = moveEvent.clientX
+        moveClientY = moveEvent.clientY
+      }
       
       const deltaX = ((moveClientX - startX) / avatarRect.width) * 100
       const deltaY = ((moveClientY - startY) / avatarRect.height) * 100
       const newX = Math.max(0, Math.min(100, startCostumeX + deltaX))
       const newY = Math.max(0, Math.min(100, startCostumeY + deltaY))
-      updateCostumePosition(costume.id, { x: newX, y: newY })
+      
+      // 更新前に costume が存在するかチェック
+      if (costume && costume.id) {
+        updateCostumePosition(costume.id, { x: newX, y: newY })
+      }
     }
 
     const handleEnd = () => {
-      // スクロール復帰
+      // 確実にクリーンアップ
       document.body.style.overflow = ''
+      document.body.style.touchAction = ''
       
       if (isTouch) {
         document.removeEventListener('touchmove', handleMove as EventListener)
         document.removeEventListener('touchend', handleEnd)
+        document.removeEventListener('touchcancel', handleEnd) // キャンセル時も対応
       } else {
         document.removeEventListener('mousemove', handleMove as EventListener)
         document.removeEventListener('mouseup', handleEnd)
+        document.removeEventListener('mouseleave', handleEnd) // マウスが画面外に出た場合も対応
       }
     }
 
     if (isTouch) {
       document.addEventListener('touchmove', handleMove as EventListener, { passive: false })
       document.addEventListener('touchend', handleEnd)
+      document.addEventListener('touchcancel', handleEnd) // キャンセル時の処理
     } else {
       document.addEventListener('mousemove', handleMove as EventListener)
       document.addEventListener('mouseup', handleEnd)
+      document.addEventListener('mouseleave', handleEnd) // マウスリーブ時の処理
     }
   }
 
@@ -542,11 +608,14 @@ const AvatarCustomization: React.FC = () => {
     const startX = touch.clientX
     const startY = touch.clientY
     let hasMoved = false
+    let touchMoveTimeout: NodeJS.Timeout
 
     const handleTouchMove = (moveEvent: TouchEvent) => {
+      moveEvent.preventDefault() // スクロール防止を強化
+      
       if (!hasMoved) {
-        const moveX = moveEvent.touches[0].clientX
-        const moveY = moveEvent.touches[0].clientY
+        const moveX = moveEvent.touches[0]?.clientX || 0
+        const moveY = moveEvent.touches[0]?.clientY || 0
         const distance = Math.sqrt(Math.pow(moveX - startX, 2) + Math.pow(moveY - startY, 2))
         
         if (distance > 10) { // 10px以上動いたらドラッグ開始
@@ -554,28 +623,32 @@ const AvatarCustomization: React.FC = () => {
           setDraggedCostume(item)
           setIsDragging(true)
           document.body.style.overflow = 'hidden'
+          document.body.style.touchAction = 'none' // タッチアクション無効化
         }
       }
     }
 
     const handleTouchEnd = (endEvent: TouchEvent) => {
+      // クリーンアップを確実に実行
+      if (touchMoveTimeout) clearTimeout(touchMoveTimeout)
       document.removeEventListener('touchmove', handleTouchMove)
       document.removeEventListener('touchend', handleTouchEnd)
       document.body.style.overflow = ''
+      document.body.style.touchAction = ''
 
-      if (hasMoved && draggedCostume) {
+      if (hasMoved && item) {
         // ドロップ先を検出
         const touch = endEvent.changedTouches[0]
         const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY)
         const avatarContainer = dropTarget?.closest('[data-avatar-container]')
         
-        if (avatarContainer) {
+        if (avatarContainer && touch) {
           const rect = avatarContainer.getBoundingClientRect()
-          const x = ((touch.clientX - rect.left) / rect.width) * 100
-          const y = ((touch.clientY - rect.top) / rect.height) * 100
+          const x = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100))
+          const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100))
 
           // 既に装備されているかチェック
-          const alreadyEquipped = currentAvatar.costumes.find(c => c.id === item.id)
+          const alreadyEquipped = currentAvatar.costumes?.find(c => c.id === item.id)
           if (!alreadyEquipped && ownedItems.includes(item.id)) {
             const newCostume: CostumePosition = {
               id: item.id,
@@ -681,9 +754,11 @@ const AvatarCustomization: React.FC = () => {
         />
         
         {/* Dynamic costume overlays */}
-        {currentAvatar.costumes
-          .sort((a, b) => a.zIndex - b.zIndex)
+        {currentAvatar.costumes && currentAvatar.costumes.length > 0 && currentAvatar.costumes
+          .filter(costume => costume && costume.id) // null/undefined チェック
+          .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0)) // null safe sort
           .map((costume) => {
+            if (!costume || !costume.id) return null
             const item = COSTUME_ITEMS.find(i => i.id === costume.id)
             if (!item) return null
 
@@ -733,8 +808,10 @@ const AvatarCustomization: React.FC = () => {
     )
   }
 
-  // 所持しているアイテムのみを取得
-  const ownedCostumeItems = COSTUME_ITEMS.filter(item => ownedItems.includes(item.id))
+  // 所持しているアイテムのみを取得（安全性向上）
+  const ownedCostumeItems = COSTUME_ITEMS.filter(item => 
+    item && item.id && ownedItems && ownedItems.includes(item.id)
+  )
   
 
   // ローディング状態とエラー状態の処理
@@ -978,7 +1055,8 @@ const AvatarCustomization: React.FC = () => {
                 gap: 'min(16px, 4vw)'
               }}>
                 {ownedCostumeItems.map((item) => {
-                  const isEquipped = currentAvatar.costumes.some(c => c.id === item.id)
+                  if (!item || !item.id) return null
+                  const isEquipped = currentAvatar.costumes && currentAvatar.costumes.some(c => c && c.id === item.id)
                   
                   return (
                     <div 
