@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackSlotPlayed, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type SlotSymbol = '🍒' | '🍋' | '🍊' | '🍇' | '⭐' | '💎' | '7️⃣'
 
@@ -188,7 +188,7 @@ const SlotMachine: React.FC = () => {
 
     setGameState('spinning')
     setLastWin(0)
-    trackGamePlayed()
+    trackSlotPlayed()
 
     // 最終的な結果を事前に決定
     const newFinalReels: SlotSymbol[] = [

@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
+import { trackTweetPosted, trackAreaVisited, AREAS } from '../utils/achievements'
 
 const Tweets: React.FC = () => {
   const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
   const [newTweet, setNewTweet] = useState('')
+
+  // Track area visit
+  useEffect(() => {
+    trackAreaVisited(AREAS.PLAZA)
+  }, [])
 
   // Auto-cleanup expired tweets every minute
   useEffect(() => {
@@ -34,6 +40,7 @@ const Tweets: React.FC = () => {
     }
 
     addTweet(tweet)
+    trackTweetPosted() // 投稿実績をトラック
     setNewTweet('')
   }
 

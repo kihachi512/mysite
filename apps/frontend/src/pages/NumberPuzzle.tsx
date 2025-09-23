@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackSudokuSolved, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type GameState = 'menu' | 'playing' | 'completed' | 'paused'
 type Difficulty = 'easy' | 'medium' | 'hard'
@@ -201,7 +201,7 @@ const NumberPuzzle: React.FC = () => {
       mistakes: 0
     })
     setGameState('playing')
-    trackGamePlayed()
+    // ゲーム開始時にはトラッキングしない（完了時にtrackSudokuSolved()を呼び出す）
   }
 
   // セルクリック処理
@@ -237,6 +237,7 @@ const NumberPuzzle: React.FC = () => {
     // 完成チェック
     if (isPuzzleComplete(validatedBoard)) {
       setGameState('completed')
+      trackSudokuSolved() // 数独完了実績をトラック
       
       // 報酬計算
       const baseReward = difficulty === 'easy' ? 50 : difficulty === 'medium' ? 100 : 200

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackBankVisited, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type BankAccount = {
   balance: number
@@ -120,7 +120,8 @@ const MOMOBank: React.FC = () => {
 
   // Track area visit
   useEffect(() => {
-    trackAreaVisited(AREAS.GAMES)
+    trackAreaVisited('bank') // 適切なエリア名を使用
+    trackBankVisited() // 銀行訪問実績をトラック
   }, [])
 
   // Load bank data

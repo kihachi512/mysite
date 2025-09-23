@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
+import { trackPurchaseMade, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type StoreItem = {
   id: string
@@ -241,6 +242,11 @@ const MOMOStore: React.FC = () => {
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
   const [inventory, setInventory] = useState<Inventory>({ items: [] })
   const [activeTab, setActiveTab] = useState<'purchase' | 'sale'>('purchase')
+  
+  // Track area visit
+  useEffect(() => {
+    trackAreaVisited(AREAS.STORE)
+  }, [])
 
   // Load purchased items from localStorage
   useEffect(() => {
@@ -285,6 +291,7 @@ const MOMOStore: React.FC = () => {
       const newPurchases = [...purchasedItems, item.id]
       setPurchasedItems(newPurchases)
       savePurchases(newPurchases)
+      trackPurchaseMade() // 購入実績をトラック
       
       // Apply setting if it's a setting type
       if (item.type === 'setting') {
