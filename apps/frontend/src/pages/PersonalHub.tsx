@@ -6,11 +6,11 @@ import Avatar from '../components/Avatar'
 
 const PersonalHub: React.FC = () => {
   useSEO({
-    title: '木の洞',
+    title: '樹洞',
     description: '森の奥の秘密の隠れ家。実績、日課、アバターなどあなたの大切な記録を保管する特別な場所。',
-    keywords: '木の洞,隠れ家,個人データ,実績,デイリーミッション,アバター,カスタマイズ,秘密基地',
-    ogTitle: '木の洞 - 秘密の隠れ家 | モモンガカーニバル',
-    ogDescription: '森の奥の木の洞で、あなたの大切な記録を管理する秘密の隠れ家。'
+    keywords: '樹洞,隠れ家,個人データ,実績,デイリーミッション,アバター,カスタマイズ,秘密基地',
+    ogTitle: '樹洞 - 秘密の隠れ家 | モモンガカーニバル',
+    ogDescription: '森の奥の樹洞で、あなたの大切な記録を管理する秘密の隠れ家。'
   });
 
   // Track area visit
@@ -26,7 +26,7 @@ const PersonalHub: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🌳 木の洞 🐿️
+        🌳 樹洞 🐿️
       </div>
       
       <div className="comic-text font-body-lg" style={{ 

@@ -163,7 +163,7 @@ const EconomyHub: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🌲 森の拠点に戻る
+            🌲 拠点に戻る
           </button>
         </Link>
       </div>
