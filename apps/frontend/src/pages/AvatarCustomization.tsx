@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackAvatarChanged, trackAreaVisited, AREAS } from '../utils/achievements'
 import { getActiveEvents } from '../utils/economyEvents'
 
 type CostumeItem = {
@@ -409,7 +409,7 @@ const AvatarCustomization: React.FC = () => {
     }
 
     // 既に装備されているかチェック
-    const alreadyEquipped = currentAvatar.costumes.find(c => c.id === item.id)
+    const alreadyEquipped = currentAvatar.costumes.find(c => c && c.id === item.id)
     if (alreadyEquipped) {
       alert('このアイテムは既に装備されています')
       return
@@ -452,10 +452,12 @@ const AvatarCustomization: React.FC = () => {
 
     const newAvatar = {
       ...currentAvatar,
-      costumes: [...currentAvatar.costumes, newCostume]
+      costumes: [...(currentAvatar.costumes || []), newCostume]
     }
+    
     setCurrentAvatar(newAvatar)
     saveAvatarData(ownedItems, newAvatar)
+    trackAvatarChanged() // アバター変更実績をトラック
     alert(`✨ ${item.name}を装備しました！`)
   }
 
@@ -463,10 +465,11 @@ const AvatarCustomization: React.FC = () => {
   const removeCostume = (costumeId: string) => {
     const newAvatar = {
       ...currentAvatar,
-      costumes: currentAvatar.costumes.filter((c: CostumePosition) => c.id !== costumeId)
+      costumes: currentAvatar.costumes.filter((c: CostumePosition) => c && c.id !== costumeId)
     }
     setCurrentAvatar(newAvatar)
     saveAvatarData(ownedItems, newAvatar)
+    trackAvatarChanged() // アバター変更実績をトラック
     
     const item = COSTUME_ITEMS.find(i => i.id === costumeId)
     alert(`${item?.name || 'アイテム'}を外しました`)
@@ -1066,9 +1069,9 @@ const AvatarCustomization: React.FC = () => {
                     <div 
                       key={item.id} 
                       className="comic-card" 
-                      draggable
-                      onDragStart={(e) => handleDragStart(item, e)}
-                      onTouchStart={(e) => handleInventoryTouchStart(e, item)}
+                      draggable={!isEquipped} // 装備済みの場合はドラッグ無効
+                      onDragStart={(e) => !isEquipped && handleDragStart(item, e)}
+                      onTouchStart={(e) => !isEquipped && handleInventoryTouchStart(e, item)}
                       style={{
                         background: isEquipped 
                           ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(139, 195, 74, 0.3))'
@@ -1080,12 +1083,16 @@ const AvatarCustomization: React.FC = () => {
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                       }}
                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                      e.currentTarget.style.transform = 'scale(1.05)'
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
+                      if (!isEquipped) {
+                        e.currentTarget.style.transform = 'scale(1.05)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
+                      }
                     }}
                     onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                      e.currentTarget.style.transform = 'scale(1)'
-                      e.currentTarget.style.boxShadow = ''
+                      if (!isEquipped) {
+                        e.currentTarget.style.transform = 'scale(1)'
+                        e.currentTarget.style.boxShadow = ''
+                      }
                     }}
                     >
                       {/* Status badge */}
@@ -1149,7 +1156,11 @@ const AvatarCustomization: React.FC = () => {
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                         {isEquipped ? (
                           <button
-                            onClick={() => removeCostume(item.id)}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              removeCostume(item.id)
+                            }}
                             className="comic-button font-button-xs"
                             style={{
                               background: 'linear-gradient(45deg, #f44336, #d32f2f)',
@@ -1163,7 +1174,11 @@ const AvatarCustomization: React.FC = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => addCostume(item)}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addCostume(item)
+                            }}
                             className="comic-button font-button-xs"
                             style={{
                               background: 'linear-gradient(45deg, #4caf50, #45a049)',
