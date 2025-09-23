@@ -764,12 +764,13 @@ const BulletHell: React.FC = () => {
             e.x += Math.cos(currentTime * 0.05 + idx) * 1.2
             e.y += Math.sin(currentTime * 0.03 + idx) * 0.8 + 0.4
             break
-          case 5:
+          case 5: {
             // Spiral descent
             const spiral = currentTime * 0.02 + idx
             e.x += Math.cos(spiral) * 1.4
             e.y += Math.sin(spiral) * 0.6 + 0.7
             break
+          }
         }
         if (e.pattern === 6 && e.isBoss) {
           // Boss movement - type specific patterns (optimized)

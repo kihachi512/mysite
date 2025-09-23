@@ -51,6 +51,56 @@ const ShareSettings: React.FC = () => {
       const highScoresData = localStorage.getItem('bullet-hell-all-time-scores')
       const parsedHighScores = highScoresData ? JSON.parse(highScoresData) : highScores
       
+      // 実績データを取得
+      const achievementsData = localStorage.getItem('achievements')
+      const parsedAchievements = achievementsData ? JSON.parse(achievementsData) : []
+      
+      const achievementStatsData = localStorage.getItem('achievement-stats')
+      const parsedAchievementStats = achievementStatsData ? JSON.parse(achievementStatsData) : {
+        gamesPlayed: 0,
+        tweetsPosted: 0,
+        omikujiCount: 0,
+        purchasesMade: 0,
+        areasVisited: []
+      }
+      
+      // デイリーミッションデータを取得
+      const dailyMissionsData = localStorage.getItem('daily-missions')
+      const parsedDailyMissions = dailyMissionsData ? JSON.parse(dailyMissionsData) : null
+      
+      const loginStreakData = localStorage.getItem('login-streak')
+      const parsedLoginStreak = loginStreakData ? JSON.parse(loginStreakData) : {
+        lastLoginDate: '',
+        consecutiveDays: 0
+      }
+      
+      // 音声設定も含める
+      const audioSettingsData = localStorage.getItem('audio-settings')
+      const parsedAudioSettings = audioSettingsData ? JSON.parse(audioSettingsData) : {
+        isMuted: false,
+        bgmVolume: 0.3,
+        sfxVolume: 0.5
+      }
+      
+      // 銀行・アバターデータも含める
+      const bankAccountData = localStorage.getItem('momo-bank-account')
+      const parsedBankAccount = bankAccountData ? JSON.parse(bankAccountData) : null
+      
+      const bankInvestmentsData = localStorage.getItem('momo-bank-investments')
+      const parsedBankInvestments = bankInvestmentsData ? JSON.parse(bankInvestmentsData) : []
+      
+      const bankLoansData = localStorage.getItem('momo-bank-loans')
+      const parsedBankLoans = bankLoansData ? JSON.parse(bankLoansData) : []
+      
+      const avatarOwnedData = localStorage.getItem('avatar-owned-items')
+      const parsedAvatarOwned = avatarOwnedData ? JSON.parse(avatarOwnedData) : []
+      
+      const avatarCurrentData = localStorage.getItem('avatar-current')
+      const parsedAvatarCurrent = avatarCurrentData ? JSON.parse(avatarCurrentData) : {}
+      
+      const economyEventsData = localStorage.getItem('economy-events')
+      const parsedEconomyEvents = economyEventsData ? JSON.parse(economyEventsData) : null
+      
       const data = {
         favorites: parsedFavorites,
         // tweets は除外（1時間で自動削除されるため）
@@ -59,8 +109,19 @@ const ShareSettings: React.FC = () => {
         momoStorePurchases: parsedPurchases,
         appSettings: parsedSettings,
         bulletHellInventory: parsedInventory,
+        achievements: parsedAchievements,
+        achievementStats: parsedAchievementStats,
+        dailyMissions: parsedDailyMissions,
+        loginStreak: parsedLoginStreak,
+        audioSettings: parsedAudioSettings,
+        bankAccount: parsedBankAccount,
+        bankInvestments: parsedBankInvestments,
+        bankLoans: parsedBankLoans,
+        avatarOwned: parsedAvatarOwned,
+        avatarCurrent: parsedAvatarCurrent,
+        economyEvents: parsedEconomyEvents,
         exportDate: new Date().toISOString(),
-        version: '4.3' // バージョンアップ
+        version: '6.0' // 経済システム・アバター対応でメジャーバージョンアップ
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -114,11 +175,11 @@ const ShareSettings: React.FC = () => {
           if (confirm(confirmMessage)) {
             // データの検証とサニタイゼーション
             const validatedFavorites = Array.isArray(jsonData.favorites) ? 
-              jsonData.favorites.slice(0, 100).filter((item: any) => 
+              jsonData.favorites.slice(0, 100).filter((item: unknown) => 
                 item && typeof item === 'object' && 
-                typeof item.id === 'string' && 
-                typeof item.name === 'string' &&
-                ['text', 'file'].includes(item.kind)
+                typeof (item as Record<string, unknown>).id === 'string' && 
+                typeof (item as Record<string, unknown>).name === 'string' &&
+                ['text', 'file'].includes((item as Record<string, unknown>).kind as string)
               ) : []
             
             // 宝物庫データをインポート
@@ -135,7 +196,7 @@ const ShareSettings: React.FC = () => {
             if (Array.isArray(jsonData.highScores)) {
               const validScores = jsonData.highScores
                 .slice(0, 10)
-                .filter((score: any) => typeof score === 'number' && score >= 0 && score <= 100000000)
+                .filter((score: unknown) => typeof score === 'number' && score >= 0 && score <= 100000000)
                 .sort((a: number, b: number) => b - a)
               localStorage.setItem('bullet-hell-all-time-scores', JSON.stringify(validScores))
             }
@@ -144,14 +205,14 @@ const ShareSettings: React.FC = () => {
             if (Array.isArray(jsonData.momoStorePurchases)) {
               const validPurchases = jsonData.momoStorePurchases
                 .slice(0, 50)
-                .filter((item: any) => typeof item === 'string')
+                .filter((item: unknown) => typeof item === 'string')
               localStorage.setItem('momostore-purchases', JSON.stringify(validPurchases))
             }
             
             // アプリ設定があればインポート（検証付き）
             if (jsonData.appSettings && typeof jsonData.appSettings === 'object') {
               // 危険な設定値をフィルタリング
-              const safeSettings: Record<string, any> = {}
+              const safeSettings: Record<string, boolean> = {}
               const allowedKeys = ['dark-mode', 'sharing-feature', 'premium-theme', 'notification-sound']
               
               for (const [key, value] of Object.entries(jsonData.appSettings)) {
@@ -171,10 +232,10 @@ const ShareSettings: React.FC = () => {
               const validInventory = {
                 items: jsonData.bulletHellInventory.items
                   .slice(0, 200) // 最大200アイテム
-                  .filter((item: any) => 
+                  .filter((item: unknown) => 
                     item && typeof item === 'object' && 
-                    typeof item.id === 'string' &&
-                    typeof item.name === 'string'
+                    typeof (item as Record<string, unknown>).id === 'string' &&
+                    typeof (item as Record<string, unknown>).name === 'string'
                   ),
                 equippedWeapon: jsonData.bulletHellInventory.equippedWeapon || undefined,
                 equippedShield: jsonData.bulletHellInventory.equippedShield || undefined,
@@ -184,7 +245,95 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('bullet-hell-inventory', JSON.stringify(validInventory))
             }
             
-            alert('JSONファイルからデータをインポートしました！ページを再読み込みします。')
+            // 実績データがあればインポート（検証付き）
+            if (Array.isArray(jsonData.achievements)) {
+              const validAchievements = jsonData.achievements
+                .slice(0, 1000)
+                .filter((achievement: unknown) => typeof achievement === 'string')
+              localStorage.setItem('achievements', JSON.stringify(validAchievements))
+            }
+            
+            // 実績統計があればインポート（検証付き）
+            if (jsonData.achievementStats && typeof jsonData.achievementStats === 'object') {
+              const validStats = {
+                gamesPlayed: Math.max(0, Math.min(10000000, jsonData.achievementStats.gamesPlayed || 0)),
+                tweetsPosted: Math.max(0, Math.min(10000000, jsonData.achievementStats.tweetsPosted || 0)),
+                omikujiCount: Math.max(0, Math.min(10000000, jsonData.achievementStats.omikujiCount || 0)),
+                purchasesMade: Math.max(0, Math.min(10000000, jsonData.achievementStats.purchasesMade || 0)),
+                areasVisited: Array.isArray(jsonData.achievementStats.areasVisited) 
+                  ? jsonData.achievementStats.areasVisited.slice(0, 100) 
+                  : []
+              }
+              localStorage.setItem('achievement-stats', JSON.stringify(validStats))
+            }
+            
+            // デイリーミッションデータがあればインポート（検証付き）
+            if (jsonData.dailyMissions && typeof jsonData.dailyMissions === 'object') {
+              localStorage.setItem('daily-missions', JSON.stringify(jsonData.dailyMissions))
+            }
+            
+            // ログインストリークがあればインポート（検証付き）
+            if (jsonData.loginStreak && typeof jsonData.loginStreak === 'object') {
+              const validStreak = {
+                lastLoginDate: typeof jsonData.loginStreak.lastLoginDate === 'string' 
+                  ? jsonData.loginStreak.lastLoginDate 
+                  : '',
+                consecutiveDays: Math.max(0, Math.min(10000, jsonData.loginStreak.consecutiveDays || 0))
+              }
+              localStorage.setItem('login-streak', JSON.stringify(validStreak))
+            }
+            
+            // 音声設定があればインポート（検証付き）
+            if (jsonData.audioSettings && typeof jsonData.audioSettings === 'object') {
+              const validAudioSettings = {
+                isMuted: Boolean(jsonData.audioSettings.isMuted),
+                bgmVolume: Math.max(0, Math.min(1, jsonData.audioSettings.bgmVolume || 0.3)),
+                sfxVolume: Math.max(0, Math.min(1, jsonData.audioSettings.sfxVolume || 0.5))
+              }
+              localStorage.setItem('audio-settings', JSON.stringify(validAudioSettings))
+            }
+            
+            // 銀行データがあればインポート（検証付き）
+            if (jsonData.bankAccount && typeof jsonData.bankAccount === 'object') {
+              const validAccount = {
+                balance: Math.max(0, Math.min(100000000, jsonData.bankAccount.balance || 0)),
+                interestRate: Math.max(0, Math.min(10, jsonData.bankAccount.interestRate || 1)),
+                lastUpdate: typeof jsonData.bankAccount.lastUpdate === 'string' 
+                  ? jsonData.bankAccount.lastUpdate 
+                  : new Date().toISOString().split('T')[0],
+                accountType: ['basic', 'premium', 'vip'].includes(jsonData.bankAccount.accountType) 
+                  ? jsonData.bankAccount.accountType 
+                  : 'basic'
+              }
+              localStorage.setItem('momo-bank-account', JSON.stringify(validAccount))
+            }
+            
+            if (Array.isArray(jsonData.bankInvestments)) {
+              localStorage.setItem('momo-bank-investments', JSON.stringify(jsonData.bankInvestments.slice(0, 100)))
+            }
+            
+            if (Array.isArray(jsonData.bankLoans)) {
+              localStorage.setItem('momo-bank-loans', JSON.stringify(jsonData.bankLoans.slice(0, 50)))
+            }
+            
+            // アバターデータがあればインポート（検証付き）
+            if (Array.isArray(jsonData.avatarOwned)) {
+              const validOwned = jsonData.avatarOwned
+                .slice(0, 1000)
+                .filter((item: unknown) => typeof item === 'string')
+              localStorage.setItem('avatar-owned-items', JSON.stringify(validOwned))
+            }
+            
+            if (jsonData.avatarCurrent && typeof jsonData.avatarCurrent === 'object') {
+              localStorage.setItem('avatar-current', JSON.stringify(jsonData.avatarCurrent))
+            }
+            
+            // 経済イベントデータがあればインポート
+            if (jsonData.economyEvents && typeof jsonData.economyEvents === 'object') {
+              localStorage.setItem('economy-events', JSON.stringify(jsonData.economyEvents))
+            }
+            
+            alert('JSONファイルからデータをインポートしました！\n\n✅ 含まれるデータ:\n• 宝物庫（ファイル・テキスト）\n• MOMOPay・ハイスコア\n• 購入済み機能・設定\n• 装備インベントリ\n• 🏆 実績・統計データ\n• 📋 デイリーミッション・ログインストリーク\n• 🔊 音声設定\n• 🏦 銀行データ（預金・投資・融資）\n• 👗 アバター（衣装・設定）\n• 🎪 経済イベント\n\nページを再読み込みします。')
             window.location.reload()
           }
         } else {
@@ -333,7 +482,7 @@ const ShareSettings: React.FC = () => {
           lineHeight: '1.4'
         }}>
           {hasSharedFeature 
-            ? '全データ（宝物庫・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元'
+            ? '全データをJSONファイルでバックアップ・復元\n（宝物庫・MOMOPay・ハイスコア・購入設定・装備・🏆実績・📋ミッション・🔊音声設定・🏦銀行・👗アバター・🎪イベント）'
             : '共有機能は売店で購入が必要です。'
           }
         </p>

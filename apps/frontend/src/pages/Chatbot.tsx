@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
 import { parseSafeMarkdown, detectMaliciousScript } from '../utils/security'
+import Avatar from '../components/Avatar'
 
 type Message = {
   id: string
@@ -92,8 +93,22 @@ const Chatbot: React.FC = () => {
     currency: {
       name: 'MOMOPay',
       description: 'サイト内の通貨システム',
-      earning: '演習林での弾幕ゲーム、装備売却',
-      uses: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入']
+      earning: '演習林での弾幕ゲーム、装備売却、デイリーミッション、実績解除、銀行投資',
+      uses: ['御神籤（10P）', '宝物庫アップロード（100P）', '売店での設定購入', 'アバターコスチューム', '銀行預金・投資']
+    },
+    avatar: {
+      name: 'アバターカスタマイズ',
+      description: 'モモンガくんの見た目を変更できる機能',
+      categories: ['帽子', 'アクセサリー', '衣装', '特殊効果', '背景'],
+      items: ['サンタ帽（150P）', '王冠（800P）', 'サングラス（200P）', 'タキシード（500P）', 'キラキラオーラ（1000P）'],
+      location: 'ホームページから「着せ替え」で行けるよ'
+    },
+    bank: {
+      name: 'MOMOBank',
+      description: 'MOMOPayの預金・投資・融資ができる銀行',
+      features: ['預金（1%/日利息）', '投資（短期・中期・長期）', '融資（資金調達）'],
+      investments: ['モモンガ債券（低リスク2%/日）', 'どんぐり先物（中リスク5%/日）', '森林株（高リスク10%/日）'],
+      location: 'ホームページから「銀行」で行けるよ'
     }
   }
 
@@ -264,9 +279,29 @@ const Chatbot: React.FC = () => {
       const settingsResponses = [
         `設定の話？**MOMOStore**で機能買ったら、**設定ページ**で有効にできるよ\n\nダークモードとか共有機能とか、結構便利だから僕も使ってる`,
         `テーマ変更したいの？**プレミアムテーマ**とか**ダークモード**があるよ\n\nMOMOStoreで買って、設定で有効にする感じ。僕はダークモード派かなー`,
-        `**共有設定**では、データのバックアップとかできるんだ\n\nJSONファイルで管理するから、他のデバイスにもデータ移せるよ。便利でしょ？`
+        `**共有設定**では、データのバックアップとかできるんだ\n\nJSONファイルで管理するから、他のデバイスにもデータ移せるよ。実績やミッションのデータも含まれるから安心！`
       ]
       return safeRandomChoice(settingsResponses, '設定について教えるよー！')
+    }
+
+    // アバター・着せ替え関連
+    if (message.includes('アバター') || message.includes('着せ替え') || message.includes('コスチューム') || message.includes('衣装') || message.includes('カスタマイズ')) {
+      const avatarResponses = [
+        `着せ替え？わーい！僕の**アバターカスタマイズ**の話だね！\n\n帽子、アクセサリー、衣装、特殊効果、背景を変えられるよ。王冠（800P）とかタキシード（500P）とか、オシャレなアイテムがいっぱい！\n\n実は僕、サングラス似合うと思うんだよねー`,
+        `コスチューム？僕もオシャレに興味あるんだ～！\n\n**アバターカスタマイズ**で色々な衣装を試せるよ。サンタ帽（150P）から始めて、最終的にはキラキラオーラ（1000P）を目指してる！\n\nどの衣装が似合うと思う？`,
+        `カスタマイズの話？僕の見た目を変えられるんだよー！\n\n帽子、アクセサリー、衣装、特殊効果、背景の5カテゴリがあって、MOMOPayで購入できるの。君も僕を可愛く着飾ってくれる？`
+      ]
+      return safeRandomChoice(avatarResponses, 'アバターカスタマイズについて教えるよー！')
+    }
+
+    // 銀行関連
+    if (message.includes('銀行') || message.includes('預金') || message.includes('投資') || message.includes('融資') || message.includes('利息')) {
+      const bankResponses = [
+        `**MOMOBank**の話？あー、銀行だね！\n\n預金すると毎日1%の利息がもらえるんだ。投資もできるよー！モモンガ債券（低リスク2%/日）、どんぐり先物（中リスク5%/日）、森林株（高リスク10%/日）があるの\n\n僕も少しずつ預金してるよ～`,
+        `投資に興味があるの？**MOMOBank**で色々できるよ\n\n僕のおすすめはモモンガ債券かなー。安全だし、どんぐりが関係してる名前だから親近感が湧くんだ！森林株は高リスクだけど、当たると大きいらしいよ`,
+        `融資？お金に困った時は**MOMOBank**で借りられるよ\n\n条件はあるけど、200P～5000Pまで借りられるんだ。でも返済はちゃんとしないとダメだからね！僕は堅実派だから借りたことないけど...`
+      ]
+      return safeRandomChoice(bankResponses, 'MOMOBankについて教えるよー！')
     }
     
     // 広場関連
@@ -794,33 +829,17 @@ const Chatbot: React.FC = () => {
               alignItems: 'flex-start',
               gap: '8px'
             }}>
-              {/* モモンガくんのアイコン */}
+              {/* カスタマイズ可能なモモンガアバター */}
               {message.sender === 'momonga' && (
                 <div style={{
-                  width: '32px',
-                  height: '32px',
                   flexShrink: 0,
+                  border: '2px solid #8bc34a',
                   borderRadius: '50%',
-                  overflow: 'hidden',
-                  border: '2px solid #8bc34a'
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
-                  <img 
-                    src="/momonga-icon.png" 
-                    alt="モモンガくん" 
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover'
-                    }}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 20px;">🐿️</div>';
-                      }
-                    }}
-                  />
+                  <Avatar size="small" />
                 </div>
               )}
               
@@ -871,29 +890,13 @@ const Chatbot: React.FC = () => {
               gap: '8px'
             }}>
               <div style={{
-              width: '32px',
-              height: '32px',
+              border: '2px solid #8bc34a',
               borderRadius: '50%',
-              overflow: 'hidden',
-              border: '2px solid #8bc34a'
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
-              <img 
-                src="/momonga-icon.png" 
-                alt="モモンガくん" 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 20px;">🐿️</div>';
-                  }
-                }}
-              />
+              <Avatar size="small" />
             </div>
               <div className="comic-card" style={{
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
