@@ -106,20 +106,32 @@ const SlotMachine: React.FC = () => {
 
   // 手動停止用のリール停止機能
   const stopReel = (reelIndex: number) => {
-    if (reelStates[reelIndex] === 'stopped' || gameState !== 'spinning') return
+    if (gameState !== 'spinning') return
 
-    const newReelStates = [...reelStates]
-    newReelStates[reelIndex] = 'stopped'
-    setReelStates(newReelStates)
+    setReelStates(prevStates => {
+      const newStates = [...prevStates]
+      if (newStates[reelIndex] === 'stopped') return prevStates // 既に停止済み
+      
+      newStates[reelIndex] = 'stopped'
+      
+      // リールに最終結果を設定
+      setReels(prevReels => {
+        const newReels = [...prevReels]
+        newReels[reelIndex] = finalReels[reelIndex]!
+        return newReels
+      })
 
-    const newReels = [...reels]
-    newReels[reelIndex] = finalReels[reelIndex]!
-    setReels(newReels)
-
-    // 全てのリールが停止したかチェック
-    if (newReelStates.every(state => state === 'stopped')) {
-      finishGame(newReels)
-    }
+      // 全てのリールが停止したかチェック
+      if (newStates.every(state => state === 'stopped')) {
+        // 少し遅延を入れて最終結果を反映
+        setTimeout(() => {
+          setReels(finalReels)
+          finishGame(finalReels)
+        }, 100)
+      }
+      
+      return newStates
+    })
   }
 
   // ゲーム終了処理
@@ -195,15 +207,6 @@ const SlotMachine: React.FC = () => {
         intervals.push(interval)
       }
       setAnimationIntervals(intervals)
-
-      // 自動停止タイマー（手動停止されなかった場合）
-      setTimeout(() => {
-        [0, 1, 2].forEach(index => {
-          if (reelStates[index] === 'spinning') {
-            stopReel(index)
-          }
-        })
-      }, 10000) // 10秒後に自動停止
 
     } else {
       // 自動モード（従来通り）
@@ -347,6 +350,7 @@ const SlotMachine: React.FC = () => {
             {reels.map((symbol, index) => (
               <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <div
+                  onClick={() => isManualMode && reelStates[index] === 'spinning' && stopReel(index)}
                   style={{
                     width: 'clamp(80px, 20vw, 120px)',
                     height: 'clamp(80px, 20vw, 120px)',
@@ -359,33 +363,38 @@ const SlotMachine: React.FC = () => {
                     justifyContent: 'center',
                     fontSize: 'clamp(3rem, 8vw, 5rem)',
                     border: reelStates[index] === 'stopped' ? '3px solid #4caf50' : '3px solid #ffc107',
-                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)',
+                    boxShadow: reelStates[index] === 'spinning' && isManualMode
+                      ? 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(255, 193, 7, 0.6)'
+                      : 'inset 0 2px 4px rgba(0,0,0,0.2)',
                     animation: reelStates[index] === 'spinning' ? 'pulse 0.1s infinite' : 'none',
                     transform: gameState === 'result' && lastWin > 0 ? 'scale(1.1)' : 'scale(1)',
-                    transition: 'transform 0.3s ease, border-color 0.3s ease'
+                    transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+                    cursor: isManualMode && reelStates[index] === 'spinning' ? 'pointer' : 'default',
+                    position: 'relative'
                   }}
                 >
                   {symbol}
-                </div>
-                
-                {/* 手動停止ボタン（手動モードかつ回転中のみ表示） */}
-                {isManualMode && gameState === 'spinning' && reelStates[index] === 'spinning' && (
-                  <button
-                    onClick={() => stopReel(index)}
-                    className="comic-button font-button-sm"
-                    style={{
-                      background: 'linear-gradient(45deg, #f44336, #d32f2f)',
+                  
+                  {/* タップヒント（手動モードかつ回転中のみ表示） */}
+                  {isManualMode && reelStates[index] === 'spinning' && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      background: 'rgba(244, 67, 54, 0.9)',
                       color: 'white',
-                      borderColor: '#c62828',
-                      fontSize: 'clamp(0.7rem, 2vw, 0.9rem)',
-                      padding: 'clamp(4px 8px, 1vw 2vw, 6px 12px)',
-                      minWidth: '60px',
-                      animation: 'pulse 1.5s infinite'
-                    }}
-                  >
-                    STOP
-                  </button>
-                )}
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      fontSize: 'clamp(0.6rem, 1.5vw, 0.8rem)',
+                      fontWeight: 'bold',
+                      animation: 'pulse 2s infinite',
+                      zIndex: 10
+                    }}>
+                      TAP
+                    </div>
+                  )}
+                </div>
                 
                 {/* リール番号表示 */}
                 <div className="comic-text font-body-xs" style={{ 
@@ -461,7 +470,7 @@ const SlotMachine: React.FC = () => {
               marginBottom: '16px',
               animation: 'pulse 2s infinite'
             }}>
-              👆 各リールの「STOP」ボタンでリールを停止！
+              👆 リールをタップして停止！
             </div>
           )}
 
