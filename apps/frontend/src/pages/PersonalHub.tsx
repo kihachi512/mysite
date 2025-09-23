@@ -6,11 +6,11 @@ import Avatar from '../components/Avatar'
 
 const PersonalHub: React.FC = () => {
   useSEO({
-    title: 'マイページ',
-    description: '個人データ、実績、デイリーミッション、アバターカスタマイズの管理ページ。あなたのカーニバル活動を一元管理。',
-    keywords: 'マイページ,個人データ,実績,デイリーミッション,アバター,カスタマイズ,プロフィール',
-    ogTitle: 'マイページ | モモンガカーニバル',
-    ogDescription: '実績、日課、アバターなど個人データを一元管理するマイページ。'
+    title: '木の洞',
+    description: '森の奥の秘密の隠れ家。実績、日課、アバターなどあなたの大切な記録を保管する特別な場所。',
+    keywords: '木の洞,隠れ家,個人データ,実績,デイリーミッション,アバター,カスタマイズ,秘密基地',
+    ogTitle: '木の洞 - 秘密の隠れ家 | モモンガカーニバル',
+    ogDescription: '森の奥の木の洞で、あなたの大切な記録を管理する秘密の隠れ家。'
   });
 
   // Track area visit
@@ -26,14 +26,14 @@ const PersonalHub: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        👤 マイページ 👤
+        🌳 木の洞 🐿️
       </div>
       
       <div className="comic-text font-body-lg" style={{ 
         marginBottom: 'min(32px, 8vw)', 
         color: '#c8e6c9'
       }}>
-        あなたのカーニバル活動を管理
+        あなたの秘密の隠れ家
       </div>
 
       {/* プロフィール表示 */}
@@ -58,13 +58,13 @@ const PersonalHub: React.FC = () => {
               color: '#fff3e0',
               marginBottom: '8px'
             }}>
-              カーニバル参加者
+              森の住人
             </div>
             <div className="comic-text font-body-sm" style={{ 
               color: '#c8e6c9'
             }}>
-              モモンガくんと一緒に<br />
-              楽しいカーニバルライフ！
+              モモンガくんと共に<br />
+              森で暮らす仲間
             </div>
           </div>
         </div>
@@ -93,14 +93,14 @@ const PersonalHub: React.FC = () => {
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              実績・トロフィー
+              森の記録帳
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              カーニバルでの足跡を確認<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">レア度別実績解除！</span>
+              森での冒険の足跡を記録<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">伝説の実績を解除！</span>
             </div>
           </div>
         </Link>
@@ -119,14 +119,14 @@ const PersonalHub: React.FC = () => {
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              デイリーミッション
+              森の日課帳
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              毎日の挑戦課題をクリア<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">連続ログインでボーナス！</span>
+              毎日の森での任務をこなそう<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">継続は力なり！</span>
             </div>
           </div>
         </Link>
@@ -145,14 +145,14 @@ const PersonalHub: React.FC = () => {
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              アバター着せ替え
+              森の衣装部屋
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              モモンガくんをカスタマイズ<br />
-              <span style={{ color: '#ffd93d' }} className="font-body-sm">コスチューム・アクセサリー</span>
+              森の仲間の装いを変更<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">自然の恵みで装飾</span>
             </div>
           </div>
         </Link>
