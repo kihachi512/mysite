@@ -405,15 +405,9 @@ const AvatarCustomization: React.FC = () => {
 
     // ガチャ結果音（レアリティに応じて変化）
     setTimeout(() => {
+      // 本番環境ではログを削除、視覚的演出に集中
       if (selectedItem.rarity === 'legendary') {
-        // レジェンダリー音は鳴らないが、視覚的演出を重視
-        console.log('Legendary item obtained!')
-      } else if (selectedItem.rarity === 'epic') {
-        console.log('Epic item obtained!')
-      } else if (selectedItem.rarity === 'rare') {
-        console.log('Rare item obtained!')
-      } else {
-        console.log('Common item obtained!')
+        // レジェンダリー取得時の特別演出（将来的に音声追加可能）
       }
     }, 100)
   }
