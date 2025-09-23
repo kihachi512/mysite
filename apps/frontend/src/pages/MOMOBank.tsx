@@ -216,7 +216,7 @@ const MOMOBank: React.FC = () => {
 
     if (maturedInvestments.length > 0) {
       let totalReturn = 0
-      let resultMessages: string[] = []
+      const resultMessages: string[] = []
       
       maturedInvestments.forEach(inv => {
         const investment = INVESTMENTS.find(i => i.id === inv.investmentId)!

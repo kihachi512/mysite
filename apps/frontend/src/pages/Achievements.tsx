@@ -8,10 +8,12 @@ type Achievement = {
   title: string
   description: string
   icon: string
-  type: 'game' | 'social' | 'collection' | 'special'
-  rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  type: 'game' | 'social' | 'collection' | 'special' | 'time' | 'money' | 'exploration' | 'mastery'
+  rarity: 'common' | 'rare' | 'epic' | 'legendary' | 'mythic'
   requirement: {
-    type: 'points' | 'games_played' | 'tweets' | 'omikuji' | 'purchases' | 'files' | 'special'
+    type: 'points' | 'games_played' | 'tweets' | 'omikuji' | 'purchases' | 'files' | 'special' |
+          'slots_played' | 'memory_games' | 'sudoku_solved' | 'bullet_hell' | 'avatar_changes' |
+          'bank_visits' | 'chatbot_messages' | 'button_clicks' | 'page_views' | 'time_spent' | 'max_points'
     target: number
     current?: number
   }
@@ -20,10 +22,11 @@ type Achievement = {
     momoPay?: number
     title?: string
   }
+  hidden?: boolean // 隠し実績
 }
 
 const ACHIEVEMENTS: Achievement[] = [
-  // ゲーム系実績
+  // === 基本・入門系実績 ===
   {
     id: 'first-game',
     title: '初心者',
@@ -35,38 +38,6 @@ const ACHIEVEMENTS: Achievement[] = [
     reward: { momoPay: 50 }
   },
   {
-    id: 'game-veteran',
-    title: '修行者',
-    description: '演習林で10回ゲームをプレイした',
-    icon: '⚔️',
-    type: 'game',
-    rarity: 'rare',
-    requirement: { type: 'games_played', target: 10 },
-    reward: { momoPay: 200 }
-  },
-  {
-    id: 'game-master',
-    title: '守護者',
-    description: '演習林で50回ゲームをプレイした',
-    icon: '🛡️',
-    type: 'game',
-    rarity: 'epic',
-    requirement: { type: 'games_played', target: 50 },
-    reward: { momoPay: 500 }
-  },
-  {
-    id: 'millionaire',
-    title: 'MOMOPay富豪',
-    description: '1000MOMOPay以上を獲得した',
-    icon: '💎',
-    type: 'collection',
-    rarity: 'epic',
-    requirement: { type: 'points', target: 1000 },
-    reward: { title: '富豪' }
-  },
-
-  // ソーシャル系実績
-  {
     id: 'first-tweet',
     title: 'はじめの一歩',
     description: '大広間で初めて投稿した',
@@ -76,18 +47,6 @@ const ACHIEVEMENTS: Achievement[] = [
     requirement: { type: 'tweets', target: 1 },
     reward: { momoPay: 30 }
   },
-  {
-    id: 'social-butterfly',
-    title: 'おしゃべり好き',
-    description: '大広間で10回投稿した',
-    icon: '🦋',
-    type: 'social',
-    rarity: 'rare',
-    requirement: { type: 'tweets', target: 10 },
-    reward: { momoPay: 150 }
-  },
-
-  // コレクション系実績
   {
     id: 'first-omikuji',
     title: '運試し',
@@ -99,18 +58,6 @@ const ACHIEVEMENTS: Achievement[] = [
     reward: { momoPay: 20 }
   },
   {
-    id: 'fortune-seeker',
-    title: '占い師',
-    description: '御神籤を20回引いた',
-    icon: '🔮',
-    type: 'collection',
-    rarity: 'rare',
-    requirement: { type: 'omikuji', target: 20 },
-    reward: { momoPay: 300 }
-  },
-
-  // 購入系実績
-  {
     id: 'first-purchase',
     title: '初回購入',
     description: 'MOMOStoreで初めて購入した',
@@ -121,7 +68,183 @@ const ACHIEVEMENTS: Achievement[] = [
     reward: { momoPay: 100 }
   },
 
-  // ファイル系実績
+  // === ゲーム系実績 ===
+  {
+    id: 'game-veteran',
+    title: '修行者',
+    description: 'ゲームを10回プレイした',
+    icon: '⚔️',
+    type: 'game',
+    rarity: 'rare',
+    requirement: { type: 'games_played', target: 10 },
+    reward: { momoPay: 200 }
+  },
+  {
+    id: 'game-master',
+    title: '守護者',
+    description: 'ゲームを50回プレイした',
+    icon: '🛡️',
+    type: 'game',
+    rarity: 'epic',
+    requirement: { type: 'games_played', target: 50 },
+    reward: { momoPay: 500 }
+  },
+  {
+    id: 'game-legend',
+    title: 'ゲームマスター',
+    description: 'ゲームを100回プレイした',
+    icon: '👑',
+    type: 'mastery',
+    rarity: 'legendary',
+    requirement: { type: 'games_played', target: 100 },
+    reward: { momoPay: 1000, title: 'ゲームマスター' }
+  },
+  {
+    id: 'slot-beginner',
+    title: 'スロット初心者',
+    description: '初めてスロットをプレイした',
+    icon: '🎰',
+    type: 'game',
+    rarity: 'common',
+    requirement: { type: 'slots_played', target: 1 },
+    reward: { momoPay: 50 }
+  },
+  {
+    id: 'slot-addict',
+    title: 'スロット中毒',
+    description: 'スロットを50回プレイした',
+    icon: '🎲',
+    type: 'game',
+    rarity: 'rare',
+    requirement: { type: 'slots_played', target: 50 },
+    reward: { momoPay: 300 }
+  },
+  {
+    id: 'memory-master',
+    title: '記憶の達人',
+    description: '記憶力ゲームを20回プレイした',
+    icon: '🧠',
+    type: 'game',
+    rarity: 'rare',
+    requirement: { type: 'memory_games', target: 20 },
+    reward: { momoPay: 250 }
+  },
+  {
+    id: 'sudoku-solver',
+    title: '数独マスター',
+    description: '数独を10回クリアした',
+    icon: '🔢',
+    type: 'mastery',
+    rarity: 'epic',
+    requirement: { type: 'sudoku_solved', target: 10 },
+    reward: { momoPay: 400, title: '論理王' }
+  },
+  {
+    id: 'bullet-hell-warrior',
+    title: '弾幕戦士',
+    description: '演習林で30回修行した',
+    icon: '💥',
+    type: 'game',
+    rarity: 'epic',
+    requirement: { type: 'bullet_hell', target: 30 },
+    reward: { momoPay: 600 }
+  },
+
+  // === ソーシャル系実績 ===
+  {
+    id: 'social-butterfly',
+    title: 'おしゃべり好き',
+    description: '大広間で10回投稿した',
+    icon: '🦋',
+    type: 'social',
+    rarity: 'rare',
+    requirement: { type: 'tweets', target: 10 },
+    reward: { momoPay: 150 }
+  },
+  {
+    id: 'social-influencer',
+    title: 'インフルエンサー',
+    description: '大広間で50回投稿した',
+    icon: '📢',
+    type: 'social',
+    rarity: 'epic',
+    requirement: { type: 'tweets', target: 50 },
+    reward: { momoPay: 500 }
+  },
+  {
+    id: 'chatbot-friend',
+    title: 'AIフレンド',
+    description: 'モモンガくんと20回会話した',
+    icon: '🤖',
+    type: 'social',
+    rarity: 'rare',
+    requirement: { type: 'chatbot_messages', target: 20 },
+    reward: { momoPay: 200 }
+  },
+  {
+    id: 'chatbot-bestie',
+    title: 'AIベストフレンド',
+    description: 'モモンガくんと100回会話した',
+    icon: '💬',
+    type: 'social',
+    rarity: 'epic',
+    requirement: { type: 'chatbot_messages', target: 100 },
+    reward: { momoPay: 500, title: 'おしゃべりマスター' }
+  },
+
+  // === 経済・MOMOPay系実績 ===
+  {
+    id: 'small-fortune',
+    title: '小金持ち',
+    description: '500MOMOPay貯めた',
+    icon: '💰',
+    type: 'money',
+    rarity: 'common',
+    requirement: { type: 'max_points', target: 500 },
+    reward: { momoPay: 50 }
+  },
+  {
+    id: 'millionaire',
+    title: 'MOMOPay富豪',
+    description: '1000MOMOPay貯めた',
+    icon: '💎',
+    type: 'money',
+    rarity: 'rare',
+    requirement: { type: 'max_points', target: 1000 },
+    reward: { momoPay: 100, title: '富豪' }
+  },
+  {
+    id: 'mogul',
+    title: 'MOMOPay大富豪',
+    description: '5000MOMOPay貯めた',
+    icon: '👑',
+    type: 'money',
+    rarity: 'epic',
+    requirement: { type: 'max_points', target: 5000 },
+    reward: { momoPay: 500, title: '大富豪' }
+  },
+  {
+    id: 'billionaire',
+    title: 'MOMOPay億万長者',
+    description: '10000MOMOPay貯めた',
+    icon: '🏰',
+    type: 'money',
+    rarity: 'legendary',
+    requirement: { type: 'max_points', target: 10000 },
+    reward: { momoPay: 1000, title: '億万長者' }
+  },
+  {
+    id: 'bank-regular',
+    title: '銀行常連',
+    description: 'MOMOBankを10回訪問した',
+    icon: '🏦',
+    type: 'money',
+    rarity: 'rare',
+    requirement: { type: 'bank_visits', target: 10 },
+    reward: { momoPay: 200 }
+  },
+
+  // === コレクション・アーカイブ系実績 ===
   {
     id: 'archivist',
     title: 'アーキビスト',
@@ -132,17 +255,217 @@ const ACHIEVEMENTS: Achievement[] = [
     requirement: { type: 'files', target: 5 },
     reward: { momoPay: 200 }
   },
+  {
+    id: 'master-collector',
+    title: 'コレクションマスター',
+    description: '宝物庫に20個のアイテムを保存した',
+    icon: '🗃️',
+    type: 'collection',
+    rarity: 'epic',
+    requirement: { type: 'files', target: 20 },
+    reward: { momoPay: 500, title: 'コレクター' }
+  },
+  {
+    id: 'fortune-seeker',
+    title: '占い師',
+    description: '御神籤を20回引いた',
+    icon: '🔮',
+    type: 'collection',
+    rarity: 'rare',
+    requirement: { type: 'omikuji', target: 20 },
+    reward: { momoPay: 300 }
+  },
+  {
+    id: 'fortune-master',
+    title: '運命の探求者',
+    description: '御神籤を100回引いた',
+    icon: '🎴',
+    type: 'collection',
+    rarity: 'epic',
+    requirement: { type: 'omikuji', target: 100 },
+    reward: { momoPay: 600, title: '運命探求者' }
+  },
+  {
+    id: 'fashionista',
+    title: 'ファッショニスタ',
+    description: 'アバターを10回変更した',
+    icon: '👗',
+    type: 'collection',
+    rarity: 'rare',
+    requirement: { type: 'avatar_changes', target: 10 },
+    reward: { momoPay: 250 }
+  },
+  {
+    id: 'style-icon',
+    title: 'スタイルアイコン',
+    description: 'アバターを50回変更した',
+    icon: '✨',
+    type: 'collection',
+    rarity: 'epic',
+    requirement: { type: 'avatar_changes', target: 50 },
+    reward: { momoPay: 500, title: 'スタイリスト' }
+  },
 
-  // 特別実績
+  // === 探索・発見系実績 ===
   {
     id: 'explorer',
     title: 'カーニバル探検家',
     description: '全エリアを訪問した',
     icon: '🗺️',
+    type: 'exploration',
+    rarity: 'epic',
+    requirement: { type: 'special', target: 1 },
+    reward: { momoPay: 800, title: '探検家' }
+  },
+  {
+    id: 'page-turner',
+    title: 'ページマスター',
+    description: '50ページを訪問した',
+    icon: '📖',
+    type: 'exploration',
+    rarity: 'rare',
+    requirement: { type: 'page_views', target: 50 },
+    reward: { momoPay: 200 }
+  },
+  {
+    id: 'digital-nomad',
+    title: 'デジタル遊牧民',
+    description: '200ページを訪問した',
+    icon: '🌐',
+    type: 'exploration',
+    rarity: 'epic',
+    requirement: { type: 'page_views', target: 200 },
+    reward: { momoPay: 400 }
+  },
+
+  // === 時間・習慣系実績 ===
+  {
+    id: 'time-waster',
+    title: 'のんびり屋',
+    description: '合計30分滞在した',
+    icon: '⏰',
+    type: 'time',
+    rarity: 'common',
+    requirement: { type: 'time_spent', target: 30 },
+    reward: { momoPay: 50 }
+  },
+  {
+    id: 'time-invested',
+    title: '時間投資家',
+    description: '合計2時間滞在した',
+    icon: '⏳',
+    type: 'time',
+    rarity: 'rare',
+    requirement: { type: 'time_spent', target: 120 },
+    reward: { momoPay: 200 }
+  },
+  {
+    id: 'time-master',
+    title: 'タイムマスター',
+    description: '合計10時間滞在した',
+    icon: '🕰️',
+    type: 'time',
+    rarity: 'epic',
+    requirement: { type: 'time_spent', target: 600 },
+    reward: { momoPay: 600, title: 'タイムマスター' }
+  },
+
+  // === 操作・アクション系実績 ===
+  {
+    id: 'clicker',
+    title: 'クリッカー',
+    description: 'ボタンを100回クリックした',
+    icon: '👆',
+    type: 'mastery',
+    rarity: 'common',
+    requirement: { type: 'button_clicks', target: 100 },
+    reward: { momoPay: 50 }
+  },
+  {
+    id: 'super-clicker',
+    title: 'スーパークリッカー',
+    description: 'ボタンを500回クリックした',
+    icon: '💫',
+    type: 'mastery',
+    rarity: 'rare',
+    requirement: { type: 'button_clicks', target: 500 },
+    reward: { momoPay: 200 }
+  },
+  {
+    id: 'ultimate-clicker',
+    title: '究極クリッカー',
+    description: 'ボタンを2000回クリックした',
+    icon: '⚡',
+    type: 'mastery',
+    rarity: 'epic',
+    requirement: { type: 'button_clicks', target: 2000 },
+    reward: { momoPay: 500, title: 'クリックマスター' }
+  },
+
+  // === 特別・隠し実績 ===
+  {
+    id: 'early-bird',
+    title: '早起きモモンガ',
+    description: '午前6時にアクセスした',
+    icon: '🌅',
+    type: 'special',
+    rarity: 'rare',
+    requirement: { type: 'special', target: 1 },
+    reward: { momoPay: 300 },
+    hidden: true
+  },
+  {
+    id: 'night-owl',
+    title: '夜更かしモモンガ',
+    description: '深夜2時にアクセスした',
+    icon: '🦉',
+    type: 'special',
+    rarity: 'rare',
+    requirement: { type: 'special', target: 1 },
+    reward: { momoPay: 300 },
+    hidden: true
+  },
+  {
+    id: 'lucky-777',
+    title: 'ラッキー777',
+    description: 'ちょうど777MOMOPayを獲得した',
+    icon: '🍀',
     type: 'special',
     rarity: 'legendary',
     requirement: { type: 'special', target: 1 },
-    reward: { momoPay: 1000, title: '探検家' }
+    reward: { momoPay: 777, title: 'ラッキー' },
+    hidden: true
+  },
+  {
+    id: 'completionist',
+    title: 'コンプリート狂',
+    description: 'すべてのゲームをプレイした',
+    icon: '💯',
+    type: 'mastery',
+    rarity: 'legendary',
+    requirement: { type: 'special', target: 1 },
+    reward: { momoPay: 1500, title: 'コンプリーター' }
+  },
+  {
+    id: 'secret-seeker',
+    title: 'シークレットハンター',
+    description: '隠し要素を5個発見した',
+    icon: '🔍',
+    type: 'special',
+    rarity: 'mythic',
+    requirement: { type: 'special', target: 1 },
+    reward: { momoPay: 2000, title: 'シークレットマスター' },
+    hidden: true
+  },
+  {
+    id: 'legend',
+    title: '森の伝説',
+    description: '全ての実績を解除した',
+    icon: '👑',
+    type: 'special',
+    rarity: 'mythic',
+    requirement: { type: 'special', target: 1 },
+    reward: { momoPay: 5000, title: '伝説のモモンガ' }
   }
 ]
 
@@ -165,7 +488,21 @@ const Achievements: React.FC = () => {
         tweetsPosted: 0,
         omikujiCount: 0,
         purchasesMade: 0,
-        areasVisited: new Set<string>()
+        areasVisited: new Set<string>(),
+        slotsPlayed: 0,
+        memoryGamesPlayed: 0,
+        sudokuSolved: 0,
+        bulletHellPlayed: 0,
+        avatarChanges: 0,
+        bankVisits: 0,
+        favoritesSaved: 0,
+        chatbotMessages: 0,
+        settingsChanged: 0,
+        maxMomoPayReached: 0,
+        consecutiveDays: 0,
+        totalTimeSpent: 0,
+        buttonClicks: 0,
+        pageViews: 0
       }
 
       if (savedAchievements) {
@@ -214,9 +551,44 @@ const Achievements: React.FC = () => {
           case 'files':
             current = favorites.length
             break
+          case 'slots_played':
+            current = stats.slotsPlayed || 0
+            break
+          case 'memory_games':
+            current = stats.memoryGamesPlayed || 0
+            break
+          case 'sudoku_solved':
+            current = stats.sudokuSolved || 0
+            break
+          case 'bullet_hell':
+            current = stats.bulletHellPlayed || 0
+            break
+          case 'avatar_changes':
+            current = stats.avatarChanges || 0
+            break
+          case 'bank_visits':
+            current = stats.bankVisits || 0
+            break
+          case 'chatbot_messages':
+            current = stats.chatbotMessages || 0
+            break
+          case 'button_clicks':
+            current = stats.buttonClicks || 0
+            break
+          case 'page_views':
+            current = stats.pageViews || 0
+            break
+          case 'time_spent':
+            current = stats.totalTimeSpent || 0
+            break
+          case 'max_points':
+            current = stats.maxMomoPayReached || momoPayPoints
+            break
           case 'special':
             if (achievement.id === 'explorer') {
               current = stats.areasVisited.size >= 5 ? 1 : 0
+            } else {
+              current = 0 // その他の特別実績は手動で管理
             }
             break
         }
@@ -270,20 +642,25 @@ const Achievements: React.FC = () => {
 
   const getRarityColor = (rarity: Achievement['rarity']): string => {
     switch (rarity) {
-      case 'legendary': return '#ffd700'
-      case 'epic': return '#9c27b0'
-      case 'rare': return '#2196f3'
-      case 'common': return '#9e9e9e'
+      case 'mythic': return '#ff1744'    // 赤
+      case 'legendary': return '#ffd700' // 金
+      case 'epic': return '#9c27b0'      // 紫
+      case 'rare': return '#2196f3'      // 青
+      case 'common': return '#9e9e9e'    // 灰色
       default: return '#9e9e9e'
     }
   }
 
   const getTypeColor = (type: Achievement['type']): string => {
     switch (type) {
-      case 'game': return '#4caf50'
-      case 'social': return '#ff9800'
-      case 'collection': return '#2196f3'
-      case 'special': return '#9c27b0'
+      case 'game': return '#4caf50'       // 緑
+      case 'social': return '#ff9800'     // オレンジ
+      case 'collection': return '#2196f3' // 青
+      case 'special': return '#9c27b0'    // 紫
+      case 'time': return '#607d8b'       // 青灰色
+      case 'money': return '#ffc107'      // 黄色
+      case 'exploration': return '#795548' // 茶色
+      case 'mastery': return '#e91e63'    // ピンク
       default: return '#666'
     }
   }
@@ -375,7 +752,7 @@ const Achievements: React.FC = () => {
           </button>
         ))}
         
-        {(['all', 'game', 'social', 'collection', 'special'] as const).map(t => (
+        {(['all', 'game', 'social', 'collection', 'special', 'time', 'money', 'exploration', 'mastery'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTypeFilter(t)}
@@ -386,12 +763,18 @@ const Achievements: React.FC = () => {
                 : 'linear-gradient(45deg, #666, #555)',
               color: 'white',
               borderColor: typeFilter === t ? getTypeColor(t === 'all' ? 'game' : t) : '#333',
+              fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+              padding: 'clamp(6px 10px, 1.5vw 2.5vw, 8px 12px)'
             }}
           >
             {t === 'all' ? '全種' : 
              t === 'game' ? 'ゲーム' :
              t === 'social' ? 'ソーシャル' :
-             t === 'collection' ? 'コレクション' : '特別'}
+             t === 'collection' ? 'コレクション' :
+             t === 'special' ? '特別' :
+             t === 'time' ? '時間' :
+             t === 'money' ? '経済' :
+             t === 'exploration' ? '探索' : 'マスター'}
           </button>
         ))}
       </div>

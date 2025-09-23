@@ -7,6 +7,7 @@ import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
 type SlotSymbol = '🍒' | '🍋' | '🍊' | '🍇' | '⭐' | '💎' | '7️⃣'
 
 type GameState = 'idle' | 'spinning' | 'result'
+type ReelState = 'spinning' | 'stopped'
 
 type PayoutRule = {
   pattern: SlotSymbol[]
@@ -52,11 +53,14 @@ const SlotMachine: React.FC = () => {
   const { momoPayPoints, addMomoPayPoints, spendMomoPayPoints } = useAppData()
   const [gameState, setGameState] = useState<GameState>('idle')
   const [reels, setReels] = useState<SlotSymbol[]>(['🍒', '🍒', '🍒'])
+  const [reelStates, setReelStates] = useState<ReelState[]>(['stopped', 'stopped', 'stopped'])
+  const [finalReels, setFinalReels] = useState<SlotSymbol[]>(['🍒', '🍒', '🍒'])
   const [betAmount, setBetAmount] = useState(10)
   const [lastWin, setLastWin] = useState(0)
   const [totalWins, setTotalWins] = useState(0)
   const [totalLosses, setTotalLosses] = useState(0)
   const [spinCount, setSpinCount] = useState(0)
+  const [animationIntervals, setAnimationIntervals] = useState<NodeJS.Timeout[]>([])
 
   // Track area visit
   useEffect(() => {
@@ -99,7 +103,67 @@ const SlotMachine: React.FC = () => {
     return { amount: 0, rule: null }
   }
 
-  // スロット回転
+  // 手動停止用のリール停止機能
+  const stopReel = (reelIndex: number) => {
+    if (gameState !== 'spinning') return
+
+    setReelStates(prevStates => {
+      const newStates = [...prevStates]
+      if (newStates[reelIndex] === 'stopped') return prevStates // 既に停止済み
+      
+      newStates[reelIndex] = 'stopped'
+      
+      // リールに最終結果を設定
+      setReels(prevReels => {
+        const newReels = [...prevReels]
+        newReels[reelIndex] = finalReels[reelIndex]!
+        return newReels
+      })
+
+      // 全てのリールが停止したかチェック
+      if (newStates.every(state => state === 'stopped')) {
+        // 少し遅延を入れて最終結果を反映
+        setTimeout(() => {
+          setReels(finalReels)
+          finishGame(finalReels)
+        }, 100)
+      }
+      
+      return newStates
+    })
+  }
+
+  // ゲーム終了処理
+  const finishGame = (finalReelValues: SlotSymbol[]) => {
+    // アニメーション停止
+    animationIntervals.forEach(clearInterval)
+    setAnimationIntervals([])
+
+    // 結果判定
+    const { amount, rule } = calculatePayout(finalReelValues)
+    if (amount > 0) {
+      addMomoPayPoints(amount)
+      setLastWin(amount)
+      setTotalWins(prev => prev + amount)
+      
+      setTimeout(() => {
+        alert(`🎉 ${rule?.name} 当たり！\n+${amount}MOMOPay獲得！`)
+      }, 500)
+    } else {
+      setTotalLosses(prev => prev + betAmount)
+    }
+
+    setSpinCount(prev => prev + 1)
+    setGameState('result')
+    
+    // 2秒後に次のゲーム準備
+    setTimeout(() => {
+      setGameState('idle')
+      setReelStates(['stopped', 'stopped', 'stopped'])
+    }, 2000)
+  }
+
+  // スロット回転（手動・自動両対応）
   const spin = () => {
     if (gameState !== 'idle' || momoPayPoints < betAmount) {
       if (momoPayPoints < betAmount) {
@@ -117,54 +181,30 @@ const SlotMachine: React.FC = () => {
     setLastWin(0)
     trackGamePlayed()
 
-    // リール回転アニメーション（段階的に停止）
-    const spinDuration = 2000 // 2秒
-    const newReels: SlotSymbol[] = [
+    // 最終的な結果を事前に決定
+    const newFinalReels: SlotSymbol[] = [
       getRandomSymbol(),
       getRandomSymbol(),
       getRandomSymbol()
     ]
+    setFinalReels(newFinalReels)
 
-    // アニメーション中はランダムシンボルを表示
-    const animationInterval = setInterval(() => {
-      setReels([getRandomSymbol(), getRandomSymbol(), getRandomSymbol()])
-    }, 100)
-
-    // 段階的停止
-    setTimeout(() => {
-      setReels([newReels[0]!, getRandomSymbol(), getRandomSymbol()])
-    }, spinDuration * 0.4)
-
-    setTimeout(() => {
-      setReels([newReels[0]!, newReels[1]!, getRandomSymbol()])
-    }, spinDuration * 0.7)
-
-    setTimeout(() => {
-      clearInterval(animationInterval)
-      setReels(newReels)
-      
-      // 結果判定
-      const { amount, rule } = calculatePayout(newReels)
-      if (amount > 0) {
-        addMomoPayPoints(amount)
-        setLastWin(amount)
-        setTotalWins(prev => prev + amount)
-        
-        setTimeout(() => {
-          alert(`🎉 ${rule?.name} 当たり！\n+${amount}MOMOPay獲得！`)
-        }, 500)
-      } else {
-        setTotalLosses(prev => prev + betAmount)
-      }
-
-      setSpinCount(prev => prev + 1)
-      setGameState('result')
-      
-      // 2秒後に次のゲーム準備
-      setTimeout(() => {
-        setGameState('idle')
-      }, 2000)
-    }, spinDuration)
+    // 手動停止モード：全リールを回転開始
+    setReelStates(['spinning', 'spinning', 'spinning'])
+    
+    // 各リールのアニメーション
+    const intervals: NodeJS.Timeout[] = []
+    for (let index = 0; index < 3; index++) {
+      const interval = setInterval(() => {
+        setReels(prevReels => {
+          const newReels = [...prevReels]
+          newReels[index] = getRandomSymbol()
+          return newReels
+        })
+      }, 100)
+      intervals.push(interval)
+    }
+    setAnimationIntervals(intervals)
   }
 
   // ベット額変更
@@ -267,32 +307,91 @@ const SlotMachine: React.FC = () => {
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            gap: 'min(16px, 4vw)',
-            marginBottom: 'min(32px, 8vw)'
+            gap: 'min(12px, 3vw)',
+            marginBottom: 'min(24px, 6vw)'
           }}>
             {reels.map((symbol, index) => (
-              <div
-                key={index}
-                style={{
-                  width: 'clamp(80px, 20vw, 120px)',
-                  height: 'clamp(80px, 20vw, 120px)',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.8))',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 'clamp(3rem, 8vw, 5rem)',
-                  border: '3px solid #ffc107',
-                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)',
-                  animation: gameState === 'spinning' ? 'pulse 0.1s infinite' : 'none',
-                  transform: gameState === 'result' && lastWin > 0 ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'transform 0.3s ease'
-                }}
-              >
-                {symbol}
+              <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                <div
+                  onClick={() => reelStates[index] === 'spinning' && stopReel(index)}
+                  style={{
+                    width: 'clamp(80px, 20vw, 120px)',
+                    height: 'clamp(80px, 20vw, 120px)',
+                    background: reelStates[index] === 'stopped' 
+                      ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.8))'
+                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(240, 240, 240, 0.6))',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'clamp(3rem, 8vw, 5rem)',
+                    border: reelStates[index] === 'stopped' ? '3px solid #4caf50' : '3px solid #ffc107',
+                    boxShadow: reelStates[index] === 'spinning'
+                      ? 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(255, 193, 7, 0.6)'
+                      : 'inset 0 2px 4px rgba(0,0,0,0.2)',
+                    animation: reelStates[index] === 'spinning' ? 'pulse 0.1s infinite' : 'none',
+                    transform: gameState === 'result' && lastWin > 0 ? 'scale(1.1)' : 'scale(1)',
+                    transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+                    cursor: reelStates[index] === 'spinning' ? 'pointer' : 'default',
+                    position: 'relative'
+                  }}
+                >
+                  {symbol}
+                  
+                  {/* タップヒント（回転中のみ表示） */}
+                  {reelStates[index] === 'spinning' && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      background: 'rgba(244, 67, 54, 0.9)',
+                      color: 'white',
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      fontSize: 'clamp(0.6rem, 1.5vw, 0.8rem)',
+                      fontWeight: 'bold',
+                      animation: 'pulse 2s infinite',
+                      zIndex: 10
+                    }}>
+                      TAP
+                    </div>
+                  )}
+                </div>
+                
+                {/* リール番号表示 */}
+                <div className="comic-text font-body-xs" style={{ 
+                  color: reelStates[index] === 'stopped' ? '#4caf50' : '#c8e6c9',
+                  fontWeight: 'bold'
+                }}>
+                  {index + 1}
+                  {reelStates[index] === 'stopped' && ' ✓'}
+                </div>
               </div>
             ))}
           </div>
+
+          {/* 操作説明 */}
+          {gameState === 'idle' && (
+            <div className="comic-text font-body-sm" style={{
+              color: '#c8e6c9',
+              marginBottom: '16px',
+              lineHeight: '1.4'
+            }}>
+              🎯 各リールを好きなタイミングでタップして停止！
+            </div>
+          )}
+
+          {/* プレイ中のヒント */}
+          {gameState === 'spinning' && (
+            <div className="comic-text font-body-sm" style={{
+              color: '#ffc107',
+              marginBottom: '16px',
+              animation: 'pulse 2s infinite'
+            }}>
+              👆 リールをタップして停止！
+            </div>
+          )}
 
           {/* スピンボタン */}
           <button
@@ -311,7 +410,11 @@ const SlotMachine: React.FC = () => {
               animation: gameState === 'spinning' ? 'pulse 1s infinite' : 'none'
             }}
           >
-            {gameState === 'spinning' ? '🎰 回転中...' : gameState === 'result' ? '結果表示中' : `🎰 SPIN! (${betAmount}P)`}
+            {gameState === 'spinning' 
+              ? '🎰 手動停止中...' 
+              : gameState === 'result' 
+              ? '結果表示中' 
+              : `🎰 SPIN! (${betAmount}P)`}
           </button>
         </div>
 
