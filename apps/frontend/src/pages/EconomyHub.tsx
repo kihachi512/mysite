@@ -121,6 +121,32 @@ const EconomyHub: React.FC = () => {
             </div>
           </div>
         </Link>
+
+        <Link to="/momo-store" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#9c27b0', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🛒</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              MOMOStore
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              設定機能・装備の売買<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">森の売店がリニューアル！</span>
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* ナビゲーション */}
