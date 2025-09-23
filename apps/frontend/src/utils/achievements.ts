@@ -114,13 +114,39 @@ class AchievementTracker {
 
   private saveStats(): void {
     try {
-      const toSave = {
-        ...this.stats,
-        areasVisited: Array.from(this.stats.areasVisited)
+      // データの検証と浄化
+      const sanitizedStats = {
+        gamesPlayed: Math.max(0, Math.floor(this.stats.gamesPlayed || 0)),
+        tweetsPosted: Math.max(0, Math.floor(this.stats.tweetsPosted || 0)),
+        omikujiCount: Math.max(0, Math.floor(this.stats.omikujiCount || 0)),
+        purchasesMade: Math.max(0, Math.floor(this.stats.purchasesMade || 0)),
+        areasVisited: Array.from(this.stats.areasVisited || new Set()),
+        slotsPlayed: Math.max(0, Math.floor(this.stats.slotsPlayed || 0)),
+        memoryGamesPlayed: Math.max(0, Math.floor(this.stats.memoryGamesPlayed || 0)),
+        sudokuSolved: Math.max(0, Math.floor(this.stats.sudokuSolved || 0)),
+        bulletHellPlayed: Math.max(0, Math.floor(this.stats.bulletHellPlayed || 0)),
+        avatarChanges: Math.max(0, Math.floor(this.stats.avatarChanges || 0)),
+        bankVisits: Math.max(0, Math.floor(this.stats.bankVisits || 0)),
+        favoritesSaved: Math.max(0, Math.floor(this.stats.favoritesSaved || 0)),
+        chatbotMessages: Math.max(0, Math.floor(this.stats.chatbotMessages || 0)),
+        settingsChanged: Math.max(0, Math.floor(this.stats.settingsChanged || 0)),
+        maxMomoPayReached: Math.max(0, Math.floor(this.stats.maxMomoPayReached || 0)),
+        consecutiveDays: Math.max(0, Math.floor(this.stats.consecutiveDays || 0)),
+        totalTimeSpent: Math.max(0, Math.floor(this.stats.totalTimeSpent || 0)),
+        buttonClicks: Math.max(0, Math.floor(this.stats.buttonClicks || 0)),
+        pageViews: Math.max(0, Math.floor(this.stats.pageViews || 0))
       }
-      localStorage.setItem('achievement-stats', JSON.stringify(toSave))
+      
+      localStorage.setItem('achievement-stats', JSON.stringify(sanitizedStats))
     } catch (error) {
       logger.error('Failed to save achievement stats:', error)
+      // localStorage容量不足などの場合は古いデータを削除
+      try {
+        localStorage.removeItem('achievement-stats')
+        logger.info('Cleared corrupted achievement stats')
+      } catch (clearError) {
+        logger.error('Failed to clear achievement stats:', clearError)
+      }
     }
   }
 

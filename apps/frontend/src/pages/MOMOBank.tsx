@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackBankVisited, trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackBankVisited, trackAreaVisited } from '../utils/achievements'
 
 type BankAccount = {
   balance: number

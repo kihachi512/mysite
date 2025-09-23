@@ -51,19 +51,22 @@ const NumberPuzzle: React.FC = () => {
 
   // Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: NodeJS.Timeout | null = null
     
-    if (gameState === 'playing' && stats.started) {
+    if (gameState === 'playing' && stats.started && stats.startTime) {
       interval = setInterval(() => {
         setStats(prev => ({
           ...prev,
-          time: prev.startTime ? Math.floor((Date.now() - prev.startTime) / 1000) : prev.time
+          time: prev.startTime ? Math.max(0, Math.floor((Date.now() - prev.startTime) / 1000)) : 0
         }))
       }, 1000)
     }
     
     return () => {
-      if (interval) clearInterval(interval)
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
     }
   }, [gameState, stats.started, stats.startTime])
 
@@ -206,7 +209,9 @@ const NumberPuzzle: React.FC = () => {
 
   // セルクリック処理
   const handleCellClick = (row: number, col: number) => {
-    if (board[row]?.[col]?.isGiven) return
+    // 範囲チェック
+    if (row < 0 || row >= 4 || col < 0 || col >= 4) return
+    if (!board[row] || board[row][col]?.isGiven) return
     setSelectedCell({ row, col })
   }
 

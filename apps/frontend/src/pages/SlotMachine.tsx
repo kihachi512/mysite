@@ -23,8 +23,6 @@ type PayoutRule = {
   name: string
 }
 
-const SYMBOLS: SlotSymbol[] = ['🍒', '🍋', '🍊', '🍇', '⭐', '💎', '7️⃣']
-
 // リールパターン（実際のスロットのように連続した絵柄を配置）
 const REEL_PATTERN: SlotSymbol[] = [
   '🍒', '🍋', '🍊', '🍇', '🍒', '⭐', '🍋', '🍊', 
@@ -45,17 +43,6 @@ const PAYOUT_RULES: PayoutRule[] = [
   // 2つ揃いの配当
   { pattern: ['🍒', '🍒'], payout: 2, name: 'チェリー2個' },
 ]
-
-// シンボル出現確率の重み付け
-const SYMBOL_WEIGHTS: Record<SlotSymbol, number> = {
-  '🍒': 25, // 一番出やすい
-  '🍋': 20,
-  '🍊': 15,
-  '🍇': 12,
-  '⭐': 8,
-  '💎': 5,
-  '7️⃣': 2  // 一番レア
-}
 
 const SlotMachine: React.FC = () => {
   useSEO({
@@ -97,19 +84,19 @@ const SlotMachine: React.FC = () => {
   }
 
 
-  // 重み付きランダムでシンボルを選択（従来の機能も残す）
-  const getRandomSymbol = (): SlotSymbol => {
-    const totalWeight = Object.values(SYMBOL_WEIGHTS).reduce((sum, weight) => sum + weight, 0)
-    let random = Math.random() * totalWeight
-    
-    for (const symbol of SYMBOLS) {
-      random -= SYMBOL_WEIGHTS[symbol]
-      if (random <= 0) {
-        return symbol
-      }
-    }
-    return '🍒' // フォールバック
-  }
+  // 重み付きランダムでシンボルを選択（従来の機能、今は使わないが将来用に残す）
+  // const getRandomSymbol = (): SlotSymbol => {
+  //   const totalWeight = Object.values(SYMBOL_WEIGHTS).reduce((sum, weight) => sum + weight, 0)
+  //   let random = Math.random() * totalWeight
+  //   
+  //   for (const symbol of SYMBOLS) {
+  //     random -= SYMBOL_WEIGHTS[symbol]
+  //     if (random <= 0) {
+  //       return symbol
+  //     }
+  //   }
+  //   return '🍒' // フォールバック
+  // }
 
   // 配当計算
   const calculatePayout = (symbols: SlotSymbol[]): { amount: number, rule: PayoutRule | null } => {
@@ -178,32 +165,47 @@ const SlotMachine: React.FC = () => {
 
   // ゲーム終了処理
   const finishGame = (finalReelValues: SlotSymbol[]) => {
-    // アニメーション停止
-    animationIntervals.forEach((interval: number) => window.clearInterval(interval))
-    setAnimationIntervals([])
+    try {
+      // アニメーション停止（安全性強化）
+      animationIntervals.forEach((interval: number) => {
+        if (interval) window.clearInterval(interval)
+      })
+      setAnimationIntervals([])
 
-    // 結果判定
-    const { amount, rule } = calculatePayout(finalReelValues)
-    if (amount > 0) {
-      addMomoPayPoints(amount)
-      setLastWin(amount)
-      setTotalWins((prev: number) => prev + amount)
+      // 入力値の検証
+      if (!Array.isArray(finalReelValues) || finalReelValues.length !== 3) {
+        console.error('Invalid final reel values:', finalReelValues)
+        setGameState('idle')
+        return
+      }
+
+      // 結果判定
+      const { amount, rule } = calculatePayout(finalReelValues)
+      if (amount > 0 && typeof amount === 'number' && isFinite(amount)) {
+        addMomoPayPoints(amount)
+        setLastWin(amount)
+        setTotalWins((prev: number) => Math.max(0, prev + amount))
+        
+        setTimeout(() => {
+          alert(`🎉 ${rule?.name || '当たり'} 当たり！\n+${amount}MOMOPay獲得！`)
+        }, 500)
+      } else {
+        setTotalLosses((prev: number) => Math.max(0, prev + Math.max(0, betAmount)))
+      }
+
+      setSpinCount((prev: number) => Math.max(0, prev + 1))
+      setGameState('result')
       
+      // 2秒後に次のゲーム準備
       setTimeout(() => {
-        alert(`🎉 ${rule?.name} 当たり！\n+${amount}MOMOPay獲得！`)
-      }, 500)
-    } else {
-      setTotalLosses((prev: number) => prev + betAmount)
-    }
-
-    setSpinCount((prev: number) => prev + 1)
-    setGameState('result')
-    
-    // 2秒後に次のゲーム準備
-    setTimeout(() => {
+        setGameState('idle')
+        setReelStates(['stopped', 'stopped', 'stopped'])
+      }, 2000)
+    } catch (error) {
+      console.error('Error in finishGame:', error)
       setGameState('idle')
       setReelStates(['stopped', 'stopped', 'stopped'])
-    }, 2000)
+    }
   }
 
   // 目押し対応スロット回転
@@ -240,16 +242,22 @@ const SlotMachine: React.FC = () => {
       const interval = window.setInterval(() => {
         setReelPositions((prevPositions: ReelPosition[]) => {
           const newPositions = [...prevPositions]
-          if (reelStates[reelIndex] === 'spinning') {
+          const currentPosition = newPositions[reelIndex]
+          
+          if (reelStates[reelIndex] === 'spinning' && currentPosition) {
+            const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
             newPositions[reelIndex] = {
-              ...newPositions[reelIndex],
-              currentIndex: (newPositions[reelIndex].currentIndex + 1) % REEL_PATTERN.length
+              ...currentPosition,
+              currentIndex: newIndex
             }
             
             // 表示用のリール更新
             setReels((prevReels: SlotSymbol[]) => {
               const newReels = [...prevReels]
-              newReels[reelIndex] = newPositions[reelIndex].symbols[newPositions[reelIndex].currentIndex] || '🍒'
+              const updatedPosition = newPositions[reelIndex]
+              if (updatedPosition && updatedPosition.symbols) {
+                newReels[reelIndex] = updatedPosition.symbols[updatedPosition.currentIndex] || '🍒'
+              }
               return newReels
             })
           }

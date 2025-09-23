@@ -445,6 +445,17 @@ const BulletHell: React.FC = () => {
   // コンポーネントアンマウント時のクリーンアップ
   useEffect(() => {
     return () => {
+      // ゲームループの確実な停止
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+      
+      // 配列のクリア
+      bulletsRef.current = []
+      enemiesRef.current = []
+      powerUpsRef.current = []
+      
       // AudioContextをクローズ
       if (audioContext) {
         audioContext.close().catch((error) => {
@@ -1383,38 +1394,42 @@ const BulletHell: React.FC = () => {
   }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound, addMomoPayPoints, invincible, invincibleTime, startInvincibility, updateHighScores])
 
   const start = useCallback(() => {
+    try {
+      // 前回のゲームループをキャンセル
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+      
+      // 効果音のテスト（ゲーム開始音）
+      playSound(440, 0.2, 'sine')
+      
+      // ゲーム状態を完全にリセット
+      bulletsRef.current = []
+      enemiesRef.current = []
+      powerUpsRef.current = []
+      playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
+      lastShotRef.current = 0
     
-    // 前回のゲームループをキャンセル
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current)
-      rafRef.current = null
+      // 状態をバッチで更新
+      setPowerUpBonuses({ fireRate: 0, power: 0 })
+      setLives(1)
+      setTime(0)
+      setScore(0)
+      
+      // シールド初期値を装備に応じて設定（装備なしなら0）
+      const equipmentShieldBonus = inventory?.equippedShield?.effect?.shield || 0
+      setShield(Math.max(0, equipmentShieldBonus))
+      
+      setWave(1)
+      setGameOver(false)
+      
+      // ゲームを開始
+      setRunning(true)
+    } catch (error) {
+      console.error('Failed to start game:', error)
+      alert('ゲームの開始に失敗しました')
     }
-    
-    // 効果音のテスト（ゲーム開始音）
-    playSound(440, 0.2, 'sine')
-    
-    // ゲーム状態を完全にリセット
-    bulletsRef.current = []
-    enemiesRef.current = []
-    powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
-    lastShotRef.current = 0
-    
-    // 状態をバッチで更新
-    setPowerUpBonuses({ fireRate: 0, power: 0 })
-    setLives(1)
-    setTime(0)
-    setScore(0)
-    
-    // シールド初期値を装備に応じて設定（装備なしなら0）
-    const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
-    setShield(equipmentShieldBonus)
-    
-    setWave(1)
-    setGameOver(false)
-    
-    // ゲームを開始
-    setRunning(true)
   }, [playSound, inventory])
 
   // ガチャ機能

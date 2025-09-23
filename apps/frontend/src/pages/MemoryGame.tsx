@@ -62,19 +62,24 @@ const MemoryGame: React.FC = () => {
 
   // Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: NodeJS.Timeout | null = null
     
-    if (gameState === 'playing' && stats.started) {
+    if (gameState === 'playing' && stats.started && stats.startTime) {
       interval = setInterval(() => {
         setStats(prev => ({
           ...prev,
-          time: prev.startTime ? Math.floor((Date.now() - prev.startTime) / 1000) : prev.time
+          time: prev.startTime ? Math.floor((Date.now() - prev.startTime) / 1000) : 0
         }))
       }, 1000)
     }
 
-    return () => clearInterval(interval)
-  }, [gameState, stats.started])
+    return () => {
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
+    }
+  }, [gameState, stats.started, stats.startTime])
 
   // Initialize cards for difficulty
   const initializeCards = (difficulty: GameDifficulty): Card[] => {

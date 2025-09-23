@@ -310,10 +310,27 @@ const AvatarCustomization: React.FC = () => {
 
   const saveAvatarData = (owned: string[], avatar: AvatarState) => {
     try {
-      localStorage.setItem('avatar-owned-items', JSON.stringify(owned))
-      localStorage.setItem('avatar-current', JSON.stringify(avatar))
+      // データの検証
+      if (!Array.isArray(owned)) throw new Error('Invalid owned items data')
+      if (!avatar || typeof avatar !== 'object') throw new Error('Invalid avatar data')
+      
+      // 安全な保存
+      const ownedData = owned.filter(id => typeof id === 'string' && id.length > 0)
+      const avatarData = {
+        ...avatar,
+        costumes: (avatar.costumes || []).filter((c): c is CostumePosition => 
+          Boolean(c && c.id && typeof c.x === 'number' && typeof c.y === 'number')
+        )
+      }
+      
+      localStorage.setItem('avatar-owned-items', JSON.stringify(ownedData))
+      localStorage.setItem('avatar-current', JSON.stringify(avatarData))
     } catch (error) {
       console.error('Failed to save avatar data:', error)
+      // ユーザーに通知
+      setTimeout(() => {
+        alert('データの保存に失敗しました。ブラウザの容量が不足している可能性があります。')
+      }, 100)
     }
   }
 
@@ -463,28 +480,46 @@ const AvatarCustomization: React.FC = () => {
 
   // コスチューム削除
   const removeCostume = (costumeId: string) => {
+    if (!costumeId || !currentAvatar?.costumes) return
+    
     const newAvatar = {
       ...currentAvatar,
-      costumes: currentAvatar.costumes.filter((c: CostumePosition) => c && c.id !== costumeId)
+      costumes: currentAvatar.costumes.filter((c: CostumePosition | null | undefined): c is CostumePosition => 
+        Boolean(c && c.id && c.id !== costumeId)
+      )
     }
     setCurrentAvatar(newAvatar)
     saveAvatarData(ownedItems, newAvatar)
     trackAvatarChanged() // アバター変更実績をトラック
     
-    const item = COSTUME_ITEMS.find(i => i.id === costumeId)
+    const item = COSTUME_ITEMS.find(i => i && i.id === costumeId)
     alert(`${item?.name || 'アイテム'}を外しました`)
   }
 
   // コスチューム位置更新
   const updateCostumePosition = (costumeId: string, updates: Partial<CostumePosition>) => {
-    if (!costumeId || !currentAvatar.costumes) return
+    if (!costumeId || !currentAvatar?.costumes || !Array.isArray(currentAvatar.costumes)) return
     
     try {
       const newAvatar = {
         ...currentAvatar,
-      costumes: currentAvatar.costumes.map((c: CostumePosition) => 
-        c && c.id === costumeId ? { ...c, ...updates } : c
-      ).filter(Boolean) as CostumePosition[] // null/undefined を除去
+        costumes: currentAvatar.costumes
+          .map((c: CostumePosition | null | undefined): CostumePosition | null => {
+            if (!c || !c.id) return null
+            if (c.id === costumeId) {
+              return { 
+                ...c, 
+                ...updates,
+                // 値の範囲チェック
+                x: typeof updates.x === 'number' ? Math.max(0, Math.min(100, updates.x)) : c.x,
+                y: typeof updates.y === 'number' ? Math.max(0, Math.min(100, updates.y)) : c.y,
+                scale: typeof updates.scale === 'number' ? Math.max(0.1, Math.min(3, updates.scale)) : c.scale,
+                rotation: typeof updates.rotation === 'number' ? updates.rotation % 360 : c.rotation
+              }
+            }
+            return c
+          })
+          .filter((c): c is CostumePosition => Boolean(c && c.id))
       }
       setCurrentAvatar(newAvatar)
       saveAvatarData(ownedItems, newAvatar)
@@ -761,12 +796,13 @@ const AvatarCustomization: React.FC = () => {
         />
         
         {/* Dynamic costume overlays */}
-        {currentAvatar.costumes && currentAvatar.costumes.length > 0 && currentAvatar.costumes
-          .filter((costume: CostumePosition) => costume && costume.id) // null/undefined チェック
-          .sort((a: CostumePosition, b: CostumePosition) => (a.zIndex || 0) - (b.zIndex || 0)) // null safe sort
+        {currentAvatar?.costumes && Array.isArray(currentAvatar.costumes) && currentAvatar.costumes.length > 0 && currentAvatar.costumes
+          .filter((costume: CostumePosition | null | undefined): costume is CostumePosition => 
+            Boolean(costume && costume.id && typeof costume.x === 'number' && typeof costume.y === 'number')
+          )
+          .sort((a: CostumePosition, b: CostumePosition) => (a.zIndex || 0) - (b.zIndex || 0))
           .map((costume: CostumePosition) => {
-            if (!costume || !costume.id) return null
-            const item = COSTUME_ITEMS.find(i => i.id === costume.id)
+            const item = COSTUME_ITEMS.find(i => i && i.id === costume.id)
             if (!item) return null
 
             return (
