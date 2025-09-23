@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackMemoryGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type CardSymbol = '🐿️' | '🌰' | '🌲' | '🍂' | '🌙' | '⭐' | '🌈' | '🎈' | '🎭' | '🎪' | '🎨' | '🎯' | '🎮' | '🎲' | '🎪' | '🎊'
 
@@ -62,19 +62,24 @@ const MemoryGame: React.FC = () => {
 
   // Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: NodeJS.Timeout | null = null
     
-    if (gameState === 'playing' && stats.started) {
+    if (gameState === 'playing' && stats.started && stats.startTime) {
       interval = setInterval(() => {
         setStats(prev => ({
           ...prev,
-          time: prev.startTime ? Math.floor((Date.now() - prev.startTime) / 1000) : prev.time
+          time: prev.startTime ? Math.floor((Date.now() - prev.startTime) / 1000) : 0
         }))
       }, 1000)
     }
 
-    return () => clearInterval(interval)
-  }, [gameState, stats.started])
+    return () => {
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
+    }
+  }, [gameState, stats.started, stats.startTime])
 
   // Initialize cards for difficulty
   const initializeCards = (difficulty: GameDifficulty): Card[] => {
@@ -157,7 +162,7 @@ const MemoryGame: React.FC = () => {
               const totalReward = baseReward + Math.floor(timeBonus / 15) + Math.floor(moveBonus / 3)
               
               addMomoPayPoints(totalReward)
-              trackGamePlayed()
+              trackMemoryGamePlayed()
               
               setTimeout(() => {
                 alert(`🎉 全てのペアを見つけました！\n\n移動回数: ${stats.moves + 1}\n所要時間: ${formatTime(stats.time)}\nマッチ数: ${totalMatches}\n\n獲得MOMOPay: ${totalReward}\n（基本: ${baseReward} + ボーナス: ${totalReward - baseReward}）`)

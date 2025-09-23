@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useAppData } from '../contexts/AppDataContext'
+import { trackTweetPosted, trackAreaVisited, AREAS } from '../utils/achievements'
 
 const Tweets: React.FC = () => {
   const { tweets, addTweet, likeTweet, cleanupExpiredTweets } = useAppData()
   const [newTweet, setNewTweet] = useState('')
+
+  // Track area visit
+  useEffect(() => {
+    trackAreaVisited(AREAS.PLAZA)
+  }, [])
 
   // Auto-cleanup expired tweets every minute
   useEffect(() => {
@@ -19,22 +25,35 @@ const Tweets: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newTweet.trim()) return
+    if (!newTweet || !newTweet.trim() || newTweet.trim().length === 0) return
 
-    const now = new Date()
-    const expiresAt = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour
+    try {
+      const now = new Date()
+      const expiresAt = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour
 
-    const tweet = {
-      id: generateId(),
-      content: newTweet.trim(),
-      createdAt: now.toISOString(),
-      likes: 0,
-      likedBy: [],
-      expiresAt: expiresAt.toISOString()
+      // データの検証
+      const content = newTweet.trim()
+      if (content.length > 280) {
+        alert('投稿は280文字以内で入力してください')
+        return
+      }
+
+      const tweet = {
+        id: generateId(),
+        content: content,
+        createdAt: now.toISOString(),
+        likes: 0,
+        likedBy: [],
+        expiresAt: expiresAt.toISOString()
+      }
+
+      addTweet(tweet)
+      trackTweetPosted() // 投稿実績をトラック
+      setNewTweet('')
+    } catch (error) {
+      console.error('Failed to create tweet:', error)
+      alert('投稿の作成に失敗しました')
     }
-
-    addTweet(tweet)
-    setNewTweet('')
   }
 
   const handleLike = (tweetId: string) => {

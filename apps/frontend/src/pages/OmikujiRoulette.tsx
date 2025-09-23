@@ -1,13 +1,19 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
+import { trackOmikujiDrawn, trackAreaVisited, AREAS } from '../utils/achievements'
 
 const allFortunes = ['大吉','中吉','小吉','吉','凶']
 
 const OmikujiChoice: React.FC = () => {
   useSEO(SEO_PRESETS.omikuji);
   const { momoPayPoints, spendMomoPayPoints } = useAppData()
+  
+  // Track area visit
+  useEffect(() => {
+    trackAreaVisited(AREAS.OMIKUJI)
+  }, [])
   const [revealedIdx, setRevealedIdx] = useState<number | null>(null)
   const [showAll, setShowAll] = useState(false)
   const [canPlay, setCanPlay] = useState(true)
@@ -58,6 +64,7 @@ const OmikujiChoice: React.FC = () => {
       return
     }
     
+    trackOmikujiDrawn() // 御神籤実績をトラック
     setRevealedIdx(cardId)
     setCanPlay(false)
     // Show all cards after a short delay

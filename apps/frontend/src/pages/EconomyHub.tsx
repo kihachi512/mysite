@@ -7,10 +7,10 @@ import { trackAreaVisited, AREAS } from '../utils/achievements'
 const EconomyHub: React.FC = () => {
   useSEO({
     title: 'どんぐり銀座',
-    description: '森の経済活動の中心地。どんぐり銀行での預金・投資、宝物庫でのアイテム管理、様々な経済活動が集まる賑やかな場所。',
-    keywords: 'どんぐり銀座,経済,銀行,預金,投資,宝物庫,どんぐり,森の経済,MOMOPay',
+    description: '森の経済活動の中心地。MOMOBankでの預金・投資、宝物庫でのアイテム管理、様々な経済活動が集まる賑やかな場所。',
+    keywords: 'どんぐり銀座,経済,MOMOBank,預金,投資,宝物庫,どんぐり,森の経済,MOMOPay',
     ogTitle: 'どんぐり銀座 - 森の経済圏 | モモンガカーニバル',
-    ogDescription: '森の経済活動の中心地！どんぐり銀行や宝物庫で資産を管理しよう。'
+    ogDescription: '森の経済活動の中心地！MOMOBankや宝物庫で資産を管理しよう。'
   });
 
   const { momoPayPoints } = useAppData()
@@ -84,7 +84,7 @@ const EconomyHub: React.FC = () => {
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              どんぐり銀行
+              MOMOBank
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
@@ -121,6 +121,32 @@ const EconomyHub: React.FC = () => {
             </div>
           </div>
         </Link>
+
+        <Link to="/momo-store" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#9c27b0', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🛒</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              MOMOStore
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              設定機能・装備の売買<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">森の売店がリニューアル！</span>
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* ナビゲーション */}
@@ -137,7 +163,7 @@ const EconomyHub: React.FC = () => {
             color: 'white',
             borderColor: '#2e7d32'
           }}>
-            🌲 森の拠点に戻る
+            🌲 拠点に戻る
           </button>
         </Link>
       </div>

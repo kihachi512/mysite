@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackSudokuSolved, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type GameState = 'menu' | 'playing' | 'completed' | 'paused'
 type Difficulty = 'easy' | 'medium' | 'hard'
@@ -51,19 +51,22 @@ const NumberPuzzle: React.FC = () => {
 
   // Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: NodeJS.Timeout | null = null
     
-    if (gameState === 'playing' && stats.started) {
+    if (gameState === 'playing' && stats.started && stats.startTime) {
       interval = setInterval(() => {
         setStats(prev => ({
           ...prev,
-          time: prev.startTime ? Math.floor((Date.now() - prev.startTime) / 1000) : prev.time
+          time: prev.startTime ? Math.max(0, Math.floor((Date.now() - prev.startTime) / 1000)) : 0
         }))
       }, 1000)
     }
     
     return () => {
-      if (interval) clearInterval(interval)
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
     }
   }, [gameState, stats.started, stats.startTime])
 
@@ -201,12 +204,14 @@ const NumberPuzzle: React.FC = () => {
       mistakes: 0
     })
     setGameState('playing')
-    trackGamePlayed()
+    // ゲーム開始時にはトラッキングしない（完了時にtrackSudokuSolved()を呼び出す）
   }
 
   // セルクリック処理
   const handleCellClick = (row: number, col: number) => {
-    if (board[row]?.[col]?.isGiven) return
+    // 範囲チェック
+    if (row < 0 || row >= 4 || col < 0 || col >= 4) return
+    if (!board[row] || board[row][col]?.isGiven) return
     setSelectedCell({ row, col })
   }
 
@@ -237,6 +242,7 @@ const NumberPuzzle: React.FC = () => {
     // 完成チェック
     if (isPuzzleComplete(validatedBoard)) {
       setGameState('completed')
+      trackSudokuSolved() // 数独完了実績をトラック
       
       // 報酬計算
       const baseReward = difficulty === 'easy' ? 50 : difficulty === 'medium' ? 100 : 200

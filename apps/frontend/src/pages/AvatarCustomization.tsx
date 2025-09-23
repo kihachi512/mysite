@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
-import { trackAreaVisited, AREAS } from '../utils/achievements'
+import { trackAvatarChanged, trackAreaVisited, AREAS } from '../utils/achievements'
 import { getActiveEvents } from '../utils/economyEvents'
 
 type CostumeItem = {
@@ -310,10 +310,27 @@ const AvatarCustomization: React.FC = () => {
 
   const saveAvatarData = (owned: string[], avatar: AvatarState) => {
     try {
-      localStorage.setItem('avatar-owned-items', JSON.stringify(owned))
-      localStorage.setItem('avatar-current', JSON.stringify(avatar))
+      // データの検証
+      if (!Array.isArray(owned)) throw new Error('Invalid owned items data')
+      if (!avatar || typeof avatar !== 'object') throw new Error('Invalid avatar data')
+      
+      // 安全な保存
+      const ownedData = owned.filter(id => typeof id === 'string' && id.length > 0)
+      const avatarData = {
+        ...avatar,
+        costumes: (avatar.costumes || []).filter((c): c is CostumePosition => 
+          Boolean(c && c.id && typeof c.x === 'number' && typeof c.y === 'number')
+        )
+      }
+      
+      localStorage.setItem('avatar-owned-items', JSON.stringify(ownedData))
+      localStorage.setItem('avatar-current', JSON.stringify(avatarData))
     } catch (error) {
       console.error('Failed to save avatar data:', error)
+      // ユーザーに通知
+      setTimeout(() => {
+        alert('データの保存に失敗しました。ブラウザの容量が不足している可能性があります。')
+      }, 100)
     }
   }
 
@@ -388,15 +405,9 @@ const AvatarCustomization: React.FC = () => {
 
     // ガチャ結果音（レアリティに応じて変化）
     setTimeout(() => {
+      // 本番環境ではログを削除、視覚的演出に集中
       if (selectedItem.rarity === 'legendary') {
-        // レジェンダリー音は鳴らないが、視覚的演出を重視
-        console.log('Legendary item obtained!')
-      } else if (selectedItem.rarity === 'epic') {
-        console.log('Epic item obtained!')
-      } else if (selectedItem.rarity === 'rare') {
-        console.log('Rare item obtained!')
-      } else {
-        console.log('Common item obtained!')
+        // レジェンダリー取得時の特別演出（将来的に音声追加可能）
       }
     }, 100)
   }
@@ -409,7 +420,7 @@ const AvatarCustomization: React.FC = () => {
     }
 
     // 既に装備されているかチェック
-    const alreadyEquipped = currentAvatar.costumes.find(c => c.id === item.id)
+    const alreadyEquipped = currentAvatar.costumes.find(c => c && c.id === item.id)
     if (alreadyEquipped) {
       alert('このアイテムは既に装備されています')
       return
@@ -452,36 +463,57 @@ const AvatarCustomization: React.FC = () => {
 
     const newAvatar = {
       ...currentAvatar,
-      costumes: [...currentAvatar.costumes, newCostume]
+      costumes: [...(currentAvatar.costumes || []), newCostume]
     }
+    
     setCurrentAvatar(newAvatar)
     saveAvatarData(ownedItems, newAvatar)
+    trackAvatarChanged() // アバター変更実績をトラック
     alert(`✨ ${item.name}を装備しました！`)
   }
 
   // コスチューム削除
   const removeCostume = (costumeId: string) => {
+    if (!costumeId || !currentAvatar?.costumes) return
+    
     const newAvatar = {
       ...currentAvatar,
-      costumes: currentAvatar.costumes.filter((c: CostumePosition) => c.id !== costumeId)
+      costumes: currentAvatar.costumes.filter((c: CostumePosition | null | undefined): c is CostumePosition => 
+        Boolean(c && c.id && c.id !== costumeId)
+      )
     }
     setCurrentAvatar(newAvatar)
     saveAvatarData(ownedItems, newAvatar)
+    trackAvatarChanged() // アバター変更実績をトラック
     
-    const item = COSTUME_ITEMS.find(i => i.id === costumeId)
+    const item = COSTUME_ITEMS.find(i => i && i.id === costumeId)
     alert(`${item?.name || 'アイテム'}を外しました`)
   }
 
   // コスチューム位置更新
   const updateCostumePosition = (costumeId: string, updates: Partial<CostumePosition>) => {
-    if (!costumeId || !currentAvatar.costumes) return
+    if (!costumeId || !currentAvatar?.costumes || !Array.isArray(currentAvatar.costumes)) return
     
     try {
       const newAvatar = {
         ...currentAvatar,
-      costumes: currentAvatar.costumes.map((c: CostumePosition) => 
-        c && c.id === costumeId ? { ...c, ...updates } : c
-      ).filter(Boolean) as CostumePosition[] // null/undefined を除去
+        costumes: currentAvatar.costumes
+          .map((c: CostumePosition | null | undefined): CostumePosition | null => {
+            if (!c || !c.id) return null
+            if (c.id === costumeId) {
+              return { 
+                ...c, 
+                ...updates,
+                // 値の範囲チェック
+                x: typeof updates.x === 'number' ? Math.max(0, Math.min(100, updates.x)) : c.x,
+                y: typeof updates.y === 'number' ? Math.max(0, Math.min(100, updates.y)) : c.y,
+                scale: typeof updates.scale === 'number' ? Math.max(0.1, Math.min(3, updates.scale)) : c.scale,
+                rotation: typeof updates.rotation === 'number' ? updates.rotation % 360 : c.rotation
+              }
+            }
+            return c
+          })
+          .filter((c): c is CostumePosition => Boolean(c && c.id))
       }
       setCurrentAvatar(newAvatar)
       saveAvatarData(ownedItems, newAvatar)
@@ -758,12 +790,13 @@ const AvatarCustomization: React.FC = () => {
         />
         
         {/* Dynamic costume overlays */}
-        {currentAvatar.costumes && currentAvatar.costumes.length > 0 && currentAvatar.costumes
-          .filter((costume: CostumePosition) => costume && costume.id) // null/undefined チェック
-          .sort((a: CostumePosition, b: CostumePosition) => (a.zIndex || 0) - (b.zIndex || 0)) // null safe sort
+        {currentAvatar?.costumes && Array.isArray(currentAvatar.costumes) && currentAvatar.costumes.length > 0 && currentAvatar.costumes
+          .filter((costume: CostumePosition | null | undefined): costume is CostumePosition => 
+            Boolean(costume && costume.id && typeof costume.x === 'number' && typeof costume.y === 'number')
+          )
+          .sort((a: CostumePosition, b: CostumePosition) => (a.zIndex || 0) - (b.zIndex || 0))
           .map((costume: CostumePosition) => {
-            if (!costume || !costume.id) return null
-            const item = COSTUME_ITEMS.find(i => i.id === costume.id)
+            const item = COSTUME_ITEMS.find(i => i && i.id === costume.id)
             if (!item) return null
 
             return (
@@ -984,50 +1017,6 @@ const AvatarCustomization: React.FC = () => {
           </div>
         </div>
 
-        {/* ガチャボタン */}
-        <div className="comic-card" style={{
-          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
-          borderColor: '#ffc107',
-          padding: 'min(20px, 5vw)',
-          marginBottom: 'min(24px, 6vw)',
-          maxWidth: '500px',
-          margin: '0 auto min(24px, 6vw) auto'
-        }}>
-          <div className="comic-text font-title-sm" style={{ 
-            color: '#fff3e0',
-            marginBottom: '12px'
-          }}>
-            🎰 コスチュームガチャ
-          </div>
-          
-          <div className="comic-text font-body-sm" style={{ 
-            color: '#c8e6c9',
-            marginBottom: '16px',
-            lineHeight: '1.6'
-          }}>
-            🏆 レジェンド: 3% | ⚡ エピック: 12%<br/>
-            🌟 レア: 25% | 🌿 コモン: 60%<br/>
-            重複時は30%分のMOMOPayで返金！
-          </div>
-
-          <button
-            onClick={() => setShowGacha(true)}
-            className="comic-button font-button-lg"
-            style={{
-              background: momoPayPoints >= 500 
-                ? 'linear-gradient(45deg, #ffc107, #ffb300)'
-                : 'linear-gradient(45deg, #666, #555)',
-              color: momoPayPoints >= 500 ? '#000' : '#ccc',
-              borderColor: momoPayPoints >= 500 ? '#f57f17' : '#333',
-              fontSize: 'clamp(1rem, 3vw, 1.3rem)',
-              padding: 'min(12px 24px, 3vw 6vw, 16px 32px)'
-            }}
-            disabled={momoPayPoints < 500}
-          >
-            🎰 ガチャを引く (500P)
-          </button>
-        </div>
-
         {/* Costume Inventory */}
         {showInventory && (
           <div className="comic-card" style={{
@@ -1066,9 +1055,9 @@ const AvatarCustomization: React.FC = () => {
                     <div 
                       key={item.id} 
                       className="comic-card" 
-                      draggable
-                      onDragStart={(e) => handleDragStart(item, e)}
-                      onTouchStart={(e) => handleInventoryTouchStart(e, item)}
+                      draggable={!isEquipped} // 装備済みの場合はドラッグ無効
+                      onDragStart={(e) => !isEquipped && handleDragStart(item, e)}
+                      onTouchStart={(e) => !isEquipped && handleInventoryTouchStart(e, item)}
                       style={{
                         background: isEquipped 
                           ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(139, 195, 74, 0.3))'
@@ -1080,12 +1069,16 @@ const AvatarCustomization: React.FC = () => {
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                       }}
                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                      e.currentTarget.style.transform = 'scale(1.05)'
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
+                      if (!isEquipped) {
+                        e.currentTarget.style.transform = 'scale(1.05)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
+                      }
                     }}
                     onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                      e.currentTarget.style.transform = 'scale(1)'
-                      e.currentTarget.style.boxShadow = ''
+                      if (!isEquipped) {
+                        e.currentTarget.style.transform = 'scale(1)'
+                        e.currentTarget.style.boxShadow = ''
+                      }
                     }}
                     >
                       {/* Status badge */}
@@ -1149,7 +1142,11 @@ const AvatarCustomization: React.FC = () => {
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
                         {isEquipped ? (
                           <button
-                            onClick={() => removeCostume(item.id)}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              removeCostume(item.id)
+                            }}
                             className="comic-button font-button-xs"
                             style={{
                               background: 'linear-gradient(45deg, #f44336, #d32f2f)',
@@ -1163,7 +1160,11 @@ const AvatarCustomization: React.FC = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => addCostume(item)}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              addCostume(item)
+                            }}
                             className="comic-button font-button-xs"
                             style={{
                               background: 'linear-gradient(45deg, #4caf50, #45a049)',
@@ -1184,6 +1185,50 @@ const AvatarCustomization: React.FC = () => {
             )}
           </div>
         )}
+
+        {/* ガチャボタン */}
+        <div className="comic-card" style={{
+          background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
+          borderColor: '#ffc107',
+          padding: 'min(20px, 5vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '500px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div className="comic-text font-title-sm" style={{ 
+            color: '#fff3e0',
+            marginBottom: '12px'
+          }}>
+            🎰 コスチュームガチャ
+          </div>
+          
+          <div className="comic-text font-body-sm" style={{ 
+            color: '#c8e6c9',
+            marginBottom: '16px',
+            lineHeight: '1.6'
+          }}>
+            🏆 レジェンド: 3% | ⚡ エピック: 12%<br/>
+            🌟 レア: 25% | 🌿 コモン: 60%<br/>
+            重複時は30%分のMOMOPayで返金！
+          </div>
+
+          <button
+            onClick={() => setShowGacha(true)}
+            className="comic-button font-button-lg"
+            style={{
+              background: momoPayPoints >= 500 
+                ? 'linear-gradient(45deg, #ffc107, #ffb300)'
+                : 'linear-gradient(45deg, #666, #555)',
+              color: momoPayPoints >= 500 ? '#000' : '#ccc',
+              borderColor: momoPayPoints >= 500 ? '#f57f17' : '#333',
+              fontSize: 'clamp(1rem, 3vw, 1.3rem)',
+              padding: 'min(12px 24px, 3vw 6vw, 16px 32px)'
+            }}
+            disabled={momoPayPoints < 500}
+          >
+            🎰 ガチャを引く (500P)
+          </button>
+        </div>
       </div>
 
       {/* ガチャモーダル */}
@@ -1369,7 +1414,7 @@ const AvatarCustomization: React.FC = () => {
             color: '#000',
             borderColor: '#f57f17'
           }}>
-            🏦 銀行でMOMOPay稼ぐ
+            🏦 MOMOBankでMOMOPay稼ぐ
           </button>
         </Link>
         

@@ -143,18 +143,16 @@ const BulletHell: React.FC = () => {
       const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       const ctx = new AudioContextClass()
       setAudioContext(ctx)
-      console.log('AudioContext created, state:', ctx.state)
+      // AudioContext作成成功
       
       // AudioContextが suspend 状態の場合は resume を試行
       if (ctx.state === 'suspended') {
-        ctx.resume().then(() => {
-          console.log('AudioContext resumed successfully')
-        }).catch(() => {
-          console.log('AudioContext resume failed, will try on next user interaction')
+        ctx.resume().catch(() => {
+          // Resume失敗時は次回ユーザーインタラクションで再試行
         })
       }
     } catch (error) {
-      console.log('AudioContext creation failed:', error)
+      // AudioContext作成失敗（サイレント処理）
     }
   }, [audioContext, soundEnabled])
   
@@ -175,38 +173,32 @@ const BulletHell: React.FC = () => {
       
       oscillator.start(ctx.currentTime)
       oscillator.stop(ctx.currentTime + duration)
-      console.log(`Sound played: ${frequency}Hz, ${duration}s, ${type}`)
+      // 音声再生成功
     } catch (error) {
-      console.log('Actual sound play error:', error)
+      // 音声再生失敗（サイレント処理）
     }
   }, [])
   
   // 効果音再生関数
   const playSound = useCallback((frequency: number, duration: number, type: 'sine' | 'square' | 'triangle' = 'sine') => {
     if (!soundEnabled || !audioContext) {
-      console.log('Sound disabled or no AudioContext:', { soundEnabled, hasAudioContext: !!audioContext })
       return
     }
     
     try {
       // AudioContextが suspended 状態の場合は resume を試行
       if (audioContext.state === 'suspended') {
-        console.log('AudioContext suspended, attempting resume...')
         audioContext.resume().then(() => {
-          console.log('AudioContext resumed, playing sound')
           // resume 成功後に再度音声を再生
           playActualSound(audioContext, frequency, duration, type)
         }).catch(() => {
-          console.log('AudioContext resume failed')
+          // Resume失敗時はサイレント
         })
       } else if (audioContext.state === 'running') {
-        console.log('AudioContext running, playing sound')
         playActualSound(audioContext, frequency, duration, type)
-      } else {
-        console.log('AudioContext in unexpected state:', audioContext.state)
       }
     } catch (error) {
-      console.log('Sound play error:', error)
+      // 音声再生エラーはサイレント処理
     }
   }, [soundEnabled, audioContext, playActualSound])
   
@@ -220,7 +212,7 @@ const BulletHell: React.FC = () => {
       setInvincible(true)
       setInvincibleTime(safeDuration)
     } catch (e) {
-      console.log('Invincibility start error:', e)
+      // 無敵時間設定エラー（サイレント処理）
     }
   }, [])
   
@@ -342,48 +334,23 @@ const BulletHell: React.FC = () => {
         const settings = JSON.parse(savedSettings)
         const soundSetting = settings['notification-sound'] || false
         setSoundEnabled(soundSetting)
-        console.log('Sound setting loaded:', soundSetting)
       } catch {
         setSoundEnabled(false)
-        console.log('Failed to load sound settings, defaulting to false')
       }
-    } else {
-      console.log('No saved settings found, sound disabled')
     }
   }, [])
 
-  // ローカルストレージから効果音設定を読み込み
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('app-settings')
-    if (savedSettings) {
-      try {
-        const settings = JSON.parse(savedSettings)
-        const soundSetting = settings['sound-effects'] || false
-        setSoundEnabled(soundSetting)
-        console.log('Sound setting loaded:', soundSetting)
-      } catch {
-        setSoundEnabled(false)
-        console.log('Failed to load sound settings, defaulting to false')
-      }
-    } else {
-      console.log('No saved settings found, sound disabled')
-    }
-  }, [])
 
   // AudioContextを効果音設定に応じて初期化
   useEffect(() => {
-    console.log('Sound effect:', { soundEnabled, hasAudioContext: !!audioContext })
     if (soundEnabled && !audioContext) {
-      console.log('Initializing AudioContext...')
       initializeAudio()
     } else if (!soundEnabled && audioContext) {
       // 効果音が無効になった場合はAudioContextをクローズ
-      console.log('Closing AudioContext...')
       audioContext.close().then(() => {
         setAudioContext(null)
-        console.log('AudioContext closed')
-      }).catch((error) => {
-        console.log('Failed to close AudioContext:', error)
+      }).catch(() => {
+        // AudioContextクローズ失敗はサイレント処理
       })
     }
   }, [soundEnabled, audioContext, initializeAudio])
@@ -391,16 +358,11 @@ const BulletHell: React.FC = () => {
   // ユーザーインタラクション時にAudioContextをresumeする
   useEffect(() => {
     const handleUserInteraction = () => {
-      console.log('User interaction detected')
       if (soundEnabled && !audioContext) {
-        console.log('Creating AudioContext on user interaction')
         initializeAudio()
       } else if (audioContext && audioContext.state === 'suspended') {
-        console.log('Resuming AudioContext on user interaction')
-        audioContext.resume().then(() => {
-          console.log('AudioContext resumed after user interaction')
-        }).catch((error) => {
-          console.log('Failed to resume AudioContext:', error)
+        audioContext.resume().catch(() => {
+          // Resume失敗はサイレント処理
         })
       }
     }
@@ -427,10 +389,9 @@ const BulletHell: React.FC = () => {
           const newSoundSetting = settings['sound-effects'] || false
           if (newSoundSetting !== soundEnabled) {
             setSoundEnabled(newSoundSetting)
-            console.log('Sound setting updated via storage change:', newSoundSetting)
           }
         } catch (error) {
-          console.log('Failed to parse updated settings:', error)
+          // 設定解析失敗はサイレント処理
         }
       }
     }
@@ -445,10 +406,21 @@ const BulletHell: React.FC = () => {
   // コンポーネントアンマウント時のクリーンアップ
   useEffect(() => {
     return () => {
+      // ゲームループの確実な停止
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+      
+      // 配列のクリア
+      bulletsRef.current = []
+      enemiesRef.current = []
+      powerUpsRef.current = []
+      
       // AudioContextをクローズ
       if (audioContext) {
-        audioContext.close().catch((error) => {
-          console.log('Failed to close AudioContext on unmount:', error)
+        audioContext.close().catch(() => {
+          // AudioContextクローズ失敗はサイレント処理
         })
       }
     }
@@ -1383,38 +1355,42 @@ const BulletHell: React.FC = () => {
   }, [running, time, wave, lives, score, shield, powerUpBonuses, inventory, playSound, addMomoPayPoints, invincible, invincibleTime, startInvincibility, updateHighScores])
 
   const start = useCallback(() => {
+    try {
+      // 前回のゲームループをキャンセル
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+      
+      // 効果音のテスト（ゲーム開始音）
+      playSound(440, 0.2, 'sine')
+      
+      // ゲーム状態を完全にリセット
+      bulletsRef.current = []
+      enemiesRef.current = []
+      powerUpsRef.current = []
+      playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
+      lastShotRef.current = 0
     
-    // 前回のゲームループをキャンセル
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current)
-      rafRef.current = null
+      // 状態をバッチで更新
+      setPowerUpBonuses({ fireRate: 0, power: 0 })
+      setLives(1)
+      setTime(0)
+      setScore(0)
+      
+      // シールド初期値を装備に応じて設定（装備なしなら0）
+      const equipmentShieldBonus = inventory?.equippedShield?.effect?.shield || 0
+      setShield(Math.max(0, equipmentShieldBonus))
+      
+      setWave(1)
+      setGameOver(false)
+      
+      // ゲームを開始
+      setRunning(true)
+    } catch (error) {
+      console.error('Failed to start game:', error)
+      alert('ゲームの開始に失敗しました')
     }
-    
-    // 効果音のテスト（ゲーム開始音）
-    playSound(440, 0.2, 'sine')
-    
-    // ゲーム状態を完全にリセット
-    bulletsRef.current = []
-    enemiesRef.current = []
-    powerUpsRef.current = []
-    playerRef.current = { x: 200, y: 240, r: 4, fireRate: 1.0, power: 1.0, displayR: 15 }
-    lastShotRef.current = 0
-    
-    // 状態をバッチで更新
-    setPowerUpBonuses({ fireRate: 0, power: 0 })
-    setLives(1)
-    setTime(0)
-    setScore(0)
-    
-    // シールド初期値を装備に応じて設定（装備なしなら0）
-    const equipmentShieldBonus = inventory.equippedShield?.effect.shield || 0
-    setShield(equipmentShieldBonus)
-    
-    setWave(1)
-    setGameOver(false)
-    
-    // ゲームを開始
-    setRunning(true)
   }, [playSound, inventory])
 
   // ガチャ機能

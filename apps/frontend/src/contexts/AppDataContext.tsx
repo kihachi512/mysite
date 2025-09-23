@@ -220,25 +220,29 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   // MOMOPay helpers
   const addMomoPayPoints = (points: number) => {
     // Validate points value
-    if (typeof points !== 'number' || isNaN(points)) {
-      console.error('Invalid points value')
+    if (typeof points !== 'number' || isNaN(points) || !isFinite(points)) {
+      console.error('Invalid points value:', points)
       return
     }
     
-    const newPoints = Math.min(Math.max(0, momoPayPoints + points), 10000000) // Cap at 10M
+    // 安全な計算
+    const currentPoints = typeof momoPayPoints === 'number' ? momoPayPoints : 0
+    const newPoints = Math.min(Math.max(0, Math.floor(currentPoints + points)), 10000000) // Cap at 10M
+    
     setMomoPayPoints(newPoints)
     safeSetLocalStorage('momoPayPoints', newPoints)
   }
 
   const spendMomoPayPoints = (points: number): boolean => {
     // Validate points value
-    if (typeof points !== 'number' || isNaN(points) || points < 0) {
-      console.error('Invalid points value for spending')
+    if (typeof points !== 'number' || isNaN(points) || points < 0 || !isFinite(points)) {
+      console.error('Invalid points value for spending:', points)
       return false
     }
     
-    if (momoPayPoints >= points) {
-      const newPoints = Math.max(0, momoPayPoints - points)
+    const currentPoints = typeof momoPayPoints === 'number' ? momoPayPoints : 0
+    if (currentPoints >= points) {
+      const newPoints = Math.max(0, Math.floor(currentPoints - points))
       setMomoPayPoints(newPoints)
       safeSetLocalStorage('momoPayPoints', newPoints)
       return true

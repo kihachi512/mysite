@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
+import { trackPurchaseMade, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type StoreItem = {
   id: string
@@ -237,10 +238,15 @@ const SaleView: React.FC<{
 }
 
 const MOMOStore: React.FC = () => {
-  const { momoPayPoints, addMomoPayPoints } = useAppData()
+  const { momoPayPoints, addMomoPayPoints, spendMomoPayPoints } = useAppData()
   const [purchasedItems, setPurchasedItems] = useState<string[]>([])
   const [inventory, setInventory] = useState<Inventory>({ items: [] })
   const [activeTab, setActiveTab] = useState<'purchase' | 'sale'>('purchase')
+  
+  // Track area visit
+  useEffect(() => {
+    trackAreaVisited(AREAS.STORE)
+  }, [])
 
   // Load purchased items from localStorage
   useEffect(() => {
@@ -266,33 +272,63 @@ const MOMOStore: React.FC = () => {
 
   // Save purchased items to localStorage
   const savePurchases = (items: string[]) => {
-    localStorage.setItem('momostore-purchases', JSON.stringify(items))
+    try {
+      if (!Array.isArray(items)) {
+        console.error('Invalid items data for saving')
+        return
+      }
+      
+      // データの検証とクリーニング
+      const validItems = items.filter(item => typeof item === 'string' && item.length > 0)
+      localStorage.setItem('momostore-purchases', JSON.stringify(validItems))
+    } catch (error) {
+      console.error('Failed to save purchases:', error)
+      alert('購入データの保存に失敗しました')
+    }
   }
 
   const purchaseItem = (item: StoreItem) => {
-    if (momoPayPoints < item.price) {
-      alert('MOMOPayが不足しています！')
-      return
-    }
-
-    if (purchasedItems.includes(item.id)) {
-      alert('既に購入済みです！')
-      return
-    }
-
-    if (confirm(`${item.name}を${item.price}MOMOPayで購入しますか？`)) {
-      addMomoPayPoints(-item.price)
-      const newPurchases = [...purchasedItems, item.id]
-      setPurchasedItems(newPurchases)
-      savePurchases(newPurchases)
-      
-      // Apply setting if it's a setting type
-      if (item.type === 'setting') {
-        applySettingPurchase(item.id)
-        alert(`${item.name}を購入しました！\n設定画面で有効にしてください。`)
-      } else {
-        alert(`${item.name}を購入しました！`)
+    try {
+      // 入力値の検証
+      if (!item || !item.id || !item.name || typeof item.price !== 'number' || item.price <= 0) {
+        console.error('Invalid item data:', item)
+        alert('無効なアイテムデータです')
+        return
       }
+
+      if (momoPayPoints < item.price) {
+        alert('MOMOPayが不足しています！')
+        return
+      }
+
+      if (purchasedItems.includes(item.id)) {
+        alert('既に購入済みです！')
+        return
+      }
+
+      if (confirm(`${item.name}を${item.price}MOMOPayで購入しますか？`)) {
+        // MOMOPay消費（安全性チェックはspendMomoPayPointsで実行）
+        if (!spendMomoPayPoints(item.price)) {
+          alert('購入処理に失敗しました')
+          return
+        }
+        
+        const newPurchases = [...purchasedItems, item.id]
+        setPurchasedItems(newPurchases)
+        savePurchases(newPurchases)
+        trackPurchaseMade() // 購入実績をトラック
+        
+        // Apply setting if it's a setting type
+        if (item.type === 'setting') {
+          applySettingPurchase(item.id)
+          alert(`${item.name}を購入しました！\n設定画面で有効にしてください。`)
+        } else {
+          alert(`${item.name}を購入しました！`)
+        }
+      }
+    } catch (error) {
+      console.error('Purchase failed:', error)
+      alert('購入処理中にエラーが発生しました')
     }
   }
 

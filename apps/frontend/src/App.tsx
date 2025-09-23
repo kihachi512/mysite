@@ -50,10 +50,10 @@ const App: React.FC = () => {
               <h1 className="title">さすらいのモモンガカーニバル</h1>
             </Link>
             <nav className="nav" style={{ marginTop: 12, display: 'inline-flex' }} role="navigation" aria-label="メインナビゲーション">
-              <Link to="/" aria-label="森の拠点 - メインページ">森の拠点</Link>
+              <Link to="/" aria-label="拠点 - メインページ">拠点</Link>
               <Link to="/games" aria-label="遊技場ページ - ゲームで遊ぶ">遊技場</Link>
               <Link to="/plaza" aria-label="広場ページ - みんなとおしゃべり">広場</Link>
-              <Link to="/personal" aria-label="木の洞 - 個人データ管理">木の洞</Link>
+              <Link to="/personal" aria-label="樹洞 - 個人データ管理">樹洞</Link>
               <Link to="/settings" aria-label="設定ページ - サイト設定">設定</Link>
             </nav>
           </header>

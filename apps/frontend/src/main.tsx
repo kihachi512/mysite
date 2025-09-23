@@ -33,7 +33,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
-      <div className="comic-text font-title-xl" style={{ marginBottom: 'min(24px, 6vw)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', color: '#fff3e0', lineHeight: '1.2' }}>🌲 森の拠点へようこそ！ 🐿️</div>
+      <div className="comic-text font-title-xl" style={{ marginBottom: 'min(24px, 6vw)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', color: '#fff3e0', lineHeight: '1.2' }}>🌲 拠点へようこそ！ 🐿️</div>
       <div className="comic-text font-title-sm" style={{ marginBottom: 'min(24px, 6vw)', color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>さすらいのモモンガカーニバル</div>
 
       {/* デイリーボーナス */}
@@ -121,7 +121,7 @@ const HomePage: React.FC = () => {
         <Link to="/personal" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.3), rgba(160, 82, 45, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#8b4513', cursor: 'pointer', transition: 'all 0.3s ease' }}>
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>🌳</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>木の洞</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>樹洞</div>
             <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>秘密の隠れ家</div>
           </div>
         </Link>
