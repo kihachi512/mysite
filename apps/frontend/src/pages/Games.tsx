@@ -186,6 +186,32 @@ const Games: React.FC = () => {
           </div>
         </Link>
 
+        <Link to="/avatar" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#9c27b0', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>👗</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              着せ替え
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              モモンガくんをカスタマイズ<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">コスチューム・ガチャ</span>
+            </div>
+          </div>
+        </Link>
+
         <Link to="/momo-economy" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ 
             background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.3), rgba(184, 134, 11, 0.2))', 
