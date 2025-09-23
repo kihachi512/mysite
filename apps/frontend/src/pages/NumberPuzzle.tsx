@@ -80,9 +80,13 @@ const NumberPuzzle: React.FC = () => {
       
       for (const num of numbers) {
         if (isValidMove(board, row, col, num)) {
-          board[row][col] = num
+          if (board[row] && board[row][col] !== undefined) {
+            board[row][col] = num
+          }
           if (solve(row, col + 1)) return true
-          board[row][col] = 0
+          if (board[row] && board[row][col] !== undefined) {
+            board[row][col] = 0
+          }
         }
       }
       
@@ -97,12 +101,12 @@ const NumberPuzzle: React.FC = () => {
   const isValidMove = (board: number[][], row: number, col: number, num: number): boolean => {
     // 行チェック
     for (let c = 0; c < 4; c++) {
-      if (c !== col && board[row][c] === num) return false
+      if (c !== col && board[row]?.[c] === num) return false
     }
     
     // 列チェック
     for (let r = 0; r < 4; r++) {
-      if (r !== row && board[r][col] === num) return false
+      if (r !== row && board[r]?.[col] === num) return false
     }
     
     // 2x2ブロックチェック
@@ -111,7 +115,7 @@ const NumberPuzzle: React.FC = () => {
     
     for (let r = blockRow; r < blockRow + 2; r++) {
       for (let c = blockCol; c < blockCol + 2; c++) {
-        if ((r !== row || c !== col) && board[r][c] === num) return false
+        if ((r !== row || c !== col) && board[r]?.[c] === num) return false
       }
     }
     
@@ -139,8 +143,13 @@ const NumberPuzzle: React.FC = () => {
     
     // 指定数のセルを空にする
     for (let i = 0; i < cellsToRemove && i < positions.length; i++) {
-      const [r, c] = positions[i]
-      puzzle[r][c] = { value: null, isGiven: false, isValid: true }
+      const position = positions[i]
+      if (position && position.length >= 2) {
+        const [r, c] = position
+        if (puzzle[r] && puzzle[r][c]) {
+          puzzle[r][c] = { value: null, isGiven: false, isValid: true }
+        }
+      }
     }
     
     return puzzle
@@ -150,17 +159,18 @@ const NumberPuzzle: React.FC = () => {
   const validateBoard = (board: SudokuBoard): SudokuBoard => {
     const newBoard = board.map(row => row?.map(cell => ({ ...cell })) || [])
     
-    for (let r = 0; r < 4; r++) {
-      for (let c = 0; c < 4; c++) {
-        if (newBoard[r]?.[c]?.value !== null) {
-          const num = newBoard[r][c].value!
-          const tempBoard = board.map(row => row?.map(cell => cell?.value || 0) || [])
-          newBoard[r][c].isValid = isValidMove(tempBoard, r, c, num)
-        } else if (newBoard[r]?.[c]) {
-          newBoard[r][c].isValid = true
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          const cell = newBoard[r]?.[c]
+          if (cell && cell.value !== null) {
+            const num = cell.value!
+            const tempBoard = board.map(row => row?.map(cell => cell?.value || 0) || [])
+            cell.isValid = isValidMove(tempBoard, r, c, num)
+          } else if (cell) {
+            cell.isValid = true
+          }
         }
       }
-    }
     
     return newBoard
   }
@@ -191,7 +201,7 @@ const NumberPuzzle: React.FC = () => {
       mistakes: 0
     })
     setGameState('playing')
-    trackGamePlayed('mini-sudoku')
+    trackGamePlayed()
   }
 
   // セルクリック処理
@@ -205,9 +215,10 @@ const NumberPuzzle: React.FC = () => {
     if (!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven) return
     
     const newBoard = [...board]
-    const wasEmpty = newBoard[selectedCell.row]?.[selectedCell.col]?.value === null
-    if (newBoard[selectedCell.row]?.[selectedCell.col]) {
-      newBoard[selectedCell.row][selectedCell.col].value = num
+    const targetCell = newBoard[selectedCell.row]?.[selectedCell.col]
+    const wasEmpty = targetCell?.value === null
+    if (targetCell) {
+      targetCell.value = num
     }
     
     // 検証
@@ -567,7 +578,7 @@ const NumberPuzzle: React.FC = () => {
           <button
             key={num}
             onClick={() => handleNumberInput(num)}
-            disabled={!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven}
+            disabled={!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven === true}
             className="comic-button font-button-md"
             style={{
               background: 'linear-gradient(45deg, #2196f3, #1976d2)',
