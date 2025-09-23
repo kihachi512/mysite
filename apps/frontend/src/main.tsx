@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { useSEO, SEO_PRESETS } from './hooks/useSEO'
 import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performance'
-import { getDailyBonus, claimDailyBonus, getActiveEvents } from './utils/economyEvents'
+import { getDailyBonus, claimDailyBonus, getActiveEvents, economyEventManager } from './utils/economyEvents'
 import { useAppData } from './contexts/AppDataContext'
 
 // ホームページコンポーネント
@@ -14,7 +14,12 @@ const HomePage: React.FC = () => {
   useSEO(SEO_PRESETS.home);
   const { addMomoPayPoints } = useAppData()
   const [dailyBonus, setDailyBonus] = React.useState(getDailyBonus())
-  const [activeEvents, setActiveEvents] = React.useState(getActiveEvents())
+  const [activeEvents] = React.useState(getActiveEvents())
+
+  // 初期化時に経済イベントを確実にセットアップ
+  React.useEffect(() => {
+    economyEventManager.ensureInitialized()
+  }, [])
 
   const handleClaimBonus = () => {
     const amount = claimDailyBonus()

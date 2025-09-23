@@ -49,7 +49,7 @@ const Avatar: React.FC<AvatarProps> = ({
     }
   }
 
-  const getAvatarDisplay = (): React.ReactNode => {
+  const getAvatarDisplay = () => {
     const baseStyle = {
       position: 'relative' as const,
       display: 'inline-flex',
@@ -141,7 +141,7 @@ const Avatar: React.FC<AvatarProps> = ({
     return backgrounds[backgroundId] || {}
   }
 
-  return getAvatarDisplay() as React.ReactElement
+  return getAvatarDisplay()
 }
 
 export default Avatar

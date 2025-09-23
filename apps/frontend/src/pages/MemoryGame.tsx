@@ -344,7 +344,8 @@ const MemoryGame: React.FC = () => {
                 transition: 'all 0.3s ease',
                 transform: card.isMatched ? 'scale(0.9)' : 'scale(1)',
                 opacity: card.isMatched ? 0.7 : 1,
-                minHeight: '60px'
+                minHeight: '60px',
+                minWidth: '60px'
               }}
               onMouseEnter={(e) => {
                 if (!card.isFlipped && !card.isMatched && !isChecking) {

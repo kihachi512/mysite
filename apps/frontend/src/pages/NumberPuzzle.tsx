@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
-import { useSEO, SEO_PRESETS } from '../hooks/useSEO'
+import { useSEO } from '../hooks/useSEO'
 import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
 
 type PuzzleSize = 3 | 4 | 5
@@ -58,7 +58,7 @@ const NumberPuzzle: React.FC = () => {
   // Initialize board
   const initializeBoard = (size: PuzzleSize) => {
     const totalCells = size * size
-    const numbers = Array.from({ length: totalCells - 1 }, (_, i) => i + 1)
+    const numbers: (number | null)[] = Array.from({ length: totalCells - 1 }, (_, i) => i + 1)
     numbers.push(null) // Empty space
     
     // Shuffle until solvable
@@ -85,7 +85,9 @@ const NumberPuzzle: React.FC = () => {
     
     for (let i = 0; i < numbers.length; i++) {
       for (let j = i + 1; j < numbers.length; j++) {
-        if (numbers[i] > numbers[j]) {
+        const numI = numbers[i]
+        const numJ = numbers[j]
+        if (numI && numJ && numI > numJ) {
           inversions++
         }
       }
@@ -109,7 +111,7 @@ const NumberPuzzle: React.FC = () => {
 
   // Generate a solvable board by making moves from solved state
   const generateSolvableBoard = (size: PuzzleSize): (number | null)[] => {
-    const solved = Array.from({ length: size * size - 1 }, (_, i) => i + 1)
+    const solved: (number | null)[] = Array.from({ length: size * size - 1 }, (_, i) => i + 1)
     solved.push(null)
     
     let board = [...solved]
@@ -120,10 +122,13 @@ const NumberPuzzle: React.FC = () => {
       const neighbors = getNeighbors(emptyIndex, size)
       const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)]
       
-      // Swap empty space with random neighbor
-      const temp = board[emptyIndex]
-      board[emptyIndex] = board[randomNeighbor]
-      board[randomNeighbor] = temp
+      if (randomNeighbor !== undefined && randomNeighbor < board.length && randomNeighbor >= 0) {
+        // Swap empty space with random neighbor
+        const temp = board[emptyIndex]
+        const swapValue = board[randomNeighbor]
+        board[emptyIndex] = swapValue!
+        board[randomNeighbor] = temp!
+      }
     }
     
     return board
@@ -164,7 +169,8 @@ const NumberPuzzle: React.FC = () => {
     
     if (neighbors.includes(index)) {
       const newBoard = [...board]
-      newBoard[emptyIndex] = newBoard[index]
+      const temp = newBoard[index]
+      newBoard[emptyIndex] = temp!
       newBoard[index] = null
       
       setBoard(newBoard)
@@ -346,7 +352,8 @@ const NumberPuzzle: React.FC = () => {
               textShadow: number !== null ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none',
               transition: 'all 0.2s ease',
               transform: number !== null ? 'scale(1)' : 'scale(0)',
-              minHeight: puzzleSize === 3 ? '60px' : puzzleSize === 4 ? '50px' : '40px'
+              minHeight: puzzleSize === 3 ? '60px' : puzzleSize === 4 ? '50px' : '40px',
+              minWidth: puzzleSize === 3 ? '60px' : puzzleSize === 4 ? '50px' : '40px'
             }}
             onMouseEnter={(e) => {
               if (number !== null) {

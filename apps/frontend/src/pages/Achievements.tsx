@@ -238,7 +238,7 @@ const Achievements: React.FC = () => {
       // Check for newly unlocked achievements
       const newlyUnlocked = updatedAchievements.filter(achievement => 
         !unlockedAchievements.has(achievement.id) && 
-        achievement.requirement.current! >= achievement.requirement.target
+        (achievement.requirement.current || 0) >= achievement.requirement.target
       )
 
       if (newlyUnlocked.length > 0) {
@@ -289,7 +289,7 @@ const Achievements: React.FC = () => {
   }
 
   const filteredAchievements = achievements.filter(achievement => {
-    const isUnlocked = achievement.requirement.current! >= achievement.requirement.target
+    const isUnlocked = (achievement.requirement.current || 0) >= achievement.requirement.target
     
     if (filter === 'unlocked' && !isUnlocked) return false
     if (filter === 'locked' && isUnlocked) return false
@@ -300,7 +300,7 @@ const Achievements: React.FC = () => {
 
   const stats = {
     total: achievements.length,
-    unlocked: achievements.filter(a => a.requirement.current! >= a.requirement.target).length,
+    unlocked: achievements.filter(a => (a.requirement.current || 0) >= a.requirement.target).length,
     byType: {
       game: achievements.filter(a => a.type === 'game').length,
       social: achievements.filter(a => a.type === 'social').length,
@@ -406,8 +406,9 @@ const Achievements: React.FC = () => {
         padding: '0 10px'
       }}>
         {filteredAchievements.map((achievement) => {
-          const isUnlocked = achievement.requirement.current! >= achievement.requirement.target
-          const progress = Math.min((achievement.requirement.current! / achievement.requirement.target) * 100, 100)
+          const current = achievement.requirement.current || 0
+          const isUnlocked = current >= achievement.requirement.target
+          const progress = Math.min((current / achievement.requirement.target) * 100, 100)
           
           return (
             <div key={achievement.id} className="comic-card" style={{
@@ -477,7 +478,7 @@ const Achievements: React.FC = () => {
               }}>
                 {isUnlocked 
                   ? `✅ 解除済み ${achievement.reward?.momoPay ? `(+${achievement.reward.momoPay}P)` : ''}`
-                  : `進捗: ${achievement.requirement.current}/${achievement.requirement.target}`
+                  : `進捗: ${current}/${achievement.requirement.target}`
                 }
               </div>
             </div>

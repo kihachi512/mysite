@@ -200,8 +200,7 @@ const AvatarCustomization: React.FC = () => {
   const [ownedItems, setOwnedItems] = useState<string[]>([])
   const [currentAvatar, setCurrentAvatar] = useState<AvatarState>({})
   const [selectedCategory, setSelectedCategory] = useState<'hat' | 'accessory' | 'outfit' | 'special' | 'background'>('hat')
-  const [previewItem, setPreviewItem] = useState<string | null>(null)
-  const [activeEvents, setActiveEvents] = useState(getActiveEvents())
+  const [activeEvents] = useState(getActiveEvents())
 
   // Track area visit
   useEffect(() => {
@@ -482,7 +481,7 @@ const AvatarCustomization: React.FC = () => {
         </div>
 
         {/* Items Grid */}
-        <div style={{ 
+        <div className="stagger-children" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 90vw), 1fr))', 
           gap: 'min(20px, 5vw)'

@@ -112,7 +112,7 @@ const MOMOBank: React.FC = () => {
   const [bankAccount, setBankAccount] = useState<BankAccount>({
     balance: 0,
     interestRate: 1, // 1% per day
-    lastUpdate: new Date().toISOString().split('T')[0],
+    lastUpdate: new Date().toISOString().split('T')[0]!,
     accountType: 'basic'
   })
   const [investments, setInvestments] = useState<UserInvestment[]>([])
@@ -161,11 +161,11 @@ const MOMOBank: React.FC = () => {
   }
 
   const updateDailyInterest = () => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     
     if (bankAccount.lastUpdate !== today && bankAccount.balance > 0) {
       const interest = Math.floor(bankAccount.balance * (bankAccount.interestRate / 100))
-      const newAccount = {
+      const newAccount: BankAccount = {
         ...bankAccount,
         balance: bankAccount.balance + interest,
         lastUpdate: today
@@ -450,9 +450,10 @@ const MOMOBank: React.FC = () => {
                   <input
                     type="number"
                     placeholder="預金額"
+                    id="deposit-input"
                     className="comic-input font-body-md"
                     style={{
-                      width: '120px',
+                      width: 'min(120px, 30vw)',
                       marginBottom: '8px',
                       textAlign: 'center'
                     }}
@@ -469,8 +470,8 @@ const MOMOBank: React.FC = () => {
                   <div>
                     <button
                       onClick={() => {
-                        const input = document.querySelector('input[placeholder="預金額"]') as HTMLInputElement
-                        const amount = parseInt(input.value)
+                        const input = document.getElementById('deposit-input') as HTMLInputElement
+                        const amount = parseInt(input.value || '0')
                         if (amount > 0) {
                           deposit(amount)
                           input.value = ''
@@ -492,9 +493,10 @@ const MOMOBank: React.FC = () => {
                   <input
                     type="number"
                     placeholder="出金額"
+                    id="withdraw-input"
                     className="comic-input font-body-md"
                     style={{
-                      width: '120px',
+                      width: 'min(120px, 30vw)',
                       marginBottom: '8px',
                       textAlign: 'center'
                     }}
@@ -511,8 +513,8 @@ const MOMOBank: React.FC = () => {
                   <div>
                     <button
                       onClick={() => {
-                        const input = document.querySelector('input[placeholder="出金額"]') as HTMLInputElement
-                        const amount = parseInt(input.value)
+                        const input = document.getElementById('withdraw-input') as HTMLInputElement
+                        const amount = parseInt(input.value || '0')
                         if (amount > 0) {
                           withdraw(amount)
                           input.value = ''
@@ -633,6 +635,7 @@ const MOMOBank: React.FC = () => {
                     <input
                       type="number"
                       placeholder={`最低${investment.minInvestment}P`}
+                      id={`invest-input-${investment.id}`}
                       className="comic-input font-body-sm"
                       style={{ width: '100%', marginBottom: '8px' }}
                       min={investment.minInvestment}
@@ -641,8 +644,8 @@ const MOMOBank: React.FC = () => {
                   
                   <button
                     onClick={() => {
-                      const input = document.querySelector(`input[placeholder="最低${investment.minInvestment}P"]`) as HTMLInputElement
-                      const amount = parseInt(input.value)
+                      const input = document.getElementById(`invest-input-${investment.id}`) as HTMLInputElement
+                      const amount = parseInt(input.value || '0')
                       if (amount >= investment.minInvestment) {
                         invest(investment, amount)
                         input.value = ''

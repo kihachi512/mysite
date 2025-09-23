@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
 import { trackAreaVisited, AREAS } from '../utils/achievements'
-import { getEarningMultiplier, getActiveEvents } from '../utils/economyEvents'
+import { getEarningMultiplier } from '../utils/economyEvents'
 
 type MissionType = 'play_games' | 'earn_momopay' | 'post_tweet' | 'omikuji' | 'login' | 'achievements' | 'files'
 
@@ -45,8 +45,7 @@ const DailyMissions: React.FC = () => {
   const [missions, setMissions] = useState<DailyMission[]>([])
   const [weeklyEvent, setWeeklyEvent] = useState<WeeklyEvent | null>(null)
   const [consecutiveDays, setConsecutiveDays] = useState(0)
-  const [lastLoginDate, setLastLoginDate] = useState<string>('')
-  const [activeEvents, setActiveEvents] = useState(getActiveEvents())
+  // const [lastLoginDate] = useState<string>('') // 未使用のため削除
 
   // Track area visit
   useEffect(() => {
@@ -116,18 +115,21 @@ const DailyMissions: React.FC = () => {
     const selectedMissions: DailyMission[] = []
 
     // Always include login bonus
-    selectedMissions.push({
-      id: 'login-' + date,
-      title: missionTemplates[0].title,
-      description: missionTemplates[0].description,
-      icon: missionTemplates[0].icon,
-      type: missionTemplates[0].type,
-      target: missionTemplates[0].target,
-      current: 0,
-      reward: missionTemplates[0].rewards.easy,
-      completed: false,
-      difficulty: 'easy'
-    })
+    const loginTemplate = missionTemplates[0]
+    if (loginTemplate) {
+      selectedMissions.push({
+        id: 'login-' + date,
+        title: loginTemplate.title,
+        description: loginTemplate.description,
+        icon: loginTemplate.icon,
+        type: loginTemplate.type,
+        target: typeof loginTemplate.target === 'number' ? loginTemplate.target : loginTemplate.target.easy,
+        current: 0,
+        reward: loginTemplate.rewards.easy,
+        completed: false,
+        difficulty: 'easy'
+      })
+    }
 
     // Add 3-4 random missions with varying difficulties
     const otherTemplates = missionTemplates.slice(1)
@@ -136,8 +138,11 @@ const DailyMissions: React.FC = () => {
     for (let i = 0; i < missionCount; i++) {
       const templateIndex = Math.floor(pseudoRandom(i + 1) * otherTemplates.length)
       const template = otherTemplates[templateIndex]
+      if (!template) continue
+      
       const difficultyIndex = Math.floor(pseudoRandom(i + 10) * 3)
       const difficulty = difficulties[difficultyIndex]
+      if (!difficulty) continue
 
       const target = typeof template.target === 'number' ? template.target : template.target[difficulty]
       const reward = template.rewards[difficulty]
@@ -205,20 +210,31 @@ const DailyMissions: React.FC = () => {
     const eventIndex = weekNumber % events.length
     const selectedEvent = events[eventIndex]
 
+    if (!selectedEvent) {
+      return null
+    }
+
     const endOfWeek = new Date(startOfWeek)
     endOfWeek.setDate(startOfWeek.getDate() + 7)
 
-    return {
-      ...selectedEvent,
-      startDate: startOfWeek.toISOString().split('T')[0],
-      endDate: endOfWeek.toISOString().split('T')[0],
+    const result: WeeklyEvent = {
+      id: selectedEvent.id,
+      title: selectedEvent.title,
+      description: selectedEvent.description,
+      icon: selectedEvent.icon,
+      startDate: startOfWeek.toISOString().split('T')[0]!,
+      endDate: endOfWeek.toISOString().split('T')[0]!,
+      multiplier: selectedEvent.multiplier,
+      affectedTypes: selectedEvent.affectedTypes,
       active: true
     }
+    
+    return result
   }
 
   // Load missions and check progress
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     const savedData = localStorage.getItem('daily-missions')
     const lastLoginData = localStorage.getItem('login-streak')
 
@@ -246,7 +262,7 @@ const DailyMissions: React.FC = () => {
         // Check if login streak should continue
         const yesterday = new Date()
         yesterday.setDate(yesterday.getDate() - 1)
-        const yesterdayStr = yesterday.toISOString().split('T')[0]
+        const yesterdayStr = yesterday.toISOString().split('T')[0]!
 
         if (lastLogin === today) {
           // Already logged in today
@@ -325,7 +341,7 @@ const DailyMissions: React.FC = () => {
 
     setMissions(dailyMissions)
     setConsecutiveDays(streak)
-    setLastLoginDate(today)
+    // setLastLoginDate(today) - 削除（使用されていない）
     setWeeklyEvent(generateWeeklyEvent())
 
     // Save missions

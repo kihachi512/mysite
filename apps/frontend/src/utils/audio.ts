@@ -10,7 +10,7 @@ class AudioManager {
   private isMuted: boolean = false
   private bgmVolume: number = 0.3
   private sfxVolume: number = 0.5
-  private sfxCache: Map<SoundEffect, HTMLAudioElement> = new Map()
+  // private sfxCache: Map<SoundEffect, HTMLAudioElement> = new Map() // 将来の拡張用
 
   constructor() {
     this.loadSettings()
@@ -108,13 +108,9 @@ class AudioManager {
   }
 
   private preloadSounds(): void {
-    // Preload sound effects
-    const effects: SoundEffect[] = ['click', 'success', 'error', 'notification', 'coin', 'powerup', 'achievement']
-    
-    effects.forEach(effect => {
-      // For now, we'll generate sounds on-demand rather than preload
-      // This could be expanded to use actual audio files in the future
-    })
+    // 将来の拡張用：現在は必要時に生成
+    // const effects: SoundEffect[] = ['click', 'success', 'error', 'notification', 'coin', 'powerup', 'achievement']
+    // 実際の音声ファイルを使用する場合はここで事前読み込み
   }
 
   // BGM管理（軽量化：実際の音楽ファイルがない場合はログのみ）

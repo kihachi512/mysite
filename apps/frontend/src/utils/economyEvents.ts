@@ -68,7 +68,7 @@ class EconomyEventManager {
   }
 
   private generateDailyEvents(): void {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     
     // Check if we need to generate new daily events
     const lastEventDate = localStorage.getItem('last-event-date')
@@ -119,14 +119,16 @@ class EconomyEventManager {
 
     const selectedBonus = bonuses[Math.floor(pseudoRandom() * bonuses.length)]
     
-    this.dailyBonus = {
-      id: `daily-bonus-${date}`,
-      title: selectedBonus.title,
-      description: selectedBonus.description,
-      icon: selectedBonus.icon,
-      amount: selectedBonus.amount(),
-      claimed: false,
-      date
+    if (selectedBonus) {
+      this.dailyBonus = {
+        id: `daily-bonus-${date}`,
+        title: selectedBonus.title,
+        description: selectedBonus.description,
+        icon: selectedBonus.icon,
+        amount: selectedBonus.amount(),
+        claimed: false,
+        date
+      }
     }
   }
 
@@ -187,16 +189,25 @@ class EconomyEventManager {
     const eventIndex = weekNumber % weeklyEvents.length
     const selectedEvent = weeklyEvents[eventIndex]
 
+    if (!selectedEvent) {
+      return // No event to generate
+    }
+
     const startDate = new Date(now)
     startDate.setDate(now.getDate() - now.getDay()) // Start of week
     const endDate = new Date(startDate)
     endDate.setDate(startDate.getDate() + 7) // End of week
 
     const weeklyEvent: EconomyEvent = {
-      ...selectedEvent,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      active: true
+      id: selectedEvent.id,
+      title: selectedEvent.title,
+      description: selectedEvent.description,
+      icon: selectedEvent.icon,
+      type: selectedEvent.type,
+      startDate: startDate.toISOString().split('T')[0]!,
+      endDate: endDate.toISOString().split('T')[0]!,
+      active: true,
+      effects: selectedEvent.effects
     }
 
     // Remove old events and add new one
@@ -206,7 +217,7 @@ class EconomyEventManager {
 
   // Public methods
   public getDailyBonus(): DailyBonus | null {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     if (this.dailyBonus && this.dailyBonus.date === today) {
       return this.dailyBonus
     }
@@ -226,7 +237,7 @@ class EconomyEventManager {
   }
 
   public getActiveEvents(): EconomyEvent[] {
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split('T')[0]!
     return this.events.filter(event => 
       event.active && 
       event.startDate <= today && 
@@ -283,6 +294,15 @@ class EconomyEventManager {
   public refreshEvents(): void {
     localStorage.removeItem('last-event-date')
     this.generateDailyEvents()
+  }
+
+  // Ensure events are properly initialized
+  public ensureInitialized(): void {
+    const lastEventDate = localStorage.getItem('last-event-date')
+    
+    if (!lastEventDate || !this.dailyBonus) {
+      this.generateDailyEvents()
+    }
   }
 }
 
