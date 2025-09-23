@@ -51,6 +51,37 @@ const ShareSettings: React.FC = () => {
       const highScoresData = localStorage.getItem('bullet-hell-all-time-scores')
       const parsedHighScores = highScoresData ? JSON.parse(highScoresData) : highScores
       
+      // 実績データを取得
+      const achievementsData = localStorage.getItem('achievements')
+      const parsedAchievements = achievementsData ? JSON.parse(achievementsData) : []
+      
+      const achievementStatsData = localStorage.getItem('achievement-stats')
+      const parsedAchievementStats = achievementStatsData ? JSON.parse(achievementStatsData) : {
+        gamesPlayed: 0,
+        tweetsPosted: 0,
+        omikujiCount: 0,
+        purchasesMade: 0,
+        areasVisited: []
+      }
+      
+      // デイリーミッションデータを取得
+      const dailyMissionsData = localStorage.getItem('daily-missions')
+      const parsedDailyMissions = dailyMissionsData ? JSON.parse(dailyMissionsData) : null
+      
+      const loginStreakData = localStorage.getItem('login-streak')
+      const parsedLoginStreak = loginStreakData ? JSON.parse(loginStreakData) : {
+        lastLoginDate: '',
+        consecutiveDays: 0
+      }
+      
+      // 音声設定も含める
+      const audioSettingsData = localStorage.getItem('audio-settings')
+      const parsedAudioSettings = audioSettingsData ? JSON.parse(audioSettingsData) : {
+        isMuted: false,
+        bgmVolume: 0.3,
+        sfxVolume: 0.5
+      }
+      
       const data = {
         favorites: parsedFavorites,
         // tweets は除外（1時間で自動削除されるため）
@@ -59,8 +90,13 @@ const ShareSettings: React.FC = () => {
         momoStorePurchases: parsedPurchases,
         appSettings: parsedSettings,
         bulletHellInventory: parsedInventory,
+        achievements: parsedAchievements,
+        achievementStats: parsedAchievementStats,
+        dailyMissions: parsedDailyMissions,
+        loginStreak: parsedLoginStreak,
+        audioSettings: parsedAudioSettings,
         exportDate: new Date().toISOString(),
-        version: '4.3' // バージョンアップ
+        version: '5.0' // 実績・ミッション対応でメジャーバージョンアップ
       }
       
       const jsonStr = JSON.stringify(data, null, 2)
@@ -184,7 +220,55 @@ const ShareSettings: React.FC = () => {
               localStorage.setItem('bullet-hell-inventory', JSON.stringify(validInventory))
             }
             
-            alert('JSONファイルからデータをインポートしました！ページを再読み込みします。')
+            // 実績データがあればインポート（検証付き）
+            if (Array.isArray(jsonData.achievements)) {
+              const validAchievements = jsonData.achievements
+                .slice(0, 1000)
+                .filter((achievement: any) => typeof achievement === 'string')
+              localStorage.setItem('achievements', JSON.stringify(validAchievements))
+            }
+            
+            // 実績統計があればインポート（検証付き）
+            if (jsonData.achievementStats && typeof jsonData.achievementStats === 'object') {
+              const validStats = {
+                gamesPlayed: Math.max(0, Math.min(10000000, jsonData.achievementStats.gamesPlayed || 0)),
+                tweetsPosted: Math.max(0, Math.min(10000000, jsonData.achievementStats.tweetsPosted || 0)),
+                omikujiCount: Math.max(0, Math.min(10000000, jsonData.achievementStats.omikujiCount || 0)),
+                purchasesMade: Math.max(0, Math.min(10000000, jsonData.achievementStats.purchasesMade || 0)),
+                areasVisited: Array.isArray(jsonData.achievementStats.areasVisited) 
+                  ? jsonData.achievementStats.areasVisited.slice(0, 100) 
+                  : []
+              }
+              localStorage.setItem('achievement-stats', JSON.stringify(validStats))
+            }
+            
+            // デイリーミッションデータがあればインポート（検証付き）
+            if (jsonData.dailyMissions && typeof jsonData.dailyMissions === 'object') {
+              localStorage.setItem('daily-missions', JSON.stringify(jsonData.dailyMissions))
+            }
+            
+            // ログインストリークがあればインポート（検証付き）
+            if (jsonData.loginStreak && typeof jsonData.loginStreak === 'object') {
+              const validStreak = {
+                lastLoginDate: typeof jsonData.loginStreak.lastLoginDate === 'string' 
+                  ? jsonData.loginStreak.lastLoginDate 
+                  : '',
+                consecutiveDays: Math.max(0, Math.min(10000, jsonData.loginStreak.consecutiveDays || 0))
+              }
+              localStorage.setItem('login-streak', JSON.stringify(validStreak))
+            }
+            
+            // 音声設定があればインポート（検証付き）
+            if (jsonData.audioSettings && typeof jsonData.audioSettings === 'object') {
+              const validAudioSettings = {
+                isMuted: Boolean(jsonData.audioSettings.isMuted),
+                bgmVolume: Math.max(0, Math.min(1, jsonData.audioSettings.bgmVolume || 0.3)),
+                sfxVolume: Math.max(0, Math.min(1, jsonData.audioSettings.sfxVolume || 0.5))
+              }
+              localStorage.setItem('audio-settings', JSON.stringify(validAudioSettings))
+            }
+            
+            alert('JSONファイルからデータをインポートしました！\n\n✅ 含まれるデータ:\n• 宝物庫（ファイル・テキスト）\n• MOMOPay・ハイスコア\n• 購入済み機能・設定\n• 装備インベントリ\n• 🏆 実績・統計データ\n• 📋 デイリーミッション・ログインストリーク\n• 🔊 音声設定\n\nページを再読み込みします。')
             window.location.reload()
           }
         } else {
@@ -333,7 +417,7 @@ const ShareSettings: React.FC = () => {
           lineHeight: '1.4'
         }}>
           {hasSharedFeature 
-            ? '全データ（宝物庫・MOMOPay・ハイスコア・購入設定・装備）をJSONファイルでバックアップ・復元'
+            ? '全データをJSONファイルでバックアップ・復元\n（宝物庫・MOMOPay・ハイスコア・購入設定・装備・🏆実績・📋ミッション・🔊音声設定）'
             : '共有機能は売店で購入が必要です。'
           }
         </p>
