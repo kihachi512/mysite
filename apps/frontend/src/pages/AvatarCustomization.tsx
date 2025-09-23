@@ -467,7 +467,62 @@ const AvatarCustomization: React.FC = () => {
     }
   }
 
-  // ドラッグ&ドロップ処理
+  // 統合ドラッグハンドル（マウス & タッチ対応）
+  const handleCostumeDragStart = (e: React.MouseEvent | React.TouchEvent, costume: CostumePosition) => {
+    e.preventDefault()
+    
+    const isTouch = 'touches' in e
+    const clientX = isTouch ? e.touches[0].clientX : e.clientX
+    const clientY = isTouch ? e.touches[0].clientY : e.clientY
+    
+    const startX = clientX
+    const startY = clientY
+    const avatarContainer = e.currentTarget.closest('[data-avatar-container]') as HTMLElement
+    if (!avatarContainer) return
+
+    const avatarRect = avatarContainer.getBoundingClientRect()
+    const startCostumeX = costume.x
+    const startCostumeY = costume.y
+
+    // タッチデバイスでスクロールを防止
+    if (isTouch) {
+      document.body.style.overflow = 'hidden'
+    }
+
+    const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
+      const moveClientX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX
+      const moveClientY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY
+      
+      const deltaX = ((moveClientX - startX) / avatarRect.width) * 100
+      const deltaY = ((moveClientY - startY) / avatarRect.height) * 100
+      const newX = Math.max(0, Math.min(100, startCostumeX + deltaX))
+      const newY = Math.max(0, Math.min(100, startCostumeY + deltaY))
+      updateCostumePosition(costume.id, { x: newX, y: newY })
+    }
+
+    const handleEnd = () => {
+      // スクロール復帰
+      document.body.style.overflow = ''
+      
+      if (isTouch) {
+        document.removeEventListener('touchmove', handleMove as EventListener)
+        document.removeEventListener('touchend', handleEnd)
+      } else {
+        document.removeEventListener('mousemove', handleMove as EventListener)
+        document.removeEventListener('mouseup', handleEnd)
+      }
+    }
+
+    if (isTouch) {
+      document.addEventListener('touchmove', handleMove as EventListener, { passive: false })
+      document.addEventListener('touchend', handleEnd)
+    } else {
+      document.addEventListener('mousemove', handleMove as EventListener)
+      document.addEventListener('mouseup', handleEnd)
+    }
+  }
+
+  // ドラッグ&ドロップ処理（インベントリ用）
   const handleDragStart = (item: CostumeItem, event: React.DragEvent) => {
     setDraggedCostume(item)
     setIsDragging(true)
@@ -477,6 +532,79 @@ const AvatarCustomization: React.FC = () => {
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault()
     event.dataTransfer.dropEffect = 'copy'
+  }
+
+  // インベントリアイテムのタッチハンドル
+  const handleInventoryTouchStart = (e: React.TouchEvent, item: CostumeItem) => {
+    e.preventDefault()
+    
+    const touch = e.touches[0]
+    const startX = touch.clientX
+    const startY = touch.clientY
+    let hasMoved = false
+
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      if (!hasMoved) {
+        const moveX = moveEvent.touches[0].clientX
+        const moveY = moveEvent.touches[0].clientY
+        const distance = Math.sqrt(Math.pow(moveX - startX, 2) + Math.pow(moveY - startY, 2))
+        
+        if (distance > 10) { // 10px以上動いたらドラッグ開始
+          hasMoved = true
+          setDraggedCostume(item)
+          setIsDragging(true)
+          document.body.style.overflow = 'hidden'
+        }
+      }
+    }
+
+    const handleTouchEnd = (endEvent: TouchEvent) => {
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchend', handleTouchEnd)
+      document.body.style.overflow = ''
+
+      if (hasMoved && draggedCostume) {
+        // ドロップ先を検出
+        const touch = endEvent.changedTouches[0]
+        const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY)
+        const avatarContainer = dropTarget?.closest('[data-avatar-container]')
+        
+        if (avatarContainer) {
+          const rect = avatarContainer.getBoundingClientRect()
+          const x = ((touch.clientX - rect.left) / rect.width) * 100
+          const y = ((touch.clientY - rect.top) / rect.height) * 100
+
+          // 既に装備されているかチェック
+          const alreadyEquipped = currentAvatar.costumes.find(c => c.id === item.id)
+          if (!alreadyEquipped && ownedItems.includes(item.id)) {
+            const newCostume: CostumePosition = {
+              id: item.id,
+              x: Math.max(0, Math.min(100, x)),
+              y: Math.max(0, Math.min(100, y)),
+              scale: 1,
+              rotation: 0,
+              zIndex: currentAvatar.costumes.length + 1
+            }
+
+            const newAvatar = {
+              ...currentAvatar,
+              costumes: [...currentAvatar.costumes, newCostume]
+            }
+            setCurrentAvatar(newAvatar)
+            saveAvatarData(ownedItems, newAvatar)
+          }
+        }
+      } else if (!hasMoved) {
+        // タップのみの場合は通常の装備処理
+        addCostume(item)
+      }
+
+      setDraggedCostume(null)
+      setIsDragging(false)
+    }
+
+    document.addEventListener('touchmove', handleTouchMove, { passive: false })
+    document.addEventListener('touchend', handleTouchEnd)
   }
 
   const handleDrop = (event: React.DragEvent) => {
@@ -574,35 +702,10 @@ const AvatarCustomization: React.FC = () => {
                   filter: item.category === 'special' && item.id === 'sparkles' ? 'drop-shadow(0 0 8px gold)' : 'none',
                   animation: item.category === 'special' && item.id === 'sparkles' ? 'sparkle 2s infinite' : 'none'
                 }}
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  const startX = e.clientX
-                  const startY = e.clientY
-                  const avatarContainer = e.currentTarget.closest('[data-avatar-container]') as HTMLElement
-                  if (!avatarContainer) return
-
-                  const avatarRect = avatarContainer.getBoundingClientRect()
-                  const startCostumeX = costume.x
-                  const startCostumeY = costume.y
-
-                  const handleMouseMove = (moveEvent: MouseEvent) => {
-                    const deltaX = ((moveEvent.clientX - startX) / avatarRect.width) * 100
-                    const deltaY = ((moveEvent.clientY - startY) / avatarRect.height) * 100
-                    const newX = Math.max(0, Math.min(100, startCostumeX + deltaX))
-                    const newY = Math.max(0, Math.min(100, startCostumeY + deltaY))
-                    updateCostumePosition(costume.id, { x: newX, y: newY })
-                  }
-
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove)
-                    document.removeEventListener('mouseup', handleMouseUp)
-                  }
-
-                  document.addEventListener('mousemove', handleMouseMove)
-                  document.addEventListener('mouseup', handleMouseUp)
-                }}
+                onMouseDown={(e) => handleCostumeDragStart(e, costume)}
+                onTouchStart={(e) => handleCostumeDragStart(e, costume)}
                 onDoubleClick={() => removeCostume(costume.id)}
-                title={`${item.name} (ダブルクリックで削除)`}
+                title={`${item.name} (ダブルクリック/ダブルタップで削除)`}
               >
                 {item.icon}
               </div>
@@ -743,10 +846,11 @@ const AvatarCustomization: React.FC = () => {
             lineHeight: '1.6'
           }}>
             📝 使い方:<br/>
-            • コスチュームをドラッグ&ドロップで配置<br/>
+            • コスチュームをドラッグ&ドロップ（タッチ対応）で配置<br/>
             • 装備済みアイテムは直接ドラッグで移動<br/>
-            • ダブルクリックでアイテム削除<br/>
-            • インベントリから新しいアイテムを追加
+            • ダブルクリック/ダブルタップでアイテム削除<br/>
+            • インベントリから新しいアイテムを追加<br/>
+            • モバイル: 長押ししてドラッグ、タップで装備
           </div>
           
           <div data-avatar-container className="avatar-current-display" style={{ 
@@ -882,6 +986,7 @@ const AvatarCustomization: React.FC = () => {
                       className="comic-card" 
                       draggable
                       onDragStart={(e) => handleDragStart(item, e)}
+                      onTouchStart={(e) => handleInventoryTouchStart(e, item)}
                       style={{
                         background: isEquipped 
                           ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(139, 195, 74, 0.3))'
