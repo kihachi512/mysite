@@ -60,7 +60,7 @@ const SlotMachine: React.FC = () => {
   const [totalWins, setTotalWins] = useState(0)
   const [totalLosses, setTotalLosses] = useState(0)
   const [spinCount, setSpinCount] = useState(0)
-  const [animationIntervals, setAnimationIntervals] = useState<NodeJS.Timeout[]>([])
+  const [animationIntervals, setAnimationIntervals] = useState<number[]>([])
 
   // Track area visit
   useEffect(() => {
@@ -107,7 +107,7 @@ const SlotMachine: React.FC = () => {
   const stopReel = (reelIndex: number) => {
     if (gameState !== 'spinning') return
 
-    setReelStates(prevStates => {
+    setReelStates((prevStates: ReelState[]) => {
       const newStates = [...prevStates]
       if (newStates[reelIndex] === 'stopped') return prevStates // 既に停止済み
       
@@ -115,11 +115,11 @@ const SlotMachine: React.FC = () => {
       
       // 該当アニメーションを停止
       if (animationIntervals[reelIndex]) {
-        clearInterval(animationIntervals[reelIndex])
+        window.clearInterval(animationIntervals[reelIndex])
       }
       
       // リールに最終結果を設定して即座に確定
-      setReels(prevReels => {
+      setReels((prevReels: SlotSymbol[]) => {
         const newReels = [...prevReels]
         newReels[reelIndex] = finalReels[reelIndex]!
         return newReels
@@ -145,7 +145,7 @@ const SlotMachine: React.FC = () => {
   // ゲーム終了処理
   const finishGame = (finalReelValues: SlotSymbol[]) => {
     // アニメーション停止
-    animationIntervals.forEach(clearInterval)
+    animationIntervals.forEach((interval: number) => window.clearInterval(interval))
     setAnimationIntervals([])
 
     // 結果判定
@@ -153,16 +153,16 @@ const SlotMachine: React.FC = () => {
     if (amount > 0) {
       addMomoPayPoints(amount)
       setLastWin(amount)
-      setTotalWins(prev => prev + amount)
+      setTotalWins((prev: number) => prev + amount)
       
       setTimeout(() => {
         alert(`🎉 ${rule?.name} 当たり！\n+${amount}MOMOPay獲得！`)
       }, 500)
     } else {
-      setTotalLosses(prev => prev + betAmount)
+      setTotalLosses((prev: number) => prev + betAmount)
     }
 
-    setSpinCount(prev => prev + 1)
+    setSpinCount((prev: number) => prev + 1)
     setGameState('result')
     
     // 2秒後に次のゲーム準備
@@ -202,10 +202,10 @@ const SlotMachine: React.FC = () => {
     setReelStates(['spinning', 'spinning', 'spinning'])
     
     // 各リールのアニメーション
-    const intervals: NodeJS.Timeout[] = []
+    const intervals: number[] = []
     for (let index = 0; index < 3; index++) {
-      const interval = setInterval(() => {
-        setReels(prevReels => {
+      const interval = window.setInterval(() => {
+        setReels((prevReels: SlotSymbol[]) => {
           const newReels = [...prevReels]
           newReels[index] = getRandomSymbol()
           return newReels
@@ -319,7 +319,7 @@ const SlotMachine: React.FC = () => {
             gap: 'min(12px, 3vw)',
             marginBottom: 'min(24px, 6vw)'
           }}>
-            {reels.map((symbol, index) => (
+            {reels.map((symbol: SlotSymbol, index: number) => (
               <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                 <div
                   onClick={() => reelStates[index] === 'spinning' && stopReel(index)}

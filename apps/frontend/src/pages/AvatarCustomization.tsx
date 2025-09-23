@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
 import { trackAreaVisited, AREAS } from '../utils/achievements'
-import { getDiscountPrice, hasSpecialOffer, getActiveEvents } from '../utils/economyEvents'
+import { getActiveEvents } from '../utils/economyEvents'
 
 type CostumeItem = {
   id: string
@@ -280,7 +280,7 @@ const AvatarCustomization: React.FC = () => {
           // 新形式のデータ検証
           if (parsed.costumes && Array.isArray(parsed.costumes)) {
             // 無効なコスチュームをフィルタリング
-            const validCostumes = parsed.costumes.filter((c: any) => 
+            const validCostumes = parsed.costumes.filter((c: CostumePosition) => 
               c && c.id && COSTUME_ITEMS.some(item => item.id === c.id) &&
               typeof c.x === 'number' && typeof c.y === 'number' &&
               typeof c.scale === 'number' && typeof c.rotation === 'number' &&
@@ -294,7 +294,7 @@ const AvatarCustomization: React.FC = () => {
       }
       
       // デバッグログ（開発環境のみ）
-      if (process.env.NODE_ENV === 'development') {
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
         console.log('Avatar data loaded:', {
           ownedItems: savedOwned ? JSON.parse(savedOwned).length : 0,
           currentAvatar: savedAvatar ? Object.keys(JSON.parse(savedAvatar)).length : 0
@@ -304,7 +304,7 @@ const AvatarCustomization: React.FC = () => {
       console.error('Failed to load avatar data:', error)
       // エラー時のフォールバック
       setOwnedItems([])
-      setCurrentAvatar({})
+      setCurrentAvatar({ costumes: [] })
     }
   }
 
@@ -463,7 +463,7 @@ const AvatarCustomization: React.FC = () => {
   const removeCostume = (costumeId: string) => {
     const newAvatar = {
       ...currentAvatar,
-      costumes: currentAvatar.costumes.filter(c => c.id !== costumeId)
+      costumes: currentAvatar.costumes.filter((c: CostumePosition) => c.id !== costumeId)
     }
     setCurrentAvatar(newAvatar)
     saveAvatarData(ownedItems, newAvatar)
@@ -479,9 +479,9 @@ const AvatarCustomization: React.FC = () => {
     try {
       const newAvatar = {
         ...currentAvatar,
-        costumes: currentAvatar.costumes.map(c => 
-          c && c.id === costumeId ? { ...c, ...updates } : c
-        ).filter(Boolean) // null/undefined を除去
+      costumes: currentAvatar.costumes.map((c: CostumePosition) => 
+        c && c.id === costumeId ? { ...c, ...updates } : c
+      ).filter(Boolean) as CostumePosition[] // null/undefined を除去
       }
       setCurrentAvatar(newAvatar)
       saveAvatarData(ownedItems, newAvatar)
@@ -605,10 +605,12 @@ const AvatarCustomization: React.FC = () => {
     e.preventDefault()
     
     const touch = e.touches[0]
+    if (!touch) return
+    
     const startX = touch.clientX
     const startY = touch.clientY
     let hasMoved = false
-    let touchMoveTimeout: NodeJS.Timeout
+    let touchMoveTimeout: number | undefined
 
     const handleTouchMove = (moveEvent: TouchEvent) => {
       moveEvent.preventDefault() // スクロール防止を強化
@@ -630,7 +632,7 @@ const AvatarCustomization: React.FC = () => {
 
     const handleTouchEnd = (endEvent: TouchEvent) => {
       // クリーンアップを確実に実行
-      if (touchMoveTimeout) clearTimeout(touchMoveTimeout)
+      if (touchMoveTimeout) window.clearTimeout(touchMoveTimeout)
       document.removeEventListener('touchmove', handleTouchMove)
       document.removeEventListener('touchend', handleTouchEnd)
       document.body.style.overflow = ''
@@ -639,6 +641,8 @@ const AvatarCustomization: React.FC = () => {
       if (hasMoved && item) {
         // ドロップ先を検出
         const touch = endEvent.changedTouches[0]
+        if (!touch) return
+        
         const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY)
         const avatarContainer = dropTarget?.closest('[data-avatar-container]')
         
@@ -648,7 +652,7 @@ const AvatarCustomization: React.FC = () => {
           const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100))
 
           // 既に装備されているかチェック
-          const alreadyEquipped = currentAvatar.costumes?.find(c => c.id === item.id)
+          const alreadyEquipped = currentAvatar.costumes?.find((c: CostumePosition) => c.id === item.id)
           if (!alreadyEquipped && ownedItems.includes(item.id)) {
             const newCostume: CostumePosition = {
               id: item.id,
@@ -691,7 +695,7 @@ const AvatarCustomization: React.FC = () => {
     const y = ((event.clientY - rect.top) / rect.height) * 100
 
     // 既に装備されているかチェック
-    const alreadyEquipped = currentAvatar.costumes.find(c => c.id === draggedCostume.id)
+    const alreadyEquipped = currentAvatar.costumes.find((c: CostumePosition) => c.id === draggedCostume.id)
     if (alreadyEquipped) {
       // 位置更新
       updateCostumePosition(draggedCostume.id, { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) })
@@ -755,9 +759,9 @@ const AvatarCustomization: React.FC = () => {
         
         {/* Dynamic costume overlays */}
         {currentAvatar.costumes && currentAvatar.costumes.length > 0 && currentAvatar.costumes
-          .filter(costume => costume && costume.id) // null/undefined チェック
-          .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0)) // null safe sort
-          .map((costume) => {
+          .filter((costume: CostumePosition) => costume && costume.id) // null/undefined チェック
+          .sort((a: CostumePosition, b: CostumePosition) => (a.zIndex || 0) - (b.zIndex || 0)) // null safe sort
+          .map((costume: CostumePosition) => {
             if (!costume || !costume.id) return null
             const item = COSTUME_ITEMS.find(i => i.id === costume.id)
             if (!item) return null
@@ -1056,7 +1060,7 @@ const AvatarCustomization: React.FC = () => {
               }}>
                 {ownedCostumeItems.map((item) => {
                   if (!item || !item.id) return null
-                  const isEquipped = currentAvatar.costumes && currentAvatar.costumes.some(c => c && c.id === item.id)
+                  const isEquipped = currentAvatar.costumes && currentAvatar.costumes.some((c: CostumePosition) => c && c.id === item.id)
                   
                   return (
                     <div 
@@ -1075,14 +1079,14 @@ const AvatarCustomization: React.FC = () => {
                         cursor: 'grab',
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.05)'
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)'
-                        e.currentTarget.style.boxShadow = ''
-                      }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                      e.currentTarget.style.transform = 'scale(1.05)'
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)'
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                      e.currentTarget.style.transform = 'scale(1)'
+                      e.currentTarget.style.boxShadow = ''
+                    }}
                     >
                       {/* Status badge */}
                       {isEquipped && (
