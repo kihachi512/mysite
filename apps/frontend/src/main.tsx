@@ -96,12 +96,13 @@ const HomePage: React.FC = () => {
           ))}
         </div>
       )}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '800px', margin: '0 auto', padding: '0 10px' }}>
+      {/* 主要エリア（5つに整理） */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '600px', margin: '0 auto', padding: '0 10px' }}>
         <Link to="/games" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>🎮</div>
             <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>遊技場</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>御神籤・弾幕ゲーム</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>ゲーム・売店</div>
           </div>
         </Link>
         <Link to="/plaza" style={{ textDecoration: 'none' }}>
@@ -111,46 +112,25 @@ const HomePage: React.FC = () => {
             <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>おしゃべり・交流</div>
           </div>
         </Link>
-        <Link to="/favorites" style={{ textDecoration: 'none' }}>
-          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))', padding: 'min(24px, 6vw)', borderColor: '#8bc34a', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-            <div className="font-icon-md" style={{ marginBottom: '12px' }}>📁</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>宝物庫</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>ファイルを保存</div>
-          </div>
-        </Link>
-        <Link to="/achievements" style={{ textDecoration: 'none' }}>
-          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 87, 34, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ff5722', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-            <div className="font-icon-md" style={{ marginBottom: '12px' }}>🏆</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>実績</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>トロフィー・記録</div>
-          </div>
-        </Link>
-        <Link to="/daily-missions" style={{ textDecoration: 'none' }}>
-          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.3), rgba(216, 27, 96, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#e91e63', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-            <div className="font-icon-md" style={{ marginBottom: '12px' }}>📋</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>日課</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>デイリーミッション</div>
-          </div>
-        </Link>
-        <Link to="/momo-bank" style={{ textDecoration: 'none' }}>
-          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-            <div className="font-icon-md" style={{ marginBottom: '12px' }}>🏦</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>銀行</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>預金・投資・融資</div>
-          </div>
-        </Link>
-        <Link to="/avatar" style={{ textDecoration: 'none' }}>
+        <Link to="/personal" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#9c27b0', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-            <div className="font-icon-md" style={{ marginBottom: '12px' }}>👗</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>着せ替え</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>アバターカスタマイズ</div>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>👤</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>マイページ</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>実績・日課・アバター</div>
+          </div>
+        </Link>
+        <Link to="/momo-economy" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>💰</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>経済圏</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>銀行・宝物庫</div>
           </div>
         </Link>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(66, 165, 245, 0.3), rgba(33, 150, 243, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#2196f3', cursor: 'pointer', transition: 'all 0.3s ease' }}>
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>⚙️</div>
             <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>設定</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>一般・共有設定</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>各種設定</div>
           </div>
         </Link>
       </div>
