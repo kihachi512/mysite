@@ -201,6 +201,7 @@ const AvatarCustomization: React.FC = () => {
   const [currentAvatar, setCurrentAvatar] = useState<AvatarState>({})
   const [selectedCategory, setSelectedCategory] = useState<'hat' | 'accessory' | 'outfit' | 'special' | 'background'>('hat')
   const [previewItem, setPreviewItem] = useState<string | null>(null)
+  const [activeEvents, setActiveEvents] = useState(getActiveEvents())
 
   // Track area visit
   useEffect(() => {
@@ -243,17 +244,36 @@ const AvatarCustomization: React.FC = () => {
       return
     }
 
-    if (momoPayPoints < item.price) {
-      alert(`MOMOPayが足りません！\n必要: ${item.price}P\n現在: ${momoPayPoints}P`)
+    // 経済イベントによる割引価格を計算
+    const originalPrice = item.price
+    const discountedPrice = getDiscountPrice(originalPrice, 'avatar-items')
+    const specialOffer = hasSpecialOffer(item.id)
+    const finalPrice = specialOffer ? specialOffer.sale : discountedPrice
+
+    if (momoPayPoints < finalPrice) {
+      alert(`MOMOPayが足りません！\n必要: ${finalPrice}P\n現在: ${momoPayPoints}P`)
       return
     }
 
-    if (confirm(`${item.name}を${item.price}MOMOPayで購入しますか？\n\n${item.description}`)) {
-      if (spendMomoPayPoints(item.price)) {
+    let confirmMessage = `${item.name}を${finalPrice}MOMOPayで購入しますか？\n\n${item.description}`
+    
+    if (finalPrice < originalPrice) {
+      const discount = originalPrice - finalPrice
+      confirmMessage += `\n\n🎉 特別価格！${discount}P割引`
+    }
+
+    if (confirm(confirmMessage)) {
+      if (spendMomoPayPoints(finalPrice)) {
         const newOwned = [...ownedItems, item.id]
         setOwnedItems(newOwned)
         saveAvatarData(newOwned, currentAvatar)
-        alert(`🎉 ${item.name}を購入しました！\n\n「装備する」ボタンで着用できます。`)
+        
+        let successMessage = `🎉 ${item.name}を購入しました！\n\n「装備する」ボタンで着用できます。`
+        if (finalPrice < originalPrice) {
+          successMessage += `\n💰 ${originalPrice - finalPrice}P節約しました！`
+        }
+        
+        alert(successMessage)
       }
     }
   }
@@ -339,6 +359,29 @@ const AvatarCustomization: React.FC = () => {
       </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 10px' }}>
+        {/* アクティブな経済イベント */}
+        {activeEvents.filter(event => event.effects.affectedItems?.includes('avatar-items')).map(event => (
+          <div key={event.id} className="comic-card animate-glow" style={{
+            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
+            borderColor: '#4caf50',
+            padding: 'min(16px, 4vw)',
+            marginBottom: 'min(24px, 6vw)'
+          }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>{event.icon}</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '8px'
+            }}>
+              {event.title}
+            </div>
+            <div className="comic-text font-body-sm" style={{ 
+              color: '#c8e6c9'
+            }}>
+              {event.description}
+            </div>
+          </div>
+        ))}
+
         {/* Current Avatar Display */}
         <div className="comic-card" style={{
           background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
@@ -448,6 +491,13 @@ const AvatarCustomization: React.FC = () => {
             const isOwned = ownedItems.includes(item.id)
             const isEquipped = currentAvatar[item.category] === item.id
             
+            // 価格計算（経済イベント適用）
+            const originalPrice = item.price
+            const discountedPrice = getDiscountPrice(originalPrice, 'avatar-items')
+            const specialOffer = hasSpecialOffer(item.id)
+            const finalPrice = specialOffer ? specialOffer.sale : discountedPrice
+            const isOnSale = finalPrice < originalPrice
+            
             return (
               <div key={item.id} className="comic-card" style={{
                 background: isEquipped 
@@ -494,10 +544,18 @@ const AvatarCustomization: React.FC = () => {
                 </div>
 
                 <div className="comic-text font-body-sm" style={{
-                  color: '#ffc107',
+                  color: isOnSale ? '#4caf50' : '#ffc107',
                   marginBottom: '16px'
                 }}>
-                  💰 {item.price}MOMOPay
+                  {isOnSale ? (
+                    <span>
+                      💰 <span style={{ textDecoration: 'line-through', color: '#999' }}>{originalPrice}P</span>{' '}
+                      <span style={{ fontWeight: 'bold' }}>{finalPrice}P</span>
+                      <span style={{ color: '#ff5722', fontSize: '0.8em' }}> SALE!</span>
+                    </span>
+                  ) : (
+                    `💰 ${finalPrice}MOMOPay`
+                  )}
                 </div>
 
                 {isEquipped ? (
@@ -523,14 +581,14 @@ const AvatarCustomization: React.FC = () => {
                 ) : (
                   <button
                     onClick={() => purchaseItem(item)}
-                    disabled={momoPayPoints < item.price}
+                    disabled={momoPayPoints < finalPrice}
                     className="comic-button font-button-sm"
                     style={{
-                      background: momoPayPoints >= item.price
-                        ? 'linear-gradient(45deg, #ffc107, #ffb300)'
+                      background: momoPayPoints >= finalPrice
+                        ? (isOnSale ? 'linear-gradient(45deg, #4caf50, #45a049)' : 'linear-gradient(45deg, #ffc107, #ffb300)')
                         : 'linear-gradient(45deg, #666, #555)',
-                      color: momoPayPoints >= item.price ? '#000' : '#ccc',
-                      borderColor: momoPayPoints >= item.price ? '#f57f17' : '#333',
+                      color: momoPayPoints >= finalPrice ? (isOnSale ? 'white' : '#000') : '#ccc',
+                      borderColor: momoPayPoints >= finalPrice ? (isOnSale ? '#2e7d32' : '#f57f17') : '#333',
                       width: '100%'
                     }}
                   >
