@@ -165,6 +165,7 @@ import AvatarCustomization from './pages/AvatarCustomization.tsx'
 import PersonalHub from './pages/PersonalHub.tsx'
 import EconomyHub from './pages/EconomyHub.tsx'
 import AudioSettings from './pages/AudioSettings.tsx'
+import SlotMachine from './pages/SlotMachine.tsx'
 
 const router = createBrowserRouter([
   {
@@ -177,6 +178,7 @@ const router = createBrowserRouter([
             { path: 'games/bullet-hell', element: <BulletHell /> },
             { path: 'games/number-puzzle', element: <NumberPuzzle /> },
             { path: 'games/memory', element: <MemoryGame /> },
+            { path: 'games/slot-machine', element: <SlotMachine /> },
             { path: 'games/store', element: <MOMOStore /> },
             { path: 'plaza', element: <Plaza /> },
             { path: 'plaza/hall', element: <Tweets /> },
