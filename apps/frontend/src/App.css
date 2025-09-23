@@ -28,7 +28,97 @@ body {
   position: relative;
 }
 
-/* Comic UI Styles */
+/* Enhanced Animation Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0%, 20%, 40%, 60%, 80% {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+  0% {
+    opacity: 0;
+    transform: scale3d(.3, .3, .3);
+  }
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  40% {
+    transform: scale3d(.9, .9, .9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(.97, .97, .97);
+  }
+  100% {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(255,255,255,0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4);
+  }
+}
+
+/* Comic UI Styles with Enhanced Animations */
 .comic-button {
   font-family: 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', cursive, fantasy, sans-serif !important;
   font-weight: bold !important;
@@ -38,14 +128,15 @@ body {
   border: 3px solid !important;
   box-shadow: 0 6px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3) !important;
   transform: translateY(0) !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
 }
 
 .comic-button:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.3), 0 0 15px rgba(255,255,255,0.2) !important;
+  animation: pulse 0.6s ease-in-out !important;
 }
 
 .comic-button:active {
@@ -59,6 +150,16 @@ body {
   box-shadow: 0 8px 0 rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.2) !important;
   position: relative !important;
   overflow: hidden !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: fadeInUp 0.6s ease-out !important;
+}
+
+.comic-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 
+    0 15px 0 rgba(0,0,0,0.4), 
+    inset 0 2px 0 rgba(255,255,255,0.3),
+    0 0 20px rgba(255,255,255,0.1) !important;
 }
 
 .comic-card::before {
@@ -76,6 +177,74 @@ body {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+
+/* Special animation classes */
+.animate-bounce-in {
+  animation: bounceIn 0.8s ease-out !important;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite !important;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite !important;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate !important;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out !important;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out !important;
+}
+
+/* Enhanced hover effects */
+.home-card {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.home-card:hover {
+  transform: translateY(-8px) scale(1.03) !important;
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.3), 
+    inset 0 2px 0 rgba(255,255,255,0.3),
+    0 0 30px rgba(255,255,255,0.15) !important;
+}
+
+/* Loading animations */
+.loading-spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stagger animation for lists */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 
 .comic-text {
   font-family: 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', cursive, fantasy, sans-serif !important;

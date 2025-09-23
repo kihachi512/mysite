@@ -26,7 +26,7 @@ const Games: React.FC = () => {
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 45vw), 1fr))', 
         gap: 'min(24px, 6vw)', 
-        maxWidth: '800px', 
+        maxWidth: '1000px', 
         margin: '0 auto', 
         padding: '0 10px' 
       }}>
@@ -78,6 +78,58 @@ const Games: React.FC = () => {
             }}>
               神様に運勢を占ってもらおう<br />
               <span className="momopay-small">費用: 10MOMOPay</span>
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/games/number-puzzle" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.3), rgba(30, 136, 229, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#2196f3', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🔢</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              数字並べ
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              スライディングパズル<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">3つの難易度！</span>
+            </div>
+          </div>
+        </Link>
+
+        <Link to="/games/memory" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.3), rgba(216, 27, 96, 0.2))', 
+            padding: 'min(32px, 8vw)', 
+            borderColor: '#e91e63', 
+            cursor: 'pointer', 
+            transition: 'all 0.3s ease',
+            minHeight: '180px'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🧠</div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '12px'
+            }}>
+              記憶力ゲーム
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9', 
+              lineHeight: '1.4'
+            }}>
+              神経衰弱風カードゲーム<br />
+              <span style={{ color: '#ffd93d' }} className="font-body-sm">記憶力を鍛えよう！</span>
             </div>
           </div>
         </Link>

@@ -14,7 +14,7 @@ const HomePage: React.FC = () => {
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
       <div className="comic-text font-title-xl" style={{ marginBottom: 'min(24px, 6vw)', textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', color: '#fff3e0', lineHeight: '1.2' }}>🌲 秘密基地へようこそ！ 🌲</div>
       <div className="comic-text font-title-sm" style={{ marginBottom: 'min(36px, 8vw)', color: '#c8e6c9', textShadow: '2px 2px 0px rgba(0,0,0,0.5)' }}>さすらいのモモンガカーニバル</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '600px', margin: '0 auto', padding: '0 10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '800px', margin: '0 auto', padding: '0 10px' }}>
         <Link to="/games" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ffc107', cursor: 'pointer', transition: 'all 0.3s ease' }}>
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>🎮</div>
@@ -34,6 +34,20 @@ const HomePage: React.FC = () => {
             <div className="font-icon-md" style={{ marginBottom: '12px' }}>📁</div>
             <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>宝物庫</div>
             <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>ファイルを保存</div>
+          </div>
+        </Link>
+        <Link to="/achievements" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(255, 87, 34, 0.3), rgba(255, 152, 0, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#ff5722', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>🏆</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>実績</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>トロフィー・記録</div>
+          </div>
+        </Link>
+        <Link to="/daily-missions" style={{ textDecoration: 'none' }}>
+          <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.3), rgba(216, 27, 96, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#e91e63', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>📋</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>日課</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>デイリーミッション</div>
           </div>
         </Link>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
@@ -61,6 +75,11 @@ import Chatbot from './pages/Chatbot.tsx'
 import './index.css'
 import OmikujiRoulette from './pages/OmikujiRoulette.tsx'
 import BulletHell from './pages/BulletHell.tsx'
+import Achievements from './pages/Achievements.tsx'
+import NumberPuzzle from './pages/NumberPuzzle.tsx'
+import MemoryGame from './pages/MemoryGame.tsx'
+import AudioSettings from './pages/AudioSettings.tsx'
+import DailyMissions from './pages/DailyMissions.tsx'
 
 const router = createBrowserRouter([
   {
@@ -71,6 +90,8 @@ const router = createBrowserRouter([
             { path: 'games', element: <Games /> },
             { path: 'games/omikuji', element: <OmikujiRoulette /> },
             { path: 'games/bullet-hell', element: <BulletHell /> },
+            { path: 'games/number-puzzle', element: <NumberPuzzle /> },
+            { path: 'games/memory', element: <MemoryGame /> },
             { path: 'games/store', element: <MOMOStore /> },
             { path: 'plaza', element: <Plaza /> },
             { path: 'plaza/hall', element: <Tweets /> },
@@ -80,6 +101,9 @@ const router = createBrowserRouter([
             { path: 'settings', element: <SettingsIndex /> },
             { path: 'settings/general', element: <GeneralSettings /> },
             { path: 'settings/share', element: <ShareSettings /> },
+            { path: 'settings/audio', element: <AudioSettings /> },
+            { path: 'achievements', element: <Achievements /> },
+            { path: 'daily-missions', element: <DailyMissions /> },
     ],
   },
 ])

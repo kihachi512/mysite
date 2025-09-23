@@ -223,5 +223,13 @@ export const SEO_PRESETS = {
     ogTitle: '共有設定 | モモンガカーニバル',
     ogDescription: 'データのバックアップ・復元！JSONファイルで簡単データ管理。',
     canonicalUrl: 'https://sasurai-momonga-carnival.com/settings/share'
+  },
+  achievements: {
+    title: '実績・トロフィー',
+    description: 'カーニバルでの足跡を記録！ゲーム、ソーシャル、コレクション、特別実績を解除してMOMOPayや称号を獲得しよう。進捗確認と報酬システム搭載。',
+    keywords: '実績,トロフィー,アチーブメント,足跡,記録,MOMOPay,称号,報酬,進捗,解除,ゲーム実績,コレクション',
+    ogTitle: '実績・トロフィー | モモンガカーニバル',
+    ogDescription: 'カーニバルでの実績を記録！様々な実績を解除してMOMOPayや称号を獲得。',
+    canonicalUrl: 'https://sasurai-momonga-carnival.com/achievements'
   }
 };
