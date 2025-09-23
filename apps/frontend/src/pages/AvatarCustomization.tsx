@@ -326,15 +326,121 @@ const AvatarCustomization: React.FC = () => {
     return itemId ? COSTUME_ITEMS.find(item => item.id === itemId) || null : null
   }
 
-  const generateAvatarDisplay = (): string => {
-    let display = '🐿️' // Base momonga
-    
-    if (currentAvatar.special) {
-      const special = COSTUME_ITEMS.find(item => item.id === currentAvatar.special)
-      if (special) display += special.preview
+  const generateAvatarDisplay = () => {
+    return (
+      <div style={{ 
+        position: 'relative', 
+        display: 'inline-block',
+        width: 'clamp(4rem, 12vw, 8rem)',
+        height: 'clamp(4rem, 12vw, 8rem)'
+      }}>
+        {/* Base momonga image */}
+        <img 
+          src="/momonga-icon.png" 
+          alt="モモンガアバター"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: '50%',
+            position: 'relative',
+            zIndex: 1
+          }}
+        />
+        
+        {/* Hat overlay */}
+        {currentAvatar.hat && (
+          <div style={{
+            position: 'absolute',
+            top: '-10%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+            zIndex: 3
+          }}>
+            {getHatEmoji(currentAvatar.hat)}
+          </div>
+        )}
+
+        {/* Accessory overlay */}
+        {currentAvatar.accessory && (
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            zIndex: 3
+          }}>
+            {getAccessoryEmoji(currentAvatar.accessory)}
+          </div>
+        )}
+
+        {/* Special effects overlay */}
+        {currentAvatar.special && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
+            zIndex: 4,
+            animation: currentAvatar.special === 'sparkles' ? 'sparkle 2s infinite' : 'none'
+          }}>
+            {getSpecialEffectEmoji(currentAvatar.special)}
+          </div>
+        )}
+
+        {/* Outfit indicator */}
+        {currentAvatar.outfit && (
+          <div style={{
+            position: 'absolute',
+            bottom: '-5%',
+            right: '-5%',
+            fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
+            zIndex: 3
+          }}>
+            {getOutfitEmoji(currentAvatar.outfit)}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const getHatEmoji = (hatId: string): string => {
+    const hats: { [key: string]: string } = {
+      'santa-hat': '🎅',
+      'crown': '👑',
+      'chef-hat': '👨‍🍳',
+      'wizard-hat': '🧙‍♂️'
     }
-    
-    return display
+    return hats[hatId] || ''
+  }
+
+  const getAccessoryEmoji = (accessoryId: string): string => {
+    const accessories: { [key: string]: string } = {
+      'sunglasses': '🕶️',
+      'monocle': '🧐',
+      'heart-eyes': '💕'
+    }
+    return accessories[accessoryId] || ''
+  }
+
+  const getOutfitEmoji = (outfitId: string): string => {
+    const outfits: { [key: string]: string } = {
+      'tuxedo': '🤵',
+      'ninja-outfit': '🥷',
+      'superhero-cape': '🦸'
+    }
+    return outfits[outfitId] || ''
+  }
+
+  const getSpecialEffectEmoji = (specialId: string): string => {
+    const effects: { [key: string]: string } = {
+      'sparkles': '✨',
+      'rainbow-trail': '🌈'
+    }
+    return effects[specialId] || ''
   }
 
   const filteredItems = COSTUME_ITEMS.filter(item => item.category === selectedCategory)
@@ -396,9 +502,11 @@ const AvatarCustomization: React.FC = () => {
           </div>
           
           <div className="avatar-current-display" style={{ 
-            fontSize: 'clamp(4rem, 12vw, 8rem)',
             marginBottom: '16px',
-            position: 'relative'
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}>
             {generateAvatarDisplay()}
           </div>
