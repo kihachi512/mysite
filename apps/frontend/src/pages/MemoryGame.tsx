@@ -312,7 +312,7 @@ const MemoryGame: React.FC = () => {
 
         {/* Cards grid */}
         <div 
-          className="comic-card"
+          className="comic-card memory-board"
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${config.gridCols}, 1fr)`,
@@ -328,7 +328,7 @@ const MemoryGame: React.FC = () => {
             <div
               key={card.id}
               onClick={() => handleCardClick(card.id)}
-              className="comic-card"
+              className="comic-card memory-card"
               style={{
                 aspectRatio: '1',
                 display: 'flex',

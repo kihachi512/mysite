@@ -471,7 +471,7 @@ const DailyMissions: React.FC = () => {
         )}
 
         {/* Daily Missions */}
-        <div style={{ 
+        <div className="missions-grid" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 90vw), 1fr))', 
           gap: 'min(20px, 5vw)', 

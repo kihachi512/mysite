@@ -395,7 +395,7 @@ const AvatarCustomization: React.FC = () => {
             現在のアバター
           </div>
           
-          <div style={{ 
+          <div className="avatar-current-display" style={{ 
             fontSize: 'clamp(4rem, 12vw, 8rem)',
             marginBottom: '16px',
             position: 'relative'
@@ -449,7 +449,7 @@ const AvatarCustomization: React.FC = () => {
         </div>
 
         {/* Category Selector */}
-        <div style={{ 
+        <div className="costume-categories" style={{ 
           display: 'flex', 
           justifyContent: 'center', 
           gap: 'min(12px, 3vw)', 
@@ -481,7 +481,7 @@ const AvatarCustomization: React.FC = () => {
         </div>
 
         {/* Items Grid */}
-        <div className="stagger-children" style={{ 
+        <div className="costume-items-grid stagger-children" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 90vw), 1fr))', 
           gap: 'min(20px, 5vw)'

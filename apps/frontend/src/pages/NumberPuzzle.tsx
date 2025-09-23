@@ -319,7 +319,7 @@ const NumberPuzzle: React.FC = () => {
 
       {/* Puzzle board */}
       <div 
-        className="comic-card"
+        className="comic-card puzzle-board"
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${puzzleSize}, 1fr)`,
@@ -335,7 +335,7 @@ const NumberPuzzle: React.FC = () => {
           <div
             key={index}
             onClick={() => handleTileClick(index)}
-            className={number !== null ? 'comic-card' : ''}
+            className={number !== null ? 'comic-card puzzle-tile' : ''}
             style={{
               aspectRatio: '1',
               display: 'flex',

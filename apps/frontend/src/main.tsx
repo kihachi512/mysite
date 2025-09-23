@@ -37,7 +37,7 @@ const HomePage: React.FC = () => {
 
       {/* デイリーボーナス */}
       {dailyBonus && !dailyBonus.claimed && (
-        <div className="comic-card animate-bounce-in" style={{
+        <div className="comic-card animate-bounce-in daily-bonus-card" style={{
           background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.4), rgba(255, 152, 0, 0.3))',
           borderColor: '#ffc107',
           padding: 'min(16px, 4vw)',
@@ -77,7 +77,7 @@ const HomePage: React.FC = () => {
 
       {/* アクティブな経済イベント */}
       {activeEvents.length > 0 && (
-        <div className="comic-card animate-glow" style={{
+        <div className="comic-card animate-glow event-card" style={{
           background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))',
           borderColor: '#9c27b0',
           padding: 'min(16px, 4vw)',

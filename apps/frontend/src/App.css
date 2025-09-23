@@ -653,6 +653,13 @@ body::after {
     padding: 6px 8px; 
     flex-wrap: wrap;
     justify-content: center;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nav::-webkit-scrollbar {
+    display: none;
   }
   .nav a { 
     padding: 6px 10px; 
@@ -678,10 +685,41 @@ body::after {
     min-height: 44px;
     min-width: 44px;
     padding: min(12px 20px, 3vw 5vw) !important;
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+  
+  /* ゲームタイルのタッチ対応 */
+  .puzzle-tile, .memory-card {
+    min-height: 50px !important;
+    min-width: 50px !important;
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
   }
   
   .comic-input {
     font-size: 16px; /* iOS のズーム防止 */
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    border-radius: 12px;
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+  }
+  
+  /* iOS 特有の問題を修正 */
+  input[type="number"] {
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+  }
+  
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
 
@@ -1352,6 +1390,145 @@ body.premium-theme .footer p {
     max-width: 90% !important;
     min-width: 120px !important;
     padding: 6px 10px !important;
+  }
+}
+
+/* 新機能のモバイル対応 */
+
+/* 実績ページ */
+@media (max-width: 768px) {
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)) !important;
+    gap: min(16px, 4vw) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .achievements-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 0 4px !important;
+  }
+}
+
+/* デイリーミッション */
+@media (max-width: 768px) {
+  .missions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)) !important;
+    gap: min(16px, 4vw) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .missions-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* MOMOBank */
+@media (max-width: 768px) {
+  .bank-tabs {
+    flex-direction: column !important;
+    gap: min(12px, 3vw) !important;
+  }
+  
+  .bank-form-container {
+    flex-direction: column !important;
+    gap: min(12px, 3vw) !important;
+  }
+  
+  .investment-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .bank-form-container {
+    gap: 8px !important;
+  }
+  
+  .investment-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  .bank-tabs button {
+    padding: min(12px, 3vw) !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* アバターカスタマイズ */
+@media (max-width: 768px) {
+  .avatar-current-display {
+    font-size: clamp(3rem, 10vw, 6rem) !important;
+  }
+  
+  .costume-categories {
+    flex-wrap: wrap !important;
+    gap: min(8px, 2vw) !important;
+  }
+  
+  .costume-items-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-current-display {
+    font-size: clamp(2.5rem, 8vw, 4rem) !important;
+  }
+  
+  .costume-categories button {
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+  }
+  
+  .costume-items-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+/* パズルゲーム */
+@media (max-width: 480px) {
+  .puzzle-board {
+    max-width: min(350px, 95vw) !important;
+    gap: 2px !important;
+  }
+  
+  .puzzle-tile {
+    font-size: 1rem !important;
+    min-height: 50px !important;
+    min-width: 50px !important;
+  }
+}
+
+/* 記憶力ゲーム */
+@media (max-width: 480px) {
+  .memory-board {
+    max-width: min(400px, 95vw) !important;
+    gap: 4px !important;
+  }
+  
+  .memory-card {
+    font-size: 1.2rem !important;
+    min-height: 50px !important;
+    min-width: 50px !important;
+  }
+}
+
+/* ホームページのボーナス表示 */
+@media (max-width: 480px) {
+  .daily-bonus-card {
+    margin: 0 8px min(20px, 5vw) 8px !important;
+    padding: min(16px, 4vw) !important;
+  }
+  
+  .event-card {
+    margin: 0 8px min(20px, 5vw) 8px !important;
+    padding: min(12px, 3vw) !important;
   }
 }
 

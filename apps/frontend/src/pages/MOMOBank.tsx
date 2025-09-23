@@ -377,7 +377,7 @@ const MOMOBank: React.FC = () => {
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 10px' }}>
         {/* タブ */}
-        <div style={{ 
+        <div className="bank-tabs" style={{ 
           display: 'flex', 
           justifyContent: 'center', 
           gap: 'min(16px, 4vw)', 
@@ -440,7 +440,7 @@ const MOMOBank: React.FC = () => {
                 利率: {bankAccount.interestRate}%/日 | 最終更新: {bankAccount.lastUpdate}
               </div>
               
-              <div style={{ 
+              <div className="bank-form-container" style={{ 
                 display: 'flex', 
                 gap: 'min(16px, 4vw)', 
                 justifyContent: 'center',
@@ -594,7 +594,7 @@ const MOMOBank: React.FC = () => {
             )}
 
             {/* 投資商品 */}
-            <div style={{ 
+            <div className="investment-grid" style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 90vw), 1fr))', 
               gap: 'min(20px, 5vw)'

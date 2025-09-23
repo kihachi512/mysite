@@ -397,7 +397,7 @@ const Achievements: React.FC = () => {
       </div>
 
       {/* 実績一覧 */}
-      <div style={{ 
+      <div className="achievements-grid" style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 90vw), 1fr))', 
         gap: 'min(20px, 5vw)', 
