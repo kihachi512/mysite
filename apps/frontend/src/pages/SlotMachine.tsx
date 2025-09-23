@@ -83,7 +83,6 @@ const SlotMachine: React.FC = () => {
     { currentIndex: 8, symbols: REEL_PATTERN, speed: 8, targetSymbol: undefined },
     { currentIndex: 16, symbols: REEL_PATTERN, speed: 8, targetSymbol: undefined }
   ])
-  const [nextSymbols, setNextSymbols] = useState<SlotSymbol[][]>([[], [], []])
 
   // Track area visit
   useEffect(() => {
@@ -97,24 +96,6 @@ const SlotMachine: React.FC = () => {
     return position.symbols[position.currentIndex % position.symbols.length] || '🍒'
   }
 
-  // リールから次の絵柄を取得
-  const getUpcomingSymbols = (reelIndex: number, count: number = 3): SlotSymbol[] => {
-    const position = reelPositions[reelIndex]
-    if (!position) return []
-    
-    const symbols: SlotSymbol[] = []
-    for (let i = 1; i <= count; i++) {
-      const nextIndex = (position.currentIndex + i) % position.symbols.length
-      symbols.push(position.symbols[nextIndex] || '🍒')
-    }
-    return symbols
-  }
-
-  // 目押しタイミングの判定（±1コマの余裕を設ける）
-  const canHitTarget = (reelIndex: number, targetSymbol: SlotSymbol): boolean => {
-    const upcomingSymbols = getUpcomingSymbols(reelIndex, 3)
-    return upcomingSymbols.includes(targetSymbol)
-  }
 
   // 重み付きランダムでシンボルを選択（従来の機能も残す）
   const getRandomSymbol = (): SlotSymbol => {
@@ -271,13 +252,6 @@ const SlotMachine: React.FC = () => {
               newReels[reelIndex] = newPositions[reelIndex].symbols[newPositions[reelIndex].currentIndex] || '🍒'
               return newReels
             })
-
-            // 次の絵柄を更新
-            setNextSymbols((prevNext: SlotSymbol[][]) => {
-              const newNext = [...prevNext]
-              newNext[reelIndex] = getUpcomingSymbols(reelIndex, 3)
-              return newNext
-            })
           }
           return newPositions
         })
@@ -393,26 +367,6 @@ const SlotMachine: React.FC = () => {
           }}>
             {reels.map((symbol: SlotSymbol, index: number) => (
               <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                {/* 次の絵柄プレビュー（目押し用） */}
-                {reelStates[index] === 'spinning' && (
-                  <div style={{
-                    display: 'flex',
-                    gap: '4px',
-                    marginBottom: '4px',
-                    padding: '4px 8px',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    borderRadius: '8px',
-                    fontSize: 'clamp(0.8rem, 2vw, 1.2rem)'
-                  }}>
-                    <span style={{ color: '#ffd93d', fontSize: '0.6rem' }}>次:</span>
-                    {nextSymbols[index]?.slice(0, 3).map((nextSymbol, i) => (
-                      <span key={i} style={{ opacity: 1 - i * 0.3 }}>
-                        {nextSymbol}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                
                 <div
                   onClick={() => reelStates[index] === 'spinning' && stopReel(index)}
                   style={{
@@ -482,7 +436,7 @@ const SlotMachine: React.FC = () => {
               lineHeight: '1.4'
             }}>
               🎯 各リールをタップして目押し停止！<br/>
-              💡 「次:」で来る絵柄を確認して狙え！
+              💡 タイミングを見計らって狙った絵柄で止めよう！
             </div>
           )}
 
@@ -493,7 +447,7 @@ const SlotMachine: React.FC = () => {
               marginBottom: '16px',
               animation: 'pulse 2s infinite'
             }}>
-              👆 目押し！次の絵柄を見てタイミングよく停止！
+              👆 目押し！タイミングよく停止して絵柄を狙え！
             </div>
           )}
 
