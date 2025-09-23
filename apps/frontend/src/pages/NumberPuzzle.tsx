@@ -131,7 +131,7 @@ const NumberPuzzle: React.FC = () => {
     
     // 難易度に応じて数字を除去
     const cellsToRemove = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 8 : 10
-    const positions = []
+    const positions: [number, number][] = []
     for (let r = 0; r < 4; r++) {
       for (let c = 0; c < 4; c++) {
         positions.push([r, c])
@@ -144,9 +144,9 @@ const NumberPuzzle: React.FC = () => {
     // 指定数のセルを空にする
     for (let i = 0; i < cellsToRemove && i < positions.length; i++) {
       const position = positions[i]
-      if (position && position.length >= 2) {
+      if (position) {
         const [r, c] = position
-        if (puzzle[r] && puzzle[r][c]) {
+        if (puzzle[r]?.[c]) {
           puzzle[r][c] = { value: null, isGiven: false, isValid: true }
         }
       }
@@ -587,7 +587,7 @@ const NumberPuzzle: React.FC = () => {
               width: 'min(50px, 10vw)',
               height: 'min(50px, 10vw)',
               fontSize: 'min(24px, 5vw)',
-              opacity: (!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven) ? 0.5 : 1
+              opacity: (!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven === true) ? 0.5 : 1
             }}
           >
             {num}
@@ -596,7 +596,7 @@ const NumberPuzzle: React.FC = () => {
         
         <button
           onClick={() => handleNumberInput(null)}
-          disabled={!selectedCell || board[selectedCell.row][selectedCell.col].isGiven}
+          disabled={!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven === true}
           className="comic-button font-button-md"
           style={{
             background: 'linear-gradient(45deg, #f44336, #d32f2f)',
@@ -605,7 +605,7 @@ const NumberPuzzle: React.FC = () => {
             width: 'min(50px, 10vw)',
             height: 'min(50px, 10vw)',
             fontSize: 'min(18px, 4vw)',
-            opacity: (!selectedCell || board[selectedCell.row][selectedCell.col].isGiven) ? 0.5 : 1
+            opacity: (!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven === true) ? 0.5 : 1
           }}
         >
           ❌
