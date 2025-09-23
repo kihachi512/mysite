@@ -103,7 +103,7 @@ const SlotMachine: React.FC = () => {
     return { amount: 0, rule: null }
   }
 
-  // 手動停止用のリール停止機能
+  // 手動停止用のリール停止機能（一つずつ確定）
   const stopReel = (reelIndex: number) => {
     if (gameState !== 'spinning') return
 
@@ -113,20 +113,29 @@ const SlotMachine: React.FC = () => {
       
       newStates[reelIndex] = 'stopped'
       
-      // リールに最終結果を設定
+      // 該当アニメーションを停止
+      if (animationIntervals[reelIndex]) {
+        clearInterval(animationIntervals[reelIndex])
+      }
+      
+      // リールに最終結果を設定して即座に確定
       setReels(prevReels => {
         const newReels = [...prevReels]
         newReels[reelIndex] = finalReels[reelIndex]!
         return newReels
       })
 
+      // リール確定のフィードバック
+      setTimeout(() => {
+        // 確定音やエフェクトをここに追加可能
+      }, 100)
+
       // 全てのリールが停止したかチェック
       if (newStates.every(state => state === 'stopped')) {
-        // 少し遅延を入れて最終結果を反映
+        // 最終結果判定と表示
         setTimeout(() => {
-          setReels(finalReels)
           finishGame(finalReels)
-        }, 100)
+        }, 500) // 少し余韻を持たせる
       }
       
       return newStates
@@ -325,9 +334,11 @@ const SlotMachine: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: 'clamp(3rem, 8vw, 5rem)',
-                    border: reelStates[index] === 'stopped' ? '3px solid #4caf50' : '3px solid #ffc107',
+                    border: reelStates[index] === 'stopped' ? '4px solid #4caf50' : '3px solid #ffc107',
                     boxShadow: reelStates[index] === 'spinning'
                       ? 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(255, 193, 7, 0.6)'
+                      : reelStates[index] === 'stopped' 
+                      ? 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 15px rgba(76, 175, 80, 0.8)'
                       : 'inset 0 2px 4px rgba(0,0,0,0.2)',
                     animation: reelStates[index] === 'spinning' ? 'pulse 0.1s infinite' : 'none',
                     transform: gameState === 'result' && lastWin > 0 ? 'scale(1.1)' : 'scale(1)',
@@ -378,7 +389,7 @@ const SlotMachine: React.FC = () => {
               marginBottom: '16px',
               lineHeight: '1.4'
             }}>
-              🎯 各リールを好きなタイミングでタップして停止！
+              🎯 各リールをタップして一つずつ停止・確定！
             </div>
           )}
 
@@ -389,7 +400,7 @@ const SlotMachine: React.FC = () => {
               marginBottom: '16px',
               animation: 'pulse 2s infinite'
             }}>
-              👆 リールをタップして停止！
+              👆 リールをタップして順番に停止・確定！
             </div>
           )}
 
@@ -411,7 +422,7 @@ const SlotMachine: React.FC = () => {
             }}
           >
             {gameState === 'spinning' 
-              ? '🎰 手動停止中...' 
+              ? '🎰 順次停止中...' 
               : gameState === 'result' 
               ? '結果表示中' 
               : `🎰 SPIN! (${betAmount}P)`}
@@ -457,35 +468,6 @@ const SlotMachine: React.FC = () => {
             ))}
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-            <button
-              onClick={() => changeBet(betAmount - 1)}
-              disabled={gameState !== 'idle' || betAmount <= 1}
-              className="comic-button font-button-sm"
-              style={{
-                background: 'linear-gradient(45deg, #666, #555)',
-                color: 'white',
-                borderColor: '#333',
-                opacity: gameState !== 'idle' || betAmount <= 1 ? 0.5 : 1
-              }}
-            >
-              -1
-            </button>
-            
-            <button
-              onClick={() => changeBet(betAmount + 1)}
-              disabled={gameState !== 'idle' || betAmount >= 1000}
-              className="comic-button font-button-sm"
-              style={{
-                background: 'linear-gradient(45deg, #666, #555)',
-                color: 'white',
-                borderColor: '#333',
-                opacity: gameState !== 'idle' || betAmount >= 1000 ? 0.5 : 1
-              }}
-            >
-              +1
-            </button>
-          </div>
         </div>
 
         {/* 配当表 */}
