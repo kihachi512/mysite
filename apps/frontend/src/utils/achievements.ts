@@ -7,6 +7,21 @@ export type AchievementStats = {
   omikujiCount: number
   purchasesMade: number
   areasVisited: Set<string>
+  // 新規追加
+  slotsPlayed: number
+  memoryGamesPlayed: number
+  sudokuSolved: number
+  bulletHellPlayed: number
+  avatarChanges: number
+  bankVisits: number
+  favoritesSaved: number
+  chatbotMessages: number
+  settingsChanged: number
+  maxMomoPayReached: number
+  consecutiveDays: number
+  totalTimeSpent: number // 分単位
+  buttonClicks: number
+  pageViews: number
 }
 
 export const ACHIEVEMENT_ACTIONS = {
@@ -14,7 +29,22 @@ export const ACHIEVEMENT_ACTIONS = {
   TWEET_POSTED: 'tweet_posted',
   OMIKUJI_DRAWN: 'omikuji_drawn',
   PURCHASE_MADE: 'purchase_made',
-  AREA_VISITED: 'area_visited'
+  AREA_VISITED: 'area_visited',
+  // 新規追加
+  SLOT_PLAYED: 'slot_played',
+  MEMORY_GAME_PLAYED: 'memory_game_played',
+  SUDOKU_SOLVED: 'sudoku_solved',
+  BULLET_HELL_PLAYED: 'bullet_hell_played',
+  AVATAR_CHANGED: 'avatar_changed',
+  BANK_VISITED: 'bank_visited',
+  FAVORITE_SAVED: 'favorite_saved',
+  CHATBOT_MESSAGE: 'chatbot_message',
+  SETTING_CHANGED: 'setting_changed',
+  MOMO_PAY_UPDATED: 'momo_pay_updated',
+  DAILY_LOGIN: 'daily_login',
+  TIME_SPENT: 'time_spent',
+  BUTTON_CLICKED: 'button_clicked',
+  PAGE_VIEWED: 'page_viewed'
 } as const
 
 export type AchievementAction = typeof ACHIEVEMENT_ACTIONS[keyof typeof ACHIEVEMENT_ACTIONS]
@@ -36,7 +66,22 @@ class AchievementTracker {
           tweetsPosted: parsed.tweetsPosted || 0,
           omikujiCount: parsed.omikujiCount || 0,
           purchasesMade: parsed.purchasesMade || 0,
-          areasVisited: new Set(parsed.areasVisited || [])
+          areasVisited: new Set(parsed.areasVisited || []),
+          // 新規統計
+          slotsPlayed: parsed.slotsPlayed || 0,
+          memoryGamesPlayed: parsed.memoryGamesPlayed || 0,
+          sudokuSolved: parsed.sudokuSolved || 0,
+          bulletHellPlayed: parsed.bulletHellPlayed || 0,
+          avatarChanges: parsed.avatarChanges || 0,
+          bankVisits: parsed.bankVisits || 0,
+          favoritesSaved: parsed.favoritesSaved || 0,
+          chatbotMessages: parsed.chatbotMessages || 0,
+          settingsChanged: parsed.settingsChanged || 0,
+          maxMomoPayReached: parsed.maxMomoPayReached || 0,
+          consecutiveDays: parsed.consecutiveDays || 0,
+          totalTimeSpent: parsed.totalTimeSpent || 0,
+          buttonClicks: parsed.buttonClicks || 0,
+          pageViews: parsed.pageViews || 0
         }
       }
     } catch (error) {
@@ -48,7 +93,22 @@ class AchievementTracker {
       tweetsPosted: 0,
       omikujiCount: 0,
       purchasesMade: 0,
-      areasVisited: new Set<string>()
+      areasVisited: new Set<string>(),
+      // 新規統計のデフォルト値
+      slotsPlayed: 0,
+      memoryGamesPlayed: 0,
+      sudokuSolved: 0,
+      bulletHellPlayed: 0,
+      avatarChanges: 0,
+      bankVisits: 0,
+      favoritesSaved: 0,
+      chatbotMessages: 0,
+      settingsChanged: 0,
+      maxMomoPayReached: 0,
+      consecutiveDays: 0,
+      totalTimeSpent: 0,
+      buttonClicks: 0,
+      pageViews: 0
     }
   }
 
@@ -83,6 +143,51 @@ class AchievementTracker {
           this.stats.areasVisited.add(value)
         }
         break
+      // 新規アクション
+      case ACHIEVEMENT_ACTIONS.SLOT_PLAYED:
+        this.stats.slotsPlayed += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.MEMORY_GAME_PLAYED:
+        this.stats.memoryGamesPlayed += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.SUDOKU_SOLVED:
+        this.stats.sudokuSolved += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.BULLET_HELL_PLAYED:
+        this.stats.bulletHellPlayed += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.AVATAR_CHANGED:
+        this.stats.avatarChanges += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.BANK_VISITED:
+        this.stats.bankVisits += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.FAVORITE_SAVED:
+        this.stats.favoritesSaved += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.CHATBOT_MESSAGE:
+        this.stats.chatbotMessages += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.SETTING_CHANGED:
+        this.stats.settingsChanged += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.MOMO_PAY_UPDATED:
+        if (typeof value === 'number' && value > this.stats.maxMomoPayReached) {
+          this.stats.maxMomoPayReached = value
+        }
+        break
+      case ACHIEVEMENT_ACTIONS.DAILY_LOGIN:
+        this.stats.consecutiveDays += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.TIME_SPENT:
+        this.stats.totalTimeSpent += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.BUTTON_CLICKED:
+        this.stats.buttonClicks += typeof value === 'number' ? value : 1
+        break
+      case ACHIEVEMENT_ACTIONS.PAGE_VIEWED:
+        this.stats.pageViews += typeof value === 'number' ? value : 1
+        break
     }
     
     this.saveStats()
@@ -99,7 +204,21 @@ class AchievementTracker {
       tweetsPosted: 0,
       omikujiCount: 0,
       purchasesMade: 0,
-      areasVisited: new Set<string>()
+      areasVisited: new Set<string>(),
+      slotsPlayed: 0,
+      memoryGamesPlayed: 0,
+      sudokuSolved: 0,
+      bulletHellPlayed: 0,
+      avatarChanges: 0,
+      bankVisits: 0,
+      favoritesSaved: 0,
+      chatbotMessages: 0,
+      settingsChanged: 0,
+      maxMomoPayReached: 0,
+      consecutiveDays: 0,
+      totalTimeSpent: 0,
+      buttonClicks: 0,
+      pageViews: 0
     }
     this.saveStats()
     logger.info('Achievement stats reset')
@@ -115,6 +234,22 @@ export const trackTweetPosted = () => achievementTracker.incrementStat(ACHIEVEME
 export const trackOmikujiDrawn = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.OMIKUJI_DRAWN)
 export const trackPurchaseMade = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.PURCHASE_MADE)
 export const trackAreaVisited = (area: string) => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.AREA_VISITED, area)
+
+// 新規ヘルパー関数
+export const trackSlotPlayed = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.SLOT_PLAYED)
+export const trackMemoryGamePlayed = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.MEMORY_GAME_PLAYED)
+export const trackSudokuSolved = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.SUDOKU_SOLVED)
+export const trackBulletHellPlayed = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.BULLET_HELL_PLAYED)
+export const trackAvatarChanged = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.AVATAR_CHANGED)
+export const trackBankVisited = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.BANK_VISITED)
+export const trackFavoriteSaved = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.FAVORITE_SAVED)
+export const trackChatbotMessage = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.CHATBOT_MESSAGE)
+export const trackSettingChanged = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.SETTING_CHANGED)
+export const trackMomoPayUpdated = (amount: number) => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.MOMO_PAY_UPDATED, amount)
+export const trackDailyLogin = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.DAILY_LOGIN)
+export const trackTimeSpent = (minutes: number) => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.TIME_SPENT, minutes)
+export const trackButtonClicked = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.BUTTON_CLICKED)
+export const trackPageViewed = () => achievementTracker.incrementStat(ACHIEVEMENT_ACTIONS.PAGE_VIEWED)
 
 // Area constants for consistent tracking
 export const AREAS = {
