@@ -44,11 +44,20 @@ class AudioManager {
     }
   }
 
-  // Generate simple tones for sound effects using Web Audio API
+  // 軽量な効果音生成（Audio Context の再利用）
+  private audioContext: AudioContext | null = null
+  
+  private getOrCreateAudioContext(): AudioContext {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+    }
+    return this.audioContext
+  }
+
   private generateTone(frequency: number, duration: number, type: OscillatorType = 'sine'): Promise<void> {
     return new Promise((resolve) => {
       try {
-        const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+        const audioContext = this.getOrCreateAudioContext()
         const oscillator = audioContext.createOscillator()
         const gainNode = audioContext.createGain()
         
@@ -65,10 +74,7 @@ class AudioManager {
         oscillator.start(audioContext.currentTime)
         oscillator.stop(audioContext.currentTime + duration)
         
-        oscillator.onended = () => {
-          audioContext.close()
-          resolve()
-        }
+        oscillator.onended = () => resolve()
       } catch (error) {
         logger.error('Failed to generate tone:', error)
         resolve()
@@ -76,55 +82,28 @@ class AudioManager {
     })
   }
 
-  // Generate complex sound effects
-  private async generateComplexSound(type: SoundEffect): Promise<void> {
+  // 軽量化された効果音生成（シンプルな単音）
+  private async generateSimpleSound(type: SoundEffect): Promise<void> {
     if (this.isMuted) return
 
     try {
-      switch (type) {
-        case 'click':
-          await this.generateTone(800, 0.1, 'square')
-          break
-        
-        case 'success':
-          await this.generateTone(523, 0.15) // C5
-          await this.generateTone(659, 0.15) // E5
-          await this.generateTone(784, 0.3)  // G5
-          break
-        
-        case 'error':
-          await this.generateTone(200, 0.2, 'sawtooth')
-          await this.generateTone(150, 0.2, 'sawtooth')
-          break
-        
-        case 'notification':
-          await this.generateTone(1000, 0.1)
-          await new Promise(resolve => setTimeout(resolve, 50))
-          await this.generateTone(800, 0.1)
-          break
-        
-        case 'coin':
-          await this.generateTone(1319, 0.1) // E6
-          await this.generateTone(1568, 0.15) // G6
-          break
-        
-        case 'powerup':
-          for (let i = 0; i < 5; i++) {
-            await this.generateTone(400 + (i * 100), 0.08)
-            await new Promise(resolve => setTimeout(resolve, 30))
-          }
-          break
-        
-        case 'achievement':
-          const notes = [523, 659, 784, 1047] // C5, E5, G5, C6
-          for (const note of notes) {
-            await this.generateTone(note, 0.2)
-            await new Promise(resolve => setTimeout(resolve, 100))
-          }
-          break
+      const soundConfig = {
+        'click': { freq: 800, duration: 0.1, type: 'square' as OscillatorType },
+        'success': { freq: 784, duration: 0.3, type: 'sine' as OscillatorType }, // G5
+        'error': { freq: 200, duration: 0.2, type: 'sawtooth' as OscillatorType },
+        'notification': { freq: 1000, duration: 0.15, type: 'sine' as OscillatorType },
+        'coin': { freq: 1319, duration: 0.2, type: 'sine' as OscillatorType }, // E6
+        'powerup': { freq: 800, duration: 0.25, type: 'square' as OscillatorType },
+        'achievement': { freq: 1047, duration: 0.4, type: 'sine' as OscillatorType } // C6
+      }
+
+      const config = soundConfig[type]
+      if (config) {
+        await this.generateTone(config.freq, config.duration, config.type)
+        logger.debug(`🔊 効果音再生: ${type} (${config.freq}Hz)`)
       }
     } catch (error) {
-      logger.error('Failed to generate complex sound:', error)
+      logger.error('Failed to generate sound:', error)
     }
   }
 
@@ -138,51 +117,17 @@ class AudioManager {
     })
   }
 
-  // Generate simple background music loops
-  private async generateBackgroundMusic(type: BackgroundMusic): Promise<HTMLAudioElement> {
-    // For now, we'll create a simple looping tone
-    // In a real implementation, this would load actual music files
-    const audio = new Audio()
-    
-    // Create a data URL for a simple generated tone
-    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
-    const duration = 4 // seconds
-    const sampleRate = audioContext.sampleRate
-    const frameCount = sampleRate * duration
-    const arrayBuffer = audioContext.createBuffer(2, frameCount, sampleRate)
-    
-    for (let channel = 0; channel < arrayBuffer.numberOfChannels; channel++) {
-      const channelData = arrayBuffer.getChannelData(channel)
-      
-      for (let i = 0; i < frameCount; i++) {
-        // Generate a simple ambient tone based on music type
-        let frequency = 220 // Base A3
-        
-        switch (type) {
-          case 'home':
-          case 'peaceful':
-            frequency = 220 + Math.sin(i / sampleRate * 2 * Math.PI) * 20
-            break
-          case 'games':
-          case 'intense':
-            frequency = 330 + Math.sin(i / sampleRate * 4 * Math.PI) * 30
-            break
-          case 'celebration':
-            frequency = 440 + Math.sin(i / sampleRate * 8 * Math.PI) * 50
-            break
-          case 'menu':
-            frequency = 260 + Math.sin(i / sampleRate * 1 * Math.PI) * 15
-            break
-        }
-        
-        channelData[i] = Math.sin(i / sampleRate * frequency * 2 * Math.PI) * 0.1
-      }
+  // BGM管理（軽量化：実際の音楽ファイルがない場合はログのみ）
+  private getBgmConfig(type: BackgroundMusic): { name: string; mood: string } {
+    const configs = {
+      'home': { name: '🏠 ホーム', mood: 'リラックス' },
+      'games': { name: '🎮 ゲーム', mood: 'アップテンポ' },
+      'peaceful': { name: '🌸 平和', mood: '穏やか' },
+      'intense': { name: '⚡ 緊張', mood: 'ドラマティック' },
+      'celebration': { name: '🎉 お祝い', mood: '楽しげ' },
+      'menu': { name: '⚙️ メニュー', mood: 'ニュートラル' }
     }
-    
-    // This is a simplified approach - in practice you'd use actual music files
-    logger.debug(`Generated background music for ${type}`)
-    
-    return audio
+    return configs[type] || { name: 'Unknown', mood: 'Default' }
   }
 
   // Public methods
@@ -190,8 +135,7 @@ class AudioManager {
     if (this.isMuted) return
     
     try {
-      await this.generateComplexSound(effect)
-      logger.debug(`Played sound effect: ${effect}`)
+      await this.generateSimpleSound(effect)
     } catch (error) {
       logger.error('Failed to play sound effect:', error)
     }
@@ -205,12 +149,21 @@ class AudioManager {
       if (this.bgmAudio) {
         this.bgmAudio.pause()
         this.bgmAudio.currentTime = 0
+        this.bgmAudio = null
       }
       
-      // For now, we'll just log the BGM change
-      // In a full implementation, this would play actual music files
+      // 軽量化：実際の音楽ファイルは使わず、BGMの切り替えをログのみで表現
+      // 実装時は音楽ファイルをロードする処理に置き換え可能
+      const config = this.getBgmConfig(type)
       this.currentBgm = type
-      logger.debug(`Changed background music to: ${type}`)
+      
+      logger.debug(`🎵 BGM切り替え: ${config.name} (${config.mood})`)
+      
+      // 将来的に音楽ファイルを使う場合の例：
+      // this.bgmAudio = new Audio(`/audio/bgm/${type}.mp3`)
+      // this.bgmAudio.volume = this.bgmVolume
+      // this.bgmAudio.loop = true
+      // await this.bgmAudio.play()
       
     } catch (error) {
       logger.error('Failed to play background music:', error)
@@ -262,6 +215,11 @@ class AudioManager {
   public get bgmVolumeLevel(): number { return this.bgmVolume }
   public get sfxVolumeLevel(): number { return this.sfxVolume }
   public get currentBackgroundMusic(): BackgroundMusic | null { return this.currentBgm }
+
+  // 初期化用パブリックメソッド
+  public initializeAudioContext(): void {
+    this.getOrCreateAudioContext()
+  }
 }
 
 // Singleton instance
@@ -275,17 +233,15 @@ export const setAudioMuted = (muted: boolean) => audioManager.setMuted(muted)
 export const setBgmVolume = (volume: number) => audioManager.setBgmVolume(volume)
 export const setSfxVolume = (volume: number) => audioManager.setSfxVolume(volume)
 
-// Audio context helper for user gesture requirement
+// Audio context helper for user gesture requirement (軽量化)
 export const initializeAudio = () => {
   // Modern browsers require user interaction to play audio
   // This function can be called on first user interaction
   try {
-    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
-    if (audioContext.state === 'suspended') {
-      audioContext.resume()
-    }
-    logger.debug('Audio context initialized')
+    // AudioManagerのAudioContextを初期化
+    audioManager.initializeAudioContext()
+    logger.debug('🎵 Audio system initialized')
   } catch (error) {
-    logger.error('Failed to initialize audio context:', error)
+    logger.error('Failed to initialize audio system:', error)
   }
 }
