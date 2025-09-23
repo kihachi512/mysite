@@ -4,34 +4,44 @@ import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
 import { trackGamePlayed, trackAreaVisited, AREAS } from '../utils/achievements'
 
-type PuzzleSize = 3 | 4 | 5
-
 type GameState = 'menu' | 'playing' | 'completed' | 'paused'
+type Difficulty = 'easy' | 'medium' | 'hard'
+
+type Cell = {
+  value: number | null
+  isGiven: boolean
+  isValid: boolean
+}
+
+type SudokuBoard = Cell[][]
 
 type GameStats = {
   moves: number
   time: number
   started: boolean
   startTime?: number
+  mistakes: number
 }
 
 const NumberPuzzle: React.FC = () => {
   useSEO({
-    title: '数字並べパズル',
-    description: '1から8（または15）までの数字を順番に並べるスライディングパズル。3×3、4×4、5×5の3つの難易度。完成するとMOMOPayを獲得！',
-    keywords: '数字並べ,スライディングパズル,パズルゲーム,ロジック,思考,MOMOPay,無料パズル,ブラウザゲーム',
-    ogTitle: '数字並べパズル | モモンガカーニバル',
-    ogDescription: 'スライディング数字パズル！3つの難易度でMOMOPayを稼ごう。'
+    title: 'ミニ数独パズル',
+    description: '4x4のミニ数独パズル！各行、列、2x2ブロックに1-4の数字を重複なく配置しよう。3つの難易度でMOMOPayを獲得！',
+    keywords: 'ミニ数独,数独,sudoku,パズルゲーム,ロジック,思考,MOMOPay,無料パズル,ブラウザゲーム',
+    ogTitle: 'ミニ数独パズル | モモンガカーニバル',
+    ogDescription: '4x4ミニ数独で頭の体操！難易度3段階でMOMOPayを稼ごう。'
   });
 
   const { addMomoPayPoints } = useAppData()
-  const [puzzleSize, setPuzzleSize] = useState<PuzzleSize>(3)
-  const [board, setBoard] = useState<(number | null)[]>([])
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy')
+  const [board, setBoard] = useState<SudokuBoard>([])
   const [gameState, setGameState] = useState<GameState>('menu')
+  const [selectedCell, setSelectedCell] = useState<{row: number, col: number} | null>(null)
   const [stats, setStats] = useState<GameStats>({
     moves: 0,
     time: 0,
-    started: false
+    started: false,
+    mistakes: 0
   })
 
   // Track area visit
@@ -51,420 +61,415 @@ const NumberPuzzle: React.FC = () => {
         }))
       }, 1000)
     }
+    
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [gameState, stats.started, stats.startTime])
 
-    return () => clearInterval(interval)
-  }, [gameState, stats.started])
-
-  // Initialize board
-  const initializeBoard = (size: PuzzleSize) => {
-    const totalCells = size * size
-    const numbers: (number | null)[] = Array.from({ length: totalCells - 1 }, (_, i) => i + 1)
-    numbers.push(null) // Empty space
+  // 完全な4x4数独の解を生成
+  const generateCompleteSudoku = (): number[][] => {
+    const board = Array(4).fill(null).map(() => Array(4).fill(0))
     
-    // Shuffle until solvable
-    let shuffled: (number | null)[]
-    let attempts = 0
-    
-    do {
-      shuffled = [...numbers].sort(() => Math.random() - 0.5)
-      attempts++
-    } while (!isSolvable(shuffled, size) && attempts < 1000)
-    
-    // If still not solvable after many attempts, use a known solvable state
-    if (!isSolvable(shuffled, size)) {
-      shuffled = generateSolvableBoard(size)
+    // バックトラッキングで数独を解く
+    const solve = (row: number, col: number): boolean => {
+      if (row === 4) return true
+      if (col === 4) return solve(row + 1, 0)
+      
+      const numbers = [1, 2, 3, 4].sort(() => Math.random() - 0.5)
+      
+      for (const num of numbers) {
+        if (isValidMove(board, row, col, num)) {
+          board[row][col] = num
+          if (solve(row, col + 1)) return true
+          board[row][col] = 0
+        }
+      }
+      
+      return false
     }
     
-    return shuffled
+    solve(0, 0)
+    return board
   }
 
-  // Check if puzzle is solvable
-  const isSolvable = (board: (number | null)[], size: PuzzleSize): boolean => {
-    const numbers = board.filter(n => n !== null) as number[]
-    let inversions = 0
+  // 数字が配置可能かチェック
+  const isValidMove = (board: number[][], row: number, col: number, num: number): boolean => {
+    // 行チェック
+    for (let c = 0; c < 4; c++) {
+      if (c !== col && board[row][c] === num) return false
+    }
     
-    for (let i = 0; i < numbers.length; i++) {
-      for (let j = i + 1; j < numbers.length; j++) {
-        const numI = numbers[i]
-        const numJ = numbers[j]
-        if (numI && numJ && numI > numJ) {
-          inversions++
+    // 列チェック
+    for (let r = 0; r < 4; r++) {
+      if (r !== row && board[r][col] === num) return false
+    }
+    
+    // 2x2ブロックチェック
+    const blockRow = Math.floor(row / 2) * 2
+    const blockCol = Math.floor(col / 2) * 2
+    
+    for (let r = blockRow; r < blockRow + 2; r++) {
+      for (let c = blockCol; c < blockCol + 2; c++) {
+        if ((r !== row || c !== col) && board[r][c] === num) return false
+      }
+    }
+    
+    return true
+  }
+
+  // パズルを生成（解から数字を除去）
+  const generatePuzzle = (difficulty: Difficulty): SudokuBoard => {
+    const solution = generateCompleteSudoku()
+    const puzzle: SudokuBoard = solution.map(row => 
+      row.map(value => ({ value, isGiven: true, isValid: true }))
+    )
+    
+    // 難易度に応じて数字を除去
+    const cellsToRemove = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 8 : 10
+    const positions = []
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        positions.push([r, c])
+      }
+    }
+    
+    // ランダムに並び替え
+    positions.sort(() => Math.random() - 0.5)
+    
+    // 指定数のセルを空にする
+    for (let i = 0; i < cellsToRemove && i < positions.length; i++) {
+      const [r, c] = positions[i]
+      puzzle[r][c] = { value: null, isGiven: false, isValid: true }
+    }
+    
+    return puzzle
+  }
+
+  // ボードの検証
+  const validateBoard = (board: SudokuBoard): SudokuBoard => {
+    const newBoard = board.map(row => row?.map(cell => ({ ...cell })) || [])
+    
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        if (newBoard[r]?.[c]?.value !== null) {
+          const num = newBoard[r][c].value!
+          const tempBoard = board.map(row => row?.map(cell => cell?.value || 0) || [])
+          newBoard[r][c].isValid = isValidMove(tempBoard, r, c, num)
+        } else if (newBoard[r]?.[c]) {
+          newBoard[r][c].isValid = true
         }
       }
     }
     
-    if (size % 2 === 1) {
-      // Odd size: solvable if inversions are even
-      return inversions % 2 === 0
-    } else {
-      // Even size: more complex rules
-      const emptyRow = Math.floor(board.indexOf(null) / size)
-      const emptyRowFromBottom = size - emptyRow
-      
-      if (emptyRowFromBottom % 2 === 1) {
-        return inversions % 2 === 0
-      } else {
-        return inversions % 2 === 1
+    return newBoard
+  }
+
+  // パズルが完成しているかチェック
+  const isPuzzleComplete = (board: SudokuBoard): boolean => {
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        if (board[r]?.[c]?.value === null || !board[r]?.[c]?.isValid) {
+          return false
+        }
       }
     }
+    return true
   }
 
-  // Generate a solvable board by making moves from solved state
-  const generateSolvableBoard = (size: PuzzleSize): (number | null)[] => {
-    const solved: (number | null)[] = Array.from({ length: size * size - 1 }, (_, i) => i + 1)
-    solved.push(null)
-    
-    const board = [...solved]
-    const moves = size * size * 10 // Make many random moves
-    
-    for (let i = 0; i < moves; i++) {
-      const emptyIndex = board.indexOf(null)
-      const neighbors = getNeighbors(emptyIndex, size)
-      const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)]
-      
-      if (randomNeighbor !== undefined && randomNeighbor < board.length && randomNeighbor >= 0) {
-        // Swap empty space with random neighbor
-        const temp = board[emptyIndex]
-        const swapValue = board[randomNeighbor]
-        board[emptyIndex] = swapValue!
-        board[randomNeighbor] = temp!
-      }
-    }
-    
-    return board
-  }
-
-  // Get valid neighbors for a position
-  const getNeighbors = (index: number, size: PuzzleSize): number[] => {
-    const neighbors: number[] = []
-    const row = Math.floor(index / size)
-    const col = index % size
-    
-    // Up
-    if (row > 0) neighbors.push(index - size)
-    // Down
-    if (row < size - 1) neighbors.push(index + size)
-    // Left
-    if (col > 0) neighbors.push(index - 1)
-    // Right
-    if (col < size - 1) neighbors.push(index + 1)
-    
-    return neighbors
-  }
-
-  // Check if puzzle is solved
-  const isSolved = (board: (number | null)[]): boolean => {
-    for (let i = 0; i < board.length - 1; i++) {
-      if (board[i] !== i + 1) return false
-    }
-    return board[board.length - 1] === null
-  }
-
-  // Handle tile click
-  const handleTileClick = (index: number) => {
-    if (gameState !== 'playing') return
-    
-    const emptyIndex = board.indexOf(null)
-    const neighbors = getNeighbors(emptyIndex, puzzleSize)
-    
-    if (neighbors.includes(index)) {
-      const newBoard = [...board]
-      const temp = newBoard[index]
-      newBoard[emptyIndex] = temp!
-      newBoard[index] = null
-      
-      setBoard(newBoard)
-      setStats(prev => ({ ...prev, moves: prev.moves + 1 }))
-      
-      // Check if solved
-      if (isSolved(newBoard)) {
-        setGameState('completed')
-        
-        // Calculate reward based on size and performance
-        const baseReward = puzzleSize === 3 ? 30 : puzzleSize === 4 ? 60 : 100
-        const timeBonus = Math.max(0, 300 - stats.time) // Bonus for solving quickly
-        const moveBonus = Math.max(0, (puzzleSize * puzzleSize * 5) - stats.moves) // Bonus for fewer moves
-        const totalReward = baseReward + Math.floor(timeBonus / 10) + Math.floor(moveBonus / 5)
-        
-        addMomoPayPoints(totalReward)
-        trackGamePlayed()
-        
-        // Show completion message
-        setTimeout(() => {
-          alert(`🎉 パズル完成！\n\n移動回数: ${stats.moves}\n所要時間: ${formatTime(stats.time)}\n\n獲得MOMOPay: ${totalReward}\n（基本: ${baseReward} + ボーナス: ${totalReward - baseReward}）`)
-        }, 500)
-      }
-    }
-  }
-
-  // Start new game
-  const startNewGame = (size: PuzzleSize) => {
-    setPuzzleSize(size)
-    const newBoard = initializeBoard(size)
+  // ゲーム開始
+  const startGame = (selectedDifficulty: Difficulty) => {
+    const newBoard = generatePuzzle(selectedDifficulty)
+    setDifficulty(selectedDifficulty)
     setBoard(newBoard)
+    setSelectedCell(null)
     setStats({
       moves: 0,
       time: 0,
       started: true,
-      startTime: Date.now()
+      startTime: Date.now(),
+      mistakes: 0
     })
     setGameState('playing')
+    trackGamePlayed('mini-sudoku')
   }
 
-  // Format time as MM:SS
+  // セルクリック処理
+  const handleCellClick = (row: number, col: number) => {
+    if (board[row]?.[col]?.isGiven) return
+    setSelectedCell({ row, col })
+  }
+
+  // 数字入力処理
+  const handleNumberInput = (num: number | null) => {
+    if (!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven) return
+    
+    const newBoard = [...board]
+    const wasEmpty = newBoard[selectedCell.row]?.[selectedCell.col]?.value === null
+    if (newBoard[selectedCell.row]?.[selectedCell.col]) {
+      newBoard[selectedCell.row][selectedCell.col].value = num
+    }
+    
+    // 検証
+    const validatedBoard = validateBoard(newBoard)
+    setBoard(validatedBoard)
+    
+    // 統計更新
+    if (wasEmpty && num !== null && selectedCell) {
+      setStats(prev => ({
+        ...prev,
+        moves: prev.moves + 1,
+        mistakes: !validatedBoard[selectedCell.row]?.[selectedCell.col]?.isValid ? prev.mistakes + 1 : prev.mistakes
+      }))
+    }
+    
+    // 完成チェック
+    if (isPuzzleComplete(validatedBoard)) {
+      setGameState('completed')
+      
+      // 報酬計算
+      const baseReward = difficulty === 'easy' ? 50 : difficulty === 'medium' ? 100 : 200
+      const timeBonus = Math.max(0, 300 - stats.time) // 5分以内のボーナス
+      const accuracyBonus = Math.max(0, 50 - stats.mistakes * 10) // ミス数によるペナルティ
+      const totalReward = Math.floor(baseReward + timeBonus * 0.1 + accuracyBonus)
+      
+      addMomoPayPoints(totalReward)
+      setTimeout(() => {
+        alert(`🎉 ミニ数独完成！\n\n⏱️ 時間: ${Math.floor(stats.time / 60)}分${stats.time % 60}秒\n🔢 手数: ${stats.moves}回\n❌ ミス: ${stats.mistakes}回\n\n💰 獲得MOMOPay: ${totalReward}P`)
+      }, 100)
+    }
+  }
+
+  // ゲームリセット
+  const resetGame = () => {
+    setGameState('menu')
+    setBoard([])
+    setSelectedCell(null)
+    setStats({
+      moves: 0,
+      time: 0,
+      started: false,
+      mistakes: 0
+    })
+  }
+
+  // 時間フォーマット
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // Get tile color based on number
-  const getTileColor = (number: number | null): string => {
-    if (number === null) return 'transparent'
+  // セルのスタイル
+  const getCellStyle = (cell: Cell, row: number, col: number) => {
+    const isSelected = selectedCell?.row === row && selectedCell?.col === col
+    const isBlockBorder = (row === 1 || col === 1) // 2x2ブロックの境界
     
-    const hue = (number * 137.5) % 360 // Golden angle for nice color distribution
-    return `hsl(${hue}, 70%, 60%)`
+    return {
+      width: 'min(60px, 12vw)',
+      height: 'min(60px, 12vw)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 'min(24px, 5vw)',
+      fontWeight: 'bold',
+      border: `2px solid ${
+        isSelected ? '#4caf50' : 
+        !cell.isValid ? '#f44336' : 
+        cell.isGiven ? '#666' : '#999'
+      }`,
+      borderRightWidth: isBlockBorder && col === 1 ? '4px' : '2px',
+      borderBottomWidth: isBlockBorder && row === 1 ? '4px' : '2px',
+      borderRightColor: isBlockBorder && col === 1 ? '#fff' : undefined,
+      borderBottomColor: isBlockBorder && row === 1 ? '#fff' : undefined,
+      backgroundColor: 
+        isSelected ? 'rgba(76, 175, 80, 0.2)' :
+        !cell.isValid ? 'rgba(244, 67, 54, 0.2)' :
+        cell.isGiven ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+      color: 
+        !cell.isValid ? '#f44336' :
+        cell.isGiven ? '#fff3e0' : '#c8e6c9',
+      cursor: cell.isGiven ? 'not-allowed' : 'pointer',
+      transition: 'all 0.2s ease'
+    }
   }
 
-  // Render game menu
-  const renderMenu = () => (
-    <div style={{ textAlign: 'center' }}>
-      <div className="comic-text font-title-sm" style={{ 
-        color: '#fff3e0',
-        marginBottom: 'min(24px, 6vw)'
-      }}>
-        難易度を選択してください
-      </div>
-      
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: 'min(16px, 4vw)', 
-        maxWidth: '400px', 
-        margin: '0 auto'
-      }}>
-        <button 
-          onClick={() => startNewGame(3)}
-          className="comic-button font-button-md"
-          style={{
-            background: 'linear-gradient(45deg, #4caf50, #45a049)',
-            color: 'white',
-            borderColor: '#2e7d32',
-            padding: 'min(16px, 4vw)'
-          }}
-        >
-          🟢 簡単 (3×3) - 基本報酬 30P
-        </button>
+  if (gameState === 'menu') {
+    return (
+      <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
+        <div className="comic-text font-title-lg" style={{ 
+          marginBottom: 'min(16px, 4vw)', 
+          textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
+          color: '#fff3e0', 
+          lineHeight: '1.2' 
+        }}>
+          🔢 ミニ数独パズル ✨
+        </div>
         
-        <button 
-          onClick={() => startNewGame(4)}
-          className="comic-button font-button-md"
-          style={{
-            background: 'linear-gradient(45deg, #ff9800, #f57c00)',
-            color: 'white',
-            borderColor: '#e65100',
-            padding: 'min(16px, 4vw)'
-          }}
-        >
-          🟡 普通 (4×4) - 基本報酬 60P
-        </button>
-        
-        <button 
-          onClick={() => startNewGame(5)}
-          className="comic-button font-button-md"
-          style={{
-            background: 'linear-gradient(45deg, #f44336, #d32f2f)',
-            color: 'white',
-            borderColor: '#b71c1c',
-            padding: 'min(16px, 4vw)'
-          }}
-        >
-          🔴 難しい (5×5) - 基本報酬 100P
-        </button>
-      </div>
-      
-      <div className="comic-text font-body-md" style={{ 
-        color: '#c8e6c9',
-        marginTop: 'min(24px, 6vw)',
-        lineHeight: '1.6'
-      }}>
-        数字を順番に並べ替えよう！<br />
-        空きマスの隣の数字をクリックして移動<br />
-        早く少ない手数でクリアするとボーナス！
-      </div>
-    </div>
-  )
+        <div className="comic-text font-body-lg" style={{ 
+          marginBottom: 'min(24px, 6vw)', 
+          color: '#c8e6c9'
+        }}>
+          4×4の数独で頭の体操！
+        </div>
 
-  // Render game board
-  const renderGame = () => (
-    <div style={{ textAlign: 'center' }}>
-      {/* Game stats */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-around', 
-        marginBottom: 'min(20px, 5vw)',
-        flexWrap: 'wrap',
-        gap: 'min(12px, 3vw)'
-      }}>
-        <div className="comic-text font-body-md" style={{ color: '#c8e6c9' }}>
-          移動: {stats.moves}
+        <div className="comic-card" style={{
+          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
+          borderColor: '#4caf50',
+          padding: 'min(20px, 5vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '500px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div className="comic-text font-title-sm" style={{ color: '#fff3e0', marginBottom: '12px' }}>
+            📋 ルール説明
+          </div>
+          <div className="comic-text font-body-sm" style={{ color: '#c8e6c9', textAlign: 'left', lineHeight: '1.6' }}>
+            • 4×4のグリッドに1〜4の数字を配置<br/>
+            • 各行に1〜4が1つずつ<br/>
+            • 各列に1〜4が1つずつ<br/>
+            • 各2×2ブロックに1〜4が1つずつ<br/>
+            • 完成度とスピードで報酬が変わる！
+          </div>
         </div>
-        <div className="comic-text font-body-md" style={{ color: '#c8e6c9' }}>
-          時間: {formatTime(stats.time)}
-        </div>
-        <div className="comic-text font-body-md" style={{ color: '#c8e6c9' }}>
-          難易度: {puzzleSize}×{puzzleSize}
-        </div>
-      </div>
 
-      {/* Puzzle board */}
-      <div 
-        className="comic-card puzzle-board"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${puzzleSize}, 1fr)`,
-          gap: '4px',
-          maxWidth: 'min(400px, 90vw)',
-          margin: '0 auto min(24px, 6vw) auto',
-          padding: '16px',
-          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.1))',
-          borderColor: '#8bc34a'
-        }}
-      >
-        {board.map((number, index) => (
-          <div
-            key={index}
-            onClick={() => handleTileClick(index)}
-            className={number !== null ? 'comic-card puzzle-tile' : ''}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', 
+          gap: 'min(16px, 4vw)', 
+          maxWidth: '600px', 
+          margin: '0 auto', 
+          padding: '0 10px' 
+        }}>
+          <button
+            onClick={() => startGame('easy')}
+            className="comic-button font-button-md"
             style={{
-              aspectRatio: '1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: puzzleSize === 3 ? '1.5rem' : puzzleSize === 4 ? '1.2rem' : '1rem',
-              fontWeight: 'bold',
-              cursor: number !== null ? 'pointer' : 'default',
-              background: number !== null 
-                ? `linear-gradient(135deg, ${getTileColor(number)}, ${getTileColor(number)}cc)`
-                : 'transparent',
-              borderColor: number !== null ? getTileColor(number) : 'transparent',
-              color: number !== null ? '#fff' : 'transparent',
-              textShadow: number !== null ? '1px 1px 2px rgba(0,0,0,0.5)' : 'none',
-              transition: 'all 0.2s ease',
-              transform: number !== null ? 'scale(1)' : 'scale(0)',
-              minHeight: puzzleSize === 3 ? '60px' : puzzleSize === 4 ? '50px' : '40px',
-              minWidth: puzzleSize === 3 ? '60px' : puzzleSize === 4 ? '50px' : '40px'
-            }}
-            onMouseEnter={(e) => {
-              if (number !== null) {
-                e.currentTarget.style.transform = 'scale(1.05)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (number !== null) {
-                e.currentTarget.style.transform = 'scale(1)'
-              }
+              background: 'linear-gradient(45deg, #4caf50, #45a049)',
+              color: 'white',
+              borderColor: '#2e7d32',
+              padding: 'min(20px, 5vw)'
             }}
           >
-            {number}
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>😊</div>
+            <div>かんたん</div>
+            <div className="font-body-sm" style={{ color: '#c8e6c9', marginTop: '4px' }}>
+              6マス空き・報酬50P〜
+            </div>
+          </button>
+
+          <button
+            onClick={() => startGame('medium')}
+            className="comic-button font-button-md"
+            style={{
+              background: 'linear-gradient(45deg, #ff9800, #f57c00)',
+              color: 'white',
+              borderColor: '#ef6c00',
+              padding: 'min(20px, 5vw)'
+            }}
+          >
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>🤔</div>
+            <div>ふつう</div>
+            <div className="font-body-sm" style={{ color: '#fff3e0', marginTop: '4px' }}>
+              8マス空き・報酬100P〜
+            </div>
+          </button>
+
+          <button
+            onClick={() => startGame('hard')}
+            className="comic-button font-button-md"
+            style={{
+              background: 'linear-gradient(45deg, #f44336, #d32f2f)',
+              color: 'white',
+              borderColor: '#c62828',
+              padding: 'min(20px, 5vw)'
+            }}
+          >
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>😤</div>
+            <div>むずかしい</div>
+            <div className="font-body-sm" style={{ color: '#ffcdd2', marginTop: '4px' }}>
+              10マス空き・報酬200P〜
+            </div>
+          </button>
+        </div>
+
+        <div style={{ marginTop: 'min(40px, 10vw)' }}>
+          <Link to="/games" style={{ textDecoration: 'none' }}>
+            <button className="comic-button font-button-md" style={{
+              background: 'linear-gradient(45deg, #666, #555)',
+              color: 'white',
+              borderColor: '#444'
+            }}>
+              🎮 ゲーム一覧に戻る
+            </button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (gameState === 'completed') {
+    return (
+      <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
+        <div className="comic-text font-title-lg" style={{ 
+          marginBottom: 'min(24px, 6vw)', 
+          textShadow: '3px 3px 0px #2e7d32, 6px 6px 0px #1b5e20, 0 0 15px rgba(255,255,255,0.3)', 
+          color: '#4caf50', 
+          lineHeight: '1.2' 
+        }}>
+          🎉 ミニ数独完成！ 🎉
+        </div>
+
+        <div className="comic-card animate-bounce-in" style={{
+          background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(139, 195, 74, 0.3))',
+          borderColor: '#4caf50',
+          padding: 'min(24px, 6vw)',
+          marginBottom: 'min(24px, 6vw)',
+          maxWidth: '400px',
+          margin: '0 auto min(24px, 6vw) auto'
+        }}>
+          <div className="comic-text font-title-sm" style={{ color: '#fff3e0', marginBottom: '16px' }}>
+            📊 ゲーム結果
           </div>
-        ))}
-      </div>
-
-      {/* Game controls */}
-      <div style={{ 
-        display: 'flex', 
-        gap: 'min(12px, 3vw)', 
-        justifyContent: 'center',
-        flexWrap: 'wrap'
-      }}>
-        <button 
-          onClick={() => setGameState('menu')}
-          className="comic-button font-button-sm"
-          style={{
-            background: 'linear-gradient(45deg, #666, #555)',
-            color: 'white',
-            borderColor: '#333'
-          }}
-        >
-          メニューに戻る
-        </button>
-        
-        <button 
-          onClick={() => startNewGame(puzzleSize)}
-          className="comic-button font-button-sm"
-          style={{
-            background: 'linear-gradient(45deg, #ff9800, #f57c00)',
-            color: 'white',
-            borderColor: '#e65100'
-          }}
-        >
-          リトライ
-        </button>
-      </div>
-    </div>
-  )
-
-  // Render completion screen
-  const renderCompletion = () => (
-    <div style={{ textAlign: 'center' }}>
-      <div className="comic-text font-title-lg" style={{ 
-        color: '#ffd700',
-        marginBottom: 'min(16px, 4vw)',
-        textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-      }}>
-        🎉 パズル完成！ 🎉
-      </div>
-      
-      <div className="comic-card" style={{
-        background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2))',
-        borderColor: '#ffc107',
-        padding: 'min(24px, 6vw)',
-        maxWidth: '400px',
-        margin: '0 auto min(24px, 6vw) auto'
-      }}>
-        <div className="comic-text font-body-lg" style={{ color: '#fff3e0', marginBottom: '12px' }}>
-          結果
+          <div className="comic-text font-body-md" style={{ color: '#c8e6c9', lineHeight: '1.8' }}>
+            難易度: {difficulty === 'easy' ? 'かんたん' : difficulty === 'medium' ? 'ふつう' : 'むずかしい'}<br/>
+            時間: {formatTime(stats.time)}<br/>
+            手数: {stats.moves}回<br/>
+            ミス: {stats.mistakes}回
+          </div>
         </div>
-        <div className="comic-text font-body-md" style={{ color: '#c8e6c9', lineHeight: '1.6' }}>
-          難易度: {puzzleSize}×{puzzleSize}<br />
-          移動回数: {stats.moves}<br />
-          所要時間: {formatTime(stats.time)}
+
+        <div style={{ 
+          display: 'flex', 
+          gap: 'min(16px, 4vw)', 
+          justifyContent: 'center', 
+          flexWrap: 'wrap' 
+        }}>
+          <button
+            onClick={resetGame}
+            className="comic-button font-button-md"
+            style={{
+              background: 'linear-gradient(45deg, #4caf50, #45a049)',
+              color: 'white',
+              borderColor: '#2e7d32'
+            }}
+          >
+            🔄 もう一度
+          </button>
+          
+          <Link to="/games" style={{ textDecoration: 'none' }}>
+            <button className="comic-button font-button-md" style={{
+              background: 'linear-gradient(45deg, #666, #555)',
+              color: 'white',
+              borderColor: '#444'
+            }}>
+              🎮 ゲーム一覧
+            </button>
+          </Link>
         </div>
       </div>
-      
-      <div style={{ 
-        display: 'flex', 
-        gap: 'min(12px, 3vw)', 
-        justifyContent: 'center',
-        flexWrap: 'wrap'
-      }}>
-        <button 
-          onClick={() => setGameState('menu')}
-          className="comic-button font-button-md"
-          style={{
-            background: 'linear-gradient(45deg, #4caf50, #45a049)',
-            color: 'white',
-            borderColor: '#2e7d32'
-          }}
-        >
-          メニューに戻る
-        </button>
-        
-        <button 
-          onClick={() => startNewGame(puzzleSize)}
-          className="comic-button font-button-md"
-          style={{
-            background: 'linear-gradient(45deg, #ff9800, #f57c00)',
-            color: 'white',
-            borderColor: '#e65100'
-          }}
-        >
-          もう一度
-        </button>
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div style={{ color: 'white', textAlign: 'center', padding: 'min(40px, 8vw) min(20px, 4vw)' }}>
@@ -474,51 +479,166 @@ const NumberPuzzle: React.FC = () => {
         color: '#fff3e0', 
         lineHeight: '1.2' 
       }}>
-        🔢 数字並べパズル 🧩
-      </div>
-      
-      <div className="comic-text font-body-lg" style={{ 
-        marginBottom: 'min(32px, 8vw)', 
-        color: '#c8e6c9'
-      }}>
-        数字を順番に並べ替えよう！
+        🔢 ミニ数独 - {difficulty === 'easy' ? 'かんたん' : difficulty === 'medium' ? 'ふつう' : 'むずかしい'}
       </div>
 
-      {/* Game content */}
-      <div style={{ minHeight: '400px' }}>
-        {gameState === 'menu' && renderMenu()}
-        {gameState === 'playing' && renderGame()}
-        {gameState === 'completed' && renderCompletion()}
-      </div>
-
-      {/* Navigation */}
+      {/* ゲーム統計 */}
       <div style={{ 
         display: 'flex', 
         gap: 'min(16px, 4vw)', 
         justifyContent: 'center', 
-        flexWrap: 'wrap',
-        marginTop: 'min(40px, 10vw)'
+        marginBottom: 'min(20px, 5vw)',
+        flexWrap: 'wrap'
       }}>
-        <Link to="/games" style={{ textDecoration: 'none' }}>
-          <button className="comic-button font-button-md" style={{
-            background: 'linear-gradient(45deg, #4caf50, #45a049)',
-            color: 'white',
-            borderColor: '#2e7d32'
-          }}>
-            🎮 遊技場に戻る
-          </button>
-        </Link>
+        <div className="comic-card" style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderColor: '#666',
+          padding: 'min(12px, 3vw)',
+          minWidth: '80px'
+        }}>
+          <div className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>時間</div>
+          <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>
+            {formatTime(stats.time)}
+          </div>
+        </div>
         
-        <Link to="/" style={{ textDecoration: 'none' }}>
+        <div className="comic-card" style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderColor: '#666',
+          padding: 'min(12px, 3vw)',
+          minWidth: '80px'
+        }}>
+          <div className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>手数</div>
+          <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>
+            {stats.moves}
+          </div>
+        </div>
+        
+        <div className="comic-card" style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderColor: '#666',
+          padding: 'min(12px, 3vw)',
+          minWidth: '80px'
+        }}>
+          <div className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>ミス</div>
+          <div className="comic-text font-title-sm" style={{ color: stats.mistakes > 0 ? '#f44336' : '#fff3e0' }}>
+            {stats.mistakes}
+          </div>
+        </div>
+      </div>
+
+      {/* 数独ボード */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        marginBottom: 'min(20px, 5vw)' 
+      }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(4, 1fr)', 
+          gap: '1px',
+          backgroundColor: '#333',
+          padding: '2px',
+          borderRadius: '8px'
+        }}>
+          {board.map((row, rowIndex) =>
+            row.map((cell, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                style={getCellStyle(cell, rowIndex, colIndex)}
+                onClick={() => handleCellClick(rowIndex, colIndex)}
+              >
+                {cell.value}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* 数字入力パネル */}
+      <div style={{ 
+        display: 'flex', 
+        gap: 'min(12px, 3vw)', 
+        justifyContent: 'center', 
+        marginBottom: 'min(20px, 5vw)',
+        flexWrap: 'wrap'
+      }}>
+        {[1, 2, 3, 4].map(num => (
+          <button
+            key={num}
+            onClick={() => handleNumberInput(num)}
+            disabled={!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven}
+            className="comic-button font-button-md"
+            style={{
+              background: 'linear-gradient(45deg, #2196f3, #1976d2)',
+              color: 'white',
+              borderColor: '#1565c0',
+              width: 'min(50px, 10vw)',
+              height: 'min(50px, 10vw)',
+              fontSize: 'min(24px, 5vw)',
+              opacity: (!selectedCell || board[selectedCell.row]?.[selectedCell.col]?.isGiven) ? 0.5 : 1
+            }}
+          >
+            {num}
+          </button>
+        ))}
+        
+        <button
+          onClick={() => handleNumberInput(null)}
+          disabled={!selectedCell || board[selectedCell.row][selectedCell.col].isGiven}
+          className="comic-button font-button-md"
+          style={{
+            background: 'linear-gradient(45deg, #f44336, #d32f2f)',
+            color: 'white',
+            borderColor: '#c62828',
+            width: 'min(50px, 10vw)',
+            height: 'min(50px, 10vw)',
+            fontSize: 'min(18px, 4vw)',
+            opacity: (!selectedCell || board[selectedCell.row][selectedCell.col].isGiven) ? 0.5 : 1
+          }}
+        >
+          ❌
+        </button>
+      </div>
+
+      {/* コントロールボタン */}
+      <div style={{ 
+        display: 'flex', 
+        gap: 'min(16px, 4vw)', 
+        justifyContent: 'center', 
+        flexWrap: 'wrap' 
+      }}>
+        <button
+          onClick={resetGame}
+          className="comic-button font-button-md"
+          style={{
+            background: 'linear-gradient(45deg, #ff9800, #f57c00)',
+            color: 'white',
+            borderColor: '#ef6c00'
+          }}
+        >
+          🔄 リセット
+        </button>
+        
+        <Link to="/games" style={{ textDecoration: 'none' }}>
           <button className="comic-button font-button-md" style={{
             background: 'linear-gradient(45deg, #666, #555)',
             color: 'white',
-            borderColor: '#333'
+            borderColor: '#444'
           }}>
-            🏠 拠点に戻る
+            🎮 ゲーム一覧
           </button>
         </Link>
       </div>
+
+      {selectedCell && (
+        <div className="comic-text font-body-sm" style={{ 
+          color: '#c8e6c9',
+          marginTop: 'min(16px, 4vw)'
+        }}>
+          💡 選択中: 行{selectedCell.row + 1}、列{selectedCell.col + 1}
+        </div>
+      )}
     </div>
   )
 }

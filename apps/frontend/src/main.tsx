@@ -164,6 +164,7 @@ import MOMOBank from './pages/MOMOBank.tsx'
 import AvatarCustomization from './pages/AvatarCustomization.tsx'
 import PersonalHub from './pages/PersonalHub.tsx'
 import EconomyHub from './pages/EconomyHub.tsx'
+import AudioSettings from './pages/AudioSettings.tsx'
 
 const router = createBrowserRouter([
   {
@@ -185,6 +186,7 @@ const router = createBrowserRouter([
             { path: 'settings', element: <SettingsIndex /> },
             { path: 'settings/general', element: <GeneralSettings /> },
             { path: 'settings/share', element: <ShareSettings /> },
+            { path: 'settings/audio', element: <AudioSettings /> },
             { path: 'achievements', element: <Achievements /> },
             { path: 'momo-bank', element: <MOMOBank /> },
             { path: 'avatar', element: <AvatarCustomization /> },
