@@ -82,8 +82,10 @@ export const useSEO = ({
         updateMetaTag('keywords', keywords);
       }
 
-      // 必須メタタグ（2024年基準）
-      updateMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+      // 必須メタタグ（2024年基準）- 既存のものがない場合のみ追加
+      if (!document.querySelector('meta[name="viewport"]')) {
+        updateMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+      }
       updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
       updateMetaTag('googlebot', 'index, follow');
       updateMetaTag('format-detection', 'telephone=no');
