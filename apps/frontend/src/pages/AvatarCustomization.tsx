@@ -293,7 +293,7 @@ const AvatarCustomization: React.FC = () => {
       }
       
       // デバッグログ（開発環境のみ）
-      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log('Avatar data loaded:', {
           ownedItems: savedOwned ? JSON.parse(savedOwned).length : 0,
           currentAvatar: savedAvatar ? Object.keys(JSON.parse(savedAvatar)).length : 0

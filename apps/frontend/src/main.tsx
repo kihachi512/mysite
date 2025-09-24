@@ -8,12 +8,14 @@ import { performanceMonitor } from './utils/performance'
 import { initStorageMonitor } from './utils/storageMonitor'
 import { getDailyBonus, claimDailyBonus, economyEventManager } from './utils/economyEvents'
 import { useAppData } from './contexts/AppDataContext'
+import { ToastProvider, useToast } from './components/Toast'
 
 // ホームページコンポーネント
 // eslint-disable-next-line react-refresh/only-export-components
 const HomePage: React.FC = () => {
   useSEO(SEO_PRESETS.home);
   const { addMomoPayPoints } = useAppData()
+  const { showToast } = useToast()
   const [dailyBonus, setDailyBonus] = React.useState(getDailyBonus())
 
   // 初期化時に経済イベントを確実にセットアップ
@@ -26,7 +28,7 @@ const HomePage: React.FC = () => {
     if (amount > 0) {
       addMomoPayPoints(amount)
       setDailyBonus(getDailyBonus()) // Refresh to show claimed state
-      alert(`🎁 デイリーボーナス獲得！\n+${amount}MOMOPay`)
+      showToast(`🎁 デイリーボーナス獲得！ +${amount}MOMOPay`, 'success')
     }
   }
 
@@ -207,7 +209,9 @@ initStorageMonitor()
 // eslint-disable-next-line react-refresh/only-export-components
 const Main = () => (
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
   </React.StrictMode>
 )
 

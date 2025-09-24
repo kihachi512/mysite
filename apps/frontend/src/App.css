@@ -130,6 +130,17 @@ body {
 }
 
 
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Comic UI Styles with Enhanced Animations */
 .comic-button {
   font-family: 'Comic Sans MS', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo', cursive, fantasy, sans-serif !important;
