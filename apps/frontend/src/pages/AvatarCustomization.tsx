@@ -264,30 +264,31 @@ const AvatarCustomization: React.FC = () => {
       const savedAvatar = localStorage.getItem('avatar-current')
       if (savedAvatar) {
         const parsed = JSON.parse(savedAvatar)
-        // 古い形式からの移行処理
-        if (parsed.hat || parsed.accessory || parsed.outfit || parsed.special || parsed.background) {
-          // 古い形式を新形式に変換
+        // 新形式を優先してチェック（costumeプロパティが存在するか）
+        if (parsed.costumes && Array.isArray(parsed.costumes)) {
+          // 新形式のデータ検証
+          const validCostumes = parsed.costumes.filter((c: CostumePosition) => 
+            c && c.id && COSTUME_ITEMS.some(item => item.id === c.id) &&
+            typeof c.x === 'number' && typeof c.y === 'number' &&
+            typeof c.scale === 'number' && typeof c.rotation === 'number' &&
+            typeof c.zIndex === 'number'
+          )
+          setCurrentAvatar({ costumes: validCostumes })
+        } else if (parsed.hat || parsed.accessory || parsed.outfit || parsed.special || parsed.background) {
+          // 古い形式からの移行処理（一度だけ実行）
           const costumes: CostumePosition[] = []
           if (parsed.hat) costumes.push({ id: parsed.hat, x: 50, y: 20, scale: 1, rotation: 0, zIndex: 3 })
           if (parsed.accessory) costumes.push({ id: parsed.accessory, x: 50, y: 45, scale: 1, rotation: 0, zIndex: 4 })
           if (parsed.outfit) costumes.push({ id: parsed.outfit, x: 80, y: 70, scale: 1, rotation: 0, zIndex: 2 })
           if (parsed.special) costumes.push({ id: parsed.special, x: 50, y: 50, scale: 1, rotation: 0, zIndex: 5 })
           if (parsed.background) costumes.push({ id: parsed.background, x: 50, y: 50, scale: 1.5, rotation: 0, zIndex: 1 })
-          setCurrentAvatar({ costumes })
+          
+          // 新形式で保存して、今後は古い形式をチェックしないようにする
+          const newAvatarState = { costumes }
+          setCurrentAvatar(newAvatarState)
+          localStorage.setItem('avatar-current', JSON.stringify(newAvatarState))
         } else {
-          // 新形式のデータ検証
-          if (parsed.costumes && Array.isArray(parsed.costumes)) {
-            // 無効なコスチュームをフィルタリング
-            const validCostumes = parsed.costumes.filter((c: CostumePosition) => 
-              c && c.id && COSTUME_ITEMS.some(item => item.id === c.id) &&
-              typeof c.x === 'number' && typeof c.y === 'number' &&
-              typeof c.scale === 'number' && typeof c.rotation === 'number' &&
-              typeof c.zIndex === 'number'
-            )
-            setCurrentAvatar({ costumes: validCostumes })
-          } else {
-            setCurrentAvatar({ costumes: [] })
-          }
+          setCurrentAvatar({ costumes: [] })
         }
       }
       
@@ -421,75 +422,93 @@ const AvatarCustomization: React.FC = () => {
       return
     }
 
-    // 既に装備されているかチェック
-    const alreadyEquipped = currentAvatar.costumes.find(c => c && c.id === item.id)
-    if (alreadyEquipped) {
-      alert('このアイテムは既に装備されています')
-      return
-    }
+    // 現在の状態を再確認して二重装備を防ぐ
+    setCurrentAvatar(currentState => {
+      // 既に装備されているかチェック
+      const alreadyEquipped = currentState.costumes.find(c => c && c.id === item.id)
+      if (alreadyEquipped) {
+        alert('このアイテムは既に装備されています')
+        return currentState // 状態を変更しない
+      }
 
-    // デフォルト位置を決定（カテゴリに基づく）
-    let defaultX = 50, defaultY = 50, defaultScale = 1, defaultZIndex = 2
-    
-    switch (item.category) {
-      case 'hat':
-        defaultY = 20
-        defaultZIndex = 3
-        break
-      case 'accessory':
-        defaultY = 45
-        defaultZIndex = 4
-        break
-      case 'outfit':
-        defaultX = 80
-        defaultY = 70
-        defaultZIndex = 2
-        break
-      case 'special':
-        defaultZIndex = 5
-        break
-      case 'background':
-        defaultScale = 1.5
-        defaultZIndex = 1
-        break
-    }
+      // デフォルト位置を決定（カテゴリに基づく）
+      let defaultX = 50, defaultY = 50, defaultScale = 1, defaultZIndex = 2
+      
+      switch (item.category) {
+        case 'hat':
+          defaultY = 20
+          defaultZIndex = 3
+          break
+        case 'accessory':
+          defaultY = 45
+          defaultZIndex = 4
+          break
+        case 'outfit':
+          defaultX = 80
+          defaultY = 70
+          defaultZIndex = 2
+          break
+        case 'special':
+          defaultZIndex = 5
+          break
+        case 'background':
+          defaultScale = 1.5
+          defaultZIndex = 1
+          break
+      }
 
-    const newCostume: CostumePosition = {
-      id: item.id,
-      x: defaultX,
-      y: defaultY,
-      scale: defaultScale,
-      rotation: 0,
-      zIndex: defaultZIndex
-    }
+      const newCostume: CostumePosition = {
+        id: item.id,
+        x: defaultX,
+        y: defaultY,
+        scale: defaultScale,
+        rotation: 0,
+        zIndex: defaultZIndex
+      }
 
-    const newAvatar = {
-      ...currentAvatar,
-      costumes: [...(currentAvatar.costumes || []), newCostume]
-    }
-    
-    setCurrentAvatar(newAvatar)
-    saveAvatarData(ownedItems, newAvatar)
-    trackAvatarChanged() // アバター変更実績をトラック
-    alert(`✨ ${item.name}を装備しました！`)
+      const newAvatar = {
+        ...currentState,
+        costumes: [...(currentState.costumes || []), newCostume]
+      }
+      
+      // データ保存は非同期で行う
+      setTimeout(() => {
+        saveAvatarData(ownedItems, newAvatar)
+        trackAvatarChanged() // アバター変更実績をトラック
+        alert(`✨ ${item.name}を装備しました！`)
+      }, 0)
+      
+      return newAvatar
+    })
   }
 
   // コスチューム削除
   const removeCostume = (costumeId: string) => {
-    if (!costumeId || !currentAvatar?.costumes) return
+    if (!costumeId) return
     
-    const newAvatar = {
-      ...currentAvatar,
-      costumes: currentAvatar.costumes.filter((c: CostumePosition | null | undefined): c is CostumePosition => 
-        Boolean(c && c.id && c.id !== costumeId)
-      )
-    }
-    setCurrentAvatar(newAvatar)
-    saveAvatarData(ownedItems, newAvatar)
-    trackAvatarChanged() // アバター変更実績をトラック
-    
-    const item = COSTUME_ITEMS.find(i => i && i.id === costumeId)
-    alert(`${item?.name || 'アイテム'}を外しました`)
+    setCurrentAvatar(currentState => {
+      if (!currentState?.costumes || currentState.costumes.length === 0) {
+        return currentState // 状態を変更しない
+      }
+      
+      const newAvatar = {
+        ...currentState,
+        costumes: currentState.costumes.filter((c: CostumePosition | null | undefined): c is CostumePosition => 
+          Boolean(c && c.id && c.id !== costumeId)
+        )
+      }
+      
+      // データ保存は非同期で行う
+      setTimeout(() => {
+        saveAvatarData(ownedItems, newAvatar)
+        trackAvatarChanged() // アバター変更実績をトラック
+        
+        const item = COSTUME_ITEMS.find(i => i && i.id === costumeId)
+        alert(`${item?.name || 'アイテム'}を外しました`)
+      }, 0)
+      
+      return newAvatar
+    })
   }
 
   // コスチューム位置更新
