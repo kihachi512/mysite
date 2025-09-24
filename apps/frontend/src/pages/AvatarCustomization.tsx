@@ -395,7 +395,12 @@ const AvatarCustomization: React.FC = () => {
         // 新規アイテムの場合はインベントリに追加
         const newOwned = [...(ownedItems || []), selectedItem.id]
         setOwnedItems(newOwned)
-        saveAvatarData(newOwned, currentAvatar)
+        // アイテム取得時のみ自動保存（所持アイテムリストの更新）
+        try {
+          localStorage.setItem('avatar-owned-items', JSON.stringify(newOwned))
+        } catch (error) {
+          console.error('Failed to save owned items:', error)
+        }
       }
     } catch (error) {
       console.error('Failed to process gacha result:', error)
@@ -472,11 +477,10 @@ const AvatarCustomization: React.FC = () => {
     // 状態を即座に更新
     setCurrentAvatar(newAvatar)
     
-    // データ保存と通知は非同期で行う
+    // 通知のみ（保存は手動）
     setTimeout(() => {
-      saveAvatarData(ownedItems, newAvatar)
       trackAvatarChanged() // アバター変更実績をトラック
-      alert(`✨ ${item.name}を装備しました！`)
+      alert(`✨ ${item.name}を装備しました！\n※保存ボタンで保存してください`)
     }, 0)
   }
 
@@ -496,21 +500,20 @@ const AvatarCustomization: React.FC = () => {
         )
       }
       
-      // データ保存は非同期で行う
+      // 通知のみ（保存は手動）
       setTimeout(() => {
-        saveAvatarData(ownedItems, newAvatar)
         trackAvatarChanged() // アバター変更実績をトラック
         
         const item = COSTUME_ITEMS.find(i => i && i.id === costumeId)
-        alert(`${item?.name || 'アイテム'}を外しました`)
+        alert(`${item?.name || 'アイテム'}を外しました\n※保存ボタンで保存してください`)
       }, 0)
       
       return newAvatar
     })
   }
 
-  // コスチューム位置更新
-  const updateCostumePosition = (costumeId: string, updates: Partial<CostumePosition>) => {
+  // コスチューム位置更新（保存なし）
+  const updateCostumePositionWithoutSave = (costumeId: string, updates: Partial<CostumePosition>) => {
     if (!costumeId || !currentAvatar?.costumes || !Array.isArray(currentAvatar.costumes)) return
     
     try {
@@ -535,10 +538,16 @@ const AvatarCustomization: React.FC = () => {
           .filter((c): c is CostumePosition => Boolean(c && c.id))
       }
       setCurrentAvatar(newAvatar)
-      saveAvatarData(ownedItems, newAvatar)
+      // 保存はしない（手動保存ボタンのみ）
     } catch (error) {
       console.error('Failed to update costume position:', error)
     }
+  }
+
+  // コスチューム位置更新（保存あり）
+  const updateCostumePosition = (costumeId: string, updates: Partial<CostumePosition>) => {
+    updateCostumePositionWithoutSave(costumeId, updates)
+    saveAvatarData(ownedItems, currentAvatar)
   }
 
   const getCategoryName = (category: string): string => {
@@ -719,7 +728,7 @@ const AvatarCustomization: React.FC = () => {
               costumes: [...currentAvatar.costumes, newCostume]
             }
             setCurrentAvatar(newAvatar)
-            saveAvatarData(ownedItems, newAvatar)
+            // saveAvatarData(ownedItems, newAvatar) // 保存は手動ボタンのみ
           }
         }
       } else if (!hasMoved) {
@@ -767,7 +776,7 @@ const AvatarCustomization: React.FC = () => {
           costumes: [...currentAvatar.costumes, newCostume]
         }
         setCurrentAvatar(newAvatar)
-        saveAvatarData(ownedItems, newAvatar)
+        // saveAvatarData(ownedItems, newAvatar) // 保存は手動ボタンのみ
       }
     }
 
@@ -960,7 +969,8 @@ const AvatarCustomization: React.FC = () => {
             • インベントリの「装備」ボタンでアイテムを装着<br/>
             • 装備済みアイテムは直接ドラッグで移動<br/>
             • ダブルクリック/ダブルタップでアイテム削除<br/>
-            • 「外す」ボタンで装備解除
+            • 「外す」ボタンで装備解除<br/>
+            • ⚠️ 編集後は必ず「💾 保存」ボタンで保存！
           </div>
           
           <div data-avatar-container className="avatar-current-display" style={{ 
@@ -991,8 +1001,7 @@ const AvatarCustomization: React.FC = () => {
             <button
               onClick={() => {
                 setCurrentAvatar({ costumes: [] })
-                saveAvatarData(ownedItems, { costumes: [] })
-                alert('全てのコスチュームを外しました')
+                alert('全てのコスチュームを外しました\n※保存ボタンで保存してください')
               }}
               className="comic-button font-button-md"
               style={{
@@ -1002,6 +1011,26 @@ const AvatarCustomization: React.FC = () => {
               }}
             >
               🧹 全て外す
+            </button>
+            
+            <button
+              onClick={() => {
+                try {
+                  saveAvatarData(ownedItems, currentAvatar)
+                  alert('💾 アバターデータを保存しました！')
+                } catch (error) {
+                  console.error('Save failed:', error)
+                  alert('❌ 保存に失敗しました')
+                }
+              }}
+              className="comic-button font-button-md"
+              style={{
+                background: 'linear-gradient(45deg, #2196f3, #1976d2)',
+                color: 'white',
+                borderColor: '#1565c0'
+              }}
+            >
+              💾 保存
             </button>
           </div>
           
