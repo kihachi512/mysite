@@ -8,6 +8,11 @@ interface SEOProps {
   ogDescription?: string;
   canonicalUrl?: string;
   iconUrl?: string;
+  structuredData?: object;
+  articleType?: 'website' | 'article' | 'game' | 'entertainment';
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
 }
 
 export const useSEO = ({
@@ -17,7 +22,12 @@ export const useSEO = ({
   ogTitle,
   ogDescription,
   canonicalUrl,
-  iconUrl
+  iconUrl,
+  structuredData,
+  articleType = 'website',
+  author = 'さすらいのモモンガカーニバル',
+  publishedTime,
+  modifiedTime
 }: SEOProps) => {
   useEffect(() => {
     try {
@@ -59,31 +69,62 @@ export const useSEO = ({
         }
       };
 
-    // メタディスクリプション
-    if (description) {
-      updateMetaTag('description', description);
-    }
+      // メタディスクリプション（最適化）
+      if (description) {
+        const optimizedDesc = description.length > 160 
+          ? description.substring(0, 157) + '...' 
+          : description;
+        updateMetaTag('description', optimizedDesc);
+      }
 
-    // キーワード
-    if (keywords) {
-      updateMetaTag('keywords', keywords);
-    }
+      // キーワード（2024年基準：控えめに使用）
+      if (keywords) {
+        updateMetaTag('keywords', keywords);
+      }
 
-    // Open Graph
-    if (ogTitle) {
-      updatePropertyTag('og:title', ogTitle);
-    }
-    if (ogDescription) {
-      updatePropertyTag('og:description', ogDescription);
-    }
+      // 必須メタタグ（2024年基準）
+      updateMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+      updateMetaTag('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+      updateMetaTag('googlebot', 'index, follow');
+      updateMetaTag('format-detection', 'telephone=no');
+      updateMetaTag('theme-color', '#4caf50');
+      updateMetaTag('color-scheme', 'light dark');
 
-    // Twitter
-    if (ogTitle) {
-      updatePropertyTag('twitter:title', ogTitle);
-    }
-    if (ogDescription) {
-      updatePropertyTag('twitter:description', ogDescription);
-    }
+      // Open Graph（最新仕様）
+      updatePropertyTag('og:site_name', 'さすらいのモモンガカーニバル');
+      updatePropertyTag('og:type', articleType);
+      updatePropertyTag('og:locale', 'ja_JP');
+      updatePropertyTag('og:url', canonicalUrl || window.location.href);
+      
+      if (ogTitle) {
+        updatePropertyTag('og:title', ogTitle);
+      }
+      if (ogDescription) {
+        updatePropertyTag('og:description', ogDescription);
+      }
+
+      // Twitter Card（最新仕様）
+      updatePropertyTag('twitter:card', 'summary_large_image');
+      updatePropertyTag('twitter:site', '@momonga_carnival');
+      updatePropertyTag('twitter:creator', '@momonga_carnival');
+      
+      if (ogTitle) {
+        updatePropertyTag('twitter:title', ogTitle);
+      }
+      if (ogDescription) {
+        updatePropertyTag('twitter:description', ogDescription);
+      }
+
+      // 記事メタデータ
+      if (author) {
+        updateMetaTag('author', author);
+      }
+      if (publishedTime) {
+        updatePropertyTag('article:published_time', publishedTime);
+      }
+      if (modifiedTime) {
+        updatePropertyTag('article:modified_time', modifiedTime);
+      }
 
       // カノニカルURL
       if (canonicalUrl && typeof canonicalUrl === 'string' && canonicalUrl.trim()) {
