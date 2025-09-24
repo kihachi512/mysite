@@ -6,7 +6,7 @@ import { useSEO, SEO_PRESETS } from './hooks/useSEO'
 import { logger } from './utils/logger'
 import { performanceMonitor } from './utils/performance'
 import { initStorageMonitor } from './utils/storageMonitor'
-import { getDailyBonus, claimDailyBonus, getActiveEvents, economyEventManager } from './utils/economyEvents'
+import { getDailyBonus, claimDailyBonus, economyEventManager } from './utils/economyEvents'
 import { useAppData } from './contexts/AppDataContext'
 
 // ホームページコンポーネント
@@ -15,7 +15,6 @@ const HomePage: React.FC = () => {
   useSEO(SEO_PRESETS.home);
   const { addMomoPayPoints } = useAppData()
   const [dailyBonus, setDailyBonus] = React.useState(getDailyBonus())
-  const [activeEvents] = React.useState(getActiveEvents())
 
   // 初期化時に経済イベントを確実にセットアップ
   React.useEffect(() => {
@@ -76,32 +75,6 @@ const HomePage: React.FC = () => {
         </div>
       )}
 
-      {/* アクティブな経済イベント */}
-      {activeEvents.length > 0 && (
-        <div className="comic-card animate-glow event-card" style={{
-          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))',
-          borderColor: '#9c27b0',
-          padding: 'min(16px, 4vw)',
-          marginBottom: 'min(24px, 6vw)',
-          maxWidth: '600px',
-          margin: '0 auto min(24px, 6vw) auto'
-        }}>
-          <div className="comic-text font-title-sm" style={{ 
-            color: '#fff3e0',
-            marginBottom: '12px'
-          }}>
-            🎪 開催中イベント
-          </div>
-          {activeEvents.map(event => (
-            <div key={event.id} style={{ marginBottom: '8px' }}>
-              <span style={{ fontSize: '1.5rem', marginRight: '8px' }}>{event.icon}</span>
-              <span className="comic-text font-body-sm" style={{ color: '#c8e6c9' }}>
-                {event.title}: {event.description}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
       {/* 主要エリア（5つに整理） */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 45vw), 1fr))', gap: 'min(20px, 4vw)', maxWidth: '600px', margin: '0 auto', padding: '0 10px' }}>
         <Link to="/games" style={{ textDecoration: 'none' }}>

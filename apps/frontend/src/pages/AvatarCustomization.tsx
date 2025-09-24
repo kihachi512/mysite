@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
 import { trackAvatarChanged, trackAreaVisited, AREAS } from '../utils/achievements'
-import { getActiveEvents } from '../utils/economyEvents'
 
 type CostumeItem = {
   id: string
@@ -209,7 +208,6 @@ const AvatarCustomization: React.FC = () => {
   const [showInventory, setShowInventory] = useState(false)
   const [draggedCostume, setDraggedCostume] = useState<CostumeItem | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [activeEvents] = useState(getActiveEvents())
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -921,28 +919,6 @@ const AvatarCustomization: React.FC = () => {
       </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 10px' }}>
-        {/* アクティブな経済イベント */}
-        {activeEvents.filter(event => event.effects.affectedItems?.includes('avatar-items')).map(event => (
-          <div key={event.id} className="comic-card animate-glow" style={{
-            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
-            borderColor: '#4caf50',
-            padding: 'min(16px, 4vw)',
-            marginBottom: 'min(24px, 6vw)'
-          }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>{event.icon}</div>
-            <div className="comic-text font-title-sm" style={{ 
-              color: '#fff3e0',
-              marginBottom: '8px'
-            }}>
-              {event.title}
-            </div>
-            <div className="comic-text font-body-sm" style={{ 
-              color: '#c8e6c9'
-            }}>
-              {event.description}
-            </div>
-          </div>
-        ))}
 
         {/* Avatar Customization Area */}
         <div className="comic-card" style={{
