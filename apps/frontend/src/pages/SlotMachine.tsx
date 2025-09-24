@@ -196,11 +196,13 @@ const SlotMachine: React.FC = () => {
       if (!Array.isArray(finalReelValues) || finalReelValues.length !== 3) {
         console.error('Invalid final reel values:', finalReelValues)
         setGameState('idle')
+        setReelStates(['stopped', 'stopped', 'stopped'])
         return
       }
 
       // 最終的なリール表示を確定
       setReels(finalReelValues)
+      setReelStates(['stopped', 'stopped', 'stopped'])
 
       // 結果判定
       const { amount, rule } = calculatePayout(finalReelValues)
@@ -228,6 +230,11 @@ const SlotMachine: React.FC = () => {
       console.error('Error in finishGame:', error)
       setGameState('idle')
       setReelStates(['stopped', 'stopped', 'stopped'])
+      // エラー時はインターバルも確実にクリア
+      animationIntervals.forEach((interval: number) => {
+        if (interval) window.clearInterval(interval)
+      })
+      setAnimationIntervals([])
     }
   }
 
@@ -267,6 +274,11 @@ const SlotMachine: React.FC = () => {
         setReelStates(currentStates => {
           // 該当リールが停止済みの場合は何もしない
           if (currentStates[reelIndex] === 'stopped') {
+            return currentStates
+          }
+          
+          // ゲーム状態が回転中でない場合は停止
+          if (gameState !== 'spinning') {
             return currentStates
           }
           
