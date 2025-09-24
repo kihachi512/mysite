@@ -131,7 +131,7 @@ const COSTUME_ITEMS: CostumeItem[] = [
     id: 'superhero-cape',
     name: 'スーパーヒーローマント',
     description: '正義の味方モモンガマン！',
-    icon: '🧥',
+    icon: '🩱',
     category: 'outfit',
     price: 900,
     rarity: 'legendary',

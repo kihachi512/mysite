@@ -198,7 +198,7 @@ const Avatar: React.FC<AvatarProps> = ({
       // Outfits
       { id: 'tuxedo', name: 'タキシード', description: '', icon: '👔', category: 'outfit', price: 500, rarity: 'rare', preview: '✨' },
       { id: 'ninja-outfit', name: '忍者装束', description: '', icon: '🥋', category: 'outfit', price: 700, rarity: 'epic', preview: '⚡' },
-      { id: 'superhero-cape', name: 'スーパーヒーローマント', description: '', icon: '🧥', category: 'outfit', price: 900, rarity: 'legendary', preview: '💫' },
+      { id: 'superhero-cape', name: 'スーパーヒーローマント', description: '', icon: '🩱', category: 'outfit', price: 900, rarity: 'legendary', preview: '💫' },
       
       // Special Effects
       { id: 'sparkles', name: 'キラキラオーラ', description: '', icon: '✨', category: 'special', price: 1000, rarity: 'legendary', preview: '🌟' },
