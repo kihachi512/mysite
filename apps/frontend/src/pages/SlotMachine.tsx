@@ -76,6 +76,16 @@ const SlotMachine: React.FC = () => {
     trackAreaVisited(AREAS.GAMES)
   }, [])
 
+  // コンポーネントアンマウント時のクリーンアップ
+  useEffect(() => {
+    return () => {
+      // 全てのインターバルをクリア
+      animationIntervals.forEach((interval: number) => {
+        if (interval) window.clearInterval(interval)
+      })
+    }
+  }, [animationIntervals])
+
   // リールから現在の絵柄を取得
   const getCurrentSymbol = (reelIndex: number): SlotSymbol => {
     const position = reelPositions[reelIndex]
@@ -133,6 +143,15 @@ const SlotMachine: React.FC = () => {
       // 該当アニメーションを停止
       if (animationIntervals[reelIndex]) {
         window.clearInterval(animationIntervals[reelIndex])
+        // インターバルリストも更新
+        setAnimationIntervals(prev => {
+          const newIntervals = [...prev]
+          if (newIntervals[reelIndex]) {
+            window.clearInterval(newIntervals[reelIndex])
+            newIntervals[reelIndex] = 0
+          }
+          return newIntervals
+        })
       }
       
       // 現在のリール位置に基づいて絵柄を確定
@@ -152,9 +171,7 @@ const SlotMachine: React.FC = () => {
       if (newStates.every(state => state === 'stopped')) {
         // 最終結果判定と表示
         setTimeout(() => {
-          const finalResult = reels.map((symbol, idx) => 
-            newStates[idx] === 'stopped' ? getCurrentSymbol(idx) : symbol
-          )
+          const finalResult = newStates.map((_, idx) => getCurrentSymbol(idx))
           finishGame(finalResult as SlotSymbol[])
         }, 500) // 少し余韻を持たせる
       }
@@ -178,6 +195,9 @@ const SlotMachine: React.FC = () => {
         setGameState('idle')
         return
       }
+
+      // 最終的なリール表示を確定
+      setReels(finalReelValues)
 
       // 結果判定
       const { amount, rule } = calculatePayout(finalReelValues)
@@ -240,28 +260,33 @@ const SlotMachine: React.FC = () => {
     const intervals: number[] = []
     for (let reelIndex = 0; reelIndex < 3; reelIndex++) {
       const interval = window.setInterval(() => {
-        setReelPositions((prevPositions: ReelPosition[]) => {
-          const newPositions = [...prevPositions]
-          const currentPosition = newPositions[reelIndex]
-          
-          if (reelStates[reelIndex] === 'spinning' && currentPosition) {
-            const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
-            newPositions[reelIndex] = {
-              ...currentPosition,
-              currentIndex: newIndex
-            }
-            
-            // 表示用のリール更新
-            setReels((prevReels: SlotSymbol[]) => {
-              const newReels = [...prevReels]
-              const updatedPosition = newPositions[reelIndex]
-              if (updatedPosition && updatedPosition.symbols) {
-                newReels[reelIndex] = updatedPosition.symbols[updatedPosition.currentIndex] || '🍒'
+        // reelStatesを最新の状態で取得するため、setReelStatesを使用
+        setReelStates((currentReelStates: ReelState[]) => {
+          if (currentReelStates[reelIndex] === 'spinning') {
+            // リールポジションを更新
+            setReelPositions((prevPositions: ReelPosition[]) => {
+              const newPositions = [...prevPositions]
+              const currentPosition = newPositions[reelIndex]
+              
+              if (currentPosition) {
+                const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
+                newPositions[reelIndex] = {
+                  ...currentPosition,
+                  currentIndex: newIndex
+                }
+                
+                // 表示用のリールを即座に更新
+                const newSymbol = REEL_PATTERN[newIndex] || '🍒'
+                setReels((prevReels: SlotSymbol[]) => {
+                  const newReels = [...prevReels]
+                  newReels[reelIndex] = newSymbol
+                  return newReels
+                })
               }
-              return newReels
+              return newPositions
             })
           }
-          return newPositions
+          return currentReelStates
         })
       }, 120) // 少し遅めにして目押ししやすく
       
