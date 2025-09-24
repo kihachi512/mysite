@@ -834,7 +834,7 @@ const AvatarCustomization: React.FC = () => {
                   position: 'absolute',
                   left: `${costume.x}%`,
                   top: `${costume.y}%`,
-                  transform: `translate(-50%, -50%) scale(${costume.scale * 0.5}) rotate(${costume.rotation}deg)`,
+                  transform: `translate(-50%, -50%) scale(${costume.scale * 1.2}) rotate(${costume.rotation}deg)`,
                   fontSize: 'clamp(1rem, 2.5vw, 2rem)',
                   zIndex: costume.zIndex,
                   cursor: 'move',

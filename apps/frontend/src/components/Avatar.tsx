@@ -147,7 +147,7 @@ const Avatar: React.FC<AvatarProps> = ({
                   position: 'absolute',
                   left: `${costume.x}%`,
                   top: `${costume.y}%`,
-                  transform: `translate(-50%, -50%) scale(${costume.scale * 0.5}) rotate(${costume.rotation}deg)`,
+                  transform: `translate(-50%, -50%) scale(${costume.scale * 1.2}) rotate(${costume.rotation}deg)`,
                   fontSize: `${Math.max(1, parseInt(sizeStyles.fontSize) * 0.6)}rem`,
                   zIndex: costume.zIndex,
                   userSelect: 'none',
