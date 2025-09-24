@@ -1,26 +1,5 @@
-// Economy events system for MOMOPay circulation
+// Daily bonus system for MOMOPay
 import { logger } from './logger'
-
-export type EconomyEvent = {
-  id: string
-  title: string
-  description: string
-  icon: string
-  type: 'sale' | 'bonus' | 'multiplier' | 'special'
-  startDate: string
-  endDate: string
-  active: boolean
-  effects: {
-    discountPercentage?: number // For sales
-    bonusMultiplier?: number // For earning bonuses
-    affectedItems?: string[] // Which items/activities are affected
-    specialOffer?: {
-      itemId: string
-      originalPrice: number
-      salePrice: number
-    }
-  }
-}
 
 export type DailyBonus = {
   id: string
@@ -33,57 +12,53 @@ export type DailyBonus = {
 }
 
 class EconomyEventManager {
-  private events: EconomyEvent[] = []
   private dailyBonus: DailyBonus | null = null
 
   constructor() {
-    this.loadEvents()
-    this.generateDailyEvents()
+    this.loadDailyBonus()
+    this.generateDailyBonus()
   }
 
-  private loadEvents(): void {
+  private loadDailyBonus(): void {
     try {
-      const saved = localStorage.getItem('economy-events')
+      const saved = localStorage.getItem('daily-bonus')
       if (saved) {
         const parsed = JSON.parse(saved)
-        this.events = parsed.events || []
         this.dailyBonus = parsed.dailyBonus || null
       }
     } catch (error) {
-      logger.error('Failed to load economy events:', error)
+      logger.error('Failed to load daily bonus:', error)
     }
   }
 
-  private saveEvents(): void {
+  private saveDailyBonus(): void {
     try {
       const data = {
-        events: this.events,
         dailyBonus: this.dailyBonus,
         lastUpdate: new Date().toISOString()
       }
-      localStorage.setItem('economy-events', JSON.stringify(data))
+      localStorage.setItem('daily-bonus', JSON.stringify(data))
     } catch (error) {
-      logger.error('Failed to save economy events:', error)
+      logger.error('Failed to save daily bonus:', error)
     }
   }
 
-  private generateDailyEvents(): void {
+  private generateDailyBonus(): void {
     const today = new Date().toISOString().split('T')[0]!
     
-    // Check if we need to generate new daily events
-    const lastEventDate = localStorage.getItem('last-event-date')
-    if (lastEventDate === today) {
+    // Check if we need to generate new daily bonus
+    const lastBonusDate = localStorage.getItem('last-bonus-date')
+    if (lastBonusDate === today) {
       return // Already generated for today
     }
 
-    this.generateDailyBonus(today)
-    this.generateWeeklyEvent(today)
+    this.createDailyBonus(today)
     
-    localStorage.setItem('last-event-date', today)
-    this.saveEvents()
+    localStorage.setItem('last-bonus-date', today)
+    this.saveDailyBonus()
   }
 
-  private generateDailyBonus(date: string): void {
+  private createDailyBonus(date: string): void {
     const seed = date.split('-').join('')
     const pseudoRandom = () => {
       const hash = parseInt(seed) * 9301 + 49297
@@ -132,89 +107,6 @@ class EconomyEventManager {
     }
   }
 
-  private generateWeeklyEvent(date: string): void {
-    const now = new Date(date)
-    const weekNumber = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000))
-    
-    const weeklyEvents = [
-      {
-        id: 'avatar-sale',
-        title: 'コスチュームセール',
-        description: 'アバターアイテムが30%OFF！',
-        icon: '👗',
-        type: 'sale' as const,
-        effects: {
-          discountPercentage: 30,
-          affectedItems: ['avatar-items']
-        }
-      },
-      {
-        id: 'earning-boost',
-        title: 'MOMOPay倍増デー',
-        description: 'ゲーム報酬が2倍！',
-        icon: '💰',
-        type: 'multiplier' as const,
-        effects: {
-          bonusMultiplier: 2,
-          affectedItems: ['games', 'missions']
-        }
-      },
-      {
-        id: 'investment-bonus',
-        title: '投資ボーナス',
-        description: '投資の利回りが1.5倍！',
-        icon: '📈',
-        type: 'bonus' as const,
-        effects: {
-          bonusMultiplier: 1.5,
-          affectedItems: ['investments']
-        }
-      },
-      {
-        id: 'special-lottery',
-        title: 'レアアイテム抽選',
-        description: '特別なアイテムが当たるかも',
-        icon: '🎰',
-        type: 'special' as const,
-        effects: {
-          specialOffer: {
-            itemId: 'crown',
-            originalPrice: 800,
-            salePrice: 400
-          }
-        }
-      }
-    ]
-
-    const eventIndex = weekNumber % weeklyEvents.length
-    const selectedEvent = weeklyEvents[eventIndex]
-
-    if (!selectedEvent) {
-      return // No event to generate
-    }
-
-    const startDate = new Date(now)
-    startDate.setDate(now.getDate() - now.getDay()) // Start of week
-    const endDate = new Date(startDate)
-    endDate.setDate(startDate.getDate() + 7) // End of week
-
-    const weeklyEvent: EconomyEvent = {
-      id: selectedEvent.id,
-      title: selectedEvent.title,
-      description: selectedEvent.description,
-      icon: selectedEvent.icon,
-      type: selectedEvent.type,
-      startDate: startDate.toISOString().split('T')[0]!,
-      endDate: endDate.toISOString().split('T')[0]!,
-      active: true,
-      effects: selectedEvent.effects
-    }
-
-    // Remove old events and add new one
-    this.events = this.events.filter(event => event.endDate >= date)
-    this.events.push(weeklyEvent)
-  }
-
   // Public methods
   public getDailyBonus(): DailyBonus | null {
     const today = new Date().toISOString().split('T')[0]!
@@ -230,78 +122,18 @@ class EconomyEventManager {
     }
 
     this.dailyBonus.claimed = true
-    this.saveEvents()
+    this.saveDailyBonus()
     
     logger.info(`Daily bonus claimed: ${this.dailyBonus.amount}P`)
     return this.dailyBonus.amount
   }
 
-  public getActiveEvents(): EconomyEvent[] {
-    const today = new Date().toISOString().split('T')[0]!
-    return this.events.filter(event => 
-      event.active && 
-      event.startDate <= today && 
-      event.endDate >= today
-    )
-  }
-
-  public getDiscountPrice(originalPrice: number, category: string): number {
-    const activeEvents = this.getActiveEvents()
-    
-    for (const event of activeEvents) {
-      if (event.type === 'sale' && 
-          event.effects.discountPercentage &&
-          event.effects.affectedItems?.includes(category)) {
-        return Math.floor(originalPrice * (100 - event.effects.discountPercentage) / 100)
-      }
-    }
-    
-    return originalPrice
-  }
-
-  public getEarningMultiplier(category: string): number {
-    const activeEvents = this.getActiveEvents()
-    
-    for (const event of activeEvents) {
-      if ((event.type === 'multiplier' || event.type === 'bonus') && 
-          event.effects.bonusMultiplier &&
-          event.effects.affectedItems?.includes(category)) {
-        return event.effects.bonusMultiplier
-      }
-    }
-    
-    return 1
-  }
-
-  public hasSpecialOffer(itemId: string): { original: number; sale: number } | null {
-    const activeEvents = this.getActiveEvents()
-    
-    for (const event of activeEvents) {
-      if (event.type === 'special' && 
-          event.effects.specialOffer &&
-          event.effects.specialOffer.itemId === itemId) {
-        return {
-          original: event.effects.specialOffer.originalPrice,
-          sale: event.effects.specialOffer.salePrice
-        }
-      }
-    }
-    
-    return null
-  }
-
-  // Force refresh events (for testing or manual refresh)
-  public refreshEvents(): void {
-    localStorage.removeItem('last-event-date')
-    this.generateDailyEvents()
-  }
-
-  // Ensure events are properly initialized
+  // Ensure daily bonus is properly initialized
   public ensureInitialized(): void {
-    const lastEventDate = localStorage.getItem('last-event-date')
+    const lastBonusDate = localStorage.getItem('last-bonus-date')
     
-    if (!lastEventDate || !this.dailyBonus) {
-      this.generateDailyEvents()
+    if (!lastBonusDate || !this.dailyBonus) {
+      this.generateDailyBonus()
     }
   }
 }
@@ -312,7 +144,3 @@ export const economyEventManager = new EconomyEventManager()
 // Helper functions
 export const getDailyBonus = () => economyEventManager.getDailyBonus()
 export const claimDailyBonus = () => economyEventManager.claimDailyBonus()
-export const getActiveEvents = () => economyEventManager.getActiveEvents()
-export const getDiscountPrice = (price: number, category: string) => economyEventManager.getDiscountPrice(price, category)
-export const getEarningMultiplier = (category: string) => economyEventManager.getEarningMultiplier(category)
-export const hasSpecialOffer = (itemId: string) => economyEventManager.hasSpecialOffer(itemId)

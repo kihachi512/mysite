@@ -129,12 +129,15 @@ body {
   }
 }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(255,255,255,0.3);
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
   }
-  50% {
-    box-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 30px rgba(255,255,255,0.4);
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
@@ -211,9 +214,6 @@ body {
   animation: float 3s ease-in-out infinite !important;
 }
 
-.animate-glow {
-  animation: glow 2s ease-in-out infinite alternate !important;
-}
 
 .animate-shake {
   animation: shake 0.5s ease-in-out !important;
@@ -1552,10 +1552,6 @@ body.premium-theme .footer p {
     padding: min(16px, 4vw) !important;
   }
   
-  .event-card {
-    margin: 0 8px min(20px, 5vw) 8px !important;
-    padding: min(12px, 3vw) !important;
-  }
 }
 
 /* 高倍率ブラウザ対応 */
