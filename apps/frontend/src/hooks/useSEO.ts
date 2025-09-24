@@ -160,10 +160,25 @@ export const useSEO = ({
           console.log('Icon update error:', e);
         }
       }
+
+      // 構造化データ（JSON-LD）の追加（既存機能に影響なし）
+      if (structuredData) {
+        try {
+          let structuredScript = document.querySelector('script[type="application/ld+json"]') as HTMLScriptElement;
+          if (!structuredScript) {
+            structuredScript = document.createElement('script');
+            structuredScript.type = 'application/ld+json';
+            document.head.appendChild(structuredScript);
+          }
+          structuredScript.textContent = JSON.stringify(structuredData);
+        } catch (e) {
+          console.log('Structured data update error:', e);
+        }
+      }
     } catch (e) {
       console.log('SEO update error:', e);
     }
-  }, [title, description, keywords, ogTitle, ogDescription, canonicalUrl, iconUrl]);
+  }, [title, description, keywords, ogTitle, ogDescription, canonicalUrl, iconUrl, structuredData, articleType, author, publishedTime, modifiedTime]);
 };
 
 // 各ページ用のSEO設定プリセット
