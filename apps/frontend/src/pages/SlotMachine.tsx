@@ -137,10 +137,11 @@ const SlotMachine: React.FC = () => {
     // 該当リールが既に停止済みかチェック
     if (reelStates[reelIndex] === 'stopped') return
 
-    // 該当アニメーションを停止
-    if (animationIntervals[reelIndex]) {
+    // 該当アニメーションのみを停止
+    if (animationIntervals[reelIndex] && animationIntervals[reelIndex] !== 0) {
       window.clearInterval(animationIntervals[reelIndex])
-      // インターバルリストも更新
+      
+      // インターバルリストも更新（該当リールのみ）
       setAnimationIntervals((prev: number[]) => {
         const newIntervals = [...prev]
         newIntervals[reelIndex] = 0 // 0にセットして停止済みを示す
@@ -150,13 +151,15 @@ const SlotMachine: React.FC = () => {
     
     // 現在のリール位置に基づいて絵柄を確定
     const currentSymbol = getCurrentSymbol(reelIndex)
+    
+    // リールの絵柄を確定（該当リールのみ）
     setReels((prevReels: SlotSymbol[]) => {
       const newReels = [...prevReels]
       newReels[reelIndex] = currentSymbol
       return newReels
     })
 
-    // リール状態を停止に変更
+    // リール状態を停止に変更（該当リールのみ）
     setReelStates((prevStates: ReelState[]) => {
       const newStates = [...prevStates]
       newStates[reelIndex] = 'stopped'
@@ -193,11 +196,13 @@ const SlotMachine: React.FC = () => {
       if (!Array.isArray(finalReelValues) || finalReelValues.length !== 3) {
         console.error('Invalid final reel values:', finalReelValues)
         setGameState('idle')
+        setReelStates(['stopped', 'stopped', 'stopped'])
         return
       }
 
       // 最終的なリール表示を確定
       setReels(finalReelValues)
+      setReelStates(['stopped', 'stopped', 'stopped'])
 
       // 結果判定
       const { amount, rule } = calculatePayout(finalReelValues)
@@ -225,6 +230,11 @@ const SlotMachine: React.FC = () => {
       console.error('Error in finishGame:', error)
       setGameState('idle')
       setReelStates(['stopped', 'stopped', 'stopped'])
+      // エラー時はインターバルも確実にクリア
+      animationIntervals.forEach((interval: number) => {
+        if (interval) window.clearInterval(interval)
+      })
+      setAnimationIntervals([])
     }
   }
 
@@ -260,35 +270,39 @@ const SlotMachine: React.FC = () => {
     const intervals: number[] = []
     for (let reelIndex = 0; reelIndex < 3; reelIndex++) {
       const interval = window.setInterval(() => {
-        // reelStatesを最新の状態で取得するため、setReelStatesを使用
-        setReelStates((currentReelStates: ReelState[]) => {
-          if (currentReelStates[reelIndex] === 'spinning') {
-            // リールポジションを更新
-            setReelPositions((prevPositions: ReelPosition[]) => {
-              const newPositions = [...prevPositions]
-              const currentPosition = newPositions[reelIndex]
-              
-              if (currentPosition) {
-                const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
-                newPositions[reelIndex] = {
-                  ...currentPosition,
-                  currentIndex: newIndex
-                }
-                
-                // 表示用のリールを即座に更新
-                const newSymbol = REEL_PATTERN[newIndex] || '🍒'
-                setReels((prevReels: SlotSymbol[]) => {
-                  const newReels = [...prevReels]
-                  newReels[reelIndex] = newSymbol
-                  return newReels
-                })
-              }
-              return newPositions
-            })
+        // リール状態をチェックして、該当リールが回転中の場合のみ更新
+        setReelStates(currentStates => {
+          // 該当リールが停止済みの場合は何もしない
+          if (currentStates[reelIndex] === 'stopped') {
+            return currentStates
           }
-          return currentReelStates
+          
+          // 該当リールが回転中の場合のみポジション更新
+          setReelPositions((prevPositions: ReelPosition[]) => {
+            const newPositions = [...prevPositions]
+            const currentPosition = newPositions[reelIndex]
+            
+            if (currentPosition) {
+              const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
+              newPositions[reelIndex] = {
+                ...currentPosition,
+                currentIndex: newIndex
+              }
+              
+              // 表示用のリールを即座に更新（該当リールのみ）
+              const newSymbol = REEL_PATTERN[newIndex] || '🍒'
+              setReels((prevReels: SlotSymbol[]) => {
+                const newReels = [...prevReels]
+                newReels[reelIndex] = newSymbol
+                return newReels
+              })
+            }
+            return newPositions
+          })
+          
+          return currentStates // リール状態は変更しない
         })
-      }, 180) // 目押ししやすい速度に調整
+      }, 250) // 目押ししやすい速度に調整（少し遅く）
       
       intervals.push(interval)
     }

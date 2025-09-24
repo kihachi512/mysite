@@ -91,16 +91,21 @@ export const cleanupOldData = (): void => {
 
 // Monitor storage usage and warn users
 export const monitorStorage = (): void => {
-  const quota = checkStorageQuota()
-  
-  if (quota.critical) {
-    console.warn('STORAGE CRITICAL:', quota.message)
-    // Could show a notification to user
-  } else if (quota.warning) {
-    console.warn('STORAGE WARNING:', quota.message)
+  try {
+    const quota = checkStorageQuota()
+    
+    if (quota.critical) {
+      console.warn('STORAGE CRITICAL:', quota.message)
+      // Automatic cleanup when critical
+      cleanupOldData()
+    } else if (quota.warning) {
+      console.warn('STORAGE WARNING:', quota.message)
+    }
+    
+    logger.debug('Storage status:', quota.message)
+  } catch (error) {
+    logger.error('Storage monitoring failed:', error)
   }
-  
-  logger.debug('Storage status:', quota.message)
 }
 
 // Initialize storage monitoring

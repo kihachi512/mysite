@@ -80,11 +80,11 @@ const Avatar: React.FC<AvatarProps> = ({
   const getSizeStyles = (size: string) => {
     switch (size) {
       case 'small':
-        return { fontSize: '1.5rem', width: '32px', height: '32px' }
+        return { fontSize: '1.5rem', width: '40px', height: '40px' }
       case 'large':
-        return { fontSize: '4rem', width: '80px', height: '80px' }
+        return { fontSize: '4rem', width: '100px', height: '100px' }
       default: // medium
-        return { fontSize: '2rem', width: '48px', height: '48px' }
+        return { fontSize: '2rem', width: '60px', height: '60px' }
     }
   }
 
@@ -140,6 +140,9 @@ const Avatar: React.FC<AvatarProps> = ({
             // 背景は別途処理されるのでスキップ
             if (item.category === 'background') return null
 
+            // サイズに応じたベースフォントサイズを計算（カスタマイズ画面と統一）
+            const baseFontSize = size === 'small' ? 1 : size === 'large' ? 3 : 2
+
             return (
               <div 
                 key={costume.id}
@@ -148,10 +151,14 @@ const Avatar: React.FC<AvatarProps> = ({
                   left: `${costume.x}%`,
                   top: `${costume.y}%`,
                   transform: `translate(-50%, -50%) scale(${costume.scale}) rotate(${costume.rotation}deg)`,
-                  fontSize: `${Math.max(1, parseInt(sizeStyles.fontSize) * 0.6)}rem`,
+                  fontSize: `${baseFontSize}rem`,
                   zIndex: costume.zIndex,
                   userSelect: 'none',
-                  pointerEvents: 'none'
+                  pointerEvents: 'none',
+                  filter: item.category === 'special' && item.id === 'sparkles' 
+                    ? 'drop-shadow(0 0 8px gold)' 
+                    : 'none',
+                  animation: item.category === 'special' && item.id === 'sparkles' ? 'sparkle 2s infinite' : 'none'
                 }}
               >
                 {item.icon}
