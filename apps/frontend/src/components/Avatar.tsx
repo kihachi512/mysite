@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from 'react'
 
+type CostumeItem = {
+  id: string
+  name: string
+  description: string
+  icon: string
+  category: 'hat' | 'accessory' | 'outfit' | 'special' | 'background'
+  price: number
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'
+  preview: string
+}
+
+type CostumePosition = {
+  id: string
+  x: number
+  y: number
+  scale: number
+  rotation: number
+  zIndex: number
+}
+
 type AvatarState = {
-  hat?: string
-  accessory?: string
-  outfit?: string
-  special?: string
-  background?: string
+  costumes: CostumePosition[]
 }
 
 type AvatarProps = {
@@ -21,7 +37,7 @@ const Avatar: React.FC<AvatarProps> = ({
   className = '',
   style = {}
 }) => {
-  const [avatarState, setAvatarState] = useState<AvatarState>({})
+  const [avatarState, setAvatarState] = useState<AvatarState>({ costumes: [] })
 
   useEffect(() => {
     loadAvatarState()
@@ -46,10 +62,18 @@ const Avatar: React.FC<AvatarProps> = ({
     try {
       const savedAvatar = localStorage.getItem('avatar-current')
       if (savedAvatar) {
-        setAvatarState(JSON.parse(savedAvatar))
+        const parsed = JSON.parse(savedAvatar)
+        // 新形式のデータを期待
+        if (parsed.costumes && Array.isArray(parsed.costumes)) {
+          setAvatarState(parsed)
+        } else {
+          // 古い形式から新形式への変換は省略（編集画面で変換済み）
+          setAvatarState({ costumes: [] })
+        }
       }
     } catch (error) {
       console.error('Failed to load avatar state:', error)
+      setAvatarState({ costumes: [] })
     }
   }
 
@@ -77,8 +101,10 @@ const Avatar: React.FC<AvatarProps> = ({
       ...style
     }
 
-    const backgroundStyle = showBackground && avatarState.background 
-      ? getBackgroundStyle(avatarState.background)
+    // 背景用のコスチュームを取得
+    const backgroundCostume = avatarState.costumes?.find(c => c.id.includes('-bg'))
+    const backgroundStyle = showBackground && backgroundCostume 
+      ? getBackgroundStyle(backgroundCostume.id)
       : {}
 
     return (
@@ -103,100 +129,39 @@ const Avatar: React.FC<AvatarProps> = ({
           }}
         />
         
-        {/* Hat overlay */}
-        {avatarState.hat && (
-          <div style={{
-            position: 'absolute',
-            top: '-10%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontSize: `${parseInt(sizeStyles.fontSize) * 0.6}rem`,
-            zIndex: 3
-          }}>
-            {getHatEmoji(avatarState.hat)}
-          </div>
-        )}
+        {/* Costume overlays */}
+        {avatarState.costumes && avatarState.costumes
+          .filter(costume => costume && costume.id)
+          .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
+          .map((costume) => {
+            const item = getCostumeItem(costume.id)
+            if (!item) return null
 
-        {/* Accessory overlay */}
-        {avatarState.accessory && (
-          <div style={{
-            position: 'absolute',
-            top: '30%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            fontSize: `${parseInt(sizeStyles.fontSize) * 0.5}rem`,
-            zIndex: 3
-          }}>
-            {getAccessoryEmoji(avatarState.accessory)}
-          </div>
-        )}
+            // 背景は別途処理されるのでスキップ
+            if (item.category === 'background') return null
 
-        {/* Special effects overlay */}
-        {avatarState.special && (
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            fontSize: `${parseInt(sizeStyles.fontSize) * 0.4}rem`,
-            zIndex: 4,
-            animation: avatarState.special === 'sparkles' ? 'sparkle 2s infinite' : 'none'
-          }}>
-            {getSpecialEffectEmoji(avatarState.special)}
-          </div>
-        )}
-
-        {/* Outfit indicator (small icon) */}
-        {avatarState.outfit && (
-          <div style={{
-            position: 'absolute',
-            bottom: '-5%',
-            right: '-5%',
-            fontSize: `${parseInt(sizeStyles.fontSize) * 0.3}rem`,
-            zIndex: 3
-          }}>
-            {getOutfitEmoji(avatarState.outfit)}
-          </div>
-        )}
+            return (
+              <div 
+                key={costume.id}
+                style={{
+                  position: 'absolute',
+                  left: `${costume.x}%`,
+                  top: `${costume.y}%`,
+                  transform: `translate(-50%, -50%) scale(${costume.scale * 0.5}) rotate(${costume.rotation}deg)`,
+                  fontSize: `${parseInt(sizeStyles.fontSize) * 0.5}rem`,
+                  zIndex: costume.zIndex,
+                  userSelect: 'none',
+                  pointerEvents: 'none'
+                }}
+              >
+                {item.icon}
+              </div>
+            )
+          })}
       </div>
     )
   }
 
-  const getHatEmoji = (hatId: string): string => {
-    const hats: { [key: string]: string } = {
-      'santa-hat': '🎅',
-      'crown': '👑',
-      'chef-hat': '👨‍🍳',
-      'wizard-hat': '🧙‍♂️'
-    }
-    return hats[hatId] || ''
-  }
-
-  const getAccessoryEmoji = (accessoryId: string): string => {
-    const accessories: { [key: string]: string } = {
-      'sunglasses': '🕶️',
-      'monocle': '🧐',
-      'heart-eyes': '💕'
-    }
-    return accessories[accessoryId] || ''
-  }
-
-  const getOutfitEmoji = (outfitId: string): string => {
-    const outfits: { [key: string]: string } = {
-      'tuxedo': '🤵',
-      'ninja-outfit': '🥷',
-      'superhero-cape': '🦸'
-    }
-    return outfits[outfitId] || ''
-  }
-
-  const getSpecialEffectEmoji = (specialId: string): string => {
-    const effects: { [key: string]: string } = {
-      'sparkles': '✨',
-      'rainbow-trail': '🌈'
-    }
-    return effects[specialId] || ''
-  }
 
   const getBackgroundStyle = (backgroundId: string): React.CSSProperties => {
     const backgrounds: { [key: string]: React.CSSProperties } = {
@@ -214,6 +179,38 @@ const Avatar: React.FC<AvatarProps> = ({
       }
     }
     return backgrounds[backgroundId] || {}
+  }
+
+  // コスチュームアイテムデータの取得
+  const getCostumeItem = (id: string): CostumeItem | null => {
+    const COSTUME_ITEMS: CostumeItem[] = [
+      // Hats
+      { id: 'santa-hat', name: 'サンタ帽', description: '', icon: '🎅', category: 'hat', price: 150, rarity: 'common', preview: '🎄' },
+      { id: 'crown', name: '王冠', description: '', icon: '👑', category: 'hat', price: 800, rarity: 'legendary', preview: '✨' },
+      { id: 'chef-hat', name: 'シェフ帽', description: '', icon: '👨‍🍳', category: 'hat', price: 300, rarity: 'rare', preview: '🍽️' },
+      { id: 'wizard-hat', name: '魔法使いの帽子', description: '', icon: '🧙‍♂️', category: 'hat', price: 600, rarity: 'epic', preview: '⭐' },
+      
+      // Accessories
+      { id: 'sunglasses', name: 'サングラス', description: '', icon: '🕶️', category: 'accessory', price: 200, rarity: 'common', preview: '😎' },
+      { id: 'monocle', name: '片眼鏡', description: '', icon: '🧐', category: 'accessory', price: 400, rarity: 'rare', preview: '🎩' },
+      { id: 'heart-eyes', name: 'ハートの瞳', description: '', icon: '😍', category: 'accessory', price: 250, rarity: 'common', preview: '💕' },
+      
+      // Outfits
+      { id: 'tuxedo', name: 'タキシード', description: '', icon: '🤵', category: 'outfit', price: 500, rarity: 'rare', preview: '✨' },
+      { id: 'ninja-outfit', name: '忍者装束', description: '', icon: '🥷', category: 'outfit', price: 700, rarity: 'epic', preview: '⚡' },
+      { id: 'superhero-cape', name: 'スーパーヒーローマント', description: '', icon: '🦸', category: 'outfit', price: 900, rarity: 'legendary', preview: '💫' },
+      
+      // Special Effects
+      { id: 'sparkles', name: 'キラキラオーラ', description: '', icon: '✨', category: 'special', price: 1000, rarity: 'legendary', preview: '🌟' },
+      { id: 'rainbow-trail', name: '虹の軌跡', description: '', icon: '🌈', category: 'special', price: 1200, rarity: 'legendary', preview: '🦄' },
+      
+      // Backgrounds
+      { id: 'forest-bg', name: '森の背景', description: '', icon: '🌲', category: 'background', price: 300, rarity: 'common', preview: '🍃' },
+      { id: 'space-bg', name: '宇宙背景', description: '', icon: '🌌', category: 'background', price: 600, rarity: 'rare', preview: '🚀' },
+      { id: 'castle-bg', name: '城の背景', description: '', icon: '🏰', category: 'background', price: 1000, rarity: 'epic', preview: '👑' }
+    ]
+    
+    return COSTUME_ITEMS.find(item => item.id === id) || null
   }
 
   return getAvatarDisplay()

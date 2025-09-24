@@ -839,7 +839,7 @@ const Chatbot: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Avatar size="small" />
+                  <Avatar size="medium" />
                 </div>
               )}
               
@@ -896,7 +896,7 @@ const Chatbot: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Avatar size="small" />
+              <Avatar size="medium" />
             </div>
               <div className="comic-card" style={{
                 background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',

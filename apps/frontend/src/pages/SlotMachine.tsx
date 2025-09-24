@@ -134,58 +134,58 @@ const SlotMachine: React.FC = () => {
   const stopReel = (reelIndex: number) => {
     if (gameState !== 'spinning') return
 
+    // 該当リールが既に停止済みかチェック
+    if (reelStates[reelIndex] === 'stopped') return
+
+    // 該当アニメーションを停止
+    if (animationIntervals[reelIndex]) {
+      window.clearInterval(animationIntervals[reelIndex])
+      // インターバルリストも更新
+      setAnimationIntervals((prev: number[]) => {
+        const newIntervals = [...prev]
+        newIntervals[reelIndex] = 0 // 0にセットして停止済みを示す
+        return newIntervals
+      })
+    }
+    
+    // 現在のリール位置に基づいて絵柄を確定
+    const currentSymbol = getCurrentSymbol(reelIndex)
+    setReels((prevReels: SlotSymbol[]) => {
+      const newReels = [...prevReels]
+      newReels[reelIndex] = currentSymbol
+      return newReels
+    })
+
+    // リール状態を停止に変更
     setReelStates((prevStates: ReelState[]) => {
       const newStates = [...prevStates]
-      if (newStates[reelIndex] === 'stopped') return prevStates // 既に停止済み
-      
       newStates[reelIndex] = 'stopped'
       
-      // 該当アニメーションを停止
-      if (animationIntervals[reelIndex]) {
-        window.clearInterval(animationIntervals[reelIndex])
-        // インターバルリストも更新
-        setAnimationIntervals(prev => {
-          const newIntervals = [...prev]
-          if (newIntervals[reelIndex]) {
-            window.clearInterval(newIntervals[reelIndex])
-            newIntervals[reelIndex] = 0
-          }
-          return newIntervals
-        })
-      }
-      
-      // 現在のリール位置に基づいて絵柄を確定
-      const currentSymbol = getCurrentSymbol(reelIndex)
-      setReels((prevReels: SlotSymbol[]) => {
-        const newReels = [...prevReels]
-        newReels[reelIndex] = currentSymbol
-        return newReels
-      })
-
-      // リール確定のフィードバック
-      setTimeout(() => {
-        // 確定音やエフェクトをここに追加可能
-      }, 100)
-
-      // 全てのリールが停止したかチェック
-      if (newStates.every(state => state === 'stopped')) {
-        // 最終結果判定と表示
+      // 全てのリールが手動で停止されたかチェック
+      const allStopped = newStates.every(state => state === 'stopped')
+      if (allStopped) {
+        // 全停止時のみゲーム終了処理を呼ぶ
         setTimeout(() => {
           const finalResult = newStates.map((_, idx) => getCurrentSymbol(idx))
           finishGame(finalResult as SlotSymbol[])
-        }, 500) // 少し余韻を持たせる
+        }, 500)
       }
       
       return newStates
     })
+
+    // リール確定のフィードバック
+    setTimeout(() => {
+      // 確定音やエフェクトをここに追加可能
+    }, 100)
   }
 
   // ゲーム終了処理
   const finishGame = (finalReelValues: SlotSymbol[]) => {
     try {
-      // アニメーション停止（安全性強化）
+      // 残っているアニメーション停止（安全性強化）
       animationIntervals.forEach((interval: number) => {
-        if (interval) window.clearInterval(interval)
+        if (interval && interval !== 0) window.clearInterval(interval)
       })
       setAnimationIntervals([])
 
@@ -288,7 +288,7 @@ const SlotMachine: React.FC = () => {
           }
           return currentReelStates
         })
-      }, 120) // 少し遅めにして目押ししやすく
+      }, 180) // 目押ししやすい速度に調整
       
       intervals.push(interval)
     }
