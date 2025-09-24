@@ -288,7 +288,7 @@ const SlotMachine: React.FC = () => {
           }
           return currentReelStates
         })
-      }, 120) // 少し遅めにして目押ししやすく
+      }, 180) // 目押ししやすい速度に調整
       
       intervals.push(interval)
     }
