@@ -981,15 +981,9 @@ const AvatarCustomization: React.FC = () => {
           <div className="comic-text font-body-sm" style={{
             color: '#c8e6c9',
             marginBottom: '16px',
-            lineHeight: '1.6'
+            lineHeight: '1.4'
           }}>
-            📝 使い方:<br/>
-            • インベントリの「装備」ボタンでアイテムを装着<br/>
-            • 装備済みアイテムは直接ドラッグで移動<br/>
-            • 🎯 アイテムをクリックして選択→サイズ調整が可能<br/>
-            • ダブルクリック/ダブルタップでアイテム削除<br/>
-            • 「外す」ボタンで装備解除<br/>
-            • ⚠️ 編集後は必ず「💾 保存」ボタンで保存！
+            📝 装備→ドラッグ移動→🎯クリックでサイズ調整→💾保存
           </div>
           
           <div data-avatar-container className="avatar-current-display" style={{ 
