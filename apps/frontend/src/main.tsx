@@ -100,11 +100,11 @@ const HomePage: React.FC = () => {
             <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>秘密の隠れ家</div>
           </div>
         </Link>
-        <Link to="/momo-economy" style={{ textDecoration: 'none' }}>
+        <Link to="/plaza" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.3), rgba(184, 134, 11, 0.2))', padding: 'min(24px, 6vw)', borderColor: '#daa520', cursor: 'pointer', transition: 'all 0.3s ease' }}>
-            <div className="font-icon-md" style={{ marginBottom: '12px' }}>🌰</div>
-            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>どんぐり銀座</div>
-            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>森の経済活動</div>
+            <div className="font-icon-md" style={{ marginBottom: '12px' }}>🏛️</div>
+            <div className="comic-text font-title-sm" style={{ color: '#fff3e0' }}>広場</div>
+            <div className="comic-text font-body-md" style={{ color: '#c8e6c9', marginTop: '6px' }}>交流と経済の中心地</div>
           </div>
         </Link>
         <Link to="/settings" style={{ textDecoration: 'none' }}>
@@ -138,7 +138,6 @@ import MemoryGame from './pages/MemoryGame.tsx'
 import MOMOBank from './pages/MOMOBank.tsx'
 import AvatarCustomization from './pages/AvatarCustomization.tsx'
 import PersonalHub from './pages/PersonalHub.tsx'
-import EconomyHub from './pages/EconomyHub.tsx'
 import AudioSettings from './pages/AudioSettings.tsx'
 import SlotMachine from './pages/SlotMachine.tsx'
 
@@ -168,7 +167,6 @@ const router = createBrowserRouter([
             { path: 'momo-bank', element: <MOMOBank /> },
             { path: 'avatar', element: <AvatarCustomization /> },
             { path: 'personal', element: <PersonalHub /> },
-            { path: 'momo-economy', element: <EconomyHub /> },
     ],
   },
 ])
