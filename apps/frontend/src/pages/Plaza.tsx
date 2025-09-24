@@ -53,12 +53,12 @@ const Plaza: React.FC = () => {
         </div>
       </div>
 
-      {/* 交流エリア */}
+      {/* 憩いの場 */}
       <div className="comic-text font-title-md" style={{ 
         color: '#fff3e0',
         marginBottom: 'min(20px, 5vw)'
       }}>
-        💬 交流エリア
+        🌸 憩いの場
       </div>
       <div style={{ 
         display: 'grid', 
