@@ -606,9 +606,9 @@ const AvatarCustomization: React.FC = () => {
       const newX = Math.max(0, Math.min(100, startCostumeX + deltaX))
       const newY = Math.max(0, Math.min(100, startCostumeY + deltaY))
       
-      // 更新前に costume が存在するかチェック
+      // 更新前に costume が存在するかチェック（ドラッグ中は保存しない）
       if (costume && costume.id) {
-        updateCostumePosition(costume.id, { x: newX, y: newY })
+        updateCostumePositionWithoutSave(costume.id, { x: newX, y: newY })
       }
     }
 
