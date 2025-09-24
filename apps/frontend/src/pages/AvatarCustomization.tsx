@@ -325,6 +325,10 @@ const AvatarCustomization: React.FC = () => {
       
       localStorage.setItem('avatar-owned-items', JSON.stringify(ownedData))
       localStorage.setItem('avatar-current', JSON.stringify(avatarData))
+      
+      // アバター更新イベントを発火（他のコンポーネントに変更を通知）
+      window.dispatchEvent(new CustomEvent('avatar-updated'))
+      
     } catch (error) {
       console.error('Failed to save avatar data:', error)
       // ユーザーに通知

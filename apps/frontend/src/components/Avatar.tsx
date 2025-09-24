@@ -25,6 +25,21 @@ const Avatar: React.FC<AvatarProps> = ({
 
   useEffect(() => {
     loadAvatarState()
+    
+    // localStorageの変更を監視
+    const handleStorageChange = () => {
+      loadAvatarState()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // カスタムイベントも監視（同一タブ内での変更用）
+    window.addEventListener('avatar-updated', handleStorageChange)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('avatar-updated', handleStorageChange)
+    }
   }, [])
 
   const loadAvatarState = () => {
