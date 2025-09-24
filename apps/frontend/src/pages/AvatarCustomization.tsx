@@ -422,64 +422,62 @@ const AvatarCustomization: React.FC = () => {
       return
     }
 
-    // 現在の状態を再確認して二重装備を防ぐ
-    setCurrentAvatar(currentState => {
-      // 既に装備されているかチェック
-      const alreadyEquipped = currentState.costumes.find(c => c && c.id === item.id)
-      if (alreadyEquipped) {
-        alert('このアイテムは既に装備されています')
-        return currentState // 状態を変更しない
-      }
+    // 事前に装備チェック（外部から呼ばれる前にチェック）
+    const alreadyEquipped = currentAvatar.costumes && currentAvatar.costumes.find(c => c && c.id === item.id)
+    if (alreadyEquipped) {
+      alert('このアイテムは既に装備されています')
+      return
+    }
 
-      // デフォルト位置を決定（カテゴリに基づく）
-      let defaultX = 50, defaultY = 50, defaultScale = 1, defaultZIndex = 2
-      
-      switch (item.category) {
-        case 'hat':
-          defaultY = 20
-          defaultZIndex = 3
-          break
-        case 'accessory':
-          defaultY = 45
-          defaultZIndex = 4
-          break
-        case 'outfit':
-          defaultX = 80
-          defaultY = 70
-          defaultZIndex = 2
-          break
-        case 'special':
-          defaultZIndex = 5
-          break
-        case 'background':
-          defaultScale = 1.5
-          defaultZIndex = 1
-          break
-      }
+    // デフォルト位置を決定（カテゴリに基づく）
+    let defaultX = 50, defaultY = 50, defaultScale = 1, defaultZIndex = 2
+    
+    switch (item.category) {
+      case 'hat':
+        defaultY = 20
+        defaultZIndex = 3
+        break
+      case 'accessory':
+        defaultY = 45
+        defaultZIndex = 4
+        break
+      case 'outfit':
+        defaultX = 80
+        defaultY = 70
+        defaultZIndex = 2
+        break
+      case 'special':
+        defaultZIndex = 5
+        break
+      case 'background':
+        defaultScale = 1.5
+        defaultZIndex = 1
+        break
+    }
 
-      const newCostume: CostumePosition = {
-        id: item.id,
-        x: defaultX,
-        y: defaultY,
-        scale: defaultScale,
-        rotation: 0,
-        zIndex: defaultZIndex
-      }
+    const newCostume: CostumePosition = {
+      id: item.id,
+      x: defaultX,
+      y: defaultY,
+      scale: defaultScale,
+      rotation: 0,
+      zIndex: defaultZIndex
+    }
 
-      const newAvatar = {
-        ...currentState,
-        costumes: [...(currentState.costumes || []), newCostume]
-      }
-      
-      // データ保存は非同期で行う
-      setTimeout(() => {
-        saveAvatarData(ownedItems, newAvatar)
-        trackAvatarChanged() // アバター変更実績をトラック
-        alert(`✨ ${item.name}を装備しました！`)
-      }, 0)
-      
-      return newAvatar
-    })
+    const newAvatar = {
+      ...currentAvatar,
+      costumes: [...(currentAvatar.costumes || []), newCostume]
+    }
+    
+    // 状態を即座に更新
+    setCurrentAvatar(newAvatar)
+    
+    // データ保存と通知は非同期で行う
+    setTimeout(() => {
+      saveAvatarData(ownedItems, newAvatar)
+      trackAvatarChanged() // アバター変更実績をトラック
+      alert(`✨ ${item.name}を装備しました！`)
+    }, 0)
   }
 
   // コスチューム削除
@@ -1162,6 +1160,20 @@ const AvatarCustomization: React.FC = () => {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
+                              
+                              // 装備処理前に再度チェック
+                              console.log('装備ボタンクリック:', item.name)
+                              if (!ownedItems.includes(item.id)) {
+                                alert('このアイテムは購入が必要です')
+                                return
+                              }
+                              
+                              const currentlyEquipped = currentAvatar.costumes && currentAvatar.costumes.some(c => c && c.id === item.id)
+                              if (currentlyEquipped) {
+                                alert('このアイテムは既に装備されています')
+                                return
+                              }
+                              
                               addCostume(item)
                             }}
                             className="comic-button font-button-xs"
