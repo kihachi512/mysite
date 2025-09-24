@@ -140,8 +140,8 @@ const Avatar: React.FC<AvatarProps> = ({
             // 背景は別途処理されるのでスキップ
             if (item.category === 'background') return null
 
-            // サイズに応じたベースフォントサイズを計算
-            const baseFontSize = size === 'small' ? 1 : size === 'large' ? 2.5 : 2
+            // サイズに応じたベースフォントサイズを計算（カスタマイズ画面と統一）
+            const baseFontSize = size === 'small' ? 1 : size === 'large' ? 3 : 2
 
             return (
               <div 
