@@ -185,19 +185,19 @@ const Avatar: React.FC<AvatarProps> = ({
   const getCostumeItem = (id: string): CostumeItem | null => {
     const COSTUME_ITEMS: CostumeItem[] = [
       // Hats
-      { id: 'santa-hat', name: 'サンタ帽', description: '', icon: '🎅', category: 'hat', price: 150, rarity: 'common', preview: '🎄' },
+      { id: 'santa-hat', name: 'サンタ帽', description: '', icon: '🎄', category: 'hat', price: 150, rarity: 'common', preview: '🎄' },
       { id: 'crown', name: '王冠', description: '', icon: '👑', category: 'hat', price: 800, rarity: 'legendary', preview: '✨' },
       { id: 'chef-hat', name: 'シェフ帽', description: '', icon: '👨‍🍳', category: 'hat', price: 300, rarity: 'rare', preview: '🍽️' },
-      { id: 'wizard-hat', name: '魔法使いの帽子', description: '', icon: '🧙‍♂️', category: 'hat', price: 600, rarity: 'epic', preview: '⭐' },
+      { id: 'wizard-hat', name: '魔法使いの帽子', description: '', icon: '🎩', category: 'hat', price: 600, rarity: 'epic', preview: '⭐' },
       
       // Accessories
       { id: 'sunglasses', name: 'サングラス', description: '', icon: '🕶️', category: 'accessory', price: 200, rarity: 'common', preview: '😎' },
-      { id: 'monocle', name: '片眼鏡', description: '', icon: '🧐', category: 'accessory', price: 400, rarity: 'rare', preview: '🎩' },
-      { id: 'heart-eyes', name: 'ハートの瞳', description: '', icon: '😍', category: 'accessory', price: 250, rarity: 'common', preview: '💕' },
+      { id: 'monocle', name: '片眼鏡', description: '', icon: '🥽', category: 'accessory', price: 400, rarity: 'rare', preview: '🎩' },
+      { id: 'heart-eyes', name: 'ハートの瞳', description: '', icon: '💕', category: 'accessory', price: 250, rarity: 'common', preview: '💕' },
       
       // Outfits
-      { id: 'tuxedo', name: 'タキシード', description: '', icon: '🤵', category: 'outfit', price: 500, rarity: 'rare', preview: '✨' },
-      { id: 'ninja-outfit', name: '忍者装束', description: '', icon: '🥷', category: 'outfit', price: 700, rarity: 'epic', preview: '⚡' },
+      { id: 'tuxedo', name: 'タキシード', description: '', icon: '👔', category: 'outfit', price: 500, rarity: 'rare', preview: '✨' },
+      { id: 'ninja-outfit', name: '忍者装束', description: '', icon: '🥋', category: 'outfit', price: 700, rarity: 'epic', preview: '⚡' },
       { id: 'superhero-cape', name: 'スーパーヒーローマント', description: '', icon: '🦸', category: 'outfit', price: 900, rarity: 'legendary', preview: '💫' },
       
       // Special Effects
