@@ -57,7 +57,7 @@ const COSTUME_ITEMS: CostumeItem[] = [
     id: 'chef-hat',
     name: 'シェフ帽',
     description: 'どんぐり料理の専門家に変身',
-    icon: '👨‍🍳',
+    icon: '🍳',
     category: 'hat',
     price: 300,
     rarity: 'rare',
@@ -131,7 +131,7 @@ const COSTUME_ITEMS: CostumeItem[] = [
     id: 'superhero-cape',
     name: 'スーパーヒーローマント',
     description: '正義の味方モモンガマン！',
-    icon: '🦸',
+    icon: '🦸‍♀️',
     category: 'outfit',
     price: 900,
     rarity: 'legendary',
@@ -210,6 +210,7 @@ const AvatarCustomization: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedCostume, setSelectedCostume] = useState<string | null>(null)
 
   // Track area visit
   useEffect(() => {
@@ -435,27 +436,31 @@ const AvatarCustomization: React.FC = () => {
     }
 
     // デフォルト位置を決定（カテゴリに基づく）
-    let defaultX = 50, defaultY = 50, defaultScale = 1, defaultZIndex = 2
+    let defaultX = 50, defaultY = 50, defaultScale = 1.2, defaultZIndex = 2
     
     switch (item.category) {
       case 'hat':
         defaultY = 20
         defaultZIndex = 3
+        defaultScale = 1.2
         break
       case 'accessory':
         defaultY = 45
         defaultZIndex = 4
+        defaultScale = 1.0
         break
       case 'outfit':
         defaultX = 80
         defaultY = 70
         defaultZIndex = 2
+        defaultScale = 1.4
         break
       case 'special':
         defaultZIndex = 5
+        defaultScale = 1.2
         break
       case 'background':
-        defaultScale = 1.5
+        defaultScale = 1.8
         defaultZIndex = 1
         break
     }
@@ -817,7 +822,7 @@ const AvatarCustomization: React.FC = () => {
           }}
         />
         
-        {/* Dynamic costume overlays */}
+          {/* Dynamic costume overlays */}
         {currentAvatar?.costumes && Array.isArray(currentAvatar.costumes) && currentAvatar.costumes.length > 0 && currentAvatar.costumes
           .filter((costume: CostumePosition | null | undefined): costume is CostumePosition => 
             Boolean(costume && costume.id && typeof costume.x === 'number' && typeof costume.y === 'number')
@@ -830,22 +835,35 @@ const AvatarCustomization: React.FC = () => {
             return (
               <div 
                 key={costume.id}
+                onMouseDown={(e) => {
+                  // シングルクリックで選択
+                  if (e.detail === 1) {
+                    setSelectedCostume(costume.id)
+                  }
+                  handleCostumeDragStart(e, costume)
+                }}
+                onTouchStart={(e) => {
+                  setSelectedCostume(costume.id)
+                  handleCostumeDragStart(e, costume)
+                }}
+                onDoubleClick={() => removeCostume(costume.id)}
+                title={`${item.name} (クリックで選択、ダブルクリック/ダブルタップで削除)`}
                 style={{
                   position: 'absolute',
                   left: `${costume.x}%`,
                   top: `${costume.y}%`,
-                  transform: `translate(-50%, -50%) scale(${costume.scale * 1.2}) rotate(${costume.rotation}deg)`,
+                  transform: `translate(-50%, -50%) scale(${costume.scale}) rotate(${costume.rotation}deg)`,
                   fontSize: 'clamp(1rem, 2.5vw, 2rem)',
                   zIndex: costume.zIndex,
                   cursor: 'move',
                   userSelect: 'none',
-                  filter: item.category === 'special' && item.id === 'sparkles' ? 'drop-shadow(0 0 8px gold)' : 'none',
+                  filter: selectedCostume === costume.id 
+                    ? 'drop-shadow(0 0 8px #ffc107) brightness(1.2)'
+                    : item.category === 'special' && item.id === 'sparkles' 
+                      ? 'drop-shadow(0 0 8px gold)' 
+                      : 'none',
                   animation: item.category === 'special' && item.id === 'sparkles' ? 'sparkle 2s infinite' : 'none'
                 }}
-                onMouseDown={(e) => handleCostumeDragStart(e, costume)}
-                onTouchStart={(e) => handleCostumeDragStart(e, costume)}
-                onDoubleClick={() => removeCostume(costume.id)}
-                title={`${item.name} (ダブルクリック/ダブルタップで削除)`}
               >
                 {item.icon}
               </div>
@@ -968,6 +986,7 @@ const AvatarCustomization: React.FC = () => {
             📝 使い方:<br/>
             • インベントリの「装備」ボタンでアイテムを装着<br/>
             • 装備済みアイテムは直接ドラッグで移動<br/>
+            • 🎯 アイテムをクリックして選択→サイズ調整が可能<br/>
             • ダブルクリック/ダブルタップでアイテム削除<br/>
             • 「外す」ボタンで装備解除<br/>
             • ⚠️ 編集後は必ず「💾 保存」ボタンで保存！
@@ -982,6 +1001,57 @@ const AvatarCustomization: React.FC = () => {
           }}>
             {generateAvatarDisplay()}
           </div>
+          
+          {/* サイズ調整コントロール */}
+          {selectedCostume && (() => {
+            const costume = currentAvatar.costumes.find(c => c.id === selectedCostume)
+            const item = COSTUME_ITEMS.find(i => i.id === selectedCostume)
+            if (!costume || !item) return null
+            
+            return (
+              <div className="comic-card" style={{
+                background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.15))',
+                borderColor: '#ffc107',
+                padding: '12px',
+                marginBottom: '12px'
+              }}>
+                <div className="comic-text font-body-sm" style={{ 
+                  color: '#fff3e0',
+                  marginBottom: '8px',
+                  textAlign: 'center'
+                }}>
+                  {item.icon} {item.name} のサイズ調整
+                </div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>小</span>
+                  <input 
+                    type="range"
+                    min="0.5"
+                    max="2.5" 
+                    step="0.1"
+                    value={costume.scale}
+                    onChange={(e) => {
+                      const newScale = parseFloat(e.target.value)
+                      updateCostumePositionWithoutSave(selectedCostume, { scale: newScale })
+                    }}
+                    style={{ 
+                      width: '150px',
+                      accentColor: '#ffc107'
+                    }}
+                  />
+                  <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>大</span>
+                  <span className="comic-text font-body-xs" style={{ 
+                    color: '#fff3e0',
+                    minWidth: '40px',
+                    textAlign: 'center'
+                  }}>
+                    {costume.scale.toFixed(1)}x
+                  </span>
+                </div>
+              </div>
+            )
+          })()}
           
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
             <button
