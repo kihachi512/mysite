@@ -1054,7 +1054,14 @@ const AvatarCustomization: React.FC = () => {
                       className="comic-card" 
                       draggable={!isEquipped} // 装備済みの場合はドラッグ無効
                       onDragStart={(e) => !isEquipped && handleDragStart(item, e)}
-                      onTouchStart={(e) => !isEquipped && handleInventoryTouchStart(e, item)}
+                      onTouchStart={(e) => {
+                        // 装備ボタンがクリックされた場合はタッチイベントを無視
+                        const target = e.target as HTMLElement
+                        if (target.closest('button')) {
+                          return
+                        }
+                        !isEquipped && handleInventoryTouchStart(e, item)
+                      }}
                       style={{
                         background: isEquipped 
                           ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.4), rgba(139, 195, 74, 0.3))'
@@ -1142,7 +1149,13 @@ const AvatarCustomization: React.FC = () => {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
+                              e.stopImmediatePropagation()
                               removeCostume(item.id)
+                            }}
+                            onTouchStart={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              e.stopImmediatePropagation()
                             }}
                             className="comic-button font-button-xs"
                             style={{
@@ -1160,9 +1173,9 @@ const AvatarCustomization: React.FC = () => {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
+                              e.stopImmediatePropagation() // 追加：即座にイベント伝播を停止
                               
                               // 装備処理前に再度チェック
-                              console.log('装備ボタンクリック:', item.name)
                               if (!ownedItems.includes(item.id)) {
                                 alert('このアイテムは購入が必要です')
                                 return
@@ -1175,6 +1188,12 @@ const AvatarCustomization: React.FC = () => {
                               }
                               
                               addCostume(item)
+                            }}
+                            onTouchStart={(e) => {
+                              // タッチイベントも完全に停止
+                              e.preventDefault()
+                              e.stopPropagation()
+                              e.stopImmediatePropagation()
                             }}
                             className="comic-button font-button-xs"
                             style={{
