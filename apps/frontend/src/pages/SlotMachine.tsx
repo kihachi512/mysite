@@ -277,11 +277,6 @@ const SlotMachine: React.FC = () => {
             return currentStates
           }
           
-          // ゲーム状態が回転中でない場合は停止
-          if (gameState !== 'spinning') {
-            return currentStates
-          }
-          
           // 該当リールが回転中の場合のみポジション更新
           setReelPositions((prevPositions: ReelPosition[]) => {
             const newPositions = [...prevPositions]
