@@ -53,77 +53,6 @@ const Plaza: React.FC = () => {
         </div>
       </div>
 
-      {/* 憩いの場 */}
-      <div className="comic-text font-title-md" style={{ 
-        color: '#fff3e0',
-        marginBottom: 'min(20px, 5vw)'
-      }}>
-        🌸 憩いの場
-      </div>
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 45vw), 1fr))', 
-        gap: 'min(20px, 5vw)', 
-        maxWidth: '600px', 
-        margin: '0 auto min(40px, 10vw) auto',
-        padding: '0 10px'
-      }}>
-        {/* 大広間への入り口 */}
-        <Link to="/plaza/hall" style={{ textDecoration: 'none' }}>
-          <div className="comic-card" style={{
-            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
-            padding: 'min(24px, 6vw)',
-            borderColor: '#8bc34a',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}>
-            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>
-              🐦
-            </div>
-            <div className="comic-text font-title-sm" style={{ 
-              color: '#fff3e0',
-              marginBottom: '8px'
-            }}>
-              大広間
-            </div>
-            <div className="comic-text font-body-md" style={{ 
-              color: '#c8e6c9',
-              lineHeight: '1.4'
-            }}>
-              みんなでおしゃべり<br />
-              1時間で自動削除される投稿
-            </div>
-          </div>
-        </Link>
-
-        {/* 公会堂への入り口 */}
-        <Link to="/plaza/chatbot" style={{ textDecoration: 'none' }}>
-          <div className="comic-card" style={{
-            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))',
-            padding: 'min(24px, 6vw)',
-            borderColor: '#9c27b0',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}>
-            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>
-              🐿️
-            </div>
-            <div className="comic-text font-title-sm" style={{ 
-              color: '#fff3e0',
-              marginBottom: '8px'
-            }}>
-              公会堂
-            </div>
-            <div className="comic-text font-body-md" style={{ 
-              color: '#c8e6c9',
-              lineHeight: '1.4'
-            }}>
-              モモンガくんとおしゃべり
-            </div>
-          </div>
-        </Link>
-      </div>
-
       {/* どんぐり銀座（経済エリア） */}
       <div className="comic-text font-title-md" style={{ 
         color: '#fff3e0',
@@ -213,6 +142,78 @@ const Plaza: React.FC = () => {
             }}>
               設定機能・装備の売買<br />
               <span style={{ color: '#ffd93d' }} className="font-body-sm">森の売店がリニューアル！</span>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* 憩いの場 */}
+      <div className="comic-text font-title-md" style={{ 
+        color: '#fff3e0',
+        marginBottom: 'min(20px, 5vw)',
+        marginTop: 'min(40px, 10vw)'
+      }}>
+        🌸 憩いの場
+      </div>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 45vw), 1fr))', 
+        gap: 'min(20px, 5vw)', 
+        maxWidth: '600px', 
+        margin: '0 auto min(40px, 10vw) auto',
+        padding: '0 10px'
+      }}>
+        {/* 大広間への入り口 */}
+        <Link to="/plaza/hall" style={{ textDecoration: 'none' }}>
+          <div className="comic-card" style={{
+            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.2))',
+            padding: 'min(24px, 6vw)',
+            borderColor: '#8bc34a',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>
+              🐦
+            </div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '8px'
+            }}>
+              大広間
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9',
+              lineHeight: '1.4'
+            }}>
+              みんなでおしゃべり<br />
+              1時間で自動削除される投稿
+            </div>
+          </div>
+        </Link>
+
+        {/* 公会堂への入り口 */}
+        <Link to="/plaza/chatbot" style={{ textDecoration: 'none' }}>
+          <div className="comic-card" style={{
+            background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.2))',
+            padding: 'min(24px, 6vw)',
+            borderColor: '#9c27b0',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>
+              🐿️
+            </div>
+            <div className="comic-text font-title-sm" style={{ 
+              color: '#fff3e0',
+              marginBottom: '8px'
+            }}>
+              公会堂
+            </div>
+            <div className="comic-text font-body-md" style={{ 
+              color: '#c8e6c9',
+              lineHeight: '1.4'
+            }}>
+              モモンガくんとおしゃべり
             </div>
           </div>
         </Link>
