@@ -648,101 +648,101 @@ const AvatarCustomization: React.FC = () => {
     }
   }
 
-  // ドラッグ&ドロップ処理（インベントリ用）
-  const handleDragStart = (item: CostumeItem, event: React.DragEvent) => {
-    setDraggedCostume(item)
-    setIsDragging(true)
-    event.dataTransfer.effectAllowed = 'copy'
-  }
+  // ドラッグ&ドロップ処理（インベントリ用）- 現在は無効化
+  // const handleDragStart = (item: CostumeItem, event: React.DragEvent) => {
+  //   setDraggedCostume(item)
+  //   setIsDragging(true)
+  //   event.dataTransfer.effectAllowed = 'copy'
+  // }
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault()
     event.dataTransfer.dropEffect = 'copy'
   }
 
-  // インベントリアイテムのタッチハンドル
-  const handleInventoryTouchStart = (e: React.TouchEvent, item: CostumeItem) => {
-    e.preventDefault()
-    
-    const touch = e.touches[0]
-    if (!touch) return
-    
-    const startX = touch.clientX
-    const startY = touch.clientY
-    let hasMoved = false
-    let touchMoveTimeout: number | undefined
-
-    const handleTouchMove = (moveEvent: TouchEvent) => {
-      moveEvent.preventDefault() // スクロール防止を強化
-      
-      if (!hasMoved) {
-        const moveX = moveEvent.touches[0]?.clientX || 0
-        const moveY = moveEvent.touches[0]?.clientY || 0
-        const distance = Math.sqrt(Math.pow(moveX - startX, 2) + Math.pow(moveY - startY, 2))
-        
-        if (distance > 10) { // 10px以上動いたらドラッグ開始
-          hasMoved = true
-          setDraggedCostume(item)
-          setIsDragging(true)
-          document.body.style.overflow = 'hidden'
-          document.body.style.touchAction = 'none' // タッチアクション無効化
-        }
-      }
-    }
-
-    const handleTouchEnd = (endEvent: TouchEvent) => {
-      // クリーンアップを確実に実行
-      if (touchMoveTimeout) window.clearTimeout(touchMoveTimeout)
-      document.removeEventListener('touchmove', handleTouchMove)
-      document.removeEventListener('touchend', handleTouchEnd)
-      document.body.style.overflow = ''
-      document.body.style.touchAction = ''
-
-      if (hasMoved && item) {
-        // ドロップ先を検出
-        const touch = endEvent.changedTouches[0]
-        if (!touch) return
-        
-        const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY)
-        const avatarContainer = dropTarget?.closest('[data-avatar-container]')
-        
-        if (avatarContainer && touch) {
-          const rect = avatarContainer.getBoundingClientRect()
-          const x = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100))
-          const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100))
-
-          // 既に装備されているかチェック
-          const alreadyEquipped = currentAvatar.costumes?.find((c: CostumePosition) => c.id === item.id)
-          if (!alreadyEquipped && ownedItems.includes(item.id)) {
-            const newCostume: CostumePosition = {
-              id: item.id,
-              x: Math.max(0, Math.min(100, x)),
-              y: Math.max(0, Math.min(100, y)),
-              scale: 1,
-              rotation: 0,
-              zIndex: currentAvatar.costumes.length + 1
-            }
-
-            const newAvatar = {
-              ...currentAvatar,
-              costumes: [...currentAvatar.costumes, newCostume]
-            }
-            setCurrentAvatar(newAvatar)
-            // saveAvatarData(ownedItems, newAvatar) // 保存は手動ボタンのみ
-          }
-        }
-      } else if (!hasMoved) {
-        // タップのみの場合は通常の装備処理
-        addCostume(item)
-      }
-
-      setDraggedCostume(null)
-      setIsDragging(false)
-    }
-
-    document.addEventListener('touchmove', handleTouchMove, { passive: false })
-    document.addEventListener('touchend', handleTouchEnd)
-  }
+  // インベントリアイテムのタッチハンドル - 現在は無効化
+  // const handleInventoryTouchStart = (e: React.TouchEvent, item: CostumeItem) => {
+  //   e.preventDefault()
+  //   
+  //   const touch = e.touches[0]
+  //   if (!touch) return
+  //   
+  //   const startX = touch.clientX
+  //   const startY = touch.clientY
+  //   let hasMoved = false
+  //   let touchMoveTimeout: number | undefined
+  // 
+  //   const handleTouchMove = (moveEvent: TouchEvent) => {
+  //     moveEvent.preventDefault() // スクロール防止を強化
+  //     
+  //     if (!hasMoved) {
+  //       const moveX = moveEvent.touches[0]?.clientX || 0
+  //       const moveY = moveEvent.touches[0]?.clientY || 0
+  //       const distance = Math.sqrt(Math.pow(moveX - startX, 2) + Math.pow(moveY - startY, 2))
+  //       
+  //       if (distance > 10) { // 10px以上動いたらドラッグ開始
+  //         hasMoved = true
+  //         setDraggedCostume(item)
+  //         setIsDragging(true)
+  //         document.body.style.overflow = 'hidden'
+  //         document.body.style.touchAction = 'none' // タッチアクション無効化
+  //       }
+  //     }
+  //   }
+  // 
+  //   const handleTouchEnd = (endEvent: TouchEvent) => {
+  //     // クリーンアップを確実に実行
+  //     if (touchMoveTimeout) window.clearTimeout(touchMoveTimeout)
+  //     document.removeEventListener('touchmove', handleTouchMove)
+  //     document.removeEventListener('touchend', handleTouchEnd)
+  //     document.body.style.overflow = ''
+  //     document.body.style.touchAction = ''
+  // 
+  //     if (hasMoved && item) {
+  //       // ドロップ先を検出
+  //       const touch = endEvent.changedTouches[0]
+  //       if (!touch) return
+  //       
+  //       const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY)
+  //       const avatarContainer = dropTarget?.closest('[data-avatar-container]')
+  //       
+  //       if (avatarContainer && touch) {
+  //         const rect = avatarContainer.getBoundingClientRect()
+  //         const x = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100))
+  //         const y = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100))
+  // 
+  //         // 既に装備されているかチェック
+  //         const alreadyEquipped = currentAvatar.costumes?.find((c: CostumePosition) => c.id === item.id)
+  //         if (!alreadyEquipped && ownedItems.includes(item.id)) {
+  //           const newCostume: CostumePosition = {
+  //             id: item.id,
+  //             x: Math.max(0, Math.min(100, x)),
+  //             y: Math.max(0, Math.min(100, y)),
+  //             scale: 1,
+  //             rotation: 0,
+  //             zIndex: currentAvatar.costumes.length + 1
+  //           }
+  // 
+  //           const newAvatar = {
+  //             ...currentAvatar,
+  //             costumes: [...currentAvatar.costumes, newCostume]
+  //           }
+  //           setCurrentAvatar(newAvatar)
+  //           // saveAvatarData(ownedItems, newAvatar) // 保存は手動ボタンのみ
+  //         }
+  //       }
+  //     } else if (!hasMoved) {
+  //       // タップのみの場合は通常の装備処理
+  //       addCostume(item)
+  //     }
+  // 
+  //     setDraggedCostume(null)
+  //     setIsDragging(false)
+  //   }
+  // 
+  //   document.addEventListener('touchmove', handleTouchMove, { passive: false })
+  //   document.addEventListener('touchend', handleTouchEnd)
+  // }
 
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault()
@@ -1178,13 +1178,13 @@ const AvatarCustomization: React.FC = () => {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              e.stopImmediatePropagation()
+                              // e.stopImmediatePropagation() // React イベントでは使用不可
                               removeCostume(item.id)
                             }}
                             onTouchStart={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              e.stopImmediatePropagation()
+                              // e.stopImmediatePropagation() // React イベントでは使用不可
                             }}
                             className="comic-button font-button-xs"
                             style={{
@@ -1202,7 +1202,7 @@ const AvatarCustomization: React.FC = () => {
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              e.stopImmediatePropagation() // 追加：即座にイベント伝播を停止
+                              // e.stopImmediatePropagation() // React イベントでは使用不可 // 追加：即座にイベント伝播を停止
                               
                               // 装備処理前に再度チェック
                               if (!ownedItems.includes(item.id)) {
@@ -1222,7 +1222,7 @@ const AvatarCustomization: React.FC = () => {
                               // タッチイベントも完全に停止
                               e.preventDefault()
                               e.stopPropagation()
-                              e.stopImmediatePropagation()
+                              // e.stopImmediatePropagation() // React イベントでは使用不可
                             }}
                             className="comic-button font-button-xs"
                             style={{
