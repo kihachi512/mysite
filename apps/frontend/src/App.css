@@ -1486,9 +1486,25 @@ body.premium-theme .footer p {
 }
 
 /* アバターカスタマイズ */
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 16px;
+}
+
+.avatar-display-area {
+  width: min(320px, 90vw);
+  height: min(320px, 90vw);
+  max-width: 320px;
+  max-height: 320px;
+}
+
 @media (max-width: 768px) {
-  .avatar-current-display {
-    font-size: clamp(3rem, 10vw, 6rem) !important;
+  .avatar-display-area {
+    width: min(280px, 85vw);
+    height: min(280px, 85vw);
   }
   
   .costume-categories {
@@ -1502,8 +1518,9 @@ body.premium-theme .footer p {
 }
 
 @media (max-width: 480px) {
-  .avatar-current-display {
-    font-size: clamp(2.5rem, 8vw, 4rem) !important;
+  .avatar-display-area {
+    width: min(250px, 90vw);
+    height: min(250px, 90vw);
   }
   
   .costume-categories button {
@@ -1514,6 +1531,13 @@ body.premium-theme .footer p {
   .costume-items-grid {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .avatar-display-area {
+    width: min(220px, 95vw);
+    height: min(220px, 95vw);
   }
 }
 

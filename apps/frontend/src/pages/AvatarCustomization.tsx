@@ -436,13 +436,13 @@ const AvatarCustomization: React.FC = () => {
     }
 
     // デフォルト位置を決定（カテゴリに基づく）
-    let defaultX = 50, defaultY = 50, defaultScale = 1.2, defaultZIndex = 2
+    let defaultX = 50, defaultY = 50, defaultScale = 1.0, defaultZIndex = 2
     
     switch (item.category) {
       case 'hat':
         defaultY = 20
         defaultZIndex = 3
-        defaultScale = 1.2
+        defaultScale = 1.0
         break
       case 'accessory':
         defaultY = 45
@@ -453,14 +453,14 @@ const AvatarCustomization: React.FC = () => {
         defaultX = 80
         defaultY = 70
         defaultZIndex = 2
-        defaultScale = 1.4
+        defaultScale = 1.2
         break
       case 'special':
         defaultZIndex = 5
-        defaultScale = 1.2
+        defaultScale = 1.0
         break
       case 'background':
-        defaultScale = 1.8
+        defaultScale = 1.5
         defaultZIndex = 1
         break
     }
@@ -534,7 +534,7 @@ const AvatarCustomization: React.FC = () => {
                 // 値の範囲チェック
                 x: typeof updates.x === 'number' ? Math.max(0, Math.min(100, updates.x)) : c.x,
                 y: typeof updates.y === 'number' ? Math.max(0, Math.min(100, updates.y)) : c.y,
-                scale: typeof updates.scale === 'number' ? Math.max(0.1, Math.min(3, updates.scale)) : c.scale,
+                scale: typeof updates.scale === 'number' ? Math.max(0.3, Math.min(3.0, updates.scale)) : c.scale,
                 rotation: typeof updates.rotation === 'number' ? updates.rotation % 360 : c.rotation
               }
             }
@@ -794,9 +794,9 @@ const AvatarCustomization: React.FC = () => {
       <div 
         style={{ 
           position: 'relative', 
-          display: 'inline-block',
-          width: 'clamp(16rem, 35vw, 24rem)',
-          height: 'clamp(16rem, 35vw, 24rem)',
+          display: 'block',
+          width: '100%',  // レスポンシブに変更
+          height: '100%', // レスポンシブに変更
           border: isDragging ? '3px dashed #ffc107' : '2px solid #666',
           borderRadius: '12px',
           background: 'rgba(0,0,0,0.1)',
@@ -853,7 +853,7 @@ const AvatarCustomization: React.FC = () => {
                   left: `${costume.x}%`,
                   top: `${costume.y}%`,
                   transform: `translate(-50%, -50%) scale(${costume.scale}) rotate(${costume.rotation}deg)`,
-                  fontSize: 'clamp(1rem, 2.5vw, 2rem)',
+                  fontSize: '2rem', // 固定サイズに変更してスケール値との整合性を確保
                   zIndex: costume.zIndex,
                   cursor: 'move',
                   userSelect: 'none',
@@ -986,14 +986,12 @@ const AvatarCustomization: React.FC = () => {
             📝 装備→ドラッグ移動→🎯クリックでサイズ調整→💾保存
           </div>
           
-          <div data-avatar-container className="avatar-current-display" style={{ 
-            marginBottom: '16px',
-            position: 'relative',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
+          <div className="avatar-container" style={{ 
+            marginBottom: '16px'
           }}>
-            {generateAvatarDisplay()}
+            <div data-avatar-container className="avatar-display-area">
+              {generateAvatarDisplay()}
+            </div>
           </div>
           
           {/* サイズ調整コントロール */}
@@ -1021,8 +1019,8 @@ const AvatarCustomization: React.FC = () => {
                   <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>小</span>
                   <input 
                     type="range"
-                    min="0.5"
-                    max="2.5" 
+                    min="0.3"
+                    max="3.0" 
                     step="0.1"
                     value={costume.scale}
                     onChange={(e) => {
