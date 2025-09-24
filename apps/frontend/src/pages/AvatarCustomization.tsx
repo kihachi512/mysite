@@ -957,11 +957,10 @@ const AvatarCustomization: React.FC = () => {
             lineHeight: '1.6'
           }}>
             📝 使い方:<br/>
-            • コスチュームをドラッグ&ドロップ（タッチ対応）で配置<br/>
+            • インベントリの「装備」ボタンでアイテムを装着<br/>
             • 装備済みアイテムは直接ドラッグで移動<br/>
             • ダブルクリック/ダブルタップでアイテム削除<br/>
-            • インベントリから新しいアイテムを追加<br/>
-            • モバイル: 長押ししてドラッグ、タップで装備
+            • 「外す」ボタンで装備解除
           </div>
           
           <div data-avatar-container className="avatar-current-display" style={{ 
@@ -1052,15 +1051,16 @@ const AvatarCustomization: React.FC = () => {
                     <div 
                       key={item.id} 
                       className="comic-card" 
-                      draggable={!isEquipped} // 装備済みの場合はドラッグ無効
-                      onDragStart={(e) => !isEquipped && handleDragStart(item, e)}
+                      draggable={false} // ドラッグでの装備は無効化
+                      // onDragStart={(e) => !isEquipped && handleDragStart(item, e)}
                       onTouchStart={(e) => {
                         // 装備ボタンがクリックされた場合はタッチイベントを無視
                         const target = e.target as HTMLElement
                         if (target.closest('button')) {
                           return
                         }
-                        !isEquipped && handleInventoryTouchStart(e, item)
+                        // 直接タップでの装備は無効化
+                        // !isEquipped && handleInventoryTouchStart(e, item)
                       }}
                       style={{
                         background: isEquipped 
@@ -1069,7 +1069,7 @@ const AvatarCustomization: React.FC = () => {
                         padding: 'min(16px, 4vw)',
                         borderColor: getRarityColor(item.rarity),
                         position: 'relative',
-                        cursor: 'grab',
+                        cursor: 'default',
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                       }}
                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
