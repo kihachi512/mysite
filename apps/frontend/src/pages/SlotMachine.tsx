@@ -137,10 +137,11 @@ const SlotMachine: React.FC = () => {
     // 該当リールが既に停止済みかチェック
     if (reelStates[reelIndex] === 'stopped') return
 
-    // 該当アニメーションを停止
-    if (animationIntervals[reelIndex]) {
+    // 該当アニメーションのみを停止
+    if (animationIntervals[reelIndex] && animationIntervals[reelIndex] !== 0) {
       window.clearInterval(animationIntervals[reelIndex])
-      // インターバルリストも更新
+      
+      // インターバルリストも更新（該当リールのみ）
       setAnimationIntervals((prev: number[]) => {
         const newIntervals = [...prev]
         newIntervals[reelIndex] = 0 // 0にセットして停止済みを示す
@@ -150,13 +151,15 @@ const SlotMachine: React.FC = () => {
     
     // 現在のリール位置に基づいて絵柄を確定
     const currentSymbol = getCurrentSymbol(reelIndex)
+    
+    // リールの絵柄を確定（該当リールのみ）
     setReels((prevReels: SlotSymbol[]) => {
       const newReels = [...prevReels]
       newReels[reelIndex] = currentSymbol
       return newReels
     })
 
-    // リール状態を停止に変更
+    // リール状態を停止に変更（該当リールのみ）
     setReelStates((prevStates: ReelState[]) => {
       const newStates = [...prevStates]
       newStates[reelIndex] = 'stopped'
@@ -260,8 +263,9 @@ const SlotMachine: React.FC = () => {
     const intervals: number[] = []
     for (let reelIndex = 0; reelIndex < 3; reelIndex++) {
       const interval = window.setInterval(() => {
-        // reelStatesを最新の状態で取得するため、setReelStatesを使用
+        // 現在のリール状態を直接チェック
         setReelStates((currentReelStates: ReelState[]) => {
+          // 該当リールのみが回転中の場合のみ更新
           if (currentReelStates[reelIndex] === 'spinning') {
             // リールポジションを更新
             setReelPositions((prevPositions: ReelPosition[]) => {
@@ -275,17 +279,22 @@ const SlotMachine: React.FC = () => {
                   currentIndex: newIndex
                 }
                 
-                // 表示用のリールを即座に更新
+                // 表示用のリールを即座に更新（該当リールのみ）
                 const newSymbol = REEL_PATTERN[newIndex] || '🍒'
                 setReels((prevReels: SlotSymbol[]) => {
-                  const newReels = [...prevReels]
-                  newReels[reelIndex] = newSymbol
-                  return newReels
+                  // 該当リールが回転中の場合のみ更新
+                  if (currentReelStates[reelIndex] === 'spinning') {
+                    const newReels = [...prevReels]
+                    newReels[reelIndex] = newSymbol
+                    return newReels
+                  }
+                  return prevReels
                 })
               }
               return newPositions
             })
           }
+          // 状態は変更しない（リール回転の継続のため）
           return currentReelStates
         })
       }, 180) // 目押ししやすい速度に調整

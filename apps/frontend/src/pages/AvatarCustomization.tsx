@@ -1012,34 +1012,65 @@ const AvatarCustomization: React.FC = () => {
                   marginBottom: '8px',
                   textAlign: 'center'
                 }}>
-                  {item.icon} {item.name} のサイズ調整
+                  {item.icon} {item.name} の調整
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                  <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>小</span>
-                  <input 
-                    type="range"
-                    min="0.3"
-                    max="3.0" 
-                    step="0.1"
-                    value={costume.scale}
-                    onChange={(e) => {
-                      const newScale = parseFloat(e.target.value)
-                      updateCostumePositionWithoutSave(selectedCostume, { scale: newScale })
-                    }}
-                    style={{ 
-                      width: '150px',
-                      accentColor: '#ffc107'
-                    }}
-                  />
-                  <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>大</span>
-                  <span className="comic-text font-body-xs" style={{ 
-                    color: '#fff3e0',
-                    minWidth: '40px',
-                    textAlign: 'center'
-                  }}>
-                    {costume.scale.toFixed(1)}x
-                  </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* サイズ調整 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>小</span>
+                    <input 
+                      type="range"
+                      min="0.3"
+                      max="3.0" 
+                      step="0.1"
+                      value={costume.scale}
+                      onChange={(e) => {
+                        const newScale = parseFloat(e.target.value)
+                        updateCostumePositionWithoutSave(selectedCostume, { scale: newScale })
+                      }}
+                      style={{ 
+                        width: '150px',
+                        accentColor: '#ffc107'
+                      }}
+                    />
+                    <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>大</span>
+                    <span className="comic-text font-body-xs" style={{ 
+                      color: '#fff3e0',
+                      minWidth: '40px',
+                      textAlign: 'center'
+                    }}>
+                      {costume.scale.toFixed(1)}x
+                    </span>
+                  </div>
+                  
+                  {/* 回転調整 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>↺</span>
+                    <input 
+                      type="range"
+                      min="0"
+                      max="360" 
+                      step="15"
+                      value={costume.rotation}
+                      onChange={(e) => {
+                        const newRotation = parseInt(e.target.value)
+                        updateCostumePositionWithoutSave(selectedCostume, { rotation: newRotation })
+                      }}
+                      style={{ 
+                        width: '150px',
+                        accentColor: '#ff9800'
+                      }}
+                    />
+                    <span className="comic-text font-body-xs" style={{ color: '#c8e6c9' }}>↻</span>
+                    <span className="comic-text font-body-xs" style={{ 
+                      color: '#fff3e0',
+                      minWidth: '40px',
+                      textAlign: 'center'
+                    }}>
+                      {costume.rotation}°
+                    </span>
+                  </div>
                 </div>
               </div>
             )

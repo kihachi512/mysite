@@ -80,11 +80,11 @@ const Avatar: React.FC<AvatarProps> = ({
   const getSizeStyles = (size: string) => {
     switch (size) {
       case 'small':
-        return { fontSize: '1.5rem', width: '32px', height: '32px' }
+        return { fontSize: '1.5rem', width: '40px', height: '40px' }
       case 'large':
-        return { fontSize: '4rem', width: '80px', height: '80px' }
+        return { fontSize: '4rem', width: '100px', height: '100px' }
       default: // medium
-        return { fontSize: '2rem', width: '48px', height: '48px' }
+        return { fontSize: '2rem', width: '60px', height: '60px' }
     }
   }
 
