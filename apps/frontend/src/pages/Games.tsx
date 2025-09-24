@@ -162,7 +162,7 @@ const Games: React.FC = () => {
 
 
 
-        <Link to="/momo-economy" style={{ textDecoration: 'none' }}>
+        <Link to="/plaza" style={{ textDecoration: 'none' }}>
           <div className="comic-card home-card" style={{ 
             background: 'linear-gradient(135deg, rgba(218, 165, 32, 0.3), rgba(184, 134, 11, 0.2))', 
             padding: 'min(32px, 8vw)', 
@@ -171,19 +171,19 @@ const Games: React.FC = () => {
             transition: 'all 0.3s ease',
             minHeight: '180px'
           }}>
-            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🌰</div>
+            <div className="font-icon-lg" style={{ marginBottom: '16px' }}>🏛️</div>
             <div className="comic-text font-title-sm" style={{ 
               color: '#fff3e0',
               marginBottom: '12px'
             }}>
-              どんぐり銀座
+              広場
             </div>
             <div className="comic-text font-body-md" style={{ 
               color: '#c8e6c9', 
               lineHeight: '1.4'
             }}>
-              森の経済活動の中心地<br />
-              <span className="momopay-small">銀行・宝物庫</span>
+              交流と経済の中心地<br />
+              <span className="momopay-small">どんぐり銀座も併設</span>
             </div>
           </div>
         </Link>
