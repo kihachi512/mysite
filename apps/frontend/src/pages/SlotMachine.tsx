@@ -130,21 +130,29 @@ const SlotMachine: React.FC = () => {
     return { amount: 0, rule: null }
   }
 
-  // 目押し対応のリール停止機能
+  // 左から順番のリール停止機能（シンプル版）
   const stopReel = (reelIndex: number) => {
     if (gameState !== 'spinning') return
+
+    // 左から順番チェック - 前のリールが停止していない場合は停止できない
+    for (let i = 0; i < reelIndex; i++) {
+      if (reelStates[i] !== 'stopped') {
+        alert(`左から順番に停止してください！まず${i + 1}番目のリールを停止してください。`)
+        return
+      }
+    }
 
     // 該当リールが既に停止済みかチェック
     if (reelStates[reelIndex] === 'stopped') return
 
-    // 該当アニメーションのみを停止
+    // 該当アニメーションを停止
     if (animationIntervals[reelIndex] && animationIntervals[reelIndex] !== 0) {
       window.clearInterval(animationIntervals[reelIndex])
       
-      // インターバルリストも更新（該当リールのみ）
+      // インターバルリストを更新
       setAnimationIntervals((prev: number[]) => {
         const newIntervals = [...prev]
-        newIntervals[reelIndex] = 0 // 0にセットして停止済みを示す
+        newIntervals[reelIndex] = 0
         return newIntervals
       })
     }
@@ -152,40 +160,29 @@ const SlotMachine: React.FC = () => {
     // 現在のリール位置に基づいて絵柄を確定
     const currentSymbol = getCurrentSymbol(reelIndex)
     
-    // リールの絵柄を確定（該当リールのみ）
+    // リールの絵柄と状態を更新
     setReels((prevReels: SlotSymbol[]) => {
       const newReels = [...prevReels]
       newReels[reelIndex] = currentSymbol
       return newReels
     })
 
-    // リール状態を停止に変更（該当リールのみ）
     setReelStates((prevStates: ReelState[]) => {
       const newStates = [...prevStates]
       newStates[reelIndex] = 'stopped'
       
+      // 全て停止したかチェック
+      const allStopped = newStates.every(state => state === 'stopped')
+      if (allStopped) {
+        // 全停止時のゲーム終了処理
+        setTimeout(() => {
+          const finalResult = newStates.map((_, idx) => getCurrentSymbol(idx))
+          finishGame(finalResult as SlotSymbol[])
+        }, 300)
+      }
+      
       return newStates
     })
-
-    // 全てのリールが停止したかを別途チェック
-    setTimeout(() => {
-      setReelStates((currentStates: ReelState[]) => {
-        const allStopped = currentStates.every(state => state === 'stopped')
-        if (allStopped) {
-          // 全停止時のみゲーム終了処理を呼ぶ
-          setTimeout(() => {
-            const finalResult = currentStates.map((_, idx) => getCurrentSymbol(idx))
-            finishGame(finalResult as SlotSymbol[])
-          }, 300)
-        }
-        return currentStates // 状態は変更しない
-      })
-    }, 100)
-
-    // リール確定のフィードバック
-    setTimeout(() => {
-      // 確定音やエフェクトをここに追加可能
-    }, 100)
   }
 
   // ゲーム終了処理
@@ -413,29 +410,47 @@ const SlotMachine: React.FC = () => {
         }}>
           {/* リール表示 */}
           <div className="slot-reels">
-            {reels.map((symbol: SlotSymbol, index: number) => (
-              <div key={index} className="slot-reel">
-                <div
-                  onClick={() => reelStates[index] === 'spinning' && stopReel(index)}
-                  className={`slot-reel-display ${reelStates[index]} ${gameState === 'result' && lastWin > 0 ? 'winning' : ''}`}
-                >
-                  {symbol}
+            {reels.map((symbol: SlotSymbol, index: number) => {
+              // 左から順番チェック：前のリールが停止していない場合は無効化
+              const canStop = reelStates[index] === 'spinning' && 
+                            (index === 0 || reelStates.slice(0, index).every(state => state === 'stopped'))
+              
+              return (
+                <div key={index} className="slot-reel">
+                  <div
+                    onClick={() => canStop && stopReel(index)}
+                    className={`slot-reel-display ${reelStates[index]} ${gameState === 'result' && lastWin > 0 ? 'winning' : ''} ${!canStop && reelStates[index] === 'spinning' ? 'disabled' : ''}`}
+                    style={{
+                      opacity: !canStop && reelStates[index] === 'spinning' ? 0.5 : 1,
+                      cursor: canStop ? 'pointer' : 'not-allowed'
+                    }}
+                  >
+                    {symbol}
+                    
+                    {/* タップヒント（停止可能なリールのみ表示） */}
+                    {canStop && (
+                      <div className="slot-tap-hint">
+                        TAP
+                      </div>
+                    )}
+                    
+                    {/* 順番待ちヒント */}
+                    {!canStop && reelStates[index] === 'spinning' && index > 0 && (
+                      <div className="slot-tap-hint" style={{ background: 'rgba(158, 158, 158, 0.9)' }}>
+                        待機
+                      </div>
+                    )}
+                  </div>
                   
-                  {/* タップヒント（回転中のみ表示） */}
-                  {reelStates[index] === 'spinning' && (
-                    <div className="slot-tap-hint">
-                      TAP
-                    </div>
-                  )}
+                  {/* リール番号表示 */}
+                  <div className={`comic-text font-body-xs slot-reel-number ${reelStates[index]}`}>
+                    {index + 1}
+                    {reelStates[index] === 'stopped' && ' ✓'}
+                    {!canStop && reelStates[index] === 'spinning' && index > 0 && ' ⏸'}
+                  </div>
                 </div>
-                
-                {/* リール番号表示 */}
-                <div className={`comic-text font-body-xs slot-reel-number ${reelStates[index]}`}>
-                  {index + 1}
-                  {reelStates[index] === 'stopped' && ' ✓'}
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* 操作説明 */}
@@ -445,8 +460,8 @@ const SlotMachine: React.FC = () => {
               marginBottom: '16px',
               lineHeight: '1.4'
             }}>
-              🎯 各リールをタップして目押し停止！<br/>
-              💡 タイミングを見計らって狙った絵柄で止めよう！
+              🎯 左から順番にリールをタップして目押し停止！<br/>
+              💡 1→2→3の順番で狙った絵柄で止めよう！
             </div>
           )}
 
@@ -457,7 +472,7 @@ const SlotMachine: React.FC = () => {
               marginBottom: '16px',
               animation: 'pulse 2s infinite'
             }}>
-              👆 目押し！タイミングよく停止して絵柄を狙え！
+              👆 左から順番に目押し！光っているリールをタップ！
             </div>
           )}
 

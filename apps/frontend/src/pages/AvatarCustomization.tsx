@@ -1162,8 +1162,11 @@ const AvatarCustomization: React.FC = () => {
             ) : (
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 90vw), 1fr))', 
-                gap: 'min(16px, 4vw)'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 45vw), 1fr))', 
+                gap: 'min(16px, 4vw)',
+                maxHeight: 'min(60vh, 500px)',
+                overflowY: 'auto',
+                padding: '4px'
               }}>
                 {ownedCostumeItems.map((item) => {
                   if (!item || !item.id) return null

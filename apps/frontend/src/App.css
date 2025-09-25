@@ -1665,6 +1665,15 @@ body.premium-theme .footer p {
   color: #4caf50;
 }
 
+.slot-reel-display.disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.slot-reel-display.disabled .slot-tap-hint {
+  background: rgba(158, 158, 158, 0.9) !important;
+}
+
 /* 高倍率ブラウザ対応 */
 @media (min-resolution: 150dpi) {
   .chatbot-container {
