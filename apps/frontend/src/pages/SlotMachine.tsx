@@ -164,18 +164,23 @@ const SlotMachine: React.FC = () => {
       const newStates = [...prevStates]
       newStates[reelIndex] = 'stopped'
       
-      // 全てのリールが手動で停止されたかチェック
-      const allStopped = newStates.every(state => state === 'stopped')
-      if (allStopped) {
-        // 全停止時のみゲーム終了処理を呼ぶ
-        setTimeout(() => {
-          const finalResult = newStates.map((_, idx) => getCurrentSymbol(idx))
-          finishGame(finalResult as SlotSymbol[])
-        }, 500)
-      }
-      
       return newStates
     })
+
+    // 全てのリールが停止したかを別途チェック
+    setTimeout(() => {
+      setReelStates((currentStates: ReelState[]) => {
+        const allStopped = currentStates.every(state => state === 'stopped')
+        if (allStopped) {
+          // 全停止時のみゲーム終了処理を呼ぶ
+          setTimeout(() => {
+            const finalResult = currentStates.map((_, idx) => getCurrentSymbol(idx))
+            finishGame(finalResult as SlotSymbol[])
+          }, 300)
+        }
+        return currentStates // 状態は変更しない
+      })
+    }, 100)
 
     // リール確定のフィードバック
     setTimeout(() => {
@@ -266,37 +271,38 @@ const SlotMachine: React.FC = () => {
       { currentIndex: Math.floor(Math.random() * REEL_PATTERN.length), symbols: REEL_PATTERN, speed: 8, targetSymbol: undefined }
     ])
     
-    // 各リールのアニメーション（位置ベース）
+    // 各リールのアニメーション（完全独立）
     const intervals: number[] = []
     for (let reelIndex = 0; reelIndex < 3; reelIndex++) {
       const interval = window.setInterval(() => {
-        // リール状態をチェックして、該当リールが回転中の場合のみ更新
+        // リール状態を取得して該当リールが回転中かチェック
         setReelStates(currentStates => {
-          // 該当リールが停止済みの場合は何もしない
           if (currentStates[reelIndex] === 'stopped') {
+            // 既に停止済みの場合は何もしない
             return currentStates
           }
           
           // 該当リールが回転中の場合のみポジション更新
           setReelPositions((prevPositions: ReelPosition[]) => {
-            const newPositions = [...prevPositions]
-            const currentPosition = newPositions[reelIndex]
+            if (!prevPositions[reelIndex]) return prevPositions
             
-            if (currentPosition) {
-              const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
-              newPositions[reelIndex] = {
-                ...currentPosition,
-                currentIndex: newIndex
-              }
-              
-              // 表示用のリールを即座に更新（該当リールのみ）
-              const newSymbol = REEL_PATTERN[newIndex] || '🍒'
-              setReels((prevReels: SlotSymbol[]) => {
-                const newReels = [...prevReels]
-                newReels[reelIndex] = newSymbol
-                return newReels
-              })
+            const newPositions = [...prevPositions]
+            const currentPosition = prevPositions[reelIndex]
+            const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
+            
+            newPositions[reelIndex] = {
+              ...currentPosition,
+              currentIndex: newIndex
             }
+            
+            // 表示用のリールを即座に更新（該当リールのみ）
+            const newSymbol = REEL_PATTERN[newIndex] || '🍒'
+            setReels((prevReels: SlotSymbol[]) => {
+              const newReels = [...prevReels]
+              newReels[reelIndex] = newSymbol
+              return newReels
+            })
+            
             return newPositions
           })
           
@@ -406,68 +412,25 @@ const SlotMachine: React.FC = () => {
           boxShadow: '0 0 20px rgba(255, 193, 7, 0.3)'
         }}>
           {/* リール表示 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 'min(12px, 3vw)',
-            marginBottom: 'min(24px, 6vw)'
-          }}>
+          <div className="slot-reels">
             {reels.map((symbol: SlotSymbol, index: number) => (
-              <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <div key={index} className="slot-reel">
                 <div
                   onClick={() => reelStates[index] === 'spinning' && stopReel(index)}
-                  style={{
-                    width: 'clamp(80px, 20vw, 120px)',
-                    height: 'clamp(80px, 20vw, 120px)',
-                    background: reelStates[index] === 'stopped' 
-                      ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.8))'
-                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(240, 240, 240, 0.6))',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 'clamp(3rem, 8vw, 5rem)',
-                    border: reelStates[index] === 'stopped' ? '4px solid #4caf50' : '3px solid #ffc107',
-                    boxShadow: reelStates[index] === 'spinning'
-                      ? 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(255, 193, 7, 0.6)'
-                      : reelStates[index] === 'stopped' 
-                      ? 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 15px rgba(76, 175, 80, 0.8)'
-                      : 'inset 0 2px 4px rgba(0,0,0,0.2)',
-                    animation: reelStates[index] === 'spinning' ? 'pulse 0.1s infinite' : 'none',
-                    transform: gameState === 'result' && lastWin > 0 ? 'scale(1.1)' : 'scale(1)',
-                    transition: 'transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
-                    cursor: reelStates[index] === 'spinning' ? 'pointer' : 'default',
-                    position: 'relative'
-                  }}
+                  className={`slot-reel-display ${reelStates[index]} ${gameState === 'result' && lastWin > 0 ? 'winning' : ''}`}
                 >
                   {symbol}
                   
                   {/* タップヒント（回転中のみ表示） */}
                   {reelStates[index] === 'spinning' && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      background: 'rgba(244, 67, 54, 0.9)',
-                      color: 'white',
-                      padding: '2px 6px',
-                      borderRadius: '8px',
-                      fontSize: 'clamp(0.6rem, 1.5vw, 0.8rem)',
-                      fontWeight: 'bold',
-                      animation: 'pulse 2s infinite',
-                      zIndex: 10
-                    }}>
+                    <div className="slot-tap-hint">
                       TAP
                     </div>
                   )}
                 </div>
                 
                 {/* リール番号表示 */}
-                <div className="comic-text font-body-xs" style={{ 
-                  color: reelStates[index] === 'stopped' ? '#4caf50' : '#c8e6c9',
-                  fontWeight: 'bold'
-                }}>
+                <div className={`comic-text font-body-xs slot-reel-number ${reelStates[index]}`}>
                   {index + 1}
                   {reelStates[index] === 'stopped' && ' ✓'}
                 </div>
