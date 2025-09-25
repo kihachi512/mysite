@@ -47,14 +47,25 @@ const Avatar: React.FC<AvatarProps> = ({
       loadAvatarState()
     }
     
-    window.addEventListener('storage', handleStorageChange)
-    
     // カスタムイベントも監視（同一タブ内での変更用）
-    window.addEventListener('avatar-updated', handleStorageChange)
+    const handleAvatarUpdate = () => {
+      loadAvatarState()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('avatar-updated', handleAvatarUpdate)
+    
+    // リアルタイム更新用のインターバル（カスタマイズ画面でのリアルタイム反映）
+    const interval = setInterval(() => {
+      if (window.location.pathname === '/avatar-customization') {
+        loadAvatarState()
+      }
+    }, 500)
     
     return () => {
       window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('avatar-updated', handleStorageChange)
+      window.removeEventListener('avatar-updated', handleAvatarUpdate)
+      clearInterval(interval)
     }
   }, [])
 
@@ -140,7 +151,7 @@ const Avatar: React.FC<AvatarProps> = ({
             // 背景は別途処理されるのでスキップ
             if (item.category === 'background') return null
 
-            // サイズに応じたベースフォントサイズを計算（カスタマイズ画面と統一）
+            // フォントサイズをカスタマイズ画面と統一（2remベース、サイズに応じて調整）
             const baseFontSize = size === 'small' ? 1 : size === 'large' ? 3 : 2
 
             return (

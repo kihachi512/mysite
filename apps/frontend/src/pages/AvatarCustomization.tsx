@@ -528,7 +528,7 @@ const AvatarCustomization: React.FC = () => {
           .map((c: CostumePosition | null | undefined): CostumePosition | null => {
             if (!c || !c.id) return null
             if (c.id === costumeId) {
-              return { 
+              const updatedCostume = { 
                 ...c, 
                 ...updates,
                 // 値の範囲チェック
@@ -537,12 +537,23 @@ const AvatarCustomization: React.FC = () => {
                 scale: typeof updates.scale === 'number' ? Math.max(0.3, Math.min(3.0, updates.scale)) : c.scale,
                 rotation: typeof updates.rotation === 'number' ? updates.rotation % 360 : c.rotation
               }
+              
+              // デバッグログ（開発環境のみ）
+              if (import.meta.env.DEV) {
+                console.log('Costume updated:', costumeId, updatedCostume)
+              }
+              
+              return updatedCostume
             }
             return c
           })
           .filter((c): c is CostumePosition => Boolean(c && c.id))
       }
       setCurrentAvatar(newAvatar)
+      
+      // アバター更新イベントを発火（リアルタイム反映用）
+      window.dispatchEvent(new CustomEvent('avatar-updated'))
+      
       // 保存はしない（手動保存ボタンのみ）
     } catch (error) {
       console.error('Failed to update costume position:', error)
@@ -1024,10 +1035,19 @@ const AvatarCustomization: React.FC = () => {
                       min="0.3"
                       max="3.0" 
                       step="0.1"
-                      value={costume.scale}
+                      value={costume.scale || 1.0}
                       onChange={(e) => {
                         const newScale = parseFloat(e.target.value)
-                        updateCostumePositionWithoutSave(selectedCostume, { scale: newScale })
+                        if (!isNaN(newScale) && selectedCostume) {
+                          updateCostumePositionWithoutSave(selectedCostume, { scale: newScale })
+                        }
+                      }}
+                      onInput={(e) => {
+                        // リアルタイム更新用のイベント（一部ブラウザで必要）
+                        const newScale = parseFloat((e.target as HTMLInputElement).value)
+                        if (!isNaN(newScale) && selectedCostume) {
+                          updateCostumePositionWithoutSave(selectedCostume, { scale: newScale })
+                        }
                       }}
                       style={{ 
                         width: '150px',
@@ -1052,10 +1072,19 @@ const AvatarCustomization: React.FC = () => {
                       min="0"
                       max="360" 
                       step="15"
-                      value={costume.rotation}
+                      value={costume.rotation || 0}
                       onChange={(e) => {
                         const newRotation = parseInt(e.target.value)
-                        updateCostumePositionWithoutSave(selectedCostume, { rotation: newRotation })
+                        if (!isNaN(newRotation) && selectedCostume) {
+                          updateCostumePositionWithoutSave(selectedCostume, { rotation: newRotation })
+                        }
+                      }}
+                      onInput={(e) => {
+                        // リアルタイム更新用のイベント
+                        const newRotation = parseInt((e.target as HTMLInputElement).value)
+                        if (!isNaN(newRotation) && selectedCostume) {
+                          updateCostumePositionWithoutSave(selectedCostume, { rotation: newRotation })
+                        }
                       }}
                       style={{ 
                         width: '150px',
