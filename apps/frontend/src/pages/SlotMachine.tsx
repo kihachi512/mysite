@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../contexts/AppDataContext'
 import { useSEO } from '../hooks/useSEO'
@@ -70,6 +70,14 @@ const SlotMachine: React.FC = () => {
     { currentIndex: 8, symbols: REEL_PATTERN, speed: 8, targetSymbol: undefined },
     { currentIndex: 16, symbols: REEL_PATTERN, speed: 8, targetSymbol: undefined }
   ])
+  
+  // リール状態を追跡するためのRef
+  const reelStatesRef = useRef<ReelState[]>(['stopped', 'stopped', 'stopped'])
+  
+  // reelStatesとreelStatesRefを同期
+  useEffect(() => {
+    reelStatesRef.current = reelStates
+  }, [reelStates])
 
   // Track area visit
   useEffect(() => {
@@ -270,37 +278,33 @@ const SlotMachine: React.FC = () => {
     const intervals: number[] = []
     for (let reelIndex = 0; reelIndex < 3; reelIndex++) {
       const interval = window.setInterval(() => {
-        // リール状態をチェックして、該当リールが回転中の場合のみ更新
-        setReelStates(currentStates => {
-          // 該当リールが停止済みの場合は何もしない
-          if (currentStates[reelIndex] === 'stopped') {
-            return currentStates
+        // Refを使用して最新のリール状態をチェック
+        if (reelStatesRef.current[reelIndex] === 'stopped') {
+          return
+        }
+        
+        // リールポジションを更新
+        setReelPositions((prevPositions: ReelPosition[]) => {
+          const newPositions = [...prevPositions]
+          const currentPosition = newPositions[reelIndex]
+          
+          if (currentPosition) {
+            const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
+            newPositions[reelIndex] = {
+              ...currentPosition,
+              currentIndex: newIndex
+            }
+            
+            // 表示用のリールを即座に更新（該当リールのみ）
+            const newSymbol = REEL_PATTERN[newIndex] || '🍒'
+            setReels((prevReels: SlotSymbol[]) => {
+              const newReels = [...prevReels]
+              newReels[reelIndex] = newSymbol
+              return newReels
+            })
           }
           
-          // 該当リールが回転中の場合のみポジション更新
-          setReelPositions((prevPositions: ReelPosition[]) => {
-            const newPositions = [...prevPositions]
-            const currentPosition = newPositions[reelIndex]
-            
-            if (currentPosition) {
-              const newIndex = (currentPosition.currentIndex + 1) % REEL_PATTERN.length
-              newPositions[reelIndex] = {
-                ...currentPosition,
-                currentIndex: newIndex
-              }
-              
-              // 表示用のリールを即座に更新（該当リールのみ）
-              const newSymbol = REEL_PATTERN[newIndex] || '🍒'
-              setReels((prevReels: SlotSymbol[]) => {
-                const newReels = [...prevReels]
-                newReels[reelIndex] = newSymbol
-                return newReels
-              })
-            }
-            return newPositions
-          })
-          
-          return currentStates // リール状態は変更しない
+          return newPositions
         })
       }, 250) // 目押ししやすい速度に調整（少し遅く）
       
