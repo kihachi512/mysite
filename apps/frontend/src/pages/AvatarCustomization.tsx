@@ -814,11 +814,11 @@ const AvatarCustomization: React.FC = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '60%',
-            height: '60%',
+            width: '100%', // Avatarコンポーネントと統一
+            height: '100%', // Avatarコンポーネントと統一
             objectFit: 'cover',
             borderRadius: '50%',
-            zIndex: 0
+            zIndex: 1 // Avatarコンポーネントと統一
           }}
         />
         
@@ -853,7 +853,7 @@ const AvatarCustomization: React.FC = () => {
                   left: `${costume.x}%`,
                   top: `${costume.y}%`,
                   transform: `translate(-50%, -50%) scale(${costume.scale}) rotate(${costume.rotation}deg)`,
-                  fontSize: '2rem', // 固定サイズに変更してスケール値との整合性を確保
+                  fontSize: '2rem', // Avatarコンポーネントのmediumサイズと統一
                   zIndex: costume.zIndex,
                   cursor: 'move',
                   userSelect: 'none',
