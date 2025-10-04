@@ -73,11 +73,17 @@ const SlotMachine: React.FC = () => {
   
   // リール状態を追跡するためのRef
   const reelStatesRef = useRef<ReelState[]>(['stopped', 'stopped', 'stopped'])
+  const animationIntervalsRef = useRef<number[]>([])
   
   // reelStatesとreelStatesRefを同期
   useEffect(() => {
     reelStatesRef.current = reelStates
   }, [reelStates])
+  
+  // animationIntervalsとanimationIntervalsRefを同期
+  useEffect(() => {
+    animationIntervalsRef.current = animationIntervals
+  }, [animationIntervals])
 
   // Track area visit
   useEffect(() => {
@@ -142,12 +148,13 @@ const SlotMachine: React.FC = () => {
   const stopReel = (reelIndex: number) => {
     if (gameState !== 'spinning') return
 
-    // 該当リールが既に停止済みかチェック
-    if (reelStates[reelIndex] === 'stopped') return
+    // 該当リールが既に停止済みかチェック（Refを使用して最新状態を確認）
+    if (reelStatesRef.current[reelIndex] === 'stopped') return
 
     // 該当アニメーションのみを停止
-    if (animationIntervals[reelIndex] && animationIntervals[reelIndex] !== 0) {
-      window.clearInterval(animationIntervals[reelIndex])
+    const currentInterval = animationIntervalsRef.current[reelIndex]
+    if (currentInterval && currentInterval !== 0) {
+      window.clearInterval(currentInterval)
       
       // インターバルリストも更新（該当リールのみ）
       setAnimationIntervals((prev: number[]) => {
