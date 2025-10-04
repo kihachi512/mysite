@@ -48,8 +48,8 @@ export const useSEO = ({
             document.head.appendChild(meta);
           }
           meta.content = content.trim();
-        } catch (e) {
-          console.log('Meta tag update error:', e);
+        } catch {
+          // メタタグ更新エラー（サイレント処理）
         }
       };
 
@@ -64,8 +64,8 @@ export const useSEO = ({
             document.head.appendChild(meta);
           }
           meta.content = content.trim();
-        } catch (e) {
-          console.log('Property tag update error:', e);
+        } catch {
+          // プロパティタグ更新エラー（サイレント処理）
         }
       };
 
@@ -138,8 +138,8 @@ export const useSEO = ({
             document.head.appendChild(canonical);
           }
           canonical.href = canonicalUrl.trim();
-        } catch (e) {
-          console.log('Canonical URL update error:', e);
+        } catch {
+          // カノニカルURL更新エラー（サイレント処理）
         }
       }
 
@@ -158,8 +158,8 @@ export const useSEO = ({
           if (favicon) {
             favicon.href = iconUrl;
           }
-        } catch (e) {
-          console.log('Icon update error:', e);
+        } catch {
+          // アイコン更新エラー（サイレント処理）
         }
       }
 
@@ -173,12 +173,12 @@ export const useSEO = ({
             document.head.appendChild(structuredScript);
           }
           structuredScript.textContent = JSON.stringify(structuredData);
-        } catch (e) {
-          console.log('Structured data update error:', e);
+        } catch {
+          // 構造化データ更新エラー（サイレント処理）
         }
       }
-    } catch (e) {
-      console.log('SEO update error:', e);
+    } catch {
+      // SEO更新エラー（サイレント処理）
     }
   }, [title, description, keywords, ogTitle, ogDescription, canonicalUrl, iconUrl, structuredData, articleType, author, publishedTime, modifiedTime]);
 };

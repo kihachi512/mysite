@@ -116,14 +116,14 @@ const Favorites: React.FC = () => {
           createdAt: new Date().toISOString(),
         }
         
-        console.log('Adding favorite item:', { id: item.id, name: item.name, mime: item.mime, dataUrlLength: dataUrl.length })
+        // デバッグ用ログを削除（本番環境では不要）
         addFavorite(item)
         alert('ファイルをアップロードしました！')
         
         // Force re-render to ensure preview shows immediately
         setTimeout(() => {
           // This ensures the component re-renders with the new favorite
-          console.log('Upload complete, favorites updated')
+          // デバッグ用ログを削除（本番環境では不要）
         }, 100)
       } catch (error) {
         console.error('File upload error:', error)
@@ -272,22 +272,15 @@ const Favorites: React.FC = () => {
               borderRadius: '8px'
             }}
             onLoad={() => {
-              console.log('Image loaded successfully:', name)
+              // デバッグ用ログを削除（本番環境では不要）
             }}
             onError={(e) => {
               console.error('Image load error for:', name, 'dataUrl length:', dataUrl?.length)
               // エラー時は代替表示
               const target = e.target as HTMLImageElement
               target.style.display = 'none'
-              const parent = target.parentElement
-              if (parent) {
-                parent.innerHTML = `
-                  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;color:#ff6b6b;">
-                    <div style="font-size:2rem;">❌</div>
-                    <div>画像の読み込みに失敗しました</div>
-                  </div>
-                `
-              }
+              // React的なエラー処理に変更（セキュリティ向上）
+              target.alt = '画像の読み込みに失敗しました'
             }}
             key={`${item.id}-${dataUrl?.substring(0, 50)}`}
           />

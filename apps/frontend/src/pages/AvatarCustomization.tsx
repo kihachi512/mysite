@@ -295,10 +295,7 @@ const AvatarCustomization: React.FC = () => {
       
       // デバッグログ（開発環境のみ）
       if (import.meta.env.DEV) {
-        console.log('Avatar data loaded:', {
-          ownedItems: savedOwned ? JSON.parse(savedOwned).length : 0,
-          currentAvatar: savedAvatar ? Object.keys(JSON.parse(savedAvatar)).length : 0
-        })
+        // デバッグ用ログを削除（本番環境では不要）
       }
     } catch (error) {
       console.error('Failed to load avatar data:', error)
