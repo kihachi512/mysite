@@ -151,7 +151,7 @@ const BulletHell: React.FC = () => {
           // Resume失敗時は次回ユーザーインタラクションで再試行
         })
       }
-    } catch (error) {
+    } catch {
       // AudioContext作成失敗（サイレント処理）
     }
   }, [audioContext, soundEnabled])
@@ -174,7 +174,7 @@ const BulletHell: React.FC = () => {
       oscillator.start(ctx.currentTime)
       oscillator.stop(ctx.currentTime + duration)
       // 音声再生成功
-    } catch (error) {
+    } catch {
       // 音声再生失敗（サイレント処理）
     }
   }, [])
@@ -197,7 +197,7 @@ const BulletHell: React.FC = () => {
       } else if (audioContext.state === 'running') {
         playActualSound(audioContext, frequency, duration, type)
       }
-    } catch (error) {
+    } catch {
       // 音声再生エラーはサイレント処理
     }
   }, [soundEnabled, audioContext, playActualSound])
@@ -211,7 +211,7 @@ const BulletHell: React.FC = () => {
       const safeDuration = Math.max(0, Math.min(300, Math.floor(duration))) // 0-5秒の範囲で制限
       setInvincible(true)
       setInvincibleTime(safeDuration)
-    } catch (e) {
+    } catch {
       // 無敵時間設定エラー（サイレント処理）
     }
   }, [])
@@ -390,7 +390,7 @@ const BulletHell: React.FC = () => {
           if (newSoundSetting !== soundEnabled) {
             setSoundEnabled(newSoundSetting)
           }
-        } catch (error) {
+        } catch {
           // 設定解析失敗はサイレント処理
         }
       }

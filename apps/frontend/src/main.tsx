@@ -8,7 +8,7 @@ import { performanceMonitor } from './utils/performance'
 import { initStorageMonitor } from './utils/storageMonitor'
 import { getDailyBonus, claimDailyBonus, economyEventManager } from './utils/economyEvents'
 import { useAppData } from './contexts/AppDataContext'
-import { ToastProvider, useToast } from './components/Toast'
+import { ToastProvider, useToast } from './contexts/ToastContext'
 
 // ホームページコンポーネント
 // eslint-disable-next-line react-refresh/only-export-components
