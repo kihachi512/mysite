@@ -131,6 +131,36 @@ const MOMOBank: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 定期的に満期投資をチェック（30秒ごと）
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateDailyInterest()
+    }, 30000) // 30秒ごと
+
+    return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bankAccount, investments])
+
+  // ページにフォーカスが戻った時にもチェック
+  useEffect(() => {
+    const handleFocus = () => {
+      updateDailyInterest()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        updateDailyInterest()
+      }
+    })
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleFocus)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const loadBankData = () => {
     try {
       const savedAccount = localStorage.getItem('momo-bank-account')
@@ -191,6 +221,45 @@ const MOMOBank: React.FC = () => {
     }
   }
 
+  // 満期投資を手動で受け取る機能
+  const claimMaturedInvestment = (investmentId: string) => {
+    const today_ms = new Date().getTime()
+    const maturedInv = investments.find(inv => {
+      const endDate = new Date(inv.endDate).getTime()
+      return inv.investmentId === investmentId && endDate <= today_ms
+    })
+
+    if (!maturedInv) {
+      alert('まだ満期になっていない投資です')
+      return
+    }
+
+    const investment = INVESTMENTS.find(i => i.id === maturedInv.investmentId)!
+    const actualReturn = calculateActualReturn(maturedInv.amount, maturedInv.expectedReturn, investment.risk)
+    
+    // 該当投資を削除
+    const remainingInvestments = investments.filter(inv => inv !== maturedInv)
+    setInvestments(remainingInvestments)
+    
+    // 銀行口座残高を更新
+    const newAccount: BankAccount = {
+      ...bankAccount,
+      balance: bankAccount.balance + actualReturn.totalAmount
+    }
+    setBankAccount(newAccount)
+    
+    // MOMOPayポイントにも追加
+    addMomoPayPoints(actualReturn.totalAmount)
+    
+    // データを保存
+    saveBankData(newAccount, remainingInvestments, currentLoans)
+    
+    const profit = actualReturn.totalAmount - maturedInv.amount
+    const profitIcon = profit > 0 ? '📈' : profit < 0 ? '📉' : '📊'
+    
+    alert(`${profitIcon} ${investment.name}を受け取りました！\n\n投資額: ${maturedInv.amount}P\n受取額: ${actualReturn.totalAmount}P\n損益: ${profit > 0 ? '+' : ''}${profit}P (${actualReturn.actualReturnPercent.toFixed(1)}%)\n\nMOMOPayに ${actualReturn.totalAmount}P が追加されました！`)
+  }
+
   const updateDailyInterest = () => {
     const today = new Date().toISOString().split('T')[0]!
     
@@ -202,6 +271,9 @@ const MOMOBank: React.FC = () => {
         lastUpdate: today
       }
       setBankAccount(newAccount)
+      
+      // データを保存
+      saveBankData(newAccount, investments, currentLoans)
       
       if (interest > 0) {
         alert(`🏦 預金利息が付きました！\n+${interest}MOMOPay`)
@@ -233,17 +305,24 @@ const MOMOBank: React.FC = () => {
       
       setInvestments(remainingInvestments)
       
+      // 銀行口座残高を更新
       const newAccount: BankAccount = {
         ...bankAccount,
         balance: bankAccount.balance + totalReturn
       }
       setBankAccount(newAccount)
       
+      // MOMOPayポイントにも追加（受け取り可能にする）
+      addMomoPayPoints(totalReturn)
+      
+      // データを保存
+      saveBankData(newAccount, remainingInvestments, currentLoans)
+      
       const totalInvested = maturedInvestments.reduce((sum, inv) => sum + inv.amount, 0)
       const totalProfit = totalReturn - totalInvested
       const profitIcon = totalProfit > 0 ? '📈' : totalProfit < 0 ? '📉' : '📊'
       
-      alert(`${profitIcon} 投資が満期になりました！\n\n${resultMessages.join('\n')}\n\n投資額: ${totalInvested}P\n受取額: ${totalReturn}P\n損益: ${totalProfit > 0 ? '+' : ''}${totalProfit}P`)
+      alert(`${profitIcon} 投資が満期になりました！\n\n${resultMessages.join('\n')}\n\n投資額: ${totalInvested}P\n受取額: ${totalReturn}P\n損益: ${totalProfit > 0 ? '+' : ''}${totalProfit}P\n\nMOMOPayに ${totalReturn}P が追加されました！`)
     }
   }
 
@@ -629,6 +708,25 @@ const MOMOBank: React.FC = () => {
                         <div className="comic-text font-body-xs" style={{ color: daysLeft > 0 ? '#ffc107' : '#4caf50' }}>
                           {daysLeft > 0 ? `${daysLeft}日後満期` : '満期！'}
                         </div>
+                        {daysLeft <= 0 && (
+                          <button
+                            onClick={() => claimMaturedInvestment(inv.investmentId)}
+                            className="comic-button"
+                            style={{
+                              background: 'linear-gradient(135deg, #4caf50, #45a049)',
+                              color: 'white',
+                              border: 'none',
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '0.7rem',
+                              marginTop: '4px',
+                              cursor: 'pointer',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            💰 受け取り
+                          </button>
+                        )}
                       </div>
                     )
                   })}
