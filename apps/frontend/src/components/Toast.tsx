@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
@@ -111,39 +111,4 @@ const Toast: React.FC<ToastProps> = ({ toasts, onRemove }) => {
   )
 }
 
-// Toast Context
-export const ToastContext = React.createContext<{
-  showToast: (message: string, type?: ToastType, duration?: number) => void
-}>({
-  showToast: () => {}
-})
-
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = useState<ToastMessage[]>([])
-
-  const showToast = (message: string, type: ToastType = 'info', duration = 3000) => {
-    const id = Date.now().toString()
-    const newToast: ToastMessage = { id, message, type, duration }
-    
-    setToasts(prev => [...prev, newToast])
-  }
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id))
-  }
-
-  return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
-      <Toast toasts={toasts} onRemove={removeToast} />
-    </ToastContext.Provider>
-  )
-}
-
-export const useToast = () => {
-  const context = React.useContext(ToastContext)
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider')
-  }
-  return context
-}
+export default Toast

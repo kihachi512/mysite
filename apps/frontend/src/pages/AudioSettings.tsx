@@ -38,7 +38,7 @@ const AudioSettings: React.FC = () => {
       storageArea: localStorage
     }))
     
-    console.log('Sound effects setting updated:', enabled)
+    // デバッグ用ログを削除（本番環境では不要）
   }
 
   // テスト用効果音再生
@@ -64,8 +64,8 @@ const AudioSettings: React.FC = () => {
         oscillator.stop(ctx.currentTime + 0.3)
         
         setTimeout(() => ctx.close(), 500)
-      } catch (error) {
-        console.log('Test sound failed:', error)
+      } catch {
+        // テストサウンド再生エラーはサイレント処理
         alert('効果音の再生に失敗しました。ブラウザがWeb Audio APIをサポートしていない可能性があります。')
       }
     } else {
