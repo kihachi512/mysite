@@ -1,0 +1,13 @@
+{
+  "name": "momonga-post-box",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "license": "MIT",
+  "description": "Serverless handler that stores public posts for the Momonga Carnival site.",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.645.0",
+    "@aws-sdk/lib-dynamodb": "^3.645.0",
+    "uuid": "^11.0.3"
+  }
+}
