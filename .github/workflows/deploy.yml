@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      FRONTEND_DIR: old/apps/frontend
     
     steps:
     - name: Checkout code
@@ -20,10 +22,10 @@ jobs:
         pwd
         echo "Directory contents:"
         ls -la
-        echo "apps/frontend contents:"
-        ls -la apps/frontend/
+        echo "Legacy frontend contents ($FRONTEND_DIR):"
+        ls -la "$FRONTEND_DIR"
         echo "package-lock.json exists:"
-        ls -la apps/frontend/package-lock.json
+        ls -la "$FRONTEND_DIR/package-lock.json"
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -33,21 +35,21 @@ jobs:
     - name: Cache dependencies
       uses: actions/cache@v4
       with:
-        path: apps/frontend/node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('apps/frontend/package-lock.json') }}
+        path: ${{ env.FRONTEND_DIR }}/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles(format('{0}/package-lock.json', env.FRONTEND_DIR)) }}
         restore-keys: |
           ${{ runner.os }}-node-
-        
+
     - name: Install dependencies
-      working-directory: apps/frontend
+      working-directory: ${{ env.FRONTEND_DIR }}
       run: npm ci
-        
+
     - name: Build application
-      working-directory: apps/frontend
+      working-directory: ${{ env.FRONTEND_DIR }}
       run: npm run build
-        
+
     - name: Test build
-      working-directory: apps/frontend
+      working-directory: ${{ env.FRONTEND_DIR }}
       run: |
         ls -la dist/
         echo "Build completed successfully! 🎉"
