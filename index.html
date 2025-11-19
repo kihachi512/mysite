@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>さすらいのモモンガカーニバル</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <header class="page-header">
+        <div class="logo">さすらいのモモンガカーニバル</div>
+        <nav class="main-nav">
+          <a href="#letters">きょうの手紙</a>
+          <a href="#note">日々のノート</a>
+          <a href="#market">ちいさな市</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <p class="date">2024年6月12日 水曜日</p>
+          <h1>旅するモモンガが見つけた、ふわりとした朝のあそび場。</h1>
+          <p>
+            風に乗ってふらりとやってくる物語や、だれかの気配を大事に集める
+            「さすらいのモモンガカーニバル」。ここに来ればいつでも、
+            ちいさな会話がはじまります。
+          </p>
+        </section>
+
+        <section class="card-grid">
+          <article id="letters">
+            <h2>きょうの手紙</h2>
+            <p>
+              まっしろな便箋にひとこと「おはよう」を書くように、ここでは短い
+              文章を更新していきます。季節の気配が、文字の向こうでゆれている
+              とうれしいです。
+            </p>
+            <button>手紙を読む</button>
+          </article>
+          <article id="note" class="note-card" data-note-endpoint="/api/posts">
+            <div class="note-card__intro">
+              <h2>日々のノート</h2>
+              <p>
+                手帳の余白に残るメモや落書きを、みんなで書きあうページです。
+                投稿すると数秒でここに反映されて、だれでも読むことができます。
+              </p>
+            </div>
+            <form id="noteForm" class="note-form" autocomplete="off">
+              <label>
+                名前
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="モモンガ"
+                  maxlength="40"
+                  required
+                />
+              </label>
+              <label>
+                ひとこと
+                <textarea
+                  name="message"
+                  rows="3"
+                  maxlength="400"
+                  placeholder="きょう見た空のこと"
+                  required
+                ></textarea>
+              </label>
+              <button type="submit">投稿する</button>
+            </form>
+            <div class="note-feed">
+              <div class="note-feed__head">
+                <p class="sup-title">みんなの書き込み</p>
+                <p id="noteStatus" class="note-status" role="status" aria-live="polite"></p>
+              </div>
+              <ul id="noteList" class="note-list" aria-live="polite"></ul>
+            </div>
+          </article>
+          <article id="market">
+            <h2>ちいさな市</h2>
+            <p>
+              朝に似合う道具や食品を、月に数回だけ紹介します。売り切れたらまた
+              次の出会いを待ちましょう。あわてず、ゆっくりと。
+            </p>
+            <button>市をのぞく</button>
+          </article>
+        </section>
+
+      </main>
+
+      <footer>
+        <p>© 2024 さすらいのモモンガカーニバル. ふわりと漂う毎日を。</p>
+      </footer>
+    </div>
+    <script type="module" src="scripts.js"></script>
+  </body>
+</html>

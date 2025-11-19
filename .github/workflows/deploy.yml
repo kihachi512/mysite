@@ -9,45 +9,62 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Debug file structure
-      run: |
-        echo "Current directory:"
-        pwd
-        echo "Directory contents:"
-        ls -la
-        echo "apps/frontend contents:"
-        ls -la apps/frontend/
-        echo "package-lock.json exists:"
-        ls -la apps/frontend/package-lock.json
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: apps/frontend/node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('apps/frontend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-        
-    - name: Install dependencies
-      working-directory: apps/frontend
-      run: npm ci
-        
-    - name: Build application
-      working-directory: apps/frontend
-      run: npm run build
-        
-    - name: Test build
-      working-directory: apps/frontend
-      run: |
-        ls -la dist/
-        echo "Build completed successfully! 🎉"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect frontend directory
+        id: detect
+        shell: bash
+        run: |
+          if [ -f old/apps/frontend/package-lock.json ]; then
+            dir="old/apps/frontend"
+          elif [ -f apps/frontend/package-lock.json ]; then
+            dir="apps/frontend"
+          else
+            echo "package-lock.json が見つかりません。" >&2
+            exit 1
+          fi
+
+          echo "Detected frontend: $dir"
+          echo "frontend-dir=$dir" >> "$GITHUB_OUTPUT"
+
+      - name: Debug file structure
+        run: |
+          echo "Repository root:"
+          pwd
+          echo "---"
+          ls -la
+          echo "---"
+          echo "Using frontend directory: ${{ steps.detect.outputs.frontend-dir }}"
+          ls -la "${{ steps.detect.outputs.frontend-dir }}"
+          echo "package-lock.json contents:"
+          ls -la "${{ steps.detect.outputs.frontend-dir }}/package-lock.json"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.detect.outputs.frontend-dir }}/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles(format('{0}/package-lock.json', steps.detect.outputs.frontend-dir)) }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        working-directory: ${{ steps.detect.outputs.frontend-dir }}
+        run: npm ci
+
+      - name: Build application
+        working-directory: ${{ steps.detect.outputs.frontend-dir }}
+        run: npm run build
+
+      - name: Test build
+        working-directory: ${{ steps.detect.outputs.frontend-dir }}
+        run: |
+          ls -la dist/
+          echo "Build completed successfully! 🎉"
