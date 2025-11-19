@@ -14,23 +14,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Detect frontend directory
+      - name: Detect build target
         id: detect
         shell: bash
         run: |
           if [ -f old/apps/frontend/package-lock.json ]; then
             dir="old/apps/frontend"
+            mode="frontend"
           elif [ -f apps/frontend/package-lock.json ]; then
             dir="apps/frontend"
+            mode="frontend"
           else
-            echo "package-lock.json が見つかりません。" >&2
-            exit 1
+            echo "package-lock.json が見つかりません。静的サイトとしてチェックのみ実施します。"
+            mode="static"
           fi
 
-          echo "Detected frontend: $dir"
-          echo "frontend-dir=$dir" >> "$GITHUB_OUTPUT"
+          if [ "$mode" = "frontend" ]; then
+            echo "Detected frontend: $dir"
+            echo "frontend-dir=$dir" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
 
       - name: Debug file structure
+        if: steps.detect.outputs.mode == 'frontend'
         run: |
           echo "Repository root:"
           pwd
@@ -42,12 +49,22 @@ jobs:
           echo "package-lock.json contents:"
           ls -la "${{ steps.detect.outputs.frontend-dir }}/package-lock.json"
 
+      - name: Verify static files exist
+        if: steps.detect.outputs.mode == 'static'
+        run: |
+          echo "Static mode: confirming top-level assets"
+          test -f index.html && echo "index.html ✔"
+          test -f styles.css && echo "styles.css ✔"
+          test -f scripts.js && echo "scripts.js ✔"
+
       - name: Setup Node.js
+        if: steps.detect.outputs.mode == 'frontend'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Cache dependencies
+        if: steps.detect.outputs.mode == 'frontend'
         uses: actions/cache@v4
         with:
           path: ${{ steps.detect.outputs.frontend-dir }}/node_modules
@@ -56,14 +73,17 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
+        if: steps.detect.outputs.mode == 'frontend'
         working-directory: ${{ steps.detect.outputs.frontend-dir }}
         run: npm ci
 
       - name: Build application
+        if: steps.detect.outputs.mode == 'frontend'
         working-directory: ${{ steps.detect.outputs.frontend-dir }}
         run: npm run build
 
       - name: Test build
+        if: steps.detect.outputs.mode == 'frontend'
         working-directory: ${{ steps.detect.outputs.frontend-dir }}
         run: |
           ls -la dist/

@@ -1,8 +1,7 @@
 # さすらいのモモンガカーニバル
 
 「さすらいのモモンガカーニバル」は、紙の雑誌のような 1 ページ構成の静的サイトと、旧来の React/Vite アプリのアーカイブで構成されて
-います。現在公開しているトップページは `index.html`、`styles.css`、`scripts.js` の 3 ファイルで完結しており、Amplify ではそれらをその
-まま配信しています。
+います。現在公開しているトップページは `index.html`、`styles.css`、`scripts.js` の 3 ファイルで完結しており、Amplify ではそれらをそのまま配信しています。
 
 ## 現行トップページ
 - `/index.html` … ヒーロー、カードグリッド、フッターだけの素朴な HTML。
@@ -36,14 +35,12 @@ API Gateway などで公開した URL を `data-note-endpoint` に指定すれ�
 合は、`build:` セクションに任意の処理を追加してください。
 
 ## GitHub Actions（CI）
-`.github/workflows/deploy.yml` は、`old/apps/frontend` と `apps/frontend` のどちらにも対応できるように自動検出ステップを持っていま
-す。
+`.github/workflows/deploy.yml` は、`old/apps/frontend` と `apps/frontend` のどちらにも対応できるように自動検出ステップを持っています。また、どちらにも `package-lock.json` が無い場合は静的サイトとしてトップページの 3 ファイルだけを確認して終了します。
 - `old/apps/frontend/package-lock.json` があればそちらを優先します。
 - なければ従来どおり `apps/frontend` を使います。
-- どちらにも `package-lock.json` が無い場合はエラーで停止し、ログにパスを表示します。
+- どちらにも `package-lock.json` が無い場合はエラーではなく静的配信モードで完了します。
 
-これにより、旧来のパスを期待しているジョブと、新しい `old/` 以下にアーカイブした構成のどちらにも同じ workflow ファイルで対応でき
-ます。
+これにより、旧来のパスを期待しているジョブと、新しい `old/` 以下にアーカイブした構成のどちらにも同じ workflow ファイルで対応できます。
 
 ## 旧 React/Vite アプリ
 要望どおり、React 製の大規模アプリは `old/` 以下に丸ごと保管してあります。概要や各機能の説明は `old/README.md` に移設しました。
