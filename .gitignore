@@ -81,6 +81,8 @@ jspm_packages/
 # Gatsby files
 .cache/
 public
+!old/apps/frontend/public
+!old/apps/frontend/public/**
 
 # Storybook build outputs
 .out
