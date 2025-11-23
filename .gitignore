@@ -84,6 +84,10 @@ public
 !old/apps/frontend/public
 !old/apps/frontend/public/**
 
+# Track new static frontend assets
+!apps/frontend/public
+!apps/frontend/public/**
+
 # Storybook build outputs
 .out
 .storybook-out
