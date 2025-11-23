@@ -116,6 +116,24 @@ body {
   color: #fff;
 }
 
+.button-link {
+  display: inline-block;
+  margin-top: auto;
+  align-self: flex-start;
+  border: 1px solid var(--ink);
+  background: transparent;
+  padding: 7px 18px;
+  font-size: 0.95rem;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.button-link:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
 footer {
   border-top: 2px solid var(--line);
   margin-top: 40px;
