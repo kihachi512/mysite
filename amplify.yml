@@ -6,12 +6,9 @@ frontend:
         - echo "Static site build — no dependencies to install"
     build:
       commands:
-        - rm -rf dist
-        - mkdir -p dist
-        - cp index.html dist/index.html
-        - cp styles.css dist/styles.css
+        - npm run build --prefix apps/frontend
   artifacts:
-    baseDirectory: dist
+    baseDirectory: apps/frontend/dist
     files:
       - '**/*'
   cache:

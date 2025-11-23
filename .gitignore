@@ -3,10 +3,10 @@ node_modules/
 */node_modules/
 
 # Production builds
-dist/
 build/
-*/dist/
+dist/
 */build/
+*/dist/
 
 # Environment variables
 .env
@@ -81,6 +81,8 @@ jspm_packages/
 # Gatsby files
 .cache/
 public
+!apps/frontend/public
+!apps/frontend/public/**
 
 # Storybook build outputs
 .out
@@ -101,9 +103,6 @@ amplify/backend/awscloudformation
 amplify/team-provider-info.json
 amplify/cli.json
 amplify/backend/.temp
-build/
-dist/
-node_modules/
 aws-exports.js
 awsconfiguration.json
 amplifyconfiguration.json
