@@ -3,65 +3,125 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ほぼ日の朝</title>
+    <title>Yuri Natsume | Personal Site</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-wrapper">
       <header class="page-header">
-        <div class="logo">ほぼ日の朝</div>
+        <div class="logo">Yuri Natsume</div>
         <nav class="main-nav">
-          <a href="#letters">きょうの手紙</a>
-          <a href="#note">日々のノート</a>
-          <a href="#market">ちいさな市</a>
-          <a href="revenue-lab/">収益分配ラボ</a>
+          <a href="#about">About</a>
+          <a href="#work">Work</a>
+          <a href="#notes">Notes</a>
+          <a href="#contact">Contact</a>
         </nav>
       </header>
 
       <main>
         <section class="hero">
-          <p class="date">2024年6月12日 水曜日</p>
-          <h1>お茶をわかすころ、風を感じましょう。</h1>
+          <p class="tag">designer &amp; writer in Tokyo</p>
+          <h1>静かなデザインと文章で、余白をつくる人。</h1>
           <p>
-            朝いちばんの空気を吸い込んで、机にすわって、ゆっくりと書きたくなる。そんな静かな時間を届けるための、ちいさなページです。
-            新しく「収益分配ラボ」を用意しました。書けば必ず報酬が発生するモデルを試せるシミュレーターに、ここから飛べます。
+            ことばを整え、シンプルなプロダクトを設計し、身のまわりの人が
+            少しだけ呼吸しやすくなるものをつくっています。ここでは、最近の
+            仕事やメモ、好きなものを短くまとめました。
           </p>
         </section>
 
-        <section class="card-grid">
-          <article id="letters">
-            <h2>きょうの手紙</h2>
+        <section id="about" class="panel">
+          <div class="panel-heading">
+            <h2>About</h2>
+            <p>ゆるやかなプロフィール</p>
+          </div>
+          <div class="panel-body">
             <p>
-              まっしろな便箋にひとこと「おはよう」を書くように、ここでは短い文章を更新していきます。季節の気配が、文字の向こうでゆれているとうれしいです。
+              プロダクトデザイナーとしてUI設計とコピーライティングを担当。
+              休日は写真散歩と茶道の稽古。余白のあるデザインと読みやすい文章が
+              好きで、個人では小さなWebサイトや冊子を作っています。
             </p>
-            <button>手紙を読む</button>
-          </article>
-          <article id="note">
-            <h2>日々のノート</h2>
-            <p>
-              手帳の余白に残るメモや落書きを、そのまま載せています。実験的だったり、ゆるかったり。読む人が自由に想像できるノートです。
-            </p>
-            <button>ノートを開く</button>
-          </article>
-          <article id="market">
-            <h2>ちいさな市</h2>
-            <p>
-              朝に似合う道具や食品を、月に数回だけ紹介します。売り切れたらまた次の出会いを待ちましょう。あわてず、ゆっくりと。
-            </p>
-            <button>市をのぞく</button>
-          </article>
-          <article id="revenue-lab">
-            <h2>収益分配ラボ</h2>
-            <p>
-              広告・スポンサー・投げ銭のプールを投稿者全員で山分けするモデルを、数値を変えながらその場で試算できます。オフラインでも動く静的ツールです。
-            </p>
-            <a class="button-link" href="revenue-lab/">シミュレーターを開く</a>
-          </article>
+            <ul>
+              <li>東京在住 / リモートワーク中心</li>
+              <li>興味: note執筆、ミニマルUI、紙とインクの質感</li>
+              <li>最近読んだ本: 「小さな声、光の粒」</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="work" class="panel">
+          <div class="panel-heading">
+            <h2>Selected Work</h2>
+            <p>手を動かしたもの</p>
+          </div>
+          <div class="cards">
+            <article class="card">
+              <h3>Quiet Journal</h3>
+              <p>
+                朝の1ページを書き溜めるためのWebノート。余白を広く取り、
+                サクッと書けるショートカットを実装。ロゴからUIコピーまで担当。
+              </p>
+              <span class="pill">UI/UX</span>
+            </article>
+            <article class="card">
+              <h3>Neighborhood Map</h3>
+              <p>
+                近所の喫茶店を歩いて集めたデータを公開した地図サイト。
+                写真撮影・文章・マップ設計・配色をシンプルにまとめています。
+              </p>
+              <span class="pill">Side project</span>
+            </article>
+            <article class="card">
+              <h3>Circle Newsletter</h3>
+              <p>
+                月1回のコミュニティニュースレター。編集・レイアウト・配信設定
+                まで一貫して担当し、開封率40%超を継続中です。
+              </p>
+              <span class="pill">Writing</span>
+            </article>
+          </div>
+        </section>
+
+        <section id="notes" class="panel">
+          <div class="panel-heading">
+            <h2>Notes</h2>
+            <p>最近のメモ</p>
+          </div>
+          <div class="note-list">
+            <div class="note">
+              <p class="note-date">2024-06-10</p>
+              <p>「情報の密度は高すぎないか」を見るだけで、画面がやわらぐ。</p>
+            </div>
+            <div class="note">
+              <p class="note-date">2024-06-02</p>
+              <p>香りのある朝、インクの色が濃くなる気がする。不思議。</p>
+            </div>
+            <div class="note">
+              <p class="note-date">2024-05-25</p>
+              <p>余白を消費しないアニメーション。速度より間合い。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" class="panel contact-panel">
+          <div class="panel-heading">
+            <h2>Contact</h2>
+            <p>お仕事・感想はこちらへ</p>
+          </div>
+          <div class="contact-grid">
+            <div>
+              <p>Twitter / X: <a href="https://x.com" target="_blank">@yurinatsume</a></p>
+              <p>Mail: hello@yurinatsume.example</p>
+            </div>
+            <div>
+              <p>作った静的ツール: <a href="revenue-lab/">収益分配ラボ</a></p>
+              <p>配布中のテンプレートや冊子はご相談ください。</p>
+            </div>
+          </div>
         </section>
       </main>
 
       <footer>
-        <p>© 2024 ほぼ日の朝. すべてがゆっくり進んでいます。</p>
+        <p>© 2024 Yuri Natsume. Take a slow breath.</p>
       </footer>
     </div>
   </body>
