@@ -1,13 +1,13 @@
-# さすらいのモモンガカーニバル + 収益分配ラボ（静的版）
+# 収益分配ラボ（静的版）
 
-`apps/frontend/public/` にトップページと「収益分配ラボ」の静的ファイルをまとめました。依存パッケージなしでビルドでき、オフライン環境でも試せます。
+依存パッケージなしで動くシンプルなシミュレーターです。`npm run build` で `public` を `dist/` にコピーするだけなので、オフライン環境でもビルドが通ります。
 
 ## 使い方
 
-1. `npm run build`（または `npm run build --prefix apps/frontend`）
-2. `apps/frontend/dist/index.html` をブラウザで開くとトップページが表示されます
-3. 「収益分配ラボ」は `apps/frontend/dist/revenue-lab/index.html` から直接アクセスできます
+1. `npm run build`
+2. `dist/index.html` をブラウザで開く
+3. プール金額・保証割合・投稿データを編集して、保証額とボーナス配分を確認する
 
 ## PR 動作チェック
 
-PR 作成前に `npm run build --prefix apps/frontend` を実行し、静的ビルドが dist/ に生成されることを確認してください。追加の依存関係は不要です。
+PR 作成前に `npm run build --prefix old/apps/frontend` を実行すれば、静的ビルドが通ることを確認できます。追加の依存関係は不要なので、現在の状態でそのまま動作します。
