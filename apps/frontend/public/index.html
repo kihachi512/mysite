@@ -3,16 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Yuri Natsume | Personal Site</title>
+    <title>さすらいのモモンガカーニバル</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-wrapper">
       <header class="page-header">
-        <div class="logo">Yuri Natsume</div>
+        <div class="logo">さすらいのモモンガカーニバル</div>
         <nav class="main-nav">
           <a href="#about">About</a>
           <a href="#work">Work</a>
+          <a href="#blog">Blog</a>
           <a href="#notes">Notes</a>
           <a href="#contact">Contact</a>
         </nav>
@@ -102,6 +103,48 @@
           </div>
         </section>
 
+        <section id="blog" class="panel blog-panel">
+          <div class="panel-heading">
+            <h2>Blog</h2>
+            <p>管理者が投稿できる小さなブログ</p>
+          </div>
+
+          <div class="blog-grid">
+            <div class="blog-admin">
+              <details class="admin-card" open>
+                <summary>管理者投稿フォーム</summary>
+                <form id="blog-form" class="admin-form">
+                  <label>
+                    タイトル
+                    <input type="text" name="title" placeholder="例: 余白のある情報設計" required />
+                  </label>
+
+                  <div class="form-row">
+                    <label>
+                      投稿日
+                      <input type="date" name="date" />
+                    </label>
+                    <label>
+                      カテゴリ
+                      <input type="text" name="category" placeholder="UI / 執筆 など" />
+                    </label>
+                  </div>
+
+                  <label>
+                    本文
+                    <textarea name="body" rows="4" placeholder="ブログ本文をここに入力" required></textarea>
+                  </label>
+
+                  <button type="submit">投稿を保存</button>
+                  <p id="blog-status" class="blog-status" aria-live="polite"></p>
+                </form>
+              </details>
+            </div>
+
+            <div class="blog-feed" id="blog-feed" aria-live="polite"></div>
+          </div>
+        </section>
+
         <section id="contact" class="panel contact-panel">
           <div class="panel-heading">
             <h2>Contact</h2>
@@ -121,8 +164,116 @@
       </main>
 
       <footer>
-        <p>© 2024 Yuri Natsume. Take a slow breath.</p>
+        <p>© 2024 さすらいのモモンガカーニバル. Take a slow breath.</p>
       </footer>
     </div>
+
+    <script>
+      const storageKey = "momongaBlogPosts";
+      const blogFeed = document.getElementById("blog-feed");
+      const blogForm = document.getElementById("blog-form");
+      const blogStatus = document.getElementById("blog-status");
+
+      const seedPosts = [
+        {
+          title: "余白を守る情報設計のメモ",
+          date: "2024-06-10",
+          category: "Design",
+          body: "密度を上げすぎないだけで、画面に呼吸が生まれる。余白と本文のバランスを意識して、最後の1ピクセルまで整える。",
+        },
+        {
+          title: "香りとインクの朝",
+          date: "2024-06-02",
+          category: "Writing",
+          body: "香りのある朝は、インクの色まで深く見える。不思議な集中力に助けられて、短い文章がすっと出てくる。",
+        },
+        {
+          title: "間合いをつくるアニメーション",
+          date: "2024-05-25",
+          category: "UI",
+          body: "速度よりも間合い。余白を消費しない動きを心がけると、静かなUIでも体験が途切れない。",
+        },
+      ];
+
+      const loadPosts = () => {
+        try {
+          const saved = localStorage.getItem(storageKey);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch (e) {
+          console.warn("ブログデータの読み込みに失敗しました", e);
+        }
+        return [...seedPosts];
+      };
+
+      const savePosts = (posts) => {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(posts));
+        } catch (e) {
+          console.warn("ブログデータの保存に失敗しました", e);
+        }
+      };
+
+      const renderPosts = (posts) => {
+        blogFeed.innerHTML = "";
+        posts.forEach((post) => {
+          const article = document.createElement("article");
+          article.className = "blog-post";
+
+          const header = document.createElement("div");
+          header.className = "blog-post-header";
+
+          const titleEl = document.createElement("h3");
+          titleEl.textContent = post.title;
+
+          const meta = document.createElement("p");
+          meta.className = "blog-meta";
+          const parts = [post.date || "日付未設定", post.category].filter(Boolean);
+          meta.textContent = parts.join(" ・ ");
+
+          const body = document.createElement("p");
+          body.textContent = post.body;
+
+          header.appendChild(titleEl);
+          header.appendChild(meta);
+          article.appendChild(header);
+          article.appendChild(body);
+
+          blogFeed.appendChild(article);
+        });
+      };
+
+      const posts = loadPosts();
+      renderPosts(posts);
+
+      blogForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(blogForm);
+        const title = (formData.get("title") || "").toString().trim();
+        const date = (formData.get("date") || "").toString();
+        const category = (formData.get("category") || "").toString().trim();
+        const body = (formData.get("body") || "").toString().trim();
+
+        if (!title || !body) {
+          blogStatus.textContent = "タイトルと本文は必須です。";
+          return;
+        }
+
+        const formattedDate = date || new Date().toISOString().slice(0, 10);
+        const nextPosts = [
+          { title, date: formattedDate, category, body },
+          ...posts,
+        ];
+
+        posts.length = 0;
+        posts.push(...nextPosts);
+        savePosts(posts);
+        renderPosts(posts);
+        blogForm.reset();
+        blogStatus.textContent = "新しい記事を保存しました。";
+      });
+    </script>
   </body>
 </html>

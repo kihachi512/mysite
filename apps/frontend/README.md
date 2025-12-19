@@ -1,4 +1,4 @@
-# ほぼ日の朝 + 収益分配ラボ（静的版）
+# さすらいのモモンガカーニバル + 収益分配ラボ（静的版）
 
 `apps/frontend/public/` にトップページと「収益分配ラボ」の静的ファイルをまとめました。依存パッケージなしでビルドでき、オフライン環境でも試せます。
 
@@ -7,6 +7,7 @@
 1. `npm run build`（または `npm run build --prefix apps/frontend`）
 2. `apps/frontend/dist/index.html` をブラウザで開くとトップページが表示されます
 3. 「収益分配ラボ」は `apps/frontend/dist/revenue-lab/index.html` から直接アクセスできます
+4. Blog セクションの管理者投稿フォームは、入力した記事をローカルストレージに保存して即座にブログリストへ反映します
 
 ## PR 動作チェック
 
