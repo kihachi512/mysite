@@ -3,356 +3,444 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>収益分配ラボ（スタンドアロン版）</title>
+  <title>さすらいのモモンガカーニバル | 公式サイト</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #0b1021;
-      --panel: #161c2f;
-      --accent: #8be9fd;
-      --accent-2: #ffb86c;
-      --muted: #9ea7bd;
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --ink: #10243f;
+      --muted: #5a6785;
+      --accent: #5b8def;
+      --accent-2: #f9a826;
+      --accent-3: #2ec2a2;
+      --border: rgba(16, 36, 63, 0.08);
+      --shadow: 0 18px 60px rgba(16, 36, 63, 0.08);
     }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Inter", "Noto Sans JP", system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 20% 20%, rgba(139, 233, 253, 0.08), transparent 28%),
-        radial-gradient(circle at 80% 0%, rgba(255, 184, 108, 0.06), transparent 30%),
+      background: radial-gradient(circle at 80% 10%, rgba(91, 141, 239, 0.12), transparent 35%),
+        radial-gradient(circle at 20% 30%, rgba(252, 175, 69, 0.12), transparent 28%),
+        radial-gradient(circle at 50% 90%, rgba(46, 194, 162, 0.14), transparent 30%),
         var(--bg);
-      color: #e6edff;
+      color: var(--ink);
       min-height: 100vh;
+      scroll-behavior: smooth;
     }
     header {
-      padding: 32px 24px 12px;
-      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: rgba(246, 247, 251, 0.82);
+      border-bottom: 1px solid var(--border);
     }
-    h1 {
-      margin: 0;
-      font-size: clamp(26px, 3vw, 34px);
-      letter-spacing: 0.04em;
-    }
-    p.lead {
-      margin: 6px 0 0;
-      color: var(--muted);
-    }
-    main {
-      padding: 0 24px 36px;
-      max-width: 1080px;
+    .topbar {
+      max-width: 1200px;
       margin: 0 auto;
-      display: grid;
-      gap: 16px;
-    }
-    .card {
-      background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-    }
-    .card h2 {
-      margin-top: 0;
-      font-size: 18px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
     }
-    label {
+    .logo {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #5b8def, #2ec2a2);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      box-shadow: 0 8px 24px rgba(91, 141, 239, 0.35);
+    }
+    nav ul {
+      display: flex;
+      gap: 16px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+    }
+    nav a {
+      text-decoration: none;
       color: var(--muted);
-      font-size: 14px;
-    }
-    input, select {
-      background: #0f1424;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 600;
+      padding: 8px 10px;
       border-radius: 10px;
-      padding: 10px 12px;
-      color: #e6edff;
-      font-size: 15px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    nav a:hover { background: rgba(16, 36, 63, 0.06); color: var(--ink); }
+    .cta-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(91, 141, 239, 0.35);
     }
-    th, td {
-      padding: 10px 8px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      font-size: 14px;
+    main { max-width: 1200px; margin: 0 auto; padding: 18px 20px 60px; }
+    .hero {
+      margin-top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      align-items: center;
     }
-    th { color: var(--muted); font-weight: 600; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-    .number { text-align: right; font-variant-numeric: tabular-nums; }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: 0.02em;
+    }
+    .hero p.lead { color: var(--muted); margin: 8px 0 16px; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 16px; }
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
+      gap: 8px;
+      padding: 8px 12px;
       border-radius: 999px;
-      background: rgba(139, 233, 253, 0.12);
-      color: #9ce3f5;
-      font-size: 13px;
-    }
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 12px;
-      background: linear-gradient(135deg, #8be9fd, #50fa7b);
-      color: #0b1021;
+      background: rgba(91, 141, 239, 0.12);
+      color: #2c4b7c;
       font-weight: 700;
+      font-size: 14px;
+    }
+    .pill.orange { background: rgba(249, 168, 38, 0.16); color: #6c4305; }
+    .pill.green { background: rgba(46, 194, 162, 0.16); color: #0d5e4f; }
+    .hero-visual {
+      position: relative;
+      min-height: 240px;
+      background: linear-gradient(135deg, rgba(91, 141, 239, 0.14), rgba(46, 194, 162, 0.12)), var(--panel);
+      border: 1px dashed rgba(16, 36, 63, 0.18);
+      border-radius: 22px;
+      overflow: hidden;
+    }
+    .orb { position: absolute; border-radius: 50%; filter: blur(18px); opacity: 0.9; }
+    .orb.one { width: 160px; height: 160px; background: rgba(91, 141, 239, 0.35); top: 16%; left: 10%; }
+    .orb.two { width: 120px; height: 120px; background: rgba(249, 168, 38, 0.35); bottom: 12%; right: 14%; }
+    .orb.three { width: 100px; height: 100px; background: rgba(46, 194, 162, 0.35); bottom: 26%; left: 32%; }
+    .glider {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #0f2747;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .section { margin-top: 36px; }
+    .section h2 { margin: 0 0 8px; font-size: 24px; }
+    .section p.lead { margin: 0 0 16px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      min-height: 100%;
+    }
+    .card h3 { margin-top: 0; margin-bottom: 8px; }
+    .muted { color: var(--muted); }
+    .list { margin: 0; padding-left: 18px; color: var(--muted); }
+    .schedule-tabs { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.8);
+      font-weight: 700;
+      color: var(--muted);
       cursor: pointer;
     }
-    button.secondary { background: rgba(255,255,255,0.08); color: #e6edff; }
-    .stack { display: flex; flex-direction: column; gap: 10px; }
-    .muted { color: var(--muted); font-size: 13px; }
-    .mono { font-family: "JetBrains Mono", Consolas, monospace; }
-    @media (max-width: 720px) {
-      main { padding: 0 16px 30px; }
-      table { display: block; overflow-x: auto; }
+    .tab.active { background: linear-gradient(135deg, rgba(91,141,239,0.12), rgba(46,194,162,0.12)); color: var(--ink); border-color: rgba(91,141,239,0.35); }
+    .schedule-list { display: grid; gap: 12px; }
+    .slot {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
     }
+    .time { font-weight: 800; color: var(--accent); }
+    .tag { display: inline-flex; padding: 6px 10px; border-radius: 999px; background: rgba(91,141,239,0.14); color: #2c4b7c; font-size: 12px; font-weight: 700; margin-right: 8px; }
+    .tickets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .ticket { border: 1px solid var(--border); border-radius: 16px; padding: 16px; background: #fff; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+    .ticket::before { content: ""; position: absolute; inset: -20% -20% auto auto; width: 120px; height: 120px; background: radial-gradient(circle, rgba(91,141,239,0.18), transparent 60%); transform: rotate(12deg); }
+    .price { font-size: 22px; font-weight: 800; margin: 6px 0; }
+    .accent { color: var(--accent); }
+    .access {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+    .map {
+      background: linear-gradient(135deg, rgba(91,141,239,0.16), rgba(46,194,162,0.14));
+      border: 1px dashed rgba(16, 36, 63, 0.24);
+      border-radius: 18px;
+      min-height: 240px;
+      display: grid;
+      place-items: center;
+      color: #18345a;
+      font-weight: 700;
+      text-align: center;
+      padding: 16px;
+    }
+    .faq { display: grid; gap: 12px; }
+    .qa { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: #fff; box-shadow: var(--shadow); }
+    .qa h4 { margin: 0 0 6px; }
+    footer {
+      margin: 40px auto 10px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 640px) { .slot { grid-template-columns: 1fr; } nav ul { display: none; } }
   </style>
 </head>
 <body>
   <header>
-    <h1>収益分配ラボ（オフライン静的版）</h1>
-    <p class="lead">広告 + AIスポンサー + 投げ銭の総額を、保証ベース + ボーナスで全投稿に配るシミュレーター。</p>
-    <p class="muted">ローカルストレージに保存されるので、再読み込みしても設定が残ります。</p>
+    <div class="topbar">
+      <a href="#top" class="logo">
+        <span class="logo-mark">Mo</span>
+        <span>さすらいのモモンガカーニバル</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="#story">見どころ</a></li>
+          <li><a href="#schedule">タイムテーブル</a></li>
+          <li><a href="#tickets">チケット</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+      <button class="cta-btn" onclick="document.getElementById('tickets').scrollIntoView({behavior: 'smooth'});">チケットを確認</button>
+    </div>
   </header>
-  <main>
-    <section class="card">
-      <h2>プール設定</h2>
+
+  <main id="top">
+    <section class="hero">
+      <div>
+        <div class="badge-row">
+          <span class="pill">旅するフェス</span>
+          <span class="pill orange">次の舞台: 北海道・摩周湖</span>
+          <span class="pill green">2024年10月5-6日</span>
+        </div>
+        <h1>風に乗って現れる、空飛ぶお祭り。</h1>
+        <p class="lead">「さすらいのモモンガカーニバル」は、森と湖を渡り歩く移動式フェス。光る滑空ショー、森のステージ、夜空のランタン行列——どこにいても、空を見上げれば合図が届きます。</p>
+        <div class="badge-row">
+          <span class="pill"><strong>入場無料エリア</strong>も充実</span>
+          <span class="pill orange">一夜限りの水上シアター</span>
+          <span class="pill green">森を守るエコワークショップ</span>
+        </div>
+        <button class="cta-btn" onclick="document.getElementById('schedule').scrollIntoView({behavior: 'smooth'});">開催概要を見る</button>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orb one"></div>
+        <div class="orb two"></div>
+        <div class="orb three"></div>
+        <div class="glider">WANDERING<br>FLYING SQUIRREL<br>CARNIVAL</div>
+      </div>
+    </section>
+
+    <section class="section" id="story">
+      <h2>カーニバルの見どころ</h2>
+      <p class="lead">昼は森の音とマーケット、夕暮れは空中ショー、夜は湖面に映る灯り。移動先ごとに風景も演出も変化します。</p>
       <div class="grid">
-        <label>広告プール（円）<input type="number" id="ads" min="0" step="100"></label>
-        <label>AIスポンサー（円）<input type="number" id="sponsor" min="0" step="100"></label>
-        <label>投げ銭（円）<input type="number" id="tips" min="0" step="100"></label>
-        <label>保証割合（%）<input type="range" id="guarantee" min="0" max="100" step="5"></label>
-        <label>最低保証/投稿（円）<input type="number" id="floor" min="0" step="10"></label>
-      </div>
-      <div class="actions">
-        <span class="pill">総プール: <span id="totalPool" class="mono"></span> 円</span>
-        <span class="pill">保証プール: <span id="guaranteePool" class="mono"></span> 円</span>
-        <span class="pill">ボーナスプール: <span id="bonusPool" class="mono"></span> 円</span>
-        <button class="secondary" id="reset">初期値にリセット</button>
+        <article class="card">
+          <h3>滑空パレード</h3>
+          <p class="muted">ライトをまとったモモンガフライヤーが空を横切り、湖面に軌跡を描きます。子どもたちの声を拾う「ねがいごとマイク」も登場。</p>
+        </article>
+        <article class="card">
+          <h3>森の音楽ステージ</h3>
+          <p class="muted">アコースティックからエレクトロまで、森に溶け込むサウンドをキュレーション。環境音をミックスした特別セットも予定。</p>
+        </article>
+        <article class="card">
+          <h3>旅するマーケット</h3>
+          <p class="muted">各地のクラフトや野草茶、木の実スイーツが並ぶ小さな市。来場者が参加できる「モモンガ色」ワークショップも常設。</p>
+        </article>
+        <article class="card">
+          <h3>星空シネマ</h3>
+          <p class="muted">夜になると湖畔の水上ステージがスクリーンに。空と水、二つのキャンバスに映るショートフィルムを無料で上映します。</p>
+        </article>
       </div>
     </section>
 
-    <section class="card">
-      <h2>投稿データ</h2>
-      <p class="muted">Reads=閲覧数、Likes=リアクション、Tips=投稿者への直接サポート、Quality=主観スコア（0-5）。</p>
-      <div class="stack" id="posts"></div>
+    <section class="section" id="schedule">
+      <h2>タイムテーブル</h2>
+      <p class="lead">2日間とも昼は森のアクティビティ、夕方からは光の演目が中心です。タブで日付を切り替えられます。</p>
+      <div class="schedule-tabs">
+        <button class="tab active" data-day="day1">10/5(土)</button>
+        <button class="tab" data-day="day2">10/6(日)</button>
+      </div>
+      <div class="schedule-list" id="scheduleList"></div>
     </section>
 
-    <section class="card">
-      <h2>結果</h2>
-      <table>
-        <thead>
-          <tr><th>#</th><th>Reads</th><th>Likes</th><th>Tips</th><th>Quality</th><th class="number">保証額</th><th class="number">ボーナス</th><th class="number">合計</th></tr>
-        </thead>
-        <tbody id="results"></tbody>
-        <tfoot>
-          <tr><th colspan="5">合計</th><th class="number" id="totalBase"></th><th class="number" id="totalBonus"></th><th class="number" id="totalPayout"></th></tr>
-        </tfoot>
-      </table>
+    <section class="section" id="tickets">
+      <h2>チケットと参加方法</h2>
+      <p class="lead">一部無料エリアがあります。湖畔ステージと滑空ショーは事前予約制の有料席をご用意しています。</p>
+      <div class="tickets">
+        <div class="ticket">
+          <h3>フリーエリア</h3>
+          <p class="price accent">無料</p>
+          <p class="muted">マーケット、昼のワークショップ、星空シネマの立ち見が含まれます。</p>
+          <ul class="list">
+            <li>予約不要・入退場自由</li>
+            <li>環境保全協力金にご協力ください</li>
+          </ul>
+        </div>
+        <div class="ticket">
+          <h3>イブニングパス</h3>
+          <p class="price accent">¥2,400</p>
+          <p class="muted">夕方以降の滑空ショーと水上シアター指定エリア。</p>
+          <ul class="list">
+            <li>リストバンドで再入場可</li>
+            <li>オリジナルランタン付き</li>
+          </ul>
+        </div>
+        <div class="ticket">
+          <h3>デイ&ナイトパス</h3>
+          <p class="price accent">¥4,500</p>
+          <p class="muted">昼のステージから夜のランタン行列まで終日楽しめる通し券。</p>
+          <ul class="list">
+            <li>滑空パレード観覧デッキ</li>
+            <li>森のティーテイスティング招待</li>
+          </ul>
+        </div>
+        <div class="ticket">
+          <h3>ファミリーシート</h3>
+          <p class="price accent">¥8,000 / 4名</p>
+          <p class="muted">小さなお子さま向けのクッションゾーンと、音量を抑えた特設エリア。</p>
+          <ul class="list">
+            <li>キッズ工作キット付き</li>
+            <li>ベビーカー置き場・授乳テント完備</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="access">
+      <h2>アクセスと滞在</h2>
+      <p class="lead">今回は摩周湖東側の森が舞台。循環シャトルと、夜間も走るランタンバスを用意しています。</p>
+      <div class="access">
+        <div class="map">湖畔周辺の回遊マップ（当日パンフで配布）</div>
+        <div class="card">
+          <h3>交通</h3>
+          <ul class="list">
+            <li>釧路空港からバスで70分、弟子屈ターミナル経由で会場直行</li>
+            <li>JR摩周駅から臨時シャトル 20分間隔</li>
+            <li>駐車場は事前予約制（台数限定）</li>
+          </ul>
+          <h3>滞在</h3>
+          <ul class="list">
+            <li>夜は10℃前後まで冷えます。防寒具をお忘れなく。</li>
+            <li>会場内にテントサイトと湖畔ロッジを併設</li>
+            <li>再生素材の食器リユースステーションを設置</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <h2>よくある質問</h2>
+      <p class="lead">環境保全のため、持ち込みルールと夜間の行動にご協力ください。</p>
+      <div class="faq">
+        <div class="qa">
+          <h4>雨天の場合は？</h4>
+          <p class="muted">小雨決行、荒天時は一部演目を屋根付きスペースへ移動します。公式SNSで最新情報をお知らせします。</p>
+        </div>
+        <div class="qa">
+          <h4>ゴミはどうすればいい？</h4>
+          <p class="muted">会場に分別ステーションを設置しています。マイカップ・マイボトルの持参を推奨しています。</p>
+        </div>
+        <div class="qa">
+          <h4>再入場はできますか？</h4>
+          <p class="muted">リストバンド着用で終日再入場可能です。夜間は足元が暗いためライトの携行をお願いします。</p>
+        </div>
+        <div class="qa">
+          <h4>ボランティア募集はありますか？</h4>
+          <p class="muted">設営・受付・キッズワークショップのサポートクルーを募集しています。お問い合わせフォームよりご連絡ください。</p>
+        </div>
+      </div>
     </section>
   </main>
 
+  <footer>
+    さすらいのモモンガカーニバル実行委員会｜お問い合わせ: hello@momonga-carnival.jp
+  </footer>
+
   <script>
-    const defaultState = {
-      pools: { ads: 5000, sponsor: 2500, tips: 1200 },
-      guaranteePercent: 50,
-      floor: 30,
-      posts: [
-        { reads: 1200, likes: 32, tips: 4, quality: 4.5 },
-        { reads: 860, likes: 18, tips: 2, quality: 3.6 },
-        { reads: 420, likes: 5, tips: 0, quality: 2.5 },
-        { reads: 200, likes: 1, tips: 0, quality: 1.5 }
+    const scheduleData = {
+      day1: [
+        { time: '11:00', tag: '森のステージ', title: 'オープニング・森の調律', desc: '木々の響きをサンプリングしながら始まる音のセッション。' },
+        { time: '13:00', tag: 'ワークショップ', title: 'モモンガ色の布を染めよう', desc: '草木染めで旅の旗を作る体験。親子参加歓迎。' },
+        { time: '16:30', tag: 'マーケット', title: '旅するマルシェ', desc: '湖畔の風を感じながら各地のクラフトを味わう。' },
+        { time: '18:30', tag: 'ショー', title: '滑空パレード', desc: '発光スーツのフライヤーが光のラインを描くメイン演目。' },
+        { time: '20:00', tag: 'シネマ', title: '星空ショートフィルム', desc: '湖上に浮かぶスクリーンで上映。' }
+      ],
+      day2: [
+        { time: '10:30', tag: 'ヨガ', title: '森の呼吸セッション', desc: '湖面を眺める静かなヨガとお茶会。' },
+        { time: '12:30', tag: 'ミュージック', title: '昼の音遊び', desc: '子ども向けのリズムワークショップと木琴ライブ。' },
+        { time: '15:00', tag: 'トーク', title: '森と旅のトーク', desc: '森を守るローカルガイドと巡るストーリー。' },
+        { time: '17:30', tag: 'ショー', title: '水上ルミナリエ', desc: 'ランタンを手に湖面を囲む光の列。' },
+        { time: '19:30', tag: 'クロージング', title: 'モモンガの帰路', desc: '夜空に光る尾を残しながら、次の街への出発を告げる演出。' }
       ]
     };
 
-    const loadState = () => {
-      try {
-        const raw = localStorage.getItem('revenue-workshop-state');
-        return raw ? { ...defaultState, ...JSON.parse(raw) } : structuredClone(defaultState);
-      } catch (err) {
-        console.warn('Failed to load state', err);
-        return structuredClone(defaultState);
-      }
-    };
+    const list = document.getElementById('scheduleList');
+    const tabs = document.querySelectorAll('.tab');
 
-    const saveState = (state) => {
-      localStorage.setItem('revenue-workshop-state', JSON.stringify(state));
-    };
-
-    let state = loadState();
-
-    const format = (n) => Math.round(n).toLocaleString('ja-JP');
-
-    const poolInputs = {
-      ads: document.getElementById('ads'),
-      sponsor: document.getElementById('sponsor'),
-      tips: document.getElementById('tips'),
-      guarantee: document.getElementById('guarantee'),
-      floor: document.getElementById('floor')
-    };
-
-    const setInputValues = () => {
-      poolInputs.ads.value = state.pools.ads;
-      poolInputs.sponsor.value = state.pools.sponsor;
-      poolInputs.tips.value = state.pools.tips;
-      poolInputs.guarantee.value = state.guaranteePercent;
-      poolInputs.floor.value = state.floor;
-    };
-
-    const renderPosts = () => {
-      const container = document.getElementById('posts');
-      container.innerHTML = '';
-      state.posts.forEach((post, index) => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'grid card';
-        wrapper.style.padding = '12px';
-
-        const fields = [
-          ['閲覧数', 'reads', 1],
-          ['リアクション', 'likes', 1],
-          ['投げ銭', 'tips', 1],
-          ['Quality(0-5)', 'quality', 0.1]
-        ];
-
-        fields.forEach(([labelText, key, step]) => {
-          const label = document.createElement('label');
-          label.textContent = `#${index + 1} ${labelText}`;
-          label.style.gap = '4px';
-          const input = document.createElement('input');
-          input.type = 'number';
-          input.step = step;
-          input.min = 0;
-          input.max = key === 'quality' ? 5 : 999999;
-          input.value = post[key];
-          input.addEventListener('input', () => {
-            const value = parseFloat(input.value) || 0;
-            post[key] = Math.max(0, key === 'quality' ? Math.min(5, value) : value);
-            saveState(state);
-            renderResults();
-          });
-          label.appendChild(input);
-          wrapper.appendChild(label);
-        });
-
-        const remove = document.createElement('button');
-        remove.textContent = '投稿を削除';
-        remove.className = 'secondary';
-        remove.addEventListener('click', () => {
-          state.posts.splice(index, 1);
-          saveState(state);
-          renderPosts();
-          renderResults();
-        });
-        wrapper.appendChild(remove);
-
-        container.appendChild(wrapper);
-      });
-
-      const add = document.createElement('button');
-      add.textContent = '投稿を追加';
-      add.addEventListener('click', () => {
-        state.posts.push({ reads: 0, likes: 0, tips: 0, quality: 3 });
-        saveState(state);
-        renderPosts();
-        renderResults();
-      });
-      const addWrap = document.createElement('div');
-      addWrap.className = 'actions';
-      addWrap.appendChild(add);
-      container.appendChild(addWrap);
-    };
-
-    const renderPools = () => {
-      const total = state.pools.ads + state.pools.sponsor + state.pools.tips;
-      const guaranteePool = total * (state.guaranteePercent / 100);
-      const bonusPool = Math.max(0, total - guaranteePool);
-      document.getElementById('totalPool').textContent = format(total);
-      document.getElementById('guaranteePool').textContent = format(guaranteePool);
-      document.getElementById('bonusPool').textContent = format(bonusPool);
-      return { total, guaranteePool, bonusPool };
-    };
-
-    const renderResults = () => {
-      const { guaranteePool, bonusPool } = renderPools();
-      const tbody = document.getElementById('results');
-      tbody.innerHTML = '';
-      const count = Math.max(1, state.posts.length);
-      const baseline = Math.min(state.floor, guaranteePool / count);
-      const baselinePool = baseline * state.posts.length;
-
-      const scores = state.posts.map((post) => {
-        const engagementScore = post.reads * 0.001 + post.likes * 0.5 + post.tips * 1.2 + post.quality;
-        return Math.max(0, engagementScore);
-      });
-      const totalScore = scores.reduce((a, b) => a + b, 0);
-
-      let sumBase = 0;
-      let sumBonus = 0;
-
-      state.posts.forEach((post, idx) => {
-        const bonusShare = totalScore > 0 ? (scores[idx] / totalScore) * bonusPool : 0;
-        const baseShare = baseline;
-        sumBase += baseShare;
-        sumBonus += bonusShare;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>#${idx + 1}</td>
-          <td class="number mono">${format(post.reads)}</td>
-          <td class="number mono">${format(post.likes)}</td>
-          <td class="number mono">${format(post.tips)}</td>
-          <td class="number mono">${post.quality.toFixed(1)}</td>
-          <td class="number mono">${format(baseShare)}</td>
-          <td class="number mono">${format(bonusShare)}</td>
-          <td class="number mono"><strong>${format(baseShare + bonusShare)}</strong></td>
+    function render(day) {
+      list.innerHTML = '';
+      scheduleData[day].forEach((slot) => {
+        const item = document.createElement('div');
+        item.className = 'slot';
+        item.innerHTML = `
+          <div class="time">${slot.time}</div>
+          <div>
+            <div class="tag">${slot.tag}</div>
+            <div style="font-weight: 800; margin: 4px 0 6px;">${slot.title}</div>
+            <div class="muted">${slot.desc}</div>
+          </div>
         `;
-        tbody.appendChild(tr);
+        list.appendChild(item);
       });
+    }
 
-      document.getElementById('totalBase').textContent = format(sumBase);
-      document.getElementById('totalBonus').textContent = format(sumBonus);
-      document.getElementById('totalPayout').textContent = format(sumBase + sumBonus);
-    };
-
-    Object.entries(poolInputs).forEach(([key, input]) => {
-      input.addEventListener('input', () => {
-        if (key === 'guarantee') {
-          state.guaranteePercent = Math.min(100, Math.max(0, parseFloat(input.value) || 0));
-        } else if (key === 'floor') {
-          state.floor = Math.max(0, parseFloat(input.value) || 0);
-        } else {
-          state.pools[key] = Math.max(0, parseFloat(input.value) || 0);
-        }
-        saveState(state);
-        renderPools();
-        renderResults();
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        render(tab.dataset.day);
       });
     });
 
-    document.getElementById('reset').addEventListener('click', () => {
-      state = structuredClone(defaultState);
-      setInputValues();
-      renderPosts();
-      renderResults();
-      saveState(state);
-    });
-
-    setInputValues();
-    renderPosts();
-    renderResults();
+    render('day1');
   </script>
 </body>
 </html>
