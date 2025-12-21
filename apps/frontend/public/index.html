@@ -129,21 +129,24 @@
     .hero-visual {
       position: relative;
       min-height: 240px;
-      background: linear-gradient(135deg, rgba(91, 141, 239, 0.14), rgba(46, 194, 162, 0.12)), var(--panel);
-      border: 1px dashed rgba(16, 36, 63, 0.18);
+      background: linear-gradient(180deg, rgba(16, 36, 63, 0.25), rgba(16, 36, 63, 0.55)),
+        linear-gradient(135deg, rgba(91, 141, 239, 0.14), rgba(46, 194, 162, 0.12)),
+        url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      border: 1px solid rgba(16, 36, 63, 0.12);
       border-radius: 22px;
       overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
     }
     .orb { position: absolute; border-radius: 50%; filter: blur(18px); opacity: 0.9; }
-    .orb.one { width: 160px; height: 160px; background: rgba(91, 141, 239, 0.35); top: 16%; left: 10%; }
-    .orb.two { width: 120px; height: 120px; background: rgba(249, 168, 38, 0.35); bottom: 12%; right: 14%; }
-    .orb.three { width: 100px; height: 100px; background: rgba(46, 194, 162, 0.35); bottom: 26%; left: 32%; }
+    .orb.one { width: 160px; height: 160px; background: rgba(91, 141, 239, 0.35); top: 6%; left: 8%; }
+    .orb.two { width: 120px; height: 120px; background: rgba(249, 168, 38, 0.35); bottom: 6%; right: 8%; }
+    .orb.three { width: 100px; height: 100px; background: rgba(46, 194, 162, 0.35); bottom: 20%; left: 28%; }
     .glider {
       position: absolute;
       inset: 0;
       display: grid;
       place-items: center;
-      color: #0f2747;
+      color: #eaf2ff;
       font-weight: 800;
       font-size: 20px;
       letter-spacing: 0.1em;
@@ -161,6 +164,15 @@
       padding: 16px;
       box-shadow: var(--shadow);
       min-height: 100%;
+    }
+    .card.with-photo { display: grid; gap: 12px; }
+    .card img.thumb {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid rgba(16, 36, 63, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
     }
     .card h3 { margin-top: 0; margin-bottom: 8px; }
     .muted { color: var(--muted); }
@@ -201,16 +213,18 @@
       align-items: start;
     }
     .map {
-      background: linear-gradient(135deg, rgba(91,141,239,0.16), rgba(46,194,162,0.14));
-      border: 1px dashed rgba(16, 36, 63, 0.24);
+      background: linear-gradient(180deg, rgba(16, 36, 63, 0.38), rgba(16, 36, 63, 0.7)),
+        url('https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      border: 1px solid rgba(16, 36, 63, 0.18);
       border-radius: 18px;
       min-height: 240px;
       display: grid;
       place-items: center;
-      color: #18345a;
+      color: #f4f7ff;
       font-weight: 700;
       text-align: center;
       padding: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
     .faq { display: grid; gap: 12px; }
     .qa { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: #fff; box-shadow: var(--shadow); }
@@ -220,6 +234,29 @@
       text-align: center;
       color: var(--muted);
       font-size: 13px;
+    }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .photo-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 100%;
+    }
+    .photo-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-card figcaption {
+      padding: 10px 12px 12px;
+      color: var(--muted);
+      font-weight: 600;
+      background: linear-gradient(180deg, rgba(91, 141, 239, 0.06), rgba(46, 194, 162, 0.06));
     }
     @media (max-width: 640px) { .slot { grid-template-columns: 1fr; } nav ul { display: none; } }
   </style>
@@ -272,22 +309,57 @@
       <h2>カーニバルの見どころ</h2>
       <p class="lead">昼は森の音とマーケット、夕暮れは空中ショー、夜は湖面に映る灯り。移動先ごとに風景も演出も変化します。</p>
       <div class="grid">
-        <article class="card">
-          <h3>滑空パレード</h3>
-          <p class="muted">ライトをまとったモモンガフライヤーが空を横切り、湖面に軌跡を描きます。子どもたちの声を拾う「ねがいごとマイク」も登場。</p>
+        <article class="card with-photo">
+          <img class="thumb" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80" alt="宙を舞うグライダーのシルエット" loading="lazy">
+          <div>
+            <h3>滑空パレード</h3>
+            <p class="muted">ライトをまとったモモンガフライヤーが空を横切り、湖面に軌跡を描きます。子どもたちの声を拾う「ねがいごとマイク」も登場。</p>
+          </div>
         </article>
-        <article class="card">
-          <h3>森の音楽ステージ</h3>
-          <p class="muted">アコースティックからエレクトロまで、森に溶け込むサウンドをキュレーション。環境音をミックスした特別セットも予定。</p>
+        <article class="card with-photo">
+          <img class="thumb" src="https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80" alt="森の中で演奏するステージライト" loading="lazy">
+          <div>
+            <h3>森の音楽ステージ</h3>
+            <p class="muted">アコースティックからエレクトロまで、森に溶け込むサウンドをキュレーション。環境音をミックスした特別セットも予定。</p>
+          </div>
         </article>
-        <article class="card">
-          <h3>旅するマーケット</h3>
-          <p class="muted">各地のクラフトや野草茶、木の実スイーツが並ぶ小さな市。来場者が参加できる「モモンガ色」ワークショップも常設。</p>
+        <article class="card with-photo">
+          <img class="thumb" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" alt="ハンドクラフト雑貨が並ぶマーケット" loading="lazy">
+          <div>
+            <h3>旅するマーケット</h3>
+            <p class="muted">各地のクラフトや野草茶、木の実スイーツが並ぶ小さな市。来場者が参加できる「モモンガ色」ワークショップも常設。</p>
+          </div>
         </article>
-        <article class="card">
-          <h3>星空シネマ</h3>
-          <p class="muted">夜になると湖畔の水上ステージがスクリーンに。空と水、二つのキャンバスに映るショートフィルムを無料で上映します。</p>
+        <article class="card with-photo">
+          <img class="thumb" src="https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?auto=format&fit=crop&w=800&q=80" alt="湖畔に浮かぶスクリーンの映画イベント" loading="lazy">
+          <div>
+            <h3>星空シネマ</h3>
+            <p class="muted">夜になると湖畔の水上ステージがスクリーンに。空と水、二つのキャンバスに映るショートフィルムを無料で上映します。</p>
+          </div>
         </article>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <h2>フォトギャラリー</h2>
+      <p class="lead">これまで旅した森や湖で撮影されたスナップを公開。空気感を感じながら次の開催地に思いを馳せてください。</p>
+      <div class="photo-grid">
+        <figure class="photo-card">
+          <img src="https://images.unsplash.com/photo-1433838552652-f9a46b332c40?auto=format&fit=crop&w=1000&q=80" alt="夕暮れの湖面とランタンの列" loading="lazy">
+          <figcaption>ランタンが風に揺れる摩周湖の黄昏。水面に映る光が滑空ショーを迎えます。</figcaption>
+        </figure>
+        <figure class="photo-card">
+          <img src="https://images.unsplash.com/photo-1464375117522-1311d6a5b81f?auto=format&fit=crop&w=1000&q=80" alt="湖畔の水上シアター" loading="lazy">
+          <figcaption>水上シネマの設営風景。木漏れ日とスクリーンのコントラストが幻想的。</figcaption>
+        </figure>
+        <figure class="photo-card">
+          <img src="https://images.unsplash.com/photo-1421809313281-48f03fa45e9f?auto=format&fit=crop&w=1000&q=80" alt="森の中のテントサイト" loading="lazy">
+          <figcaption>森のテントサイトでは、朝日と鳥の声に包まれながらゆっくり目覚めます。</figcaption>
+        </figure>
+        <figure class="photo-card">
+          <img src="https://images.unsplash.com/photo-1482192596544-9eb780fc7f66?auto=format&fit=crop&w=1000&q=80" alt="夜空に伸びる光跡" loading="lazy">
+          <figcaption>フライヤーが夜空へ描く光跡。音楽とシンクロした瞬間に歓声が広がります。</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -348,7 +420,12 @@
       <h2>アクセスと滞在</h2>
       <p class="lead">今回は摩周湖東側の森が舞台。循環シャトルと、夜間も走るランタンバスを用意しています。</p>
       <div class="access">
-        <div class="map">湖畔周辺の回遊マップ（当日パンフで配布）</div>
+        <div class="map">
+          <div>
+            湖畔周辺の回遊マップ
+            <div style="font-size: 13px; font-weight: 600; margin-top: 6px; opacity: 0.92;">シャトルルートとビュースポットをチェック</div>
+          </div>
+        </div>
         <div class="card">
           <h3>交通</h3>
           <ul class="list">
