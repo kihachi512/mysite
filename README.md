@@ -1,16 +1,21 @@
 # 齊藤智都｜歌人ホームページ
 
-歌人・齊藤智都のホームページです。プロフィール、SNSリンク、過去の応募作の記録、
-ネットプリントの配布アーカイブを置いています。短歌の本文そのものは掲載しません。
+歌人・齊藤智都のホームページです。プロフィール、SNSリンク、作品集、
+ネットプリントの配布記録を置いています。
 
 ## 構成
 
-サイトの実体は 1 枚の静的 HTML ファイルです。
+ビルドは `public/` を `dist/` にコピーするだけです。
 
 ```
-apps/frontend/public/index.html   ← サイト本体（ここだけ編集すれば更新できます）
-apps/frontend/build.js            ← public/ を dist/ にコピーするだけのビルド
-index.html                        ← ルートからのリダイレクト
+apps/frontend/public/index.html        ← トップページ
+apps/frontend/public/works/*.html      ← 連作ごとの縦書きページ
+apps/frontend/public/robots.txt        ← 検索エンジン向け
+apps/frontend/public/sitemap.xml       ← 検索エンジン向け
+apps/frontend/build.js                 ← public/ を dist/ にコピーするビルド
+tools/make-work.mjs                    ← 縦書きページを作るツール
+tools/work-template.html               ← そのひな形
+index.html                             ← ルートからのリダイレクト
 ```
 
 ## 中身の更新のしかた
@@ -20,8 +25,8 @@ index.html                        ← ルートからのリダイレクト
 
 | 変数 | 内容 |
 | --- | --- |
-| `WORKS` | 応募作の記録（年・タイトル・賞や媒体・結果・補足・URL） |
-| `WORKS_EMPTY` | 応募作が 0 件のときに出る文章 |
+| `WORKS` | 作品集（年・タイトル・掲載媒体・結果・補足・縦書きページ・掲載誌URL） |
+| `WORKS_EMPTY` | 作品が 0 件のときに出る文章 |
 | `NETPRINT` | ネットプリント（タイトル・発行時期・配布期間・配布中かどうか・予約番号・URL） |
 | `NETPRINT_EMPTY` | ネプリが 0 件のときに出る文章 |
 | `LINKS` | SNS へのリンク（サービス名・表示名・URL） |
@@ -37,13 +42,11 @@ index.html                        ← ルートからのリダイレクト
 `MAIL.user` と `MAIL.domain` を表示時に結合しています。アドレスを変えるときは
 この 2 つを書き換えてください（`＠` を含む文字列をソースに直接書かないこと）。
 
-トップの代表歌は `<p class="signature">` の一行です。句ごとに `<span>` で
-包んであるので、画面が狭いときも句切れの位置で折り返します。歌を入れ替える
-ときは、同じように句ごとに `<span>` で区切ってください。
+トップの代表歌は `<p class="signature">` の一行です。どの画面幅でも一行に
+収まるよう、幅から文字の大きさを計算しているので、歌を入れ替えるときは
+そのまま書き換えるだけで大丈夫です（極端に長い歌にすると字が小さくなります）。
 
-プロフィール本文と略歴（名前・作歌開始・所属など）は HTML の
-`<section id="profile">` を直接書き換えてください。`◯◯` や「※」で
-始まる文章は差し替え用のプレースホルダーです。
+プロフィール本文と略歴は HTML の `<section id="profile">` を直接書き換えてください。
 
 ## ローカルで確認する
 
@@ -55,6 +58,49 @@ open apps/frontend/public/index.html
 npm run build --prefix apps/frontend
 ```
 
+## 作品ページ（縦書き）
+
+連作は1作につき1ページ、縦書きで置いています（`apps/frontend/public/works/`）。
+一首がかならず一行に収まるよう、画面の高さから文字の大きさを計算しています。
+
+新しい連作を追加するときは、テキストファイルを用意してツールを走らせます。
+
+```
+1行目      連作のタイトル
+2行目      作者名
+3行目以降  一首につき一行。区切りを入れたい場所は ＊ だけの行
+```
+
+```bash
+node tools/make-work.mjs <テキストファイル> <出力名> \
+  --zine "掲載誌名" --url "掲載誌のURL"
+
+# 例
+node tools/make-work.mjs ~/goniji.txt goniji \
+  --zine "東京文芸部ZINE vol.2（テーマ「滲」）" --url "https://booth.pm/ja/items/8322103"
+```
+
+文字コードは UTF-8 でも Shift-JIS でも読み取れます。作成後は次の3つを忘れずに。
+
+1. `index.html` の `WORKS` に `read: 'works/<出力名>.html'` を足す
+2. `apps/frontend/public/sitemap.xml` に新しいURLを足す
+3. カード画像 `works/ogp-<出力名>.png` を用意する（無ければ `og:image` の行を消す）
+
+ページの見た目を変えたいときは `tools/work-template.html` を直してから、
+ツールを流し直してください。
+
+## 検索エンジン向けの設定（SEO）
+
+| ファイル・箇所 | 内容 |
+| --- | --- |
+| `apps/frontend/public/robots.txt` | クロールの許可とサイトマップの場所 |
+| `apps/frontend/public/sitemap.xml` | ページ一覧。ページを増やしたら追記する |
+| 各ページの `<title>` / `description` | ページごとに別の文章にする |
+| `canonical` / `og:url` | 正しい公開URLを指しているか確認する |
+| `application/ld+json` | 「歌人・齊藤智都のサイト」であることを構造化データで明示 |
+
+作品ページ側の構造化データは、連作を `Poem`、掲載誌を `isPartOf` として記述しています。
+
 ## 画像・アイコン
 
 | ファイル | 用途 |
@@ -63,6 +109,7 @@ npm run build --prefix apps/frontend
 | `apps/frontend/public/favicon.svg` | ブラウザのタブに出るアイコン |
 | `apps/frontend/public/favicon-32.png` | SVG に対応していないブラウザ用 |
 | `apps/frontend/public/apple-touch-icon.png` | iPhone でホーム画面に追加したときのアイコン |
+| `apps/frontend/public/works/ogp-*.png` | 作品ページごとのカード画像 |
 
 代表歌を変えたら OGP 画像も作り直してください（画像内の文字は画像に焼き込まれています）。
 
