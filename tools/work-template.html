@@ -169,10 +169,14 @@
       letter-spacing: 0.02em;
     }
 
-    /* 縦書きで横倒しになる記号を、立てたまま表示します */
+    /* 縦書きで横倒しになる記号を、立てたまま表示します。
+       text-orientation はブラウザによって効かないことがあるため、
+       その一文字だけを横書きの小さな箱として置く方法にしています。 */
     .poems .upright {
+      display: inline-block;
+      writing-mode: horizontal-tb;
+      -webkit-text-orientation: upright;
       text-orientation: upright;
-      text-combine-upright: none;
     }
 
     .tate .colophon {

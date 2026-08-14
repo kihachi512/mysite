@@ -72,22 +72,26 @@ npm run build --prefix apps/frontend
 ```
 
 ```bash
-node tools/make-work.mjs <テキストファイル> <出力名> \
+node tools/make-work.mjs <テキストファイル> [YYYYMMDD] \
   --zine "掲載誌名" --url "掲載誌のURL"
 
 # 例
-node tools/make-work.mjs ~/goniji.txt goniji \
+node tools/make-work.mjs ~/goniji.txt \
   --zine "東京文芸部ZINE vol.2（テーマ「滲」）" --url "https://booth.pm/ja/items/8322103"
 ```
+
+ページのファイル名は**作成日**です（`works/20260814.html` のような形）。
+日付を省くと今日の日付になります。過去の作品を後から足すときは、
+2つめの引数に `YYYYMMDD` を渡してください。
 
 文字コードは UTF-8 でも Shift-JIS でも読み取れます。
 `≒` `≠` `±` `×` などの記号は、縦書きでも横倒しにならないよう自動で立てます。
 
 作成後は次の3つを忘れずに。
 
-1. `index.html` の `WORKS` に `read: 'works/<出力名>.html'` を足す
+1. `index.html` の `WORKS` に `read: 'works/<YYYYMMDD>.html'` を足す
 2. `apps/frontend/public/sitemap.xml` に新しいURLを足す
-3. カード画像 `works/ogp-<出力名>.png` を用意する（無ければ `og:image` の行を消す）
+3. カード画像 `works/ogp-<YYYYMMDD>.png` を用意する（無ければ `og:image` の行を消す）
 
 ページの見た目を変えたいときは `tools/work-template.html` を直してから、
 ツールを流し直してください。
