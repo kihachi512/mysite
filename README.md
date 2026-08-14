@@ -68,7 +68,7 @@ npm run build --prefix apps/frontend
 ```
 1行目      連作のタイトル
 2行目      作者名
-3行目以降  一首につき一行。区切りを入れたい場所は ＊ だけの行
+3行目以降  一首につき一行（空行と ＊ だけの行は読み飛ばします）
 ```
 
 ```bash
@@ -80,7 +80,10 @@ node tools/make-work.mjs ~/goniji.txt goniji \
   --zine "東京文芸部ZINE vol.2（テーマ「滲」）" --url "https://booth.pm/ja/items/8322103"
 ```
 
-文字コードは UTF-8 でも Shift-JIS でも読み取れます。作成後は次の3つを忘れずに。
+文字コードは UTF-8 でも Shift-JIS でも読み取れます。
+`≒` `≠` `±` `×` などの記号は、縦書きでも横倒しにならないよう自動で立てます。
+
+作成後は次の3つを忘れずに。
 
 1. `index.html` の `WORKS` に `read: 'works/<出力名>.html'` を足す
 2. `apps/frontend/public/sitemap.xml` に新しいURLを足す

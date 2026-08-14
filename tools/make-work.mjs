@@ -12,7 +12,7 @@
  *
  *   1行目  連作のタイトル
  *   2行目  作者名
- *   3行目以降  一首につき一行。区切りを入れたい場所には ＊ だけの行を置く
+ *   3行目以降  一首につき一行（空行と ＊ だけの行は読み飛ばします）
  *
  * 出力先は apps/frontend/public/works/<出力名>.html です。
  * 作ったあとは index.html の WORKS に read: 'works/<出力名>.html' を足してください。
@@ -58,8 +58,8 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({
 const lines = readText(source).split(/\r?\n/).map((l) => l.trim());
 const title = lines[0];
 const author = lines[1];
-const body = lines.slice(2).filter(Boolean);
-const count = body.filter((l) => l !== '＊').length;
+const body = lines.slice(2).filter((l) => l && l !== '＊');
+const count = body.length;
 
 if (!title || !author || count === 0) {
   console.error('テキストの形式が違うようです。1行目にタイトル、2行目に作者名、3行目以降に一首ずつ書いてください。');
@@ -69,10 +69,12 @@ if (!title || !author || count === 0) {
 const zine = flags.zine ?? '';
 const zineUrl = flags.url ?? '';
 
+/* 縦書きだと横倒しになる記号を、立てたまま表示するための印を付けます */
+const UPRIGHT = /[≒≠≦≧＝±×÷∞→←↑↓]/g;
+const upright = (s) => s.replace(UPRIGHT, (c) => `<span class="upright">${c}</span>`);
+
 const columns = body
-  .map((l) => (l === '＊'
-    ? '      <p class="sep" aria-hidden="true">＊</p>'
-    : `      <p>${esc(l)}</p>`))
+  .map((l) => `      <p>${upright(esc(l))}</p>`)
   .join('\n');
 
 const template = fs.readFileSync(path.join(root, 'tools', 'work-template.html'), 'utf8');
