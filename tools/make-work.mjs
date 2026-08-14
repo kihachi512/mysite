@@ -97,12 +97,8 @@ function kansuji(n) {
   return `${hundreds > 1 ? digits[hundreds] : ''}百${rest ? kansuji(rest) : ''}`;
 }
 
-/* 縦書きだと横倒しになる記号を、立てたまま表示するための印を付けます */
-const UPRIGHT = /[≒≠≦≧＝±×÷∞→←↑↓]/g;
-const upright = (s) => s.replace(UPRIGHT, (c) => `<span class="upright">${c}</span>`);
-
 const columns = body
-  .map((l) => `      <p>${upright(esc(l))}</p>`)
+  .map((l) => `      <p>${esc(l)}</p>`)
   .join('\n');
 
 const template = fs.readFileSync(path.join(root, 'tools', 'work-template.html'), 'utf8');

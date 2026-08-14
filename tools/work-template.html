@@ -112,8 +112,6 @@
       flex-wrap: wrap;
     }
 
-    .brand { text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.14em; }
-
     .back {
       font-size: 12px;
       font-weight: 500;
@@ -169,16 +167,6 @@
       letter-spacing: 0.02em;
     }
 
-    /* 縦書きで横倒しになる記号を、立てたまま表示します。
-       text-orientation はブラウザによって効かないことがあるため、
-       その一文字だけを横書きの小さな箱として置く方法にしています。 */
-    .poems .upright {
-      display: inline-block;
-      writing-mode: horizontal-tb;
-      -webkit-text-orientation: upright;
-      text-orientation: upright;
-    }
-
     .tate .colophon {
       font-size: 0.8em;
       color: var(--ink-faint);
@@ -205,7 +193,6 @@
 </head>
 <body>
   <header class="site">
-    <a class="brand" href="../index.html">齊藤智都</a>
     <a class="back" href="../index.html#works">作品集へもどる</a>
   </header>
 
