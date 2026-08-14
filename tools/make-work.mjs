@@ -143,7 +143,6 @@ const runTool = (script, args, label) => {
 
 runTool('link-works.mjs', [], '前後リンク');
 runTool('make-sitemap.mjs', [], 'sitemap.xml');
-runTool('make-feed.mjs', [], 'feed.xml');
 runTool('make-card.mjs', [slug], 'カード画像');
 
 /* 一覧に並べるための一項目を、そのまま貼れる形で出します */
