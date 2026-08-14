@@ -199,6 +199,17 @@
 
     .hero p { position: relative; max-width: 34rem; }
 
+    /* 代表歌：一首だけを置くための、少し大きく間をとった組み */
+    .signature {
+      position: relative;
+      margin: 0 0 40px;
+      font-size: clamp(16px, 2.3vw, 20px);
+      line-height: 2.2;
+      letter-spacing: 0.12em;
+    }
+
+    .signature span { display: inline-block; }
+
     /* ---------- profile ---------- */
     dl.facts {
       margin: 0;
@@ -452,8 +463,10 @@
       </svg>
       <h1 class="hero-name">齊藤智都</h1>
       <div class="hero-role">歌人</div>
+      <!-- 代表歌：句ごとに span で区切ると、折り返しが句切れの位置で起きます -->
+      <p class="signature"><span>正確な</span><span>位置情報を</span><span>測るには</span><span>まずきしめんを</span><span>立ち食いします</span></p>
       <p class="lead">短歌をつくっています。このサイトは、応募した連作や発行したネットプリントの記録を、少しずつためていくための倉庫です。</p>
-      <p class="lead">新しい歌は各SNSで発表しています。最新の投稿は<a href="#links">リンク</a>からどうぞ。</p>
+      <p class="lead">新しい歌はXで発表しています。最新の投稿は<a href="#links">リンク</a>からどうぞ。</p>
     </section>
 
     <!-- ============================================================
@@ -462,8 +475,9 @@
     <section id="profile">
       <p class="kicker">Profile</p>
       <h2>プロフィール</h2>
-      <p class="lead">※ここに自己紹介を書いてください。短歌をはじめたきっかけ、作風、好きな歌人や歌集のことなど、二〜三段落あると読み手に伝わりやすくなります。</p>
-      <p class="lead">※このあたりに、活動の方針や、依頼・寄稿を受けているかどうかを書いておくと親切です。</p>
+      <p class="lead">2000年生まれ。神奈川県と東京都を行き来しながら暮らしています。2025年12月から短歌をつくりはじめ、2026年10月より「かばん」に所属します。</p>
+      <p class="lead">※この段落に、短歌をはじめたきっかけと、どんな歌をつくりたいかを二〜三文で書いてください。（例：どこで短歌に出会ったか／日常のどんな瞬間を歌にすることが多いか／これから挑戦したいこと）</p>
+      <p class="lead">寄稿・出演のご依頼、感想やご連絡は、XのDMかメールへお願いします。</p>
       <dl class="facts">
         <div>
           <dt>名前</dt>
