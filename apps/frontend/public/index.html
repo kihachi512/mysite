@@ -327,6 +327,16 @@
 
     .work-title { font-size: 16px; letter-spacing: 0.1em; }
 
+    /* 一覧に出す一首。狭い画面でも一行に収まるよう字の大きさを画面幅から決めます */
+    .work-excerpt {
+      grid-column: 1 / -1;
+      font-size: min(15px, 2.5vw);
+      line-height: 2;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
     .work-venue {
       grid-column: 1 / -1;
       font-size: 13px;
@@ -636,6 +646,7 @@
        title  : 連作タイトル
        venue  : 賞・企画名／掲載媒体
        result : 右端に出る結果ラベル（空文字 '' にすると非表示）
+       excerpt: 一覧に出す一首（任意。連作から一首選んで書きます）
        note   : 補足（任意。空文字なら非表示）
        read   : サイト内の縦書きページ（任意）
        url    : 掲載誌・販売ページのURL（任意）
@@ -646,13 +657,16 @@
         title: '「五・虹・五・虹・虹」26首',
         venue: '東京文芸部ZINE vol.2（テーマ「滲」）',
         result: '掲載',
+        excerpt: 'カラフルな『無題』と名乗る四角形滲みの奥の声を聞かせて',
         note: '',
         read: 'works/20260814.html',
         url: 'https://booth.pm/ja/items/8322103'
       }
       /* 追加するときは、上と同じ形で並べてください。
-         read : サイト内の縦書きページ（tools/make-work.mjs で作れます）
-         url  : 掲載誌や販売ページ */
+         read    : サイト内の縦書きページ（tools/make-work.mjs で作れます）
+         url     : 掲載誌や販売ページ
+         excerpt : 一覧に出す一首
+         tools/make-work.mjs が、貼り付けられる形で出力します */
     ];
 
     /* 作品欄が空のときに表示する文章 */
@@ -729,6 +743,7 @@
             <div class="work">
               <div class="work-title">${title}</div>
               ${w.result ? `<div class="result">${esc(w.result)}</div>` : '<div></div>'}
+              ${w.excerpt ? `<div class="work-excerpt">${esc(w.excerpt)}</div>` : ''}
               <div class="work-venue">${esc(w.venue)}</div>
               ${w.note ? `<div class="work-note">${esc(w.note)}</div>` : ''}
               ${links ? `<div class="work-links">${links}</div>` : ''}

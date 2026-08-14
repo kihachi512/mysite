@@ -17,11 +17,13 @@
  *   3行目以降  一首につき一行（空行と ＊ だけの行は読み飛ばします）
  *
  * 出力先は apps/frontend/public/works/<YYYYMMDD>.html です。
- * 作ったあとは index.html の WORKS に read: 'works/<YYYYMMDD>.html' を足してください。
+ * 作成後、sitemap.xml の更新とカード画像の作成は自動で行います。
+ * 最後に表示される WORKS の一項目を、index.html に貼り付ければ一覧に並びます。
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -125,7 +127,33 @@ fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, html);
 
 console.log(`作成しました: ${path.relative(root, out)}（${count}首）`);
-console.log('次の3つを忘れずに:');
-console.log(`  1. index.html の WORKS に read: 'works/${slug}.html' を足す`);
-console.log(`  2. sitemap.xml に ${SITE}/works/${slug}.html を足す`);
-console.log(`  3. カード画像 works/ogp-${slug}.png を用意する（無ければ og:image の行を消す）`);
+
+/* sitemap.xml とカード画像は自動で用意します */
+const runTool = (script, args, label) => {
+  try {
+    const log = execFileSync(process.execPath, [path.join(root, 'tools', script), ...args], { encoding: 'utf8' });
+    process.stdout.write(log);
+  } catch (e) {
+    console.warn(`${label}は自動作成できませんでした。手動で実行してください:`);
+    console.warn(`  node tools/${script} ${args.join(' ')}`);
+    const detail = (e.stderr ?? e.message ?? '').toString().trim();
+    if (detail) console.warn(detail.split('\n').map((l) => `  ${l}`).join('\n'));
+  }
+};
+
+runTool('make-sitemap.mjs', [], 'sitemap.xml');
+runTool('make-card.mjs', [slug], 'カード画像');
+
+/* 一覧に並べるための一項目を、そのまま貼れる形で出します */
+const jsq = (v) => `'${String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+console.log('\nindex.html の WORKS の先頭に、次を貼り付けてください:\n');
+console.log(`      {
+        year: ${jsq(slug.slice(0, 4))},
+        title: ${jsq(`「${title}」${count}首`)},
+        venue: ${jsq(zine || 'Web発表')},
+        result: ${jsq(zine ? '掲載' : '')},
+        excerpt: ${jsq(body[0])},
+        note: '',
+        read: ${jsq(`works/${slug}.html`)},
+        url: ${jsq(zineUrl)}
+      },`);

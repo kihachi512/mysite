@@ -15,6 +15,8 @@ apps/frontend/public/sitemap.xml       ← 検索エンジン向け
 apps/frontend/build.js                 ← public/ を dist/ にコピーするビルド
 tools/make-work.mjs                    ← 縦書きページを作るツール
 tools/work-template.html               ← そのひな形
+tools/make-card.mjs                    ← カード画像を作るツール
+tools/make-sitemap.mjs                 ← sitemap.xml を作り直すツール
 index.html                             ← ルートからのリダイレクト
 ```
 
@@ -25,7 +27,7 @@ index.html                             ← ルートからのリダイレクト
 
 | 変数 | 内容 |
 | --- | --- |
-| `WORKS` | 作品集（年・タイトル・掲載媒体・結果・補足・縦書きページ・掲載誌URL） |
+| `WORKS` | 作品集（年・タイトル・掲載媒体・結果・一覧に出す一首・補足・縦書きページ・掲載誌URL） |
 | `WORKS_EMPTY` | 作品が 0 件のときに出る文章 |
 | `NETPRINT` | ネットプリント（タイトル・発行時期・配布期間・配布中かどうか・予約番号・URL） |
 | `NETPRINT_EMPTY` | ネプリが 0 件のときに出る文章 |
@@ -86,14 +88,29 @@ node tools/make-work.mjs ~/goniji.txt \
 
 文字コードは UTF-8 でも Shift-JIS でも読み取れます。本文は原文のまま組みます。
 
-作成後は次の3つを忘れずに。
+このツールは、続けて次の2つも自動で行います。
 
-1. `index.html` の `WORKS` に `read: 'works/<YYYYMMDD>.html'` を足す
-2. `apps/frontend/public/sitemap.xml` に新しいURLを足す
-3. カード画像 `works/ogp-<YYYYMMDD>.png` を用意する（無ければ `og:image` の行を消す）
+- `sitemap.xml` の作り直し（`tools/make-sitemap.mjs`）
+- カード画像の作成（`tools/make-card.mjs`）
+
+最後に、一覧へ貼り付けるための `WORKS` の一項目が表示されます。それを
+`apps/frontend/public/index.html` の `WORKS` の先頭に貼れば作業は終わりです。
 
 ページの見た目を変えたいときは `tools/work-template.html` を直してから、
 ツールを流し直してください。
+
+### 個別に実行する
+
+```bash
+node tools/make-sitemap.mjs          # sitemap.xml を作り直す
+node tools/make-card.mjs 20260814    # カード画像だけ作り直す
+```
+
+`make-card.mjs` は Playwright を使います。入っていない場合は一度だけ
+`npm i -D playwright && npx playwright install chromium` を実行してください
+（このリポジトリに入れても、パソコン全体に入れても動きます）。
+書体は実行時に Google Fonts から取得します。ネットワークにつながらないときは
+手元の書体で描くため、見た目が少し変わります。
 
 ## 検索エンジン向けの設定（SEO）
 
