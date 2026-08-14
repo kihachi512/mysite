@@ -141,7 +141,6 @@ const runTool = (script, args, label) => {
   }
 };
 
-runTool('link-works.mjs', [], '前後リンク');
 runTool('make-sitemap.mjs', [], 'sitemap.xml');
 runTool('make-card.mjs', [slug], 'カード画像');
 

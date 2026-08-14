@@ -17,7 +17,6 @@ tools/make-work.mjs                    ← 縦書きページを作るツール
 tools/work-template.html               ← そのひな形
 tools/make-card.mjs                    ← カード画像を作るツール
 tools/make-sitemap.mjs                 ← sitemap.xml を作り直すツール
-tools/link-works.mjs                   ← 作品ページの前後リンクを張り直すツール
 index.html                             ← ルートからのリダイレクト
 ```
 
@@ -89,9 +88,8 @@ node tools/make-work.mjs ~/goniji.txt \
 
 文字コードは UTF-8 でも Shift-JIS でも読み取れます。本文は原文のまま組みます。
 
-このツールは、続けて次の3つも自動で行います。
+このツールは、続けて次の2つも自動で行います。
 
-- 作品ページどうしの前後リンクの張り直し（`tools/link-works.mjs`）
 - `sitemap.xml` の作り直し（`tools/make-sitemap.mjs`）
 - カード画像の作成（`tools/make-card.mjs`）
 
@@ -104,7 +102,6 @@ node tools/make-work.mjs ~/goniji.txt \
 ### 個別に実行する
 
 ```bash
-node tools/link-works.mjs            # 前後リンクを張り直す
 node tools/make-sitemap.mjs          # sitemap.xml を作り直す
 node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 ```
