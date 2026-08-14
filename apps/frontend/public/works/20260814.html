@@ -21,6 +21,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://momongacarnival.com/works/20260814.html" />
 
+  <link rel="alternate" type="application/rss+xml" title="齊藤智都｜歌人" href="../feed.xml" />
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
@@ -132,7 +133,7 @@
       overflow: auto;
       padding: 32px 24px;
       /* 一番長い一首が画面の高さに収まる大きさを、画面の高さから計算します */
-      font-size: clamp(12px, calc((100dvh - 200px) / 35), 19px);
+      font-size: clamp(12px, calc((100dvh - 200px) / 38), 19px);
       line-height: 1;
       overscroll-behavior: contain;
     }
@@ -168,6 +169,63 @@
       letter-spacing: 0.02em;
     }
 
+    /* 一首ごとの共有ボタン。列の足元に、うるさくない大きさで置きます */
+    .poems .share {
+      /* 縦書きでは inline 方向が上下なので、歌の足元に続きます */
+      display: inline-block;
+      margin: 0;
+      margin-inline-start: 1.4em;
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--ink-faint);
+      font-family: inherit;
+      font-size: 0.62em;
+      letter-spacing: 0.2em;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s ease, color 0.2s ease;
+    }
+
+    .poems p:hover .share,
+    .poems .share:focus-visible { opacity: 1; }
+
+    .poems .share:hover { color: var(--ink); }
+
+    /* 触って操作する画面では、隠さず薄く出しておきます */
+    @media (hover: none) {
+      .poems .share { opacity: 0.55; }
+    }
+
+    /* 画面が低いときは、一首を一行に収めるほうを優先します */
+    @media (max-height: 620px) {
+      .poems .share { display: none; }
+      .tate { padding: 14px 18px; }
+      .poems p { letter-spacing: 0; }
+      header.site { padding: 10px 18px; }
+      footer.site { padding: 10px 18px 14px; }
+      .hint { display: none; }
+    }
+
+    /* 共有したときに出る小さな知らせ */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      padding: 10px 18px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
     .tate .colophon {
       font-size: 0.8em;
       color: var(--ink-faint);
@@ -177,13 +235,20 @@
       margin-block-end: 0.5em;
     }
 
+    .works-nav {
+      display: flex;
+      gap: 8px 20px;
+      flex-wrap: wrap;
+    }
+
     footer.site {
       flex: none;
       border-top: 1px solid var(--rule-soft);
       padding: 16px 24px 28px;
       display: flex;
+      align-items: baseline;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px 20px;
       flex-wrap: wrap;
       font-size: 12px;
       letter-spacing: 0.12em;
@@ -201,39 +266,82 @@
     <h1>五・虹・五・虹・虹</h1>
     <p class="byline">齊藤智都</p>
     <div class="poems">
-      <p>カラフルな『無題』と名乗る四角形滲みの奥の声を聞かせて</p>
-      <p>です・ますは気づけば溶けてなくなってあなたと僕はキャンバスのうえ</p>
-      <p>風に舞う羽根を必死に打ち返しもうほかほかのダウンジャケット</p>
-      <p>寒空のベンチでちょっとひとやすみ立ち上がったら尻型の汗</p>
-      <p>みぞれ舞うサイクリングはびしょ濡れで二人は笑う罰ゲームかと</p>
-      <p>目覚ましの次に聞こえた発車ベルねぼけまなこの新横浜で</p>
-      <p>正確な位置情報を測るにはまずきしめんを立ち食いします</p>
-      <p>和やかな夜の終わりの指定席　倍速で遠ざかる気がした</p>
-      <p>零時過ぎ横浜線に揺られても位置情報は迷子のままで</p>
-      <p>空っぽの写真フォルダにくっきりとまばゆい夜は焼き付いていて</p>
-      <p>丸善の喫茶店にもスーツ、スーツ、スーツ どこでも買える東京ばな奈</p>
-      <p>ワーク・ライフ・バランスとかいうけれどリモートワーク≒リモートライフ</p>
-      <p>今日ですか？甲羅を干しに出社です。はい、亀の血を引いているので。</p>
-      <p>月曜に追われて逃げてカラオケへ ここは金曜日大使館だ！</p>
-      <p>好きなだけソフトクリームを食べるとき喉仏とか引っこんでるよ</p>
-      <p>小窓から身を乗り出して見る花火 映画にはない今夜が好きだ</p>
-      <p>中秋の小雨の夜の住宅地ここがいいよね殺されるなら</p>
-      <p>木枯らしを切って駆けてく夜十時買ったばかりのケーキ抱えて</p>
-      <p>天井に差し込む青がまたたいて二人は笑う新居の夜に</p>
-      <p>地鳴りする夜間工事にうとうとと二重窓への愛をささやく</p>
-      <p>悪気なく羽根は回され飛ばされて気づけば部屋が床屋になった</p>
-      <p>物憂げな空き缶ひとつと車止めそれは小さな小さな廃墟</p>
-      <p>またひとつ知らないアイスが増えてるよまだ薬屋と言い張るつもり？</p>
-      <p>血が滲む？ほんと？ほんとに血が滲む？辞書の中から来たとかじゃない？</p>
-      <p>燃え盛る承認欲を止めるため強めのＷＡＦを処方しますね</p>
-      <p>プレステが最後に吐いた虹色のノイズのうえを走る桃鉄</p>
+      <p id="p01" data-poem="カラフルな『無題』と名乗る四角形滲みの奥の声を聞かせて">カラフルな『無題』と名乗る四角形滲みの奥の声を聞かせて<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p02" data-poem="です・ますは気づけば溶けてなくなってあなたと僕はキャンバスのうえ">です・ますは気づけば溶けてなくなってあなたと僕はキャンバスのうえ<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p03" data-poem="風に舞う羽根を必死に打ち返しもうほかほかのダウンジャケット">風に舞う羽根を必死に打ち返しもうほかほかのダウンジャケット<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p04" data-poem="寒空のベンチでちょっとひとやすみ立ち上がったら尻型の汗">寒空のベンチでちょっとひとやすみ立ち上がったら尻型の汗<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p05" data-poem="みぞれ舞うサイクリングはびしょ濡れで二人は笑う罰ゲームかと">みぞれ舞うサイクリングはびしょ濡れで二人は笑う罰ゲームかと<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p06" data-poem="目覚ましの次に聞こえた発車ベルねぼけまなこの新横浜で">目覚ましの次に聞こえた発車ベルねぼけまなこの新横浜で<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p07" data-poem="正確な位置情報を測るにはまずきしめんを立ち食いします">正確な位置情報を測るにはまずきしめんを立ち食いします<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p08" data-poem="和やかな夜の終わりの指定席　倍速で遠ざかる気がした">和やかな夜の終わりの指定席　倍速で遠ざかる気がした<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p09" data-poem="零時過ぎ横浜線に揺られても位置情報は迷子のままで">零時過ぎ横浜線に揺られても位置情報は迷子のままで<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p10" data-poem="空っぽの写真フォルダにくっきりとまばゆい夜は焼き付いていて">空っぽの写真フォルダにくっきりとまばゆい夜は焼き付いていて<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p11" data-poem="丸善の喫茶店にもスーツ、スーツ、スーツ どこでも買える東京ばな奈">丸善の喫茶店にもスーツ、スーツ、スーツ どこでも買える東京ばな奈<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p12" data-poem="ワーク・ライフ・バランスとかいうけれどリモートワーク≒リモートライフ">ワーク・ライフ・バランスとかいうけれどリモートワーク≒リモートライフ<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p13" data-poem="今日ですか？甲羅を干しに出社です。はい、亀の血を引いているので。">今日ですか？甲羅を干しに出社です。はい、亀の血を引いているので。<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p14" data-poem="月曜に追われて逃げてカラオケへ ここは金曜日大使館だ！">月曜に追われて逃げてカラオケへ ここは金曜日大使館だ！<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p15" data-poem="好きなだけソフトクリームを食べるとき喉仏とか引っこんでるよ">好きなだけソフトクリームを食べるとき喉仏とか引っこんでるよ<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p16" data-poem="小窓から身を乗り出して見る花火 映画にはない今夜が好きだ">小窓から身を乗り出して見る花火 映画にはない今夜が好きだ<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p17" data-poem="中秋の小雨の夜の住宅地ここがいいよね殺されるなら">中秋の小雨の夜の住宅地ここがいいよね殺されるなら<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p18" data-poem="木枯らしを切って駆けてく夜十時買ったばかりのケーキ抱えて">木枯らしを切って駆けてく夜十時買ったばかりのケーキ抱えて<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p19" data-poem="天井に差し込む青がまたたいて二人は笑う新居の夜に">天井に差し込む青がまたたいて二人は笑う新居の夜に<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p20" data-poem="地鳴りする夜間工事にうとうとと二重窓への愛をささやく">地鳴りする夜間工事にうとうとと二重窓への愛をささやく<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p21" data-poem="悪気なく羽根は回され飛ばされて気づけば部屋が床屋になった">悪気なく羽根は回され飛ばされて気づけば部屋が床屋になった<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p22" data-poem="物憂げな空き缶ひとつと車止めそれは小さな小さな廃墟">物憂げな空き缶ひとつと車止めそれは小さな小さな廃墟<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p23" data-poem="またひとつ知らないアイスが増えてるよまだ薬屋と言い張るつもり？">またひとつ知らないアイスが増えてるよまだ薬屋と言い張るつもり？<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p24" data-poem="血が滲む？ほんと？ほんとに血が滲む？辞書の中から来たとかじゃない？">血が滲む？ほんと？ほんとに血が滲む？辞書の中から来たとかじゃない？<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p25" data-poem="燃え盛る承認欲を止めるため強めのＷＡＦを処方しますね">燃え盛る承認欲を止めるため強めのＷＡＦを処方しますね<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
+      <p id="p26" data-poem="プレステが最後に吐いた虹色のノイズのうえを走る桃鉄">プレステが最後に吐いた虹色のノイズのうえを走る桃鉄<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>
     </div>
     <p class="colophon">東京文芸部ZINE vol.2（テーマ「滲」）寄稿<br />全二十六首</p>
   </main>
 
   <footer class="site">
     <span class="hint">横にスクロールしてお読みください</span>
+    <nav class="works-nav"><!-- NAV:START --><!-- NAV:END --></nav>
     <a class="back" href="https://booth.pm/ja/items/8322103" target="_blank" rel="noopener noreferrer">掲載誌を見る</a>
   </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* 一首ごとの共有。スマホでは共有メニュー、パソコンでは
+       Xの投稿画面を開きます（どちらも使えなければコピーします）。 */
+    const toast = document.getElementById('toast');
+    let toastTimer;
+
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    document.querySelectorAll('.poems .share').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const poem = button.closest('p').dataset.poem;
+        const url = `${location.origin}${location.pathname}#${button.closest('p').id}`;
+        const text = `${poem}／齊藤智都`;
+
+        if (navigator.share) {
+          try {
+            await navigator.share({ text, url });
+          } catch { /* 共有をやめただけなので、何もしません */ }
+          return;
+        }
+
+        const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+        const opened = window.open(intent, '_blank', 'noopener,noreferrer');
+        if (opened) return;
+
+        try {
+          await navigator.clipboard.writeText(`${text}\n${url}`);
+          notify('歌とリンクをコピーしました');
+        } catch {
+          notify('コピーできませんでした');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

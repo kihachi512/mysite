@@ -25,6 +25,7 @@
   <link rel="canonical" href="https://momongacarnival.com/" />
   <!-- ▲▲ ここまで ▲▲ -->
 
+  <link rel="alternate" type="application/rss+xml" title="齊藤智都｜歌人" href="feed.xml" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -327,6 +328,16 @@
 
     .work-title { font-size: 16px; letter-spacing: 0.1em; }
 
+    /* 一覧に出す一首。狭い画面でも一行に収まるよう字の大きさを画面幅から決めます */
+    .work-excerpt {
+      grid-column: 1 / -1;
+      font-size: min(15px, 2.5vw);
+      line-height: 2;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
     .work-venue {
       grid-column: 1 / -1;
       font-size: 13px;
@@ -542,7 +553,7 @@
       <div class="hero-role">歌人</div>
       <!-- 代表歌：入れ替えるときはこの一行を書き換えてください -->
       <p class="signature">正確な位置情報を測るにはまずきしめんを立ち食いします</p>
-      <p class="lead">短歌をつくっています。このサイトは、応募した作品や発行したネットプリントの記録を、少しずつためていくための倉庫です。</p>
+      <p class="lead">短歌をつくっています。このサイトは、応募した作品や発行したネットプリントの記録を、少しずつためていくための場所です。</p>
     </section>
 
     <!-- ============================================================
@@ -551,9 +562,8 @@
     <section id="profile">
       <p class="kicker">Profile</p>
       <h2>プロフィール</h2>
-      <p class="lead">2000年5月生まれ。神奈川県在住。<br />2025年12月から作歌をはじめ、2026年10月〜「<a href="https://www.kaban-tanka.jp/" target="_blank" rel="noopener noreferrer">かばん</a>」所属。</p>
+      <p class="lead">2000年5月生まれ。神奈川県在住。<br />2025年12月から作歌をはじめ、2026年10月より「<a href="https://www.kaban-tanka.jp/" target="_blank" rel="noopener noreferrer">かばん</a>」所属。</p>
       <p class="lead">短歌をはじめたきっかけは、木下龍也『<a href="https://nanarokusha.shop/items/5fa37c65df515940e015dc25" target="_blank" rel="noopener noreferrer">天才による凡人のための短歌教室</a>』です。最近では、「短歌ください」「群像短歌部」「うたらば」などに投稿しています。</p>
-      <p class="lead">ご連絡は、XのDMかメールへお願いします。</p>
       <dl class="facts">
         <div>
           <dt>筆名</dt>
@@ -566,7 +576,7 @@
         <div>
           <dt>好きな一首</dt>
           <dd>
-            <span class="quote">防衛省が推奨しない方法でぼくはあなたを愛しています</span>
+            <span class="quote">ひとつめの扉を閉じているような祖母の運転免許返納</span>
             <span class="cite">木下龍也『オールアラウンドユー』</span>
           </dd>
         </div>
@@ -637,6 +647,7 @@
        title  : 連作タイトル
        venue  : 賞・企画名／掲載媒体
        result : 右端に出る結果ラベル（空文字 '' にすると非表示）
+       excerpt: 一覧に出す一首（任意。連作から一首選んで書きます）
        note   : 補足（任意。空文字なら非表示）
        read   : サイト内の縦書きページ（任意）
        url    : 掲載誌・販売ページのURL（任意）
@@ -647,13 +658,16 @@
         title: '「五・虹・五・虹・虹」26首',
         venue: '東京文芸部ZINE vol.2（テーマ「滲」）',
         result: '掲載',
+        excerpt: 'カラフルな『無題』と名乗る四角形滲みの奥の声を聞かせて',
         note: '',
         read: 'works/20260814.html',
         url: 'https://booth.pm/ja/items/8322103'
       }
       /* 追加するときは、上と同じ形で並べてください。
-         read : サイト内の縦書きページ（tools/make-work.mjs で作れます）
-         url  : 掲載誌や販売ページ */
+         read    : サイト内の縦書きページ（tools/make-work.mjs で作れます）
+         url     : 掲載誌や販売ページ
+         excerpt : 一覧に出す一首
+         tools/make-work.mjs が、貼り付けられる形で出力します */
     ];
 
     /* 作品欄が空のときに表示する文章 */
@@ -691,7 +705,8 @@
        service : サービス名   handle : 表示名・ID   url : リンク先
     ------------------------------------------------------------------ */
     const LINKS = [
-      { service: 'X (Twitter)', handle: '@kihachi512', url: 'https://x.com/kihachi512' }
+      { service: 'X (Twitter)', handle: '@kihachi512', url: 'https://x.com/kihachi512' },
+      { service: 'RSS', handle: '更新を購読する', url: 'feed.xml' }
     ];
 
     /* --- メールアドレス（スパム対策のため分割して持っています） --------
@@ -730,6 +745,7 @@
             <div class="work">
               <div class="work-title">${title}</div>
               ${w.result ? `<div class="result">${esc(w.result)}</div>` : '<div></div>'}
+              ${w.excerpt ? `<div class="work-excerpt">${esc(w.excerpt)}</div>` : ''}
               <div class="work-venue">${esc(w.venue)}</div>
               ${w.note ? `<div class="work-note">${esc(w.note)}</div>` : ''}
               ${links ? `<div class="work-links">${links}</div>` : ''}
