@@ -94,14 +94,6 @@
       white-space: nowrap;
     }
 
-    .brand small {
-      display: block;
-      font-size: 10px;
-      letter-spacing: 0.34em;
-      color: var(--ink-faint);
-      margin-top: 2px;
-    }
-
     nav.site ul {
       display: flex;
       gap: 20px;
@@ -211,16 +203,15 @@
 
     .hero p { position: relative; max-width: 34rem; }
 
-    /* 代表歌：一首だけを置くための、少し大きく間をとった組み */
+    /* 代表歌：どの画面幅でも一行のまま読めるよう、幅に合わせて字を縮めます */
     .signature {
       position: relative;
       margin: 0 0 40px;
-      font-size: clamp(16px, 2.3vw, 20px);
+      font-size: min(19px, 3vw);
       line-height: 2.2;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
     }
-
-    .signature span { display: inline-block; }
 
     /* ---------- profile ---------- */
     dl.facts {
@@ -415,8 +406,11 @@
     .links a:hover,
     .links a:focus-visible { background: var(--wash); padding-left: 10px; }
 
+    .links a > * { min-width: 0; }
     .links .svc { font-size: 13px; letter-spacing: 0.2em; color: var(--ink-faint); }
-    .links .handle { font-size: 15px; letter-spacing: 0.08em; }
+
+    /* 長いメールアドレスが狭い画面からはみ出さないように */
+    .links .handle { font-size: 15px; letter-spacing: 0.08em; overflow-wrap: anywhere; }
     .links .arrow { font-size: 12px; color: var(--ink-faint); }
 
     @media (max-width: 560px) {
@@ -455,16 +449,13 @@
 <body>
   <header class="site">
     <div class="bar">
-      <a class="brand" href="#top">
-        齊藤智都
-        <small>TANKA</small>
-      </a>
+      <a class="brand" href="#top">齊藤智都</a>
       <nav class="site">
         <ul>
-          <li><a href="#profile">プロフィール</a></li>
-          <li><a href="#works">応募作</a></li>
-          <li><a href="#netprint">ネットプリント</a></li>
-          <li><a href="#links">リンク</a></li>
+          <li><a href="#profile">Profile</a></li>
+          <li><a href="#works">Archive</a></li>
+          <li><a href="#netprint">Netprint</a></li>
+          <li><a href="#links">Link</a></li>
         </ul>
       </nav>
     </div>
@@ -477,10 +468,10 @@
       </svg>
       <h1 class="hero-name">齊藤智都</h1>
       <div class="hero-role">歌人</div>
-      <!-- 代表歌：句ごとに span で区切ると、折り返しが句切れの位置で起きます -->
-      <p class="signature"><span>正確な</span><span>位置情報を</span><span>測るには</span><span>まずきしめんを</span><span>立ち食いします</span></p>
-      <p class="lead">短歌をつくっています。このサイトは、応募した連作や発行したネットプリントの記録を、少しずつためていくための倉庫です。</p>
-      <p class="lead">新しい歌はXで発表しています。最新の投稿は<a href="#links">リンク</a>からどうぞ。</p>
+      <!-- 代表歌：入れ替えるときはこの一行を書き換えてください -->
+      <p class="signature">正確な位置情報を測るにはまずきしめんを立ち食いします</p>
+      <p class="lead">短歌をつくっています。このサイトは、応募した作品や発行したネットプリントの記録を、少しずつためていくための倉庫です。</p>
+      <p class="lead">短歌はXに投稿しています。最新の投稿は<a href="#links">リンク</a>からどうぞ。</p>
     </section>
 
     <!-- ============================================================
@@ -489,7 +480,7 @@
     <section id="profile">
       <p class="kicker">Profile</p>
       <h2>プロフィール</h2>
-      <p class="lead">2000年生まれ。神奈川県在住。2025年12月から作歌をはじめ、2026年10月より「かばん」に所属します。</p>
+      <p class="lead">2000年生まれ。神奈川県在住。<br />2025年12月から作歌をはじめ、2026年10月〜「かばん」所属。</p>
       <p class="lead">短歌をはじめたきっかけは、木下龍也『天才による凡人のための短歌教室』です。たくさんの「おもしろい」歌を作っていきたいです。</p>
       <p class="lead">ご連絡は、XのDMかメールへお願いします。</p>
       <dl class="facts">
@@ -498,20 +489,8 @@
           <dd>齊藤智都</dd>
         </div>
         <div>
-          <dt>生年</dt>
-          <dd>2000年</dd>
-        </div>
-        <div>
-          <dt>拠点</dt>
-          <dd>神奈川県</dd>
-        </div>
-        <div>
-          <dt>作歌開始</dt>
-          <dd>2025年12月</dd>
-        </div>
-        <div>
-          <dt>所属</dt>
-          <dd>かばん（2026年10月より）</dd>
+          <dt>好きな歌人</dt>
+          <dd>木下龍也・鈴木ベルキ</dd>
         </div>
         <div>
           <dt>好きな一首</dt>
@@ -529,8 +508,7 @@
     <section id="works">
       <p class="kicker">Archive</p>
       <h2>応募作の記録</h2>
-      <p class="lead">新人賞・企画・誌上歌会などへ出した連作の記録です。</p>
-      <p class="note">作品本文はこのサイトには掲載していません。媒体に掲載されたものは、掲載誌・掲載ページのリンクからお読みいただけます。</p>
+      <p class="lead">新人賞・企画・誌上歌会などへ出した作品の記録です。</p>
       <div id="worksList"></div>
     </section>
 
@@ -539,8 +517,8 @@
          ============================================================ -->
     <section id="netprint">
       <p class="kicker">Netprint</p>
-      <h2>ネットプリント倉庫</h2>
-      <p class="lead">配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。記録として番号も残しています。</p>
+      <h2>ネットプリント</h2>
+      <p class="lead">配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。</p>
       <div class="np-tools" id="npTools" hidden>
         <label class="toggle">
           <input type="checkbox" id="liveOnly" />
@@ -555,9 +533,9 @@
          リンク：下部の LINKS 配列を編集してください
          ============================================================ -->
     <section id="links">
-      <p class="kicker">Links</p>
+      <p class="kicker">Link</p>
       <h2>リンク</h2>
-      <p class="lead">新作の短歌やお知らせはXで発信しています。ご連絡はXのDM、またはメールへお願いします。</p>
+      <p class="lead">短歌の投稿やお知らせはXで発信しています。ご連絡はXのDM、またはメールへお願いします。</p>
       <ul class="links" id="linkList"></ul>
     </section>
   </main>
@@ -599,7 +577,7 @@
     ];
 
     /* 作品欄が空のときに表示する文章 */
-    const WORKS_EMPTY = 'まだ公開できる作品はありません。今年のカクヨム短歌賞に応募予定です。応募したら、この場所にリンクを掲載します。';
+    const WORKS_EMPTY = 'まだ公開できる作品がありません。';
 
     /* --- ネットプリント ----------------------------------------------
        title    : 発行物のタイトル
@@ -627,7 +605,7 @@
     ];
 
     /* ネプリ欄が空のときに表示する文章 */
-    const NETPRINT_EMPTY = 'ネットプリントはまだ発行していません。出したら、予約番号と配布期間をここに掲載します。';
+    const NETPRINT_EMPTY = 'まだ発行されたネットプリントがありません。';
 
     /* --- リンク ------------------------------------------------------
        service : サービス名   handle : 表示名・ID   url : リンク先
