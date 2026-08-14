@@ -169,10 +169,13 @@
       letter-spacing: 0.02em;
     }
 
-    /* 縦書きで横倒しになる記号を、立てたまま表示します */
+    /* 縦書きで横倒しになる記号を、立てたまま表示します。
+       Safari は接頭辞付きしか解釈しないので、両方書いておきます。 */
     .poems .upright {
+      -webkit-text-orientation: upright;
       text-orientation: upright;
-      text-combine-upright: none;
+      -webkit-text-combine: horizontal;
+      text-combine-upright: all;
     }
 
     .tate .colophon {

@@ -2,10 +2,12 @@
 /**
  * 短歌の連作から、縦書きの作品ページを作ります。
  *
- *   node tools/make-work.mjs <テキストファイル> <出力名> [--zine "掲載誌名" --url "掲載誌のURL"]
+ *   node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine "掲載誌名" --url "掲載誌のURL"]
+ *
+ * ページのファイル名は作成日（YYYYMMDD.html）です。日付を省くと今日の日付になります。
  *
  * 例：
- *   node tools/make-work.mjs ~/goniji.txt goniji \
+ *   node tools/make-work.mjs ~/goniji.txt \
  *     --zine "東京文芸部ZINE vol.2（テーマ「滲」）" --url "https://booth.pm/ja/items/8322103"
  *
  * テキストファイルの書き方（文字コードは UTF-8 でも Shift-JIS でも構いません）:
@@ -14,8 +16,8 @@
  *   2行目  作者名
  *   3行目以降  一首につき一行（空行と ＊ だけの行は読み飛ばします）
  *
- * 出力先は apps/frontend/public/works/<出力名>.html です。
- * 作ったあとは index.html の WORKS に read: 'works/<出力名>.html' を足してください。
+ * 出力先は apps/frontend/public/works/<YYYYMMDD>.html です。
+ * 作ったあとは index.html の WORKS に read: 'works/<YYYYMMDD>.html' を足してください。
  */
 
 import fs from 'node:fs';
@@ -37,9 +39,21 @@ for (let i = 0; i < argv.length; i += 1) {
   }
 }
 
-const [source, slug] = positional;
-if (!source || !slug) {
-  console.error('使い方: node tools/make-work.mjs <テキストファイル> <出力名> [--zine 掲載誌名] [--url 掲載誌URL]');
+const [source, dateArg] = positional;
+if (!source) {
+  console.error('使い方: node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine 掲載誌名] [--url 掲載誌URL]');
+  process.exit(1);
+}
+
+/* ファイル名は作成日。省略したら今日の日付を使います */
+const today = new Date();
+const slug = dateArg
+  ?? [today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')].join('');
+
+if (!/^\d{8}$/.test(slug)) {
+  console.error(`日付は YYYYMMDD の8桁で指定してください（受け取った値: ${slug}）`);
   process.exit(1);
 }
 

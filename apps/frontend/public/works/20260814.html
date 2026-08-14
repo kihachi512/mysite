@@ -13,13 +13,13 @@
   <meta property="og:type" content="article" />
   <meta property="og:title" content="五・虹・五・虹・虹｜齊藤智都" />
   <meta property="og:description" content="短歌連作「五・虹・五・虹・虹」全26首。東京文芸部ZINE vol.2（テーマ「滲」） 寄稿作品。" />
-  <meta property="og:url" content="https://momongacarnival.com/works/goniji.html" />
-  <meta property="og:image" content="https://momongacarnival.com/works/ogp-goniji.png" />
+  <meta property="og:url" content="https://momongacarnival.com/works/20260814.html" />
+  <meta property="og:image" content="https://momongacarnival.com/works/ogp-20260814.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="短歌連作「五・虹・五・虹・虹」齊藤智都" />
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="canonical" href="https://momongacarnival.com/works/goniji.html" />
+  <link rel="canonical" href="https://momongacarnival.com/works/20260814.html" />
 
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png" />
@@ -36,12 +36,12 @@
     "@graph": [
       {
         "@type": "Poem",
-        "@id": "https://momongacarnival.com/works/goniji.html#work",
+        "@id": "https://momongacarnival.com/works/20260814.html#work",
         "name": "五・虹・五・虹・虹",
         "headline": "五・虹・五・虹・虹",
         "inLanguage": "ja",
         "genre": "短歌",
-        "url": "https://momongacarnival.com/works/goniji.html",
+        "url": "https://momongacarnival.com/works/20260814.html",
         "author": { "@id": "https://momongacarnival.com/#person" },
         "description": "短歌連作「五・虹・五・虹・虹」全26首。",
         "isPartOf": { "@type": "Book", "name": "東京文芸部ZINE vol.2（テーマ「滲」）", "url": "https://booth.pm/ja/items/8322103" }
@@ -170,10 +170,13 @@
       letter-spacing: 0.02em;
     }
 
-    /* 縦書きで横倒しになる記号を、立てたまま表示します */
+    /* 縦書きで横倒しになる記号を、立てたまま表示します。
+       Safari は接頭辞付きしか解釈しないので、両方書いておきます。 */
     .poems .upright {
+      -webkit-text-orientation: upright;
       text-orientation: upright;
-      text-combine-upright: none;
+      -webkit-text-combine: horizontal;
+      text-combine-upright: all;
     }
 
     .tate .colophon {
