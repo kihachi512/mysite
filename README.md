@@ -17,6 +17,8 @@ tools/make-work.mjs                    ← 縦書きページを作るツール
 tools/work-template.html               ← そのひな形
 tools/make-card.mjs                    ← カード画像を作るツール
 tools/make-sitemap.mjs                 ← sitemap.xml を作り直すツール
+tools/make-feed.mjs                    ← RSS（feed.xml）を作り直すツール
+tools/link-works.mjs                   ← 作品ページの前後リンクを張り直すツール
 index.html                             ← ルートからのリダイレクト
 ```
 
@@ -88,9 +90,11 @@ node tools/make-work.mjs ~/goniji.txt \
 
 文字コードは UTF-8 でも Shift-JIS でも読み取れます。本文は原文のまま組みます。
 
-このツールは、続けて次の2つも自動で行います。
+このツールは、続けて次の4つも自動で行います。
 
+- 作品ページどうしの前後リンクの張り直し（`tools/link-works.mjs`）
 - `sitemap.xml` の作り直し（`tools/make-sitemap.mjs`）
+- RSS（`feed.xml`）の作り直し（`tools/make-feed.mjs`）
 - カード画像の作成（`tools/make-card.mjs`）
 
 最後に、一覧へ貼り付けるための `WORKS` の一項目が表示されます。それを
@@ -102,7 +106,9 @@ node tools/make-work.mjs ~/goniji.txt \
 ### 個別に実行する
 
 ```bash
+node tools/link-works.mjs            # 前後リンクを張り直す
 node tools/make-sitemap.mjs          # sitemap.xml を作り直す
+node tools/make-feed.mjs             # feed.xml を作り直す
 node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 ```
 
@@ -112,12 +118,24 @@ node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 書体は実行時に Google Fonts から取得します。ネットワークにつながらないときは
 手元の書体で描くため、見た目が少し変わります。
 
+## 読者に届ける仕組み
+
+| 仕組み | 内容 |
+| --- | --- |
+| RSS（`feed.xml`） | 更新を購読できます。リンクの節にも出しています |
+| 一首ごとの共有 | 作品ページで歌にふれると「共有」が出ます。スマホは共有メニュー、パソコンはXの投稿画面が開きます |
+| 前後の連作へのリンク | 作品ページの下部。読み終わった人が次の連作へ進めます |
+
+一首ごとの共有では、歌の本文と、その歌までのリンク（`#p01` のような印）を渡します。
+画面が低いときは、一首を一行に収めることを優先して共有ボタンを隠します。
+
 ## 検索エンジン向けの設定（SEO）
 
 | ファイル・箇所 | 内容 |
 | --- | --- |
 | `apps/frontend/public/robots.txt` | クロールの許可とサイトマップの場所 |
-| `apps/frontend/public/sitemap.xml` | ページ一覧。ページを増やしたら追記する |
+| `apps/frontend/public/sitemap.xml` | ページ一覧（`tools/make-sitemap.mjs` が生成） |
+| `apps/frontend/public/feed.xml` | RSS。読者が更新を購読できます（`tools/make-feed.mjs` が生成） |
 | 各ページの `<title>` / `description` | ページごとに別の文章にする |
 | `canonical` / `og:url` | 正しい公開URLを指しているか確認する |
 | `application/ld+json` | 「歌人・齊藤智都のサイト」であることを構造化データで明示 |
