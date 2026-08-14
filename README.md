@@ -55,9 +55,34 @@ open apps/frontend/public/index.html
 npm run build --prefix apps/frontend
 ```
 
+## 画像・アイコン
+
+| ファイル | 用途 |
+| --- | --- |
+| `apps/frontend/public/ogp.png` | SNS でURLを貼ったときに出るカード画像（1200×630） |
+| `apps/frontend/public/favicon.svg` | ブラウザのタブに出るアイコン |
+| `apps/frontend/public/favicon-32.png` | SVG に対応していないブラウザ用 |
+| `apps/frontend/public/apple-touch-icon.png` | iPhone でホーム画面に追加したときのアイコン |
+
+代表歌を変えたら OGP 画像も作り直してください（画像内の文字は画像に焼き込まれています）。
+
 ## デプロイ
 
 AWS Amplify で `amplify.yml` に従ってビルドし、`apps/frontend/dist` を公開します。
+
+### 独自ドメインをつなぐ
+
+1. Amplify コンソールでこのアプリを開き、左メニューの **Hosting → Custom domains**（カスタムドメイン）へ進む
+2. **Add domain** を押し、取得済みのドメインを選ぶ
+   - Route 53 で管理しているドメインなら一覧に出てきます。出てこない場合は手入力し、
+     表示される CNAME レコードを、ドメインを管理している側の DNS に登録します
+3. サブドメインの割り当てを決める（`www` を付ける／ルートドメインのみ、など）。
+   ブランチは公開したいブランチ（通常は `main`）を選ぶ
+4. 保存すると SSL 証明書が自動で発行されます。反映まで15分〜数時間かかることがあります
+5. 反映されたら `apps/frontend/public/index.html` の先頭にある `https://example.com` の
+   3か所（`og:url` / `og:image` / `canonical`）を、実際のドメインに書き換えて再デプロイする
+
+手順5をしないと、Xなどでリンクを貼ってもカード画像が表示されないことがあります。
 
 ## 過去のサイトについて
 

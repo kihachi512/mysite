@@ -8,7 +8,20 @@
   <meta property="og:title" content="齊藤智都｜歌人" />
   <meta property="og:description" content="プロフィール、応募作の記録、ネットプリントの倉庫。" />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- ▼▼ 独自ドメインを設定したら、この3行の https://example.com を自分のドメインに
+       書き換えてください。Xやその他のSNSは、画像の場所を「相対パス」ではなく
+       完全なURLで書いておかないと読み取れないことがあります。 ▼▼ -->
+  <meta property="og:url" content="https://example.com/" />
+  <meta property="og:image" content="https://example.com/ogp.png" />
+  <link rel="canonical" href="https://example.com/" />
+  <!-- ▲▲ ここまで ▲▲ -->
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="theme-color" content="#fbfbfa" />
   <style>
     :root {
       color-scheme: light dark;
@@ -430,7 +443,9 @@
       color: var(--ink-faint);
     }
 
-    .to-top { text-decoration: none; border-bottom: 1px solid var(--rule); }
+    .foot-text { display: grid; gap: 6px; line-height: 1.8; }
+
+    .to-top { text-decoration: none; border-bottom: 1px solid var(--rule); white-space: nowrap; }
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -550,7 +565,10 @@
 
   <footer class="site">
     <div class="foot-inner">
-      <span>© <span id="year"></span> 齊藤智都　無断転載を禁じます</span>
+      <div class="foot-text">
+        <span class="usage">歌の引用・紹介は歓迎します。SNSでの引用もご自由にどうぞ。</span>
+        <span>© <span id="year"></span> 齊藤智都</span>
+      </div>
       <a class="to-top" href="#top">ページの先頭へ</a>
     </div>
   </footer>
