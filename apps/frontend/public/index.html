@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>齊藤智都｜歌人</title>
-  <meta name="description" content="歌人・齊藤智都のホームページ。2025年から短歌をつくりはじめ、2026年10月より「かばん」所属。連作「五・虹・五・虹・虹」などの作品集、ネットプリントの記録、プロフィールとSNSリンクを掲載しています。" />
+  <meta name="description" content="歌人・齊藤智都のホームページ。2025年から短歌をつくりはじめ、2026年10月より「かばん」所属。連作「五・虹・五・虹・虹」などの作品集、プロフィールとSNSリンクを掲載しています。" />
   <meta name="author" content="齊藤智都" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 
   <meta property="og:site_name" content="齊藤智都｜歌人" />
   <meta property="og:locale" content="ja_JP" />
   <meta property="og:title" content="齊藤智都｜歌人" />
-  <meta property="og:description" content="歌人・齊藤智都のホームページ。作品集、ネットプリントの記録、プロフィール。" />
+  <meta property="og:description" content="歌人・齊藤智都のホームページ。作品集、プロフィール。" />
   <meta property="og:type" content="website" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -524,7 +524,9 @@
         <ul>
           <li><a href="#profile">Profile</a></li>
           <li><a href="#works">Archive</a></li>
+          <!-- ネットプリントを発行したら、次の行のコメントを外してください
           <li><a href="#netprint">Netprint</a></li>
+          -->
           <li><a href="#links">Link</a></li>
         </ul>
       </nav>
@@ -554,7 +556,7 @@
       <p class="lead">ご連絡は、XのDMかメールへお願いします。</p>
       <dl class="facts">
         <div>
-          <dt>名前</dt>
+          <dt>筆名</dt>
           <dd>齊藤智都</dd>
         </div>
         <div>
@@ -582,8 +584,14 @@
     </section>
 
     <!-- ============================================================
-         ネットプリント：下部の NETPRINT 配列を編集してください
+         ネットプリント：発行するまで非表示にしています。
+         表示するときは、この下の <section id="netprint"> から </section>
+         までを囲っているコメントを外し、あわせて次の2か所も戻してください。
+           ・上のメニューにある Netprint の行
+           ・ページ末尾の renderNetprint() まわりの2行
+         中身は下部の NETPRINT 配列を編集します。
          ============================================================ -->
+    <!--
     <section id="netprint">
       <p class="kicker">Netprint</p>
       <h2>ネットプリント</h2>
@@ -597,6 +605,7 @@
       </div>
       <div class="np-list" id="npList"></div>
     </section>
+    -->
 
     <!-- ============================================================
          リンク：下部の LINKS 配列を編集してください
@@ -800,10 +809,12 @@
     }
 
     document.getElementById('year').textContent = new Date().getFullYear();
-    document.getElementById('liveOnly').addEventListener('change', renderNetprint);
     renderWorks();
-    renderNetprint();
     renderLinks();
+
+    /* ネットプリントを表示するときは、次の2行のコメントを外してください */
+    // document.getElementById('liveOnly').addEventListener('change', renderNetprint);
+    // renderNetprint();
   </script>
 </body>
 </html>
