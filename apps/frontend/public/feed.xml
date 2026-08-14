@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/feed.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>齊藤智都｜歌人</title>
@@ -6,13 +7,13 @@
     <atom:link href="https://momongacarnival.com/feed.xml" rel="self" type="application/rss+xml" />
     <description>齊藤智都の短歌の作品集です。連作を公開したらここに流れます。</description>
     <language>ja</language>
-    <lastBuildDate>Fri, 14 Aug 2026 15:58:02 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 14 Aug 2026 16:21:21 GMT</lastBuildDate>
     <item>
       <title>五・虹・五・虹・虹</title>
       <link>https://momongacarnival.com/works/20260814.html</link>
       <guid isPermaLink="true">https://momongacarnival.com/works/20260814.html</guid>
       <pubDate>Fri, 14 Aug 2026 00:00:00 GMT</pubDate>
-      <description>全26首。 東京文芸部ZINE vol.2（テーマ「滲」） 寄稿。</description>
+      <description>カラフルな『無題』と名乗る四角形滲みの奥の声を聞かせて 全26首。 東京文芸部ZINE vol.2（テーマ「滲」） 寄稿。</description>
     </item>
   </channel>
 </rss>

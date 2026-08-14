@@ -132,7 +132,7 @@
       overflow: auto;
       padding: 32px 24px;
       /* 一番長い一首が画面の高さに収まる大きさを、画面の高さから計算します */
-      font-size: clamp(12px, calc((100dvh - 200px) / 38), 19px);
+      font-size: clamp(12px, calc((100dvh - 200px) / 36), 19px);
       line-height: 1;
       overscroll-behavior: contain;
     }
@@ -168,62 +168,14 @@
       letter-spacing: 0.02em;
     }
 
-    /* 一首ごとの共有ボタン。列の足元に、うるさくない大きさで置きます */
-    .poems .share {
-      /* 縦書きでは inline 方向が上下なので、歌の足元に続きます */
-      display: inline-block;
-      margin: 0;
-      margin-inline-start: 1.4em;
-      padding: 0;
-      border: none;
-      background: none;
-      color: var(--ink-faint);
-      font-family: inherit;
-      font-size: 0.62em;
-      letter-spacing: 0.2em;
-      line-height: 1;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.2s ease, color 0.2s ease;
-    }
-
-    .poems p:hover .share,
-    .poems .share:focus-visible { opacity: 1; }
-
-    .poems .share:hover { color: var(--ink); }
-
-    /* 触って操作する画面では、隠さず薄く出しておきます */
-    @media (hover: none) {
-      .poems .share { opacity: 0.55; }
-    }
-
     /* 画面が低いときは、一首を一行に収めるほうを優先します */
     @media (max-height: 620px) {
-      .poems .share { display: none; }
       .tate { padding: 14px 18px; }
       .poems p { letter-spacing: 0; }
       header.site { padding: 10px 18px; }
       footer.site { padding: 10px 18px 14px; }
       .hint { display: none; }
     }
-
-    /* 共有したときに出る小さな知らせ */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 24px;
-      transform: translateX(-50%) translateY(8px);
-      background: var(--ink);
-      color: var(--paper);
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      padding: 10px 18px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .tate .colophon {
       font-size: 0.8em;
@@ -276,46 +228,5 @@
     {{ZINE_LINK}}
   </footer>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <script>
-    /* 一首ごとの共有。スマホでは共有メニュー、パソコンでは
-       Xの投稿画面を開きます（どちらも使えなければコピーします）。 */
-    const toast = document.getElementById('toast');
-    let toastTimer;
-
-    function notify(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
-
-    document.querySelectorAll('.poems .share').forEach((button) => {
-      button.addEventListener('click', async () => {
-        const poem = button.closest('p').dataset.poem;
-        const url = `${location.origin}${location.pathname}#${button.closest('p').id}`;
-        const text = `${poem}／{{AUTHOR}}`;
-
-        if (navigator.share) {
-          try {
-            await navigator.share({ text, url });
-          } catch { /* 共有をやめただけなので、何もしません */ }
-          return;
-        }
-
-        const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-        const opened = window.open(intent, '_blank', 'noopener,noreferrer');
-        if (opened) return;
-
-        try {
-          await navigator.clipboard.writeText(`${text}\n${url}`);
-          notify('歌とリンクをコピーしました');
-        } catch {
-          notify('コピーできませんでした');
-        }
-      });
-    });
-  </script>
 </body>
 </html>

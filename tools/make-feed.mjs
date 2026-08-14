@@ -38,8 +38,8 @@ if (fs.existsSync(worksDir)) {
     const slug = file.replace('.html', '');
     const html = fs.readFileSync(path.join(worksDir, file), 'utf8');
     const title = html.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? slug;
-    const poem = html.match(/<div class="poems">\s*<p[^>]*>([^<]*)<\/p>/)?.[1] ?? '';
-    const count = (html.match(/<p id="p\d+"/g) ?? []).length;
+    const poem = html.match(/<div class="poems">\s*<p>([^<]*)<\/p>/)?.[1] ?? '';
+    const count = (html.match(/<div class="poems">[\s\S]*?<\/div>/)?.[0].match(/<p>/g) ?? []).length;
     const zine = html.match(/<p class="colophon">(?:([^<]*)寄稿<br \/>)?/)?.[1] ?? '';
 
     const summary = [poem, count ? `全${count}首。` : '', zine ? `${zine} 寄稿。` : '']
@@ -56,6 +56,7 @@ if (fs.existsSync(worksDir)) {
 }
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/feed.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${AUTHOR}｜歌人</title>
