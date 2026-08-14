@@ -152,6 +152,7 @@
       white-space: nowrap;
     }
 
+    /* 作者名は列の下端に揃えます（縦書きでは inline 方向が上下なので end = 下） */
     .byline {
       font-size: 0.85em;
       color: var(--ink-soft);
@@ -159,6 +160,7 @@
       margin: 0;
       margin-block-end: 2.6em;
       white-space: nowrap;
+      text-align: end;
     }
 
     .poems p {
@@ -196,7 +198,6 @@
       color: var(--ink-faint);
     }
 
-    .hint::before { content: "← "; }
   </style>
 </head>
 <body>
@@ -236,7 +237,7 @@
       <p>燃え盛る承認欲を止めるため強めのＷＡＦを処方しますね</p>
       <p>プレステが最後に吐いた虹色のノイズのうえを走る桃鉄</p>
     </div>
-    <p class="colophon">東京文芸部ZINE vol.2（テーマ「滲」）寄稿<br />全26首</p>
+    <p class="colophon">東京文芸部ZINE vol.2（テーマ「滲」）寄稿<br />全二十六首</p>
   </main>
 
   <footer class="site">
