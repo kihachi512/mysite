@@ -4,10 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>齊藤智都｜歌人</title>
-  <meta name="description" content="歌人・齊藤智都のホームページ。プロフィール、これまでの応募作の記録、ネットプリントの配布アーカイブ、各SNSへのリンク。" />
+  <meta name="description" content="歌人・齊藤智都のホームページ。2025年から短歌をつくりはじめ、2026年10月より「かばん」所属。連作「五・虹・五・虹・虹」などの作品集、ネットプリントの記録、プロフィールとSNSリンクを掲載しています。" />
+  <meta name="author" content="齊藤智都" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+
+  <meta property="og:site_name" content="齊藤智都｜歌人" />
+  <meta property="og:locale" content="ja_JP" />
   <meta property="og:title" content="齊藤智都｜歌人" />
-  <meta property="og:description" content="プロフィール、応募作の記録、ネットプリントの倉庫。" />
+  <meta property="og:description" content="歌人・齊藤智都のホームページ。作品集、ネットプリントの記録、プロフィール。" />
   <meta property="og:type" content="website" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="齊藤智都｜歌人" />
   <meta name="twitter:card" content="summary_large_image" />
 
   <!-- ▼▼ 公開ドメイン。www 付きで公開する場合など、URLが変わったらこの3行も
@@ -25,6 +33,43 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- 検索エンジンに「誰のサイトか」を伝えるための構造化データ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://momongacarnival.com/#website",
+        "url": "https://momongacarnival.com/",
+        "name": "齊藤智都｜歌人",
+        "inLanguage": "ja",
+        "publisher": { "@id": "https://momongacarnival.com/#person" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://momongacarnival.com/#person",
+        "name": "齊藤智都",
+        "jobTitle": "歌人",
+        "url": "https://momongacarnival.com/",
+        "image": "https://momongacarnival.com/ogp.png",
+        "knowsAbout": ["短歌", "現代短歌"],
+        "sameAs": ["https://x.com/kihachi512"]
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": "https://momongacarnival.com/#profilepage",
+        "url": "https://momongacarnival.com/",
+        "name": "齊藤智都｜歌人",
+        "inLanguage": "ja",
+        "isPartOf": { "@id": "https://momongacarnival.com/#website" },
+        "about": { "@id": "https://momongacarnival.com/#person" },
+        "mainEntity": { "@id": "https://momongacarnival.com/#person" }
+      }
+    ]
+  }
+  </script>
 
   <style>
     :root {
@@ -304,6 +349,26 @@
       color: var(--ink-faint);
     }
 
+    .work-links {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 20px;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .work-links a {
+      text-decoration: none;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 2px;
+    }
+
+    .work-links a::after { content: " →"; color: var(--ink-faint); }
+
+    .work-links a:hover,
+    .work-links a:focus-visible { border-bottom-color: var(--ink); }
+
     .result {
       font-size: 12px;
       letter-spacing: 0.16em;
@@ -488,7 +553,6 @@
       <!-- 代表歌：入れ替えるときはこの一行を書き換えてください -->
       <p class="signature">正確な位置情報を測るにはまずきしめんを立ち食いします</p>
       <p class="lead">短歌をつくっています。このサイトは、応募した作品や発行したネットプリントの記録を、少しずつためていくための倉庫です。</p>
-      <p class="lead">短歌はXに投稿しています。最新の投稿は<a href="#links">リンク</a>からどうぞ。</p>
     </section>
 
     <!-- ============================================================
@@ -498,7 +562,7 @@
       <p class="kicker">Profile</p>
       <h2>プロフィール</h2>
       <p class="lead">2000年5月生まれ。神奈川県在住。<br />2025年12月から作歌をはじめ、2026年10月〜「<a href="https://www.kaban-tanka.jp/" target="_blank" rel="noopener noreferrer">かばん</a>」所属。</p>
-      <p class="lead">短歌をはじめたきっかけは、木下龍也『<a href="https://nanarokusha.shop/items/5fa37c65df515940e015dc25" target="_blank" rel="noopener noreferrer">天才による凡人のための短歌教室</a>』です。たくさんの「おもしろい」歌を作っていきたいです。</p>
+      <p class="lead">短歌をはじめたきっかけは、木下龍也『<a href="https://nanarokusha.shop/items/5fa37c65df515940e015dc25" target="_blank" rel="noopener noreferrer">天才による凡人のための短歌教室</a>』です。最近では、「短歌ください」「群像短歌部」「うたらば」などに投稿しています。</p>
       <p class="lead">ご連絡は、XのDMかメールへお願いします。</p>
       <dl class="facts">
         <div>
@@ -507,7 +571,7 @@
         </div>
         <div>
           <dt>好きな歌人</dt>
-          <dd>木下龍也・鈴木ベルキ</dd>
+          <dd>木下龍也、鈴木ベルキ</dd>
         </div>
         <div>
           <dt>好きな一首</dt>
@@ -524,8 +588,8 @@
          ============================================================ -->
     <section id="works">
       <p class="kicker">Archive</p>
-      <h2>応募作の記録</h2>
-      <p class="lead">新人賞・企画・誌上歌会などへ出した作品の記録です。</p>
+      <h2>作品集</h2>
+      <p class="lead">これまでに発表した作品です。</p>
       <div id="worksList"></div>
     </section>
 
@@ -577,19 +641,22 @@
        venue  : 賞・企画名／掲載媒体
        result : 右端に出る結果ラベル（空文字 '' にすると非表示）
        note   : 補足（任意。空文字なら非表示）
-       url    : 掲載ページのURL（任意。空文字ならリンクなし）
+       read   : サイト内の縦書きページ（任意）
+       url    : 掲載誌・販売ページのURL（任意）
     ------------------------------------------------------------------ */
     const WORKS = [
-      /* まだ掲載できる作品はありません。応募したら、下の形で追加してください。
       {
         year: '2026',
-        title: '「◯◯◯◯」◯首',
-        venue: 'カクヨム短歌賞',
-        result: '応募',
+        title: '「五・虹・五・虹・虹」26首',
+        venue: '東京文芸部ZINE vol.2（テーマ「滲」）',
+        result: '掲載',
         note: '',
-        url: 'https://kakuyomu.jp/works/◯◯◯◯'
-      },
-      */
+        read: 'works/goniji.html',
+        url: 'https://booth.pm/ja/items/8322103'
+      }
+      /* 追加するときは、上と同じ形で並べてください。
+         read : サイト内の縦書きページ（tools/make-work.mjs で作れます）
+         url  : 掲載誌や販売ページ */
     ];
 
     /* 作品欄が空のときに表示する文章 */
@@ -655,15 +722,20 @@
 
       host.innerHTML = years.map((year) => {
         const items = WORKS.filter((w) => w.year === year).map((w) => {
-          const title = w.url
-            ? `<a href="${esc(w.url)}" rel="noopener">${esc(w.title)}</a>`
+          const title = w.read
+            ? `<a href="${esc(w.read)}">${esc(w.title)}</a>`
             : esc(w.title);
+          const links = [
+            w.read ? `<a href="${esc(w.read)}">縦書きで読む</a>` : '',
+            w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">掲載誌を見る</a>` : ''
+          ].filter(Boolean).join('');
           return `
             <div class="work">
               <div class="work-title">${title}</div>
               ${w.result ? `<div class="result">${esc(w.result)}</div>` : '<div></div>'}
               <div class="work-venue">${esc(w.venue)}</div>
               ${w.note ? `<div class="work-note">${esc(w.note)}</div>` : ''}
+              ${links ? `<div class="work-links">${links}</div>` : ''}
             </div>`;
         }).join('');
 
