@@ -69,6 +69,20 @@ if (!title || !author || count === 0) {
 const zine = flags.zine ?? '';
 const zineUrl = flags.url ?? '';
 
+/* 縦書きの本文に出す首数は漢数字にします（例：26 → 二十六） */
+function kansuji(n) {
+  const digits = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  if (n < 10) return digits[n];
+  if (n < 100) {
+    const tens = Math.floor(n / 10);
+    const ones = n % 10;
+    return `${tens > 1 ? digits[tens] : ''}十${ones ? digits[ones] : ''}`;
+  }
+  const hundreds = Math.floor(n / 100);
+  const rest = n % 100;
+  return `${hundreds > 1 ? digits[hundreds] : ''}百${rest ? kansuji(rest) : ''}`;
+}
+
 /* 縦書きだと横倒しになる記号を、立てたまま表示するための印を付けます */
 const UPRIGHT = /[≒≠≦≧＝±×÷∞→←↑↓]/g;
 const upright = (s) => s.replace(UPRIGHT, (c) => `<span class="upright">${c}</span>`);
@@ -83,6 +97,7 @@ const html = template
   .replaceAll('{{TITLE}}', esc(title))
   .replaceAll('{{AUTHOR}}', esc(author))
   .replaceAll('{{SLUG}}', slug)
+  .replaceAll('{{COUNT_KANJI}}', kansuji(count))
   .replaceAll('{{COUNT}}', String(count))
   .replaceAll('{{SITE}}', SITE)
   .replaceAll('{{COLUMNS}}', columns)

@@ -151,6 +151,7 @@
       white-space: nowrap;
     }
 
+    /* 作者名は列の下端に揃えます（縦書きでは inline 方向が上下なので end = 下） */
     .byline {
       font-size: 0.85em;
       color: var(--ink-soft);
@@ -158,6 +159,7 @@
       margin: 0;
       margin-block-end: 2.6em;
       white-space: nowrap;
+      text-align: end;
     }
 
     .poems p {
@@ -210,7 +212,7 @@
     <div class="poems">
 {{COLUMNS}}
     </div>
-    <p class="colophon">{{ZINE_SUFFIX}}全{{COUNT}}首</p>
+    <p class="colophon">{{ZINE_SUFFIX}}全{{COUNT_KANJI}}首</p>
   </main>
 
   <footer class="site">
