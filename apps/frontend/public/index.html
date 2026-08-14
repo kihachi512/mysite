@@ -304,6 +304,9 @@
 
     .toggle input { accent-color: var(--ink); }
 
+    /* display: flex は [hidden] より強いので、明示的に消します */
+    .np-tools[hidden] { display: none; }
+
     .np-list { display: grid; gap: 18px; }
 
     .np {
@@ -449,7 +452,7 @@
       </svg>
       <h1 class="hero-name">齊藤智都</h1>
       <div class="hero-role">歌人</div>
-      <p class="lead">短歌をつくっています。このサイトは、これまでに応募・発表した連作と、これまで出したネットプリントをしまっておくための倉庫です。</p>
+      <p class="lead">短歌をつくっています。このサイトは、応募した連作や発行したネットプリントの記録を、少しずつためていくための倉庫です。</p>
       <p class="lead">新しい歌は各SNSで発表しています。最新の投稿は<a href="#links">リンク</a>からどうぞ。</p>
     </section>
 
@@ -498,7 +501,7 @@
     <section id="works">
       <p class="kicker">Archive</p>
       <h2>応募作の記録</h2>
-      <p class="lead">これまでに新人賞・企画・誌上歌会などへ出した連作の記録です。</p>
+      <p class="lead">新人賞・企画・誌上歌会などへ出した連作の記録です。</p>
       <p class="note">作品本文はこのサイトには掲載していません。媒体に掲載されたものは、掲載誌・掲載ページのリンクからお読みいただけます。</p>
       <div id="worksList"></div>
     </section>
@@ -509,8 +512,8 @@
     <section id="netprint">
       <p class="kicker">Netprint</p>
       <h2>ネットプリント倉庫</h2>
-      <p class="lead">これまでに配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。記録として番号も残しています。</p>
-      <div class="np-tools">
+      <p class="lead">配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。記録として番号も残しています。</p>
+      <div class="np-tools" id="npTools" hidden>
         <label class="toggle">
           <input type="checkbox" id="liveOnly" />
           配布中のみ表示
@@ -526,7 +529,7 @@
     <section id="links">
       <p class="kicker">Links</p>
       <h2>リンク</h2>
-      <p class="lead">新作の短歌やお知らせはこちらで。ご連絡は各SNSのDM、またはメールへお願いします。</p>
+      <p class="lead">新作の短歌やお知らせはXで発信しています。ご連絡はXのDM、またはメールへお願いします。</p>
       <ul class="links" id="linkList"></ul>
     </section>
   </main>
@@ -552,39 +555,20 @@
        url    : 掲載ページのURL（任意。空文字ならリンクなし）
     ------------------------------------------------------------------ */
     const WORKS = [
+      /* まだ掲載できる作品はありません。応募したら、下の形で追加してください。
       {
-        year: '2025',
-        title: '「◯◯◯◯」三十首',
-        venue: '第◯回 ◯◯短歌賞',
-        result: '一次通過',
-        note: '',
-        url: ''
-      },
-      {
-        year: '2025',
-        title: '「◯◯◯◯」十首',
-        venue: '◯◯（同人誌・企画名）',
-        result: '掲載',
-        note: '掲載号：第◯号',
-        url: ''
-      },
-      {
-        year: '2024',
-        title: '「◯◯◯◯」三十首',
-        venue: '第◯回 ◯◯新人賞',
+        year: '2026',
+        title: '「◯◯◯◯」◯首',
+        venue: 'カクヨム短歌賞',
         result: '応募',
         note: '',
-        url: ''
+        url: 'https://kakuyomu.jp/works/◯◯◯◯'
       },
-      {
-        year: '2024',
-        title: '「◯◯◯◯」五首',
-        venue: '◯◯誌 誌上歌会',
-        result: '入選',
-        note: '',
-        url: ''
-      }
+      */
     ];
+
+    /* 作品欄が空のときに表示する文章 */
+    const WORKS_EMPTY = 'まだ公開できる作品はありません。今年のカクヨム短歌賞に応募予定です。応募したら、この場所にリンクを掲載します。';
 
     /* --- ネットプリント ----------------------------------------------
        title    : 発行物のタイトル
@@ -597,48 +581,35 @@
        url      : PDF配布先やお知らせ投稿のURL（任意）
     ------------------------------------------------------------------ */
     const NETPRINT = [
+      /* まだ発行実績はありません。発行したら、下の形で追加してください。
       {
         title: '『◯◯◯◯』',
-        issued: '2025年◯月',
-        period: '2025/◯/◯ 〜 2025/◯/◯',
-        live: false,
-        desc: '◯首連作。B5モノクロ／◯枚。※ここに内容の紹介を書いてください。',
+        issued: '2026年◯月',
+        period: '2026/◯/◯ 〜 2026/◯/◯',
+        live: true,
+        desc: '◯首連作。B5モノクロ／◯枚。',
         seven: '◯◯◯◯◯◯◯◯',
         network: '◯◯◯◯◯◯◯◯',
         url: ''
       },
-      {
-        title: '『◯◯◯◯』',
-        issued: '2024年◯月',
-        period: '2024/◯/◯ 〜 2024/◯/◯',
-        live: false,
-        desc: '◯首連作。A4モノクロ／◯枚。',
-        seven: '◯◯◯◯◯◯◯◯',
-        network: '',
-        url: ''
-      },
-      {
-        title: '合同ネプリ『◯◯◯◯』',
-        issued: '2024年◯月',
-        period: '2024/◯/◯ 〜 2024/◯/◯',
-        live: false,
-        desc: '◯名参加の合同誌。各◯首を寄稿しました。',
-        seven: '◯◯◯◯◯◯◯◯',
-        network: '◯◯◯◯◯◯◯◯',
-        url: ''
-      }
+      */
     ];
+
+    /* ネプリ欄が空のときに表示する文章 */
+    const NETPRINT_EMPTY = 'ネットプリントはまだ発行していません。出したら、予約番号と配布期間をここに掲載します。';
 
     /* --- リンク ------------------------------------------------------
        service : サービス名   handle : 表示名・ID   url : リンク先
     ------------------------------------------------------------------ */
     const LINKS = [
-      { service: 'X (Twitter)', handle: '@kihachi512', url: 'https://x.com/kihachi512' },
-      { service: 'Bluesky', handle: '@◯◯◯◯', url: '#' },
-      { service: 'note', handle: '◯◯◯◯', url: '#' },
-      { service: 'Instagram', handle: '@◯◯◯◯', url: '#' },
-      { service: 'Mail', handle: '◯◯◯@example.com', url: 'mailto:◯◯◯@example.com' }
+      { service: 'X (Twitter)', handle: '@kihachi512', url: 'https://x.com/kihachi512' }
     ];
+
+    /* --- メールアドレス（スパム対策のため分割して持っています） --------
+       HTMLのソースには完全な形で書かず、表示するときに組み立てます。
+       アドレスを変えるときは user と domain を書き換えてください。
+    ------------------------------------------------------------------ */
+    const MAIL = { user: 'sasurai.momongacarnival', domain: 'gmail.com' };
 
     /* ================================================================
        ここから下は表示のための処理です。通常は編集不要です。
@@ -651,7 +622,7 @@
     function renderWorks() {
       const host = document.getElementById('worksList');
       if (!WORKS.length) {
-        host.innerHTML = '<p class="empty">記録はまだありません。</p>';
+        host.innerHTML = `<p class="empty">${esc(WORKS_EMPTY)}</p>`;
         return;
       }
 
@@ -678,6 +649,16 @@
     function renderNetprint() {
       const host = document.getElementById('npList');
       const counter = document.getElementById('npCount');
+      const tools = document.getElementById('npTools');
+
+      /* 一件もないうちは絞り込みを出しません */
+      tools.hidden = NETPRINT.length === 0;
+
+      if (!NETPRINT.length) {
+        host.innerHTML = `<p class="empty">${esc(NETPRINT_EMPTY)}</p>`;
+        return;
+      }
+
       const liveOnly = document.getElementById('liveOnly').checked;
       const items = liveOnly ? NETPRINT.filter((n) => n.live) : NETPRINT;
 
@@ -686,7 +667,7 @@
         : `全 ${NETPRINT.length} 件（うち配布中 ${NETPRINT.filter((n) => n.live).length} 件）`;
 
       if (!items.length) {
-        host.innerHTML = `<p class="empty">${liveOnly ? '現在配布中のネットプリントはありません。' : '記録はまだありません。'}</p>`;
+        host.innerHTML = '<p class="empty">現在配布中のネットプリントはありません。</p>';
         return;
       }
 
@@ -713,7 +694,14 @@
 
     function renderLinks() {
       const host = document.getElementById('linkList');
-      host.innerHTML = LINKS.map((l) => {
+
+      /* メールは収集ロボット対策として、表示のときにその場で組み立てます */
+      const address = MAIL.user + String.fromCharCode(64) + MAIL.domain;
+      const entries = LINKS.concat([
+        { service: 'Mail', handle: address, url: 'mailto:' + address }
+      ]);
+
+      host.innerHTML = entries.map((l) => {
         const external = /^https?:/i.test(l.url);
         const attrs = external ? ' target="_blank" rel="noopener noreferrer"' : '';
         return `
