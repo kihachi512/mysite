@@ -79,10 +79,11 @@ AWS Amplify で `amplify.yml` に従ってビルドし、`apps/frontend/dist` �
 3. サブドメインの割り当てを決める（`www` を付ける／ルートドメインのみ、など）。
    ブランチは公開したいブランチ（通常は `main`）を選ぶ
 4. 保存すると SSL 証明書が自動で発行されます。反映まで15分〜数時間かかることがあります
-5. 反映されたら `apps/frontend/public/index.html` の先頭にある `https://example.com` の
-   3か所（`og:url` / `og:image` / `canonical`）を、実際のドメインに書き換えて再デプロイする
+5. `apps/frontend/public/index.html` の先頭にある `og:url` / `og:image` / `canonical` の
+   3か所が、公開するURLと一致しているか確認する（現在は `https://momongacarnival.com/`）
 
-手順5をしないと、Xなどでリンクを貼ってもカード画像が表示されないことがあります。
+`www` 付きで公開する場合など、URLが変わったときは手順5の3か所も直してください。
+ここが実際のURLと違うと、Xなどでリンクを貼ってもカード画像が表示されないことがあります。
 
 ## 過去のサイトについて
 
