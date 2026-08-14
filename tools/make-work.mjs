@@ -99,12 +99,8 @@ function kansuji(n) {
   return `${hundreds > 1 ? digits[hundreds] : ''}百${rest ? kansuji(rest) : ''}`;
 }
 
-/* 一首ごとに、リンクを張るための番号と共有ボタンを付けます */
 const columns = body
-  .map((l, i) => {
-    const id = `p${String(i + 1).padStart(2, '0')}`;
-    return `      <p id="${id}" data-poem="${esc(l)}">${esc(l)}<button class="share" type="button" aria-label="この歌を共有する">共有</button></p>`;
-  })
+  .map((l) => `      <p>${esc(l)}</p>`)
   .join('\n');
 
 const template = fs.readFileSync(path.join(root, 'tools', 'work-template.html'), 'utf8');
