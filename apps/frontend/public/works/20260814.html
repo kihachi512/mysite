@@ -133,7 +133,7 @@
       overflow: auto;
       padding: 32px 24px;
       /* 一番長い一首が画面の高さに収まる大きさを、画面の高さから計算します */
-      font-size: clamp(12px, calc((100dvh - 200px) / 35), 19px);
+      font-size: clamp(12px, calc((100dvh - 200px) / 38), 19px);
       line-height: 1;
       overscroll-behavior: contain;
     }
@@ -201,8 +201,11 @@
     /* 画面が低いときは、一首を一行に収めるほうを優先します */
     @media (max-height: 620px) {
       .poems .share { display: none; }
-      .tate { padding: 18px 20px; }
+      .tate { padding: 14px 18px; }
       .poems p { letter-spacing: 0; }
+      header.site { padding: 10px 18px; }
+      footer.site { padding: 10px 18px 14px; }
+      .hint { display: none; }
     }
 
     /* 共有したときに出る小さな知らせ */

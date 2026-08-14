@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 作品ページどうしに「前の連作 / 次の連作」のリンクを張り直します。
+ * 作品ページどうしに「前の作品 / 次の作品」のリンクを張り直します。
  *
  *   node tools/link-works.mjs
  *
@@ -42,8 +42,8 @@ pages.forEach((page, i) => {
   const older = pages[i + 1];
 
   const links = [
-    older ? `<a class="back" href="${older.file}">前の連作　${esc(older.title)}</a>` : '',
-    newer ? `<a class="back" href="${newer.file}">次の連作　${esc(newer.title)}</a>` : ''
+    older ? `<a class="back" href="${older.file}">前の作品　${esc(older.title)}</a>` : '',
+    newer ? `<a class="back" href="${newer.file}">次の作品　${esc(newer.title)}</a>` : ''
   ].filter(Boolean).join('\n      ');
 
   const block = links ? `\n      ${links}\n    ` : '';
