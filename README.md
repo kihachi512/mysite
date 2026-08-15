@@ -10,6 +10,7 @@
 ```
 apps/frontend/public/index.html        ← トップページ
 apps/frontend/public/works/*.html      ← 連作ごとの縦書きページ
+apps/frontend/public/404.html          ← 見つからないページ用
 apps/frontend/public/robots.txt        ← 検索エンジン向け
 apps/frontend/public/sitemap.xml       ← 検索エンジン向け
 apps/frontend/build.js                 ← public/ を dist/ にコピーするビルド
@@ -154,6 +155,19 @@ AWS Amplify で `amplify.yml` に従ってビルドし、`apps/frontend/dist` �
 
 `www` 付きで公開する場合など、URLが変わったときは手順5の3か所も直してください。
 ここが実際のURLと違うと、Xなどでリンクを貼ってもカード画像が表示されないことがあります。
+
+### 書き換えと転送（Rewrites and redirects）
+
+Amplify コンソールの **Hosting → Rewrites and redirects** に、次の2つを登録します。
+順番が大事で、www の転送を上に、404 を一番下に置きます。
+
+| # | Source | Target | Type |
+| --- | --- | --- | --- |
+| 1 | `https://www.momongacarnival.com/<*>` | `https://momongacarnival.com/<*>` | 301 |
+| 2 | `/<*>` | `/404.html` | 404 (Rewrite) |
+
+1がないと `www` ありとなしで同じサイトが二重に見えます。
+2がないと、存在しないURLがトップページを 200 で返してしまいます（ソフト404）。
 
 ## 過去のサイトについて
 
