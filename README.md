@@ -12,7 +12,6 @@ apps/frontend/public/index.html        ← トップページ
 apps/frontend/public/works/*.html      ← 連作ごとの縦書きページ
 apps/frontend/public/404.html          ← 見つからないページ用
 apps/frontend/public/robots.txt        ← 検索エンジン向け
-apps/frontend/public/ads.txt           ← AdSense 向け（広告枠の持ち主の申告）
 apps/frontend/public/sitemap.xml       ← 検索エンジン向け
 apps/frontend/build.js                 ← public/ を dist/ にコピーするビルド
 tools/make-work.mjs                    ← 縦書きページを作るツール
@@ -113,19 +112,6 @@ node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 （このリポジトリに入れても、パソコン全体に入れても動きます）。
 書体は実行時に Google Fonts から取得します。ネットワークにつながらないときは
 手元の書体で描くため、見た目が少し変わります。
-
-## 広告（AdSense）
-
-全ページの `<head>` に AdSense のタグを入れています。作品ページの分は
-`tools/work-template.html` にあるので、ページを作り直しても引き継がれます。
-
-`apps/frontend/public/ads.txt` は、この広告枠の持ち主が誰かを申告するファイルです。
-publisher ID（`pub-6592332268870028`）を変えるときは、`ads.txt` と各ページの
-`client=ca-pub-...` の両方を直してください。
-
-広告を実際に出すかどうかは AdSense 側の設定で決まります。自動広告を有効にすると、
-このタグだけでページ内に広告が挿入されます。短歌のページには出したくない場合は、
-AdSense の管理画面で自動広告をオフにしてください。
 
 ## 検索エンジン向けの設定（SEO）
 
