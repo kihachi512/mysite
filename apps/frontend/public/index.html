@@ -379,30 +379,6 @@
     }
 
     /* ---------- netprint ---------- */
-    .np-tools {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
-      font-size: 13px;
-      color: var(--ink-faint);
-    }
-
-    .toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      letter-spacing: 0.12em;
-      color: var(--ink-soft);
-    }
-
-    .toggle input { accent-color: var(--ink); }
-
-    /* display: flex は [hidden] より強いので、明示的に消します */
-    .np-tools[hidden] { display: none; }
-
     .np-list { display: grid; gap: 18px; }
 
     .np {
@@ -411,25 +387,7 @@
       padding: 22px 24px;
     }
 
-    .np-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .badge {
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      padding: 3px 10px;
-      border: 1px solid var(--rule);
-      color: var(--ink-faint);
-      white-space: nowrap;
-    }
-
-    .badge.live { color: var(--ink); border-color: var(--ink); }
+    .np-head { margin-bottom: 10px; }
 
     .np-desc {
       font-size: 14px;
@@ -441,8 +399,8 @@
     .np-meta {
       margin: 0;
       display: grid;
-      grid-template-columns: 7.5rem 1fr;
-      gap: 2px 16px;
+      grid-template-columns: max-content 1fr;
+      gap: 2px 20px;
       font-size: 13px;
       border-top: 1px solid var(--rule-soft);
       padding-top: 12px;
@@ -454,7 +412,7 @@
 
     @media (max-width: 560px) {
       .np { padding: 20px 18px; }
-      .np-meta { grid-template-columns: 6rem 1fr; }
+      .np-meta { gap: 2px 14px; }
     }
 
     .empty {
@@ -597,13 +555,6 @@
       <p class="kicker">Netprint</p>
       <h2>ネットプリント</h2>
       <p class="lead">配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。</p>
-      <div class="np-tools" id="npTools" hidden>
-        <label class="toggle">
-          <input type="checkbox" id="liveOnly" />
-          配布中のみ表示
-        </label>
-        <span id="npCount"></span>
-      </div>
       <div class="np-list" id="npList"></div>
     </section>
 
@@ -667,7 +618,6 @@
        title    : 発行物のタイトル
        issued   : 発行時期
        period   : 配布期間
-       live     : 配布中なら true、終了なら false
        desc     : 内容の紹介（任意）
        seven    : セブン-イレブンの予約番号（任意）
        network  : ネットワークプリント（ローソン等）の番号（任意）
@@ -678,13 +628,12 @@
         title: '『00tanka』vol.00 テーマ「0」',
         issued: '2026/10/11',
         period: '2026/10/11 〜 2026/11/09',
-        live: true,
         desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。著：齊藤智都・田中月子。A4・白黒・片面／1枚20円。',
         seven: 'QHUJJ25S',
         network: 'MYB5R6RRG6',
         url: 'https://x.com/kihachi512/status/2109238428714037581'
       }
-      /* 配布期間が終わったら live を false に。追加するときは上と同じ形で先頭に足します */
+      /* 追加するときは上と同じ形で先頭に足します */
     ];
 
     /* ネプリ欄が空のときに表示する文章 */
@@ -746,30 +695,13 @@
 
     function renderNetprint() {
       const host = document.getElementById('npList');
-      const counter = document.getElementById('npCount');
-      const tools = document.getElementById('npTools');
-
-      /* 一件もないうちは絞り込みを出しません */
-      tools.hidden = NETPRINT.length === 0;
 
       if (!NETPRINT.length) {
         host.innerHTML = `<p class="empty">${esc(NETPRINT_EMPTY)}</p>`;
         return;
       }
 
-      const liveOnly = document.getElementById('liveOnly').checked;
-      const items = liveOnly ? NETPRINT.filter((n) => n.live) : NETPRINT;
-
-      counter.textContent = liveOnly
-        ? `配布中 ${items.length} 件`
-        : `全 ${NETPRINT.length} 件（うち配布中 ${NETPRINT.filter((n) => n.live).length} 件）`;
-
-      if (!items.length) {
-        host.innerHTML = '<p class="empty">現在配布中のネットプリントはありません。</p>';
-        return;
-      }
-
-      host.innerHTML = items.map((n) => {
+      host.innerHTML = NETPRINT.map((n) => {
         const title = n.url
           ? `<a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>`
           : esc(n.title);
@@ -777,14 +709,13 @@
           <article class="np">
             <div class="np-head">
               <h3>${title}</h3>
-              <span class="badge${n.live ? ' live' : ''}">${n.live ? '配布中' : '配布終了'}</span>
             </div>
             ${n.desc ? `<p class="np-desc">${esc(n.desc)}</p>` : ''}
             <dl class="np-meta">
               <dt>発行</dt><dd>${esc(n.issued)}</dd>
               <dt>配布期間</dt><dd>${esc(n.period)}</dd>
               ${n.seven ? `<dt>セブン</dt><dd class="code">${esc(n.seven)}</dd>` : ''}
-              ${n.network ? `<dt>ネットワーク</dt><dd class="code">${esc(n.network)}</dd>` : ''}
+              ${n.network ? `<dt>ファミマ・ローソン</dt><dd class="code">${esc(n.network)}</dd>` : ''}
             </dl>
           </article>`;
       }).join('');
@@ -816,7 +747,6 @@
     renderWorks();
     renderLinks();
 
-    document.getElementById('liveOnly').addEventListener('change', renderNetprint);
     renderNetprint();
   </script>
 </body>
