@@ -534,9 +534,7 @@
         <ul>
           <li><a href="#profile">Profile</a></li>
           <li><a href="#works">Archive</a></li>
-          <!-- ネットプリントを発行したら、次の行のコメントを外してください
           <li><a href="#netprint">Netprint</a></li>
-          -->
           <li><a href="#links">Link</a></li>
         </ul>
       </nav>
@@ -593,14 +591,8 @@
     </section>
 
     <!-- ============================================================
-         ネットプリント：発行するまで非表示にしています。
-         表示するときは、この下の <section id="netprint"> から </section>
-         までを囲っているコメントを外し、あわせて次の2か所も戻してください。
-           ・上のメニューにある Netprint の行
-           ・ページ末尾の renderNetprint() まわりの2行
-         中身は下部の NETPRINT 配列を編集します。
+         ネットプリント：下部の NETPRINT 配列を編集してください
          ============================================================ -->
-    <!--
     <section id="netprint">
       <p class="kicker">Netprint</p>
       <h2>ネットプリント</h2>
@@ -614,7 +606,6 @@
       </div>
       <div class="np-list" id="npList"></div>
     </section>
-    -->
 
     <!-- ============================================================
          リンク：下部の LINKS 配列を編集してください
@@ -683,18 +674,17 @@
        url      : PDF配布先やお知らせ投稿のURL（任意）
     ------------------------------------------------------------------ */
     const NETPRINT = [
-      /* まだ発行実績はありません。発行したら、下の形で追加してください。
       {
-        title: '『◯◯◯◯』',
-        issued: '2026年◯月',
-        period: '2026/◯/◯ 〜 2026/◯/◯',
+        title: '『00tanka』vol.00 テーマ「0」',
+        issued: '2026/10/11',
+        period: '2026/10/11 〜 2026/11/09',
         live: true,
-        desc: '◯首連作。B5モノクロ／◯枚。',
-        seven: '◯◯◯◯◯◯◯◯',
-        network: '◯◯◯◯◯◯◯◯',
-        url: ''
-      },
-      */
+        desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。著：齊藤智都・田中月子。A4・白黒・片面／1枚20円。',
+        seven: 'QHUJJ25S',
+        network: 'MYB5R6RRG6',
+        url: 'https://x.com/kihachi512/status/2109238428714037581'
+      }
+      /* 配布期間が終わったら live を false に。追加するときは上と同じ形で先頭に足します */
     ];
 
     /* ネプリ欄が空のときに表示する文章 */
@@ -781,7 +771,7 @@
 
       host.innerHTML = items.map((n) => {
         const title = n.url
-          ? `<a href="${esc(n.url)}" rel="noopener">${esc(n.title)}</a>`
+          ? `<a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>`
           : esc(n.title);
         return `
           <article class="np">
@@ -826,9 +816,8 @@
     renderWorks();
     renderLinks();
 
-    /* ネットプリントを表示するときは、次の2行のコメントを外してください */
-    // document.getElementById('liveOnly').addEventListener('change', renderNetprint);
-    // renderNetprint();
+    document.getElementById('liveOnly').addEventListener('change', renderNetprint);
+    renderNetprint();
   </script>
 </body>
 </html>
