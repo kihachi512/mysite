@@ -676,13 +676,13 @@
     const NETPRINT = [
       {
         title: '『00tanka』vol.00 テーマ「0」',
-        issued: '2026年10月',
-        period: '2026/11/09 まで',
+        issued: '2026/10/11',
+        period: '2026/10/11 〜 2026/11/09',
         live: true,
         desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。著：齊藤智都・田中月子。A4・白黒・片面／1枚20円。',
         seven: 'QHUJJ25S',
         network: 'MYB5R6RRG6',
-        url: ''
+        url: 'https://x.com/kihachi512/status/2109238428714037581'
       }
       /* 配布期間が終わったら live を false に。追加するときは上と同じ形で先頭に足します */
     ];
@@ -771,7 +771,7 @@
 
       host.innerHTML = items.map((n) => {
         const title = n.url
-          ? `<a href="${esc(n.url)}" rel="noopener">${esc(n.title)}</a>`
+          ? `<a href="${esc(n.url)}" target="_blank" rel="noopener noreferrer">${esc(n.title)}</a>`
           : esc(n.title);
         return `
           <article class="np">
