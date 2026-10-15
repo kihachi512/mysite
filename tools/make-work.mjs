@@ -2,12 +2,13 @@
 /**
  * 短歌の連作から、縦書きの作品ページを作ります。
  *
- *   node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine "掲載誌名" --url "掲載誌のURL"] [--kind 短歌]
+ *   node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine "掲載誌名" --url "掲載誌のURL"] [--kind 短歌] [--card 7]
  *
  * ページのファイル名は作成日（YYYYMMDD.html）です。日付を省くと今日の日付になります。
  *
  * 連作として扱うのが既定です（ページに「短歌連作」と書き、一覧には 連作「〜」と出します）。
  * 連作ではない作品は --kind 短歌 を付けると、「短歌」とだけ書きます。
+ * カード画像に載せる歌は一首目が既定です。--card 7 のように何首目かを指定できます。
  *
  * 例：
  *   node tools/make-work.mjs ~/goniji.txt \
@@ -46,7 +47,7 @@ for (let i = 0; i < argv.length; i += 1) {
 
 const [source, dateArg] = positional;
 if (!source) {
-  console.error('使い方: node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine 掲載誌名] [--url 掲載誌URL] [--kind 短歌]');
+  console.error('使い方: node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine 掲載誌名] [--url 掲載誌URL] [--kind 短歌] [--card 何首目]');
   process.exit(1);
 }
 
@@ -150,7 +151,7 @@ const runTool = (script, args, label) => {
 };
 
 runTool('make-sitemap.mjs', [], 'sitemap.xml');
-runTool('make-card.mjs', [slug], 'カード画像');
+runTool('make-card.mjs', flags.card ? [slug, flags.card] : [slug], 'カード画像');
 
 /* 一覧に並べるための一項目を、そのまま貼れる形で出します */
 const jsq = (v) => `'${String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;

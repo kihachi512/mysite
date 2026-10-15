@@ -73,7 +73,7 @@ npm run build --prefix apps/frontend
 
 ```bash
 node tools/make-work.mjs <テキストファイル> [YYYYMMDD] \
-  --zine "掲載誌名" --url "掲載誌のURL" [--kind 短歌]
+  --zine "掲載誌名" --url "掲載誌のURL" [--kind 短歌] [--card 7]
 
 # 例
 node tools/make-work.mjs ~/goniji.txt \
@@ -86,6 +86,9 @@ node tools/make-work.mjs ~/goniji.txt \
 
 連作として扱うのが既定です（ページに「短歌連作」と書き、一覧には 連作「〜」と出ます）。
 連作ではない作品は `--kind 短歌` を付けると、「短歌」とだけ書きます。
+
+カード画像に載せる歌は一首目が既定です。別の歌にしたいときは `--card 7` のように
+何首目かを渡してください（画像だけ作り直すなら `node tools/make-card.mjs 20260814 7`）。
 
 文字コードは UTF-8 でも Shift-JIS でも読み取れます。本文は原文のまま組みます。
 
@@ -104,7 +107,8 @@ node tools/make-work.mjs ~/goniji.txt \
 
 ```bash
 node tools/make-sitemap.mjs          # sitemap.xml を作り直す
-node tools/make-card.mjs 20260814    # カード画像だけ作り直す
+node tools/make-card.mjs 20260814    # カード画像だけ作り直す（一首目を載せる）
+node tools/make-card.mjs 20260814 7  # 7首目を載せて作り直す
 ```
 
 `make-card.mjs` は Playwright を使います。入っていない場合は一度だけ
