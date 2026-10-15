@@ -28,7 +28,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <meta name="theme-color" content="#fbfbfa" />
+  <meta name="theme-color" content="#111110" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -83,32 +83,19 @@
       --font: "Poppins", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic",
         "Noto Sans JP", system-ui, sans-serif;
 
-      color-scheme: light dark;
-      --paper: #fbfbfa;
-      --panel: #ffffff;
-      --ink: #14140f;
-      --ink-soft: #4a4a44;
-      --ink-faint: #8a8a82;
-      --rule: rgba(20, 20, 15, 0.14);
-      --rule-soft: rgba(20, 20, 15, 0.07);
-      --wash: rgba(20, 20, 15, 0.04);
+      color-scheme: dark;  /* 端末の設定にかかわらず、つねに暗い配色で表示します */
+      --paper: #111110;
+      --panel: #171715;
+      --ink: #eeeee8;
+      --ink-soft: #b4b4ac;
+      --ink-faint: #83837b;
+      --rule: rgba(238, 238, 232, 0.18);
+      --rule-soft: rgba(238, 238, 232, 0.09);
+      --wash: rgba(238, 238, 232, 0.05);
       --measure: 46rem;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --paper: #111110;
-        --panel: #171715;
-        --ink: #eeeee8;
-        --ink-soft: #b4b4ac;
-        --ink-faint: #83837b;
-        --rule: rgba(238, 238, 232, 0.18);
-        --rule-soft: rgba(238, 238, 232, 0.09);
-        --wash: rgba(238, 238, 232, 0.05);
-      }
-    }
-
-    * { box-sizing: border-box; }
+        * { box-sizing: border-box; }
 
     html { scroll-behavior: smooth; }
 
@@ -611,6 +598,17 @@
     const WORKS = [
       {
         year: '2026',
+        title: '光あれ　すみませんもうお食事はラストオーダー過ぎてますので',
+        venue: '第2回 短歌アプリ『57577』短歌賞 自由詠部門',
+        result: '佳作',
+        excerpt: '',
+        note: '',
+        read: '',
+        url: 'https://tanka.one/award/2026/result',
+        linkText: '結果発表を見る'
+      },
+      {
+        year: '2026',
         title: '「五・虹・五・虹・虹」26首',
         venue: '東京文芸部ZINE vol.2（テーマ「滲」）',
         result: '掲載',
@@ -620,9 +618,10 @@
         url: 'https://booth.pm/ja/items/8322103'
       }
       /* 追加するときは、上と同じ形で並べてください。
-         read    : サイト内の縦書きページ（tools/make-work.mjs で作れます）
-         url     : 掲載誌や販売ページ
-         excerpt : 一覧に出す一首
+         read     : サイト内の縦書きページ（tools/make-work.mjs で作れます）
+         url      : 掲載誌や販売ページ、賞の結果発表ページ
+         linkText : url のリンクの文言（省くと「掲載誌を見る」）
+         excerpt  : 一覧に出す一首（一首だけの受賞なら title に歌を書き、ここは空でよい）
          tools/make-work.mjs が、貼り付けられる形で出力します */
     ];
 
@@ -691,7 +690,7 @@
             : esc(w.title);
           const links = [
             w.read ? `<a href="${esc(w.read)}">縦書きで読む</a>` : '',
-            w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">掲載誌を見る</a>` : ''
+            w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(w.linkText || '掲載誌を見る')}</a>` : ''
           ].filter(Boolean).join('');
           return `
             <div class="work">

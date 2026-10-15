@@ -9,7 +9,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="theme-color" content="#fbfbfa" />
+  <meta name="theme-color" content="#111110" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,25 +20,15 @@
       --font: "Poppins", "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic",
         "Noto Sans JP", system-ui, sans-serif;
 
-      color-scheme: light dark;
-      --paper: #fbfbfa;
-      --ink: #14140f;
-      --ink-soft: #4a4a44;
-      --ink-faint: #8a8a82;
-      --rule: rgba(20, 20, 15, 0.14);
+      color-scheme: dark;  /* 端末の設定にかかわらず、つねに暗い配色で表示します */
+      --paper: #111110;
+      --ink: #eeeee8;
+      --ink-soft: #b4b4ac;
+      --ink-faint: #83837b;
+      --rule: rgba(238, 238, 232, 0.18);
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --paper: #111110;
-        --ink: #eeeee8;
-        --ink-soft: #b4b4ac;
-        --ink-faint: #83837b;
-        --rule: rgba(238, 238, 232, 0.18);
-      }
-    }
-
-    * { box-sizing: border-box; }
+        * { box-sizing: border-box; }
 
     body {
       margin: 0;
