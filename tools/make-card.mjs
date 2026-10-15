@@ -4,7 +4,7 @@
  *
  *   node tools/make-card.mjs <YYYYMMDD>
  *
- * 作品ページからタイトルと一首目を読み取り、works/ogp-<YYYYMMDD>.png を書き出します。
+ * 作品ページからタイトル・種別（短歌連作／短歌）・一首目を読み取り、works/ogp-<YYYYMMDD>.png を書き出します。
  * tools/make-work.mjs は最後にこれを自動で呼びます。
  *
  * Playwright（ブラウザを動かす部品）が必要です。入っていない場合は
@@ -37,6 +37,7 @@ if (!fs.existsSync(pagePath)) {
 const page = fs.readFileSync(pagePath, 'utf8');
 const title = page.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? '';
 const poem = page.match(/<div class="poems">\s*<p>([^<]*)<\/p>/)?.[1] ?? '';
+const kind = page.match(/og:image:alt" content="([^「"]*)「/)?.[1] || '短歌連作';
 
 if (!title) {
   console.error('作品ページからタイトルを読み取れませんでした。');
@@ -86,7 +87,7 @@ async function fontFaces(text) {
   }
 }
 
-const faces = await fontFaces(title + poem + '短歌連作齊藤智都');
+const faces = await fontFaces(title + poem + kind + '齊藤智都');
 
 const html = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><style>
 ${faces}
@@ -102,7 +103,7 @@ body{width:1200px;height:630px;background:#111110;color:#eeeee8;
 .by{font-size:22px;font-weight:500;letter-spacing:.2em;color:#b4b4ac}
 </style></head><body>
 <svg class="enso" viewBox="0 0 200 200"><path d="M150 42a78 78 0 1 0 22 47" fill="none" stroke="#eeeee8" stroke-width="9" stroke-linecap="round"/></svg>
-<div class="kicker">短歌連作</div>
+<div class="kicker">${kind}</div>
 <div class="name">${title}</div>
 <div class="rule"></div>
 ${poem ? `<div class="poem">${poem}</div>` : ''}
