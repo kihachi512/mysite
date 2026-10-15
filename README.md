@@ -185,11 +185,13 @@ Amplify コンソールの **Hosting → Rewrites and redirects** に、次の2�
 `print/namecard/` に名刺（55×91mm 縦型・両面）のデータ一式があります。
 
 ```bash
-node print/namecard/make-namecard.mjs   # out/ にプレビュー画像と入稿用 PDF を作り直す
+node print/namecard/make-namecard.mjs   # out/ にプレビュー画像と入稿用の元データ（raw-*.pdf）を作る
+python3 print/namecard/finish.py        # raw-*.pdf から入稿用 print-*.pdf を作る（ghostscript と qpdf が必要）
 ```
 
 - 紙：羽車「ネームカード Colorsセレクト モスグリーン 308g」／印刷：デジタル印刷ホワイト（両面）
-- 入稿用 PDF（`out/print-*.pdf`）は塗り足し3mm込み。濃い紙に白1色で刷るため、白にしたい部分を黒で描いています
+- 入稿用 PDF（`out/print-*.pdf`）は羽車のテンプレートと同じ形（A4 にトンボ、仕上がり 55×91mm を中央に）。
+  文字はアウトライン化済みで、白で刷る部分は羽車のカラーチップと同じ特色「デジタルホワイト」で指定しています
 - QR コードは `qr.svg`（サイトのURL）。文字や歌を変えるときはスクリプト冒頭の定数を書き換えます
 
 ## 過去のサイトについて

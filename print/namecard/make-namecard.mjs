@@ -6,11 +6,12 @@
  *
  * 出力先は print/namecard/out/ です。
  *   preview-front.png / preview-back.png  見た目の確認用（紙の色つき・仕上がりサイズ）
- *   print-front.pdf   / print-back.pdf    入稿用（塗り足し3mm込み。白で刷る部分を黒で表現）
+ *   raw-front.pdf     / raw-back.pdf      入稿用の元データ（A4・トンボ付き。白で刷る部分をマゼンタで描画）
+ *   print-front.pdf   / print-back.pdf    入稿用（finish.py が raw-*.pdf から作る。文字をアウトライン化し、
+ *                                         マゼンタを羽車の特色「デジタルホワイト」に置き換えたもの）
  *
  * 紙は羽車「ネームカード Colorsセレクト モスグリーン 308g」、印刷はデジタル印刷ホワイト（両面）を想定。
- * 濃い紙に白1色で刷るので、入稿用 PDF では「白にしたい部分」を黒 100% で描いています。
- * 羽車の指定（ホワイトカラーチップへの置き換え・文字のアウトライン化）は Illustrator 側の作業です。
+ * 入稿用は羽車のテンプレート（A4 にトンボ、仕上がり 91×55mm を縦に回転）に合わせています。
  *
  * 書体は Google Fonts から取得します（Zen Maru Gothic / Poppins。環境変数 FRONT, BACK に
  * mincho を指定すると、しっぽり明朝 / EB Garamond になります）。
@@ -43,7 +44,8 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const PAPER = process.env.PAPER || '#2e4738';   // モスグリーンの近似色（プレビュー用）
 const INK = '#ffffff';
-const BLEED = 3;                                  // 塗り足し mm
+const BLEED = 3;                                  // 塗り足し mm（紙の端にかかる絵柄はないので、入稿用では使いません）
+const A4 = { w: 210, h: 297 };
 const W = 55, H = 91;                             // 縦型
 
 const NAME = '齊藤智都';
@@ -91,14 +93,15 @@ const qrN = Number(qrSvg.match(/viewBox="0 0 (\d+) /)[1]);
 
 function page(body, { print, side }) {
   const paper = print ? '#ffffff' : PAPER;
-  const ink = print ? '#000000' : INK;
-  const pw = W + BLEED * 2, ph = H + BLEED * 2;
+  const ink = print ? '#ff00ff' : INK;             // 入稿用：白で刷る部分はマゼンタで描き、finish.py が特色に置き換える
+  const pw = print ? A4.w : W + BLEED * 2, ph = print ? A4.h : H + BLEED * 2;
+  const ox = print ? (A4.w - W) / 2 : BLEED, oy = print ? (A4.h - H) / 2 : BLEED;
   return `<!doctype html><html><head><meta charset="utf-8"><style>
 ${jp}${en}${jpBack}
 @page{size:${pw}mm ${ph}mm;margin:0}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:${pw}mm;height:${ph}mm;background:${paper};overflow:hidden}
-.card{position:absolute;left:${BLEED}mm;top:${BLEED}mm;width:${W}mm;height:${H}mm;color:${ink};
+.card{position:absolute;left:${ox}mm;top:${oy}mm;width:${W}mm;height:${H}mm;color:${ink};
   font-family:'JP',"Zen Maru Gothic",sans-serif;font-weight:500}
 .back .v{font-family:'JPB',serif;font-weight:${BACK === 'mincho' ? 600 : 500}}
 .en{font-family:'EN',sans-serif;font-weight:${FRONT === 'mincho' ? 500 : 400}}
@@ -117,7 +120,29 @@ html,body{width:${pw}mm;height:${ph}mm;background:${paper};overflow:hidden}
 .by span{margin-top:auto}
 .qr{left:6.5mm;bottom:19.5mm;width:19mm;height:19mm;background:${ink};border-radius:1mm;padding:2mm}
 .qr svg{display:block;width:100%;height:100%}
-</style></head><body><div class="card ${side}">${body.replaceAll('__PAPER__', paper).replaceAll('__INK__', ink)}</div></body></html>`;
+</style></head><body>${print ? marks(ox, oy, side) : ''}<div class="card ${side}">${body.replaceAll('__PAPER__', paper).replaceAll('__INK__', ink)}</div></body></html>`;
+}
+
+/* 羽車のテンプレートと同じ形のトンボ（仕上がり線と 3mm 外側の二重線＋センターマーク）と、印刷方法の明記 */
+function marks(ox, oy, side) {
+  const L = 10, B = 3, sw = 0.1;
+  const x0 = ox, x1 = ox + W, y0 = oy, y1 = oy + H;
+  const line = (a, b, c, d) => `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}"/>`;
+  let p = '';
+  for (const [x, dx] of [[x0, -1], [x1, 1]]) for (const [y, dy] of [[y0, -1], [y1, 1]]) {
+    p += line(x, y + dy * B, x, y + dy * (B + L)) + line(x + dx * B, y, x + dx * (B + L), y);          // 仕上がり線の延長
+    p += line(x + dx * B, y + dy * B, x + dx * B, y + dy * (B + L)) + line(x + dx * B, y + dy * B, x + dx * (B + L), y + dy * B); // 3mm 外側
+  }
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  p += line(cx, y0 - B, cx, y0 - B - L) + line(cx - 5, y0 - B - 5, cx + 5, y0 - B - 5);
+  p += line(cx, y1 + B, cx, y1 + B + L) + line(cx - 5, y1 + B + 5, cx + 5, y1 + B + 5);
+  p += line(x0 - B, cy, x0 - B - L, cy) + line(x0 - B - 5, cy - 5, x0 - B - 5, cy + 5);
+  p += line(x1 + B, cy, x1 + B + L, cy) + line(x1 + B + 5, cy - 5, x1 + B + 5, cy + 5);
+  return `<svg style="position:absolute;left:0;top:0;width:${A4.w}mm;height:${A4.h}mm" viewBox="0 0 ${A4.w} ${A4.h}" fill="none" stroke="#000" stroke-width="${sw}">${p}</svg>
+  <div style="position:absolute;left:${x0 - B - L}mm;top:${y0 - B - L - 9}mm;font:3mm/1.4 sans-serif;color:#000;white-space:nowrap">
+    ネームカード（55×91mm・縦使い）${side === 'front' ? '表面' : '裏面'}<br>デジタル印刷ホワイト（両面）── 特色「デジタルホワイト」（カラーチップ色）の部分を白で印刷。トンボ・注記は K
+  </div>
+  <div style="position:absolute;left:${x1 + B + L + 2}mm;top:${y0 - 2}mm;font:3mm/1 sans-serif;color:#000;border:0.2mm solid #000;padding:.6mm 1mm">天</div>`;
 }
 
 const front = `
@@ -136,7 +161,7 @@ const browser = await chromium.launch();
 for (const [side, body] of [['front', front], ['back', back]]) {
   for (const print of [false, true]) {
     const px = 96 / 25.4; // CSS px per mm
-    const tab = await browser.newPage({ viewport: { width: Math.ceil((W + BLEED * 2) * px), height: Math.ceil((H + BLEED * 2) * px) }, deviceScaleFactor: 4 });
+    const tab = await browser.newPage({ viewport: { width: Math.ceil((print ? A4.w : W + BLEED * 2) * px), height: Math.ceil((print ? A4.h : H + BLEED * 2) * px) }, deviceScaleFactor: 4 });
     await tab.setContent(page(body, { print, side }));
     await tab.evaluate(() => document.fonts.ready);
     await tab.waitForTimeout(200);
@@ -144,7 +169,7 @@ for (const [side, body] of [['front', front], ['back', back]]) {
       // プレビュー：塗り足しを落とした仕上がりサイズで切り出す（約384dpi）
       await tab.screenshot({ path: `${OUT}preview-${side}.png`, clip: { x: BLEED * px, y: BLEED * px, width: W * px, height: H * px } });
     }
-    await tab.pdf({ path: `${OUT}${print ? 'print' : 'preview'}-${side}.pdf`, width: `${W + BLEED * 2}mm`, height: `${H + BLEED * 2}mm`, printBackground: true, preferCSSPageSize: true });
+    await tab.pdf({ path: `${OUT}${print ? 'raw' : 'preview'}-${side}.pdf`, width: `${print ? A4.w : W + BLEED * 2}mm`, height: `${print ? A4.h : H + BLEED * 2}mm`, printBackground: true, preferCSSPageSize: true });
     await tab.close();
   }
 }
