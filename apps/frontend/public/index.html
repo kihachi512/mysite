@@ -58,7 +58,7 @@
         "url": "https://momongacarnival.com/",
         "image": "https://momongacarnival.com/ogp.png",
         "knowsAbout": ["短歌", "現代短歌"],
-        "sameAs": ["https://x.com/kihachi512"]
+        "sameAs": ["https://x.com/kihachi512", "https://tankaspot.web.app/users/54ec031b-fbb2-401a-8632-a398c51f9c5e"]
       },
       {
         "@type": "ProfilePage",
@@ -644,8 +644,9 @@
 
     /* --- ネットプリント ----------------------------------------------
        title    : 発行物のタイトル
-       issued   : 発行時期
+       issued   : 発行日
        period   : 配布期間
+       authors  : 著者（複数なら「・」でつなぐ）
        desc     : 内容の紹介（任意）
        seven    : セブン-イレブンの予約番号（任意）
        network  : ネットワークプリント（ローソン等）の番号（任意）
@@ -656,7 +657,8 @@
         title: '『00tanka』vol.00 テーマ「0」',
         issued: '2026/10/11',
         period: '2026/10/11 〜 2026/11/09',
-        desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。著：齊藤智都・田中月子。A4・白黒・片面／1枚20円。',
+        desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。A4・白黒・片面／1枚20円。',
+        authors: '齊藤智都・田中月子',
         seven: 'QHUJJ25S',
         network: 'MYB5R6RRG6',
         url: 'https://x.com/kihachi512/status/2109238428714037581'
@@ -671,7 +673,8 @@
        service : サービス名   handle : 表示名・ID   url : リンク先
     ------------------------------------------------------------------ */
     const LINKS = [
-      { service: 'X (Twitter)', handle: '@kihachi512', url: 'https://x.com/kihachi512' }
+      { service: 'X (Twitter)', handle: '@kihachi512', url: 'https://x.com/kihachi512' },
+      { service: '短歌アプリ 57577', handle: '齊藤智都', url: 'https://tankaspot.web.app/users/54ec031b-fbb2-401a-8632-a398c51f9c5e' }
     ];
 
     /* --- メールアドレス（スパム対策のため分割して持っています） --------
@@ -740,8 +743,9 @@
             </div>
             ${n.desc ? `<p class="np-desc">${esc(n.desc)}</p>` : ''}
             <dl class="np-meta">
-              <dt>発行</dt><dd>${esc(n.issued)}</dd>
+              <dt>発行日</dt><dd>${esc(n.issued)}</dd>
               <dt>配布期間</dt><dd>${esc(n.period)}</dd>
+              ${n.authors ? `<dt>著者</dt><dd>${esc(n.authors)}</dd>` : ''}
               ${n.seven ? `<dt>セブン</dt><dd class="code">${esc(n.seven)}</dd>` : ''}
               ${n.network ? `<dt>ファミマ・ローソン</dt><dd class="code">${esc(n.network)}</dd>` : ''}
             </dl>
