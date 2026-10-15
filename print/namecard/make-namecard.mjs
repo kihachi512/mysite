@@ -139,8 +139,8 @@ function marks(ox, oy, side) {
   p += line(x0 - B, cy, x0 - B - L, cy) + line(x0 - B - 5, cy - 5, x0 - B - 5, cy + 5);
   p += line(x1 + B, cy, x1 + B + L, cy) + line(x1 + B + 5, cy - 5, x1 + B + 5, cy + 5);
   return `<svg style="position:absolute;left:0;top:0;width:${A4.w}mm;height:${A4.h}mm" viewBox="0 0 ${A4.w} ${A4.h}" fill="none" stroke="#000" stroke-width="${sw}">${p}</svg>
-  <div style="position:absolute;left:${x0 - B - L}mm;top:${y0 - B - L - 9}mm;font:3mm/1.4 sans-serif;color:#000;white-space:nowrap">
-    ネームカード（55×91mm・縦使い）${side === 'front' ? '表面' : '裏面'}<br>デジタル印刷ホワイト（両面）── 特色「デジタルホワイト」（カラーチップ色）の部分を白で印刷。トンボ・注記は K
+  <div style="position:absolute;left:${x0 - B - L}mm;top:${y0 - B - L - 13}mm;font:3mm/1.4 sans-serif;color:#000;white-space:nowrap">
+    ネームカード（55×91mm・縦使い）${side === 'front' ? '表面' : '裏面'}<br>デジタル印刷ホワイト（両面）<br>特色「デジタルホワイト」（カラーチップ色）の部分を白で印刷。トンボ・注記は K
   </div>
   <div style="position:absolute;left:${x1 + B + L + 2}mm;top:${y0 - 2}mm;font:3mm/1 sans-serif;color:#000;border:0.2mm solid #000;padding:.6mm 1mm">天</div>`;
 }
