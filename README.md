@@ -132,7 +132,14 @@ node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 | `apps/frontend/public/apple-touch-icon.png` | iPhone でホーム画面に追加したときのアイコン |
 | `apps/frontend/public/works/ogp-*.png` | 作品ページごとのカード画像 |
 
-代表歌を変えたら OGP 画像も作り直してください（画像内の文字は画像に焼き込まれています）。
+代表歌を変えたら、トップのカード画像も作り直してください（画像内の文字は画像に焼き込まれています）。
+
+```bash
+node tools/make-ogp.mjs              # index.html の代表歌を読み取って ogp.png を作り直す
+```
+
+カード画像はサイトと同じ黒地です。配色を変えるときは `tools/make-ogp.mjs` と
+`tools/make-card.mjs` の両方を直してから、それぞれ流し直してください。
 
 ## デプロイ
 

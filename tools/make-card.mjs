@@ -91,17 +91,17 @@ const faces = await fontFaces(title + poem + '短歌連作齊藤智都');
 const html = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><style>
 ${faces}
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:630px;background:#fbfbfa;color:#14140f;
+body{width:1200px;height:630px;background:#111110;color:#eeeee8;
  font-family:'Card',"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;
  display:flex;flex-direction:column;justify-content:center;padding:0 96px;position:relative;overflow:hidden}
-.enso{position:absolute;top:90px;right:-80px;width:460px;height:460px;opacity:.08}
-.kicker{font-size:20px;font-weight:500;letter-spacing:.34em;color:#8a8a82;margin-bottom:28px}
+.enso{position:absolute;top:90px;right:-80px;width:460px;height:460px;opacity:.1}
+.kicker{font-size:20px;font-weight:500;letter-spacing:.34em;color:#83837b;margin-bottom:28px}
 .name{font-size:${title.length > 12 ? 56 : 76}px;font-weight:700;letter-spacing:.12em;margin-bottom:30px}
-.rule{width:84px;height:1px;background:rgba(20,20,15,.3);margin-bottom:28px}
+.rule{width:84px;height:1px;background:rgba(238,238,232,.3);margin-bottom:28px}
 .poem{font-size:${poem.length > 30 ? 24 : 26}px;font-weight:500;letter-spacing:.05em;white-space:nowrap;margin-bottom:18px}
-.by{font-size:22px;font-weight:500;letter-spacing:.2em;color:#4a4a44}
+.by{font-size:22px;font-weight:500;letter-spacing:.2em;color:#b4b4ac}
 </style></head><body>
-<svg class="enso" viewBox="0 0 200 200"><path d="M150 42a78 78 0 1 0 22 47" fill="none" stroke="#14140f" stroke-width="9" stroke-linecap="round"/></svg>
+<svg class="enso" viewBox="0 0 200 200"><path d="M150 42a78 78 0 1 0 22 47" fill="none" stroke="#eeeee8" stroke-width="9" stroke-linecap="round"/></svg>
 <div class="kicker">短歌連作</div>
 <div class="name">${title}</div>
 <div class="rule"></div>
