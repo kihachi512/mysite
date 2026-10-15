@@ -611,6 +611,17 @@
     const WORKS = [
       {
         year: '2026',
+        title: '光あれ　すみませんもうお食事はラストオーダー過ぎてますので',
+        venue: '第2回 短歌アプリ『57577』短歌賞 自由詠部門（選者：千葉聡）',
+        result: '佳作',
+        excerpt: '',
+        note: '',
+        read: '',
+        url: 'https://tanka.one/award/2026/result',
+        linkText: '結果発表を見る'
+      },
+      {
+        year: '2026',
         title: '「五・虹・五・虹・虹」26首',
         venue: '東京文芸部ZINE vol.2（テーマ「滲」）',
         result: '掲載',
@@ -620,9 +631,10 @@
         url: 'https://booth.pm/ja/items/8322103'
       }
       /* 追加するときは、上と同じ形で並べてください。
-         read    : サイト内の縦書きページ（tools/make-work.mjs で作れます）
-         url     : 掲載誌や販売ページ
-         excerpt : 一覧に出す一首
+         read     : サイト内の縦書きページ（tools/make-work.mjs で作れます）
+         url      : 掲載誌や販売ページ、賞の結果発表ページ
+         linkText : url のリンクの文言（省くと「掲載誌を見る」）
+         excerpt  : 一覧に出す一首（一首だけの受賞なら title に歌を書き、ここは空でよい）
          tools/make-work.mjs が、貼り付けられる形で出力します */
     ];
 
@@ -691,7 +703,7 @@
             : esc(w.title);
           const links = [
             w.read ? `<a href="${esc(w.read)}">縦書きで読む</a>` : '',
-            w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">掲載誌を見る</a>` : ''
+            w.url ? `<a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(w.linkText || '掲載誌を見る')}</a>` : ''
           ].filter(Boolean).join('');
           return `
             <div class="work">
