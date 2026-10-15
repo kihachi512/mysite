@@ -9,7 +9,7 @@
 
 ```
 apps/frontend/public/index.html        ← トップページ
-apps/frontend/public/works/*.html      ← 連作ごとの縦書きページ
+apps/frontend/public/works/*.html      ← 作品ごとの縦書きページ
 apps/frontend/public/404.html          ← 見つからないページ用
 apps/frontend/public/robots.txt        ← 検索エンジン向け
 apps/frontend/public/sitemap.xml       ← 検索エンジン向け
@@ -60,20 +60,20 @@ npm run build --prefix apps/frontend
 
 ## 作品ページ（縦書き）
 
-連作は1作につき1ページ、縦書きで置いています（`apps/frontend/public/works/`）。
+作品は1作につき1ページ、縦書きで置いています（`apps/frontend/public/works/`）。
 一首がかならず一行に収まるよう、画面の高さから文字の大きさを計算しています。
 
-新しい連作を追加するときは、テキストファイルを用意してツールを走らせます。
+新しい作品を追加するときは、テキストファイルを用意してツールを走らせます。
 
 ```
-1行目      連作のタイトル
+1行目      作品のタイトル
 2行目      作者名
 3行目以降  一首につき一行（空行と ＊ だけの行は読み飛ばします）
 ```
 
 ```bash
 node tools/make-work.mjs <テキストファイル> [YYYYMMDD] \
-  --zine "掲載誌名" --url "掲載誌のURL"
+  --zine "掲載誌名" --url "掲載誌のURL" [--kind 短歌] [--card 7]
 
 # 例
 node tools/make-work.mjs ~/goniji.txt \
@@ -83,6 +83,12 @@ node tools/make-work.mjs ~/goniji.txt \
 ページのファイル名は**作成日**です（`works/20260814.html` のような形）。
 日付を省くと今日の日付になります。過去の作品を後から足すときは、
 2つめの引数に `YYYYMMDD` を渡してください。
+
+連作として扱うのが既定です（ページに「短歌連作」と書き、一覧には 連作「〜」と出ます）。
+連作ではない作品は `--kind 短歌` を付けると、「短歌」とだけ書きます。
+
+カード画像に載せる歌は一首目が既定です。別の歌にしたいときは `--card 7` のように
+何首目かを渡してください（画像だけ作り直すなら `node tools/make-card.mjs 20260814 7`）。
 
 文字コードは UTF-8 でも Shift-JIS でも読み取れます。本文は原文のまま組みます。
 
@@ -101,7 +107,8 @@ node tools/make-work.mjs ~/goniji.txt \
 
 ```bash
 node tools/make-sitemap.mjs          # sitemap.xml を作り直す
-node tools/make-card.mjs 20260814    # カード画像だけ作り直す
+node tools/make-card.mjs 20260814    # カード画像だけ作り直す（一首目を載せる）
+node tools/make-card.mjs 20260814 7  # 7首目を載せて作り直す
 ```
 
 `make-card.mjs` は Playwright を使います。入っていない場合は一度だけ
@@ -120,7 +127,7 @@ node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 | `canonical` / `og:url` | 正しい公開URLを指しているか確認する |
 | `application/ld+json` | 「歌人・齊藤智都のサイト」であることを構造化データで明示 |
 
-作品ページ側の構造化データは、連作を `Poem`、掲載誌を `isPartOf` として記述しています。
+作品ページ側の構造化データは、作品を `Poem`、掲載誌を `isPartOf` として記述しています。
 
 ## 画像・アイコン
 
@@ -132,7 +139,14 @@ node tools/make-card.mjs 20260814    # カード画像だけ作り直す
 | `apps/frontend/public/apple-touch-icon.png` | iPhone でホーム画面に追加したときのアイコン |
 | `apps/frontend/public/works/ogp-*.png` | 作品ページごとのカード画像 |
 
-代表歌を変えたら OGP 画像も作り直してください（画像内の文字は画像に焼き込まれています）。
+代表歌を変えたら、トップのカード画像も作り直してください（画像内の文字は画像に焼き込まれています）。
+
+```bash
+node tools/make-ogp.mjs              # index.html の代表歌を読み取って ogp.png を作り直す
+```
+
+カード画像はサイトと同じ黒地です。配色を変えるときは `tools/make-ogp.mjs` と
+`tools/make-card.mjs` の両方を直してから、それぞれ流し直してください。
 
 ## デプロイ
 

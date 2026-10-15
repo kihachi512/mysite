@@ -2,9 +2,13 @@
 /**
  * 短歌の連作から、縦書きの作品ページを作ります。
  *
- *   node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine "掲載誌名" --url "掲載誌のURL"]
+ *   node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine "掲載誌名" --url "掲載誌のURL"] [--kind 短歌] [--card 7]
  *
  * ページのファイル名は作成日（YYYYMMDD.html）です。日付を省くと今日の日付になります。
+ *
+ * 連作として扱うのが既定です（ページに「短歌連作」と書き、一覧には 連作「〜」と出します）。
+ * 連作ではない作品は --kind 短歌 を付けると、「短歌」とだけ書きます。
+ * カード画像に載せる歌は一首目が既定です。--card 7 のように何首目かを指定できます。
  *
  * 例：
  *   node tools/make-work.mjs ~/goniji.txt \
@@ -43,7 +47,7 @@ for (let i = 0; i < argv.length; i += 1) {
 
 const [source, dateArg] = positional;
 if (!source) {
-  console.error('使い方: node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine 掲載誌名] [--url 掲載誌URL]');
+  console.error('使い方: node tools/make-work.mjs <テキストファイル> [YYYYMMDD] [--zine 掲載誌名] [--url 掲載誌URL] [--kind 短歌] [--card 何首目]');
   process.exit(1);
 }
 
@@ -85,6 +89,10 @@ if (!title || !author || count === 0) {
 const zine = flags.zine ?? '';
 const zineUrl = flags.url ?? '';
 
+/* 連作かどうか。省くと「短歌連作」、--kind 短歌 なら「短歌」とだけ書きます */
+const kind = flags.kind ?? '短歌連作';
+const isSequence = kind === '短歌連作';
+
 /* 縦書きの本文に出す首数は漢数字にします（例：26 → 二十六） */
 function kansuji(n) {
   const digits = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
@@ -109,6 +117,7 @@ const html = template
   .replaceAll('{{TITLE}}', esc(title))
   .replaceAll('{{AUTHOR}}', esc(author))
   .replaceAll('{{SLUG}}', slug)
+  .replaceAll('{{KIND}}', esc(kind))
   .replaceAll('{{COUNT_KANJI}}', kansuji(count))
   .replaceAll('{{COUNT}}', String(count))
   .replaceAll('{{SITE}}', SITE)
@@ -142,17 +151,17 @@ const runTool = (script, args, label) => {
 };
 
 runTool('make-sitemap.mjs', [], 'sitemap.xml');
-runTool('make-card.mjs', [slug], 'カード画像');
+runTool('make-card.mjs', flags.card ? [slug, flags.card] : [slug], 'カード画像');
 
 /* 一覧に並べるための一項目を、そのまま貼れる形で出します */
 const jsq = (v) => `'${String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 console.log('\nindex.html の WORKS の先頭に、次を貼り付けてください:\n');
 console.log(`      {
         year: ${jsq(slug.slice(0, 4))},
-        title: ${jsq(`「${title}」${count}首`)},
+        title: ${jsq(`${isSequence ? '連作' : ''}「${title}」${count}首`)},
         venue: ${jsq(zine || 'Web発表')},
-        result: ${jsq(zine ? '掲載' : '')},
-        excerpt: ${jsq(body[0])},
+        result: '',
+        excerpt: '',
         note: '',
         read: ${jsq(`works/${slug}.html`)},
         url: ${jsq(zineUrl)}

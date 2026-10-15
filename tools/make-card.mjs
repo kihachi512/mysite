@@ -2,9 +2,10 @@
 /**
  * 作品ページのカード画像（SNSでURLを貼ったときに出る 1200×630 の画像）を作ります。
  *
- *   node tools/make-card.mjs <YYYYMMDD>
+ *   node tools/make-card.mjs <YYYYMMDD> [何首目]
  *
- * 作品ページからタイトルと一首目を読み取り、works/ogp-<YYYYMMDD>.png を書き出します。
+ * 作品ページからタイトル・種別（短歌連作／短歌）・一首を読み取り、works/ogp-<YYYYMMDD>.png を書き出します。
+ * 画像に載せる歌は一首目が既定です。別の歌にしたいときは、何首目かを数字で渡してください。
  * tools/make-work.mjs は最後にこれを自動で呼びます。
  *
  * Playwright（ブラウザを動かす部品）が必要です。入っていない場合は
@@ -24,7 +25,14 @@ const worksDir = path.join(root, 'apps/frontend/public/works');
 
 const slug = process.argv[2];
 if (!slug || !/^\d{8}$/.test(slug)) {
-  console.error('使い方: node tools/make-card.mjs <YYYYMMDD>');
+  console.error('使い方: node tools/make-card.mjs <YYYYMMDD> [何首目]');
+  process.exit(1);
+}
+
+/* 画像に載せる歌。省くと一首目です */
+const nth = Number(process.argv[3] ?? 1);
+if (!Number.isInteger(nth) || nth < 1) {
+  console.error('何首目かは 1 以上の整数で指定してください。');
   process.exit(1);
 }
 
@@ -36,7 +44,13 @@ if (!fs.existsSync(pagePath)) {
 
 const page = fs.readFileSync(pagePath, 'utf8');
 const title = page.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? '';
-const poem = page.match(/<div class="poems">\s*<p>([^<]*)<\/p>/)?.[1] ?? '';
+const poems = [...(page.match(/<div class="poems">([\s\S]*?)<\/div>/)?.[1] ?? '').matchAll(/<p>([^<]*)<\/p>/g)].map((m) => m[1]);
+if (nth > poems.length) {
+  console.error(`この作品は${poems.length}首なので、${nth}首目はありません。`);
+  process.exit(1);
+}
+const poem = poems[nth - 1] ?? '';
+const kind = page.match(/og:image:alt" content="([^「"]*)「/)?.[1] || '短歌連作';
 
 if (!title) {
   console.error('作品ページからタイトルを読み取れませんでした。');
@@ -86,23 +100,23 @@ async function fontFaces(text) {
   }
 }
 
-const faces = await fontFaces(title + poem + '短歌連作齊藤智都');
+const faces = await fontFaces(title + poem + kind + '齊藤智都');
 
 const html = `<!doctype html><html lang="ja"><head><meta charset="utf-8"><style>
 ${faces}
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:630px;background:#fbfbfa;color:#14140f;
+body{width:1200px;height:630px;background:#111110;color:#eeeee8;
  font-family:'Card',"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;
  display:flex;flex-direction:column;justify-content:center;padding:0 96px;position:relative;overflow:hidden}
-.enso{position:absolute;top:90px;right:-80px;width:460px;height:460px;opacity:.08}
-.kicker{font-size:20px;font-weight:500;letter-spacing:.34em;color:#8a8a82;margin-bottom:28px}
+.enso{position:absolute;top:90px;right:-80px;width:460px;height:460px;opacity:.1}
+.kicker{font-size:20px;font-weight:500;letter-spacing:.34em;color:#83837b;margin-bottom:28px}
 .name{font-size:${title.length > 12 ? 56 : 76}px;font-weight:700;letter-spacing:.12em;margin-bottom:30px}
-.rule{width:84px;height:1px;background:rgba(20,20,15,.3);margin-bottom:28px}
+.rule{width:84px;height:1px;background:rgba(238,238,232,.3);margin-bottom:28px}
 .poem{font-size:${poem.length > 30 ? 24 : 26}px;font-weight:500;letter-spacing:.05em;white-space:nowrap;margin-bottom:18px}
-.by{font-size:22px;font-weight:500;letter-spacing:.2em;color:#4a4a44}
+.by{font-size:22px;font-weight:500;letter-spacing:.2em;color:#b4b4ac}
 </style></head><body>
-<svg class="enso" viewBox="0 0 200 200"><path d="M150 42a78 78 0 1 0 22 47" fill="none" stroke="#14140f" stroke-width="9" stroke-linecap="round"/></svg>
-<div class="kicker">短歌連作</div>
+<svg class="enso" viewBox="0 0 200 200"><path d="M150 42a78 78 0 1 0 22 47" fill="none" stroke="#eeeee8" stroke-width="9" stroke-linecap="round"/></svg>
+<div class="kicker">${kind}</div>
 <div class="name">${title}</div>
 <div class="rule"></div>
 ${poem ? `<div class="poem">${poem}</div>` : ''}
