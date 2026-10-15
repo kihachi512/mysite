@@ -107,10 +107,11 @@ html,body{width:${pw}mm;height:${ph}mm;background:${paper};overflow:hidden}
 .role{right:25mm;top:9.5mm;font-size:2.2mm;letter-spacing:.4em}
 .name{right:8mm;top:9mm;font-size:7.2mm;font-weight:700;letter-spacing:.14em}
 .name rt{font-size:2.5mm;font-weight:${FRONT === 'mincho' ? 600 : 500};letter-spacing:.18em;ruby-align:center;padding-left:.7mm}
-.web{left:6.5mm;bottom:13.2mm;font-size:2.45mm;font-weight:500;letter-spacing:.03em}
-.x{left:6.5mm;bottom:9.3mm;font-size:2.15mm;letter-spacing:.03em}
-.mail{left:6.5mm;bottom:5.5mm;font-size:2.15mm;letter-spacing:.03em}
-.lab{display:inline-block;width:6.5mm;font-size:.8em;letter-spacing:.12em}
+.web,.x,.mail{left:6.5mm;font-size:2.3mm;letter-spacing:.03em}
+.web{bottom:13.1mm}
+.x{bottom:9.3mm}
+.mail{bottom:5.5mm}
+.lab{display:inline-block;width:6.5mm;font-size:1.9mm;letter-spacing:.12em}
 .poem{left:50%;transform:translateX(-50%);top:8mm;height:75mm;font-size:2.5mm;letter-spacing:.03em}
 .by{left:calc(50% - 8.5mm);transform:translateX(-50%);top:8mm;height:75mm;font-size:2.2mm;letter-spacing:.3em;display:flex;align-items:flex-start}
 .by span{margin-top:auto}
