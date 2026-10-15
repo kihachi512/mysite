@@ -152,7 +152,7 @@ console.log(`      {
         title: ${jsq(`「${title}」${count}首`)},
         venue: ${jsq(zine || 'Web発表')},
         result: ${jsq(zine ? '掲載' : '')},
-        excerpt: ${jsq(body[0])},
+        excerpt: '',
         note: '',
         read: ${jsq(`works/${slug}.html`)},
         url: ${jsq(zineUrl)}
