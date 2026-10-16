@@ -559,7 +559,7 @@
     <section id="netprint">
       <p class="kicker">Netprint</p>
       <h2>ネットプリント</h2>
-      <p class="lead">配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。</p>
+      <p class="lead">配布したネットプリントの記録です。印刷期限を過ぎた予約番号は使えません。</p>
       <div class="np-list" id="npList"></div>
     </section>
 
@@ -645,7 +645,7 @@
     /* --- ネットプリント ----------------------------------------------
        title    : 発行物のタイトル
        issued   : 発行日
-       period   : 配布期間
+       until    : 印刷期限（この日まで印刷できる）
        authors  : 参加者（複数なら「・」でつなぐ）
        desc     : 内容の紹介（任意）
        seven    : セブン-イレブンの予約番号（任意）
@@ -656,7 +656,7 @@
       {
         title: '『00tanka』vol.00',
         issued: '2026/10/11',
-        period: '2026/10/11 〜 2026/11/09',
+        until: '2026/11/09',
         desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。A4・白黒・片面／1枚20円。',
         authors: '齊藤智都・田中月子',
         seven: 'QHUJJ25S',
@@ -744,7 +744,7 @@
             ${n.desc ? `<p class="np-desc">${esc(n.desc)}</p>` : ''}
             <dl class="np-meta">
               <dt>発行日</dt><dd>${esc(n.issued)}</dd>
-              <dt>配布期間</dt><dd>${esc(n.period)}</dd>
+              <dt>印刷期限</dt><dd>${esc(n.until)}</dd>
               ${n.authors ? `<dt>参加者</dt><dd>${esc(n.authors)}</dd>` : ''}
               ${n.seven ? `<dt>セブン</dt><dd class="code">${esc(n.seven)}</dd>` : ''}
               ${n.network ? `<dt>ファミマ・ローソン</dt><dd class="code">${esc(n.network)}</dd>` : ''}
