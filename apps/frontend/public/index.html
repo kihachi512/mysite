@@ -646,7 +646,7 @@
        title    : 発行物のタイトル
        issued   : 発行日
        period   : 配布期間
-       authors  : 著者（複数なら「・」でつなぐ）
+       authors  : 参加者（複数なら「・」でつなぐ）
        desc     : 内容の紹介（任意）
        seven    : セブン-イレブンの予約番号（任意）
        network  : ネットワークプリント（ローソン等）の番号（任意）
@@ -745,7 +745,7 @@
             <dl class="np-meta">
               <dt>発行日</dt><dd>${esc(n.issued)}</dd>
               <dt>配布期間</dt><dd>${esc(n.period)}</dd>
-              ${n.authors ? `<dt>著者</dt><dd>${esc(n.authors)}</dd>` : ''}
+              ${n.authors ? `<dt>参加者</dt><dd>${esc(n.authors)}</dd>` : ''}
               ${n.seven ? `<dt>セブン</dt><dd class="code">${esc(n.seven)}</dd>` : ''}
               ${n.network ? `<dt>ファミマ・ローソン</dt><dd class="code">${esc(n.network)}</dd>` : ''}
             </dl>
