@@ -524,8 +524,6 @@
       <h2>プロフィール</h2>
       <p class="lead">2000年5月生まれ。神奈川県在住。<br />2025年12月から作歌をはじめ、2026年10月より「<a href="https://www.kaban-tanka.jp/" target="_blank" rel="noopener noreferrer">かばんの会</a>」所属。</p>
       <p class="lead">短歌をはじめたきっかけは、木下龍也『<a href="https://nanarokusha.shop/items/5fa37c65df515940e015dc25" target="_blank" rel="noopener noreferrer">天才による凡人のための短歌教室</a>』です。最近では、「群像短歌部」「うたらば」などに投稿しています。<br />二〇〇〇年生まれによる短歌ネプリ『<a href="#netprint">00tanka</a>』を発行しています。</p>
-      <!-- 信念：書き換えるときはこの一文だけ直してください -->
-      <p class="lead">僕は僕が認められるための短歌はやりません。僕が僕を認めるための短歌をやります。</p>
       <dl class="facts">
         <div>
           <dt>好きな歌人</dt>
@@ -561,7 +559,7 @@
     <section id="netprint">
       <p class="kicker">Netprint</p>
       <h2>ネットプリント</h2>
-      <p class="lead">配布したネットプリントの記録です。配布期間を過ぎた予約番号は使えません。</p>
+      <p class="lead">配布したネットプリントの記録です。印刷期限を過ぎた予約番号は使えません。</p>
       <div class="np-list" id="npList"></div>
     </section>
 
@@ -647,8 +645,8 @@
     /* --- ネットプリント ----------------------------------------------
        title    : 発行物のタイトル
        issued   : 発行日
-       period   : 配布期間
-       authors  : 著者（複数なら「・」でつなぐ）
+       until    : 印刷期限（この日まで印刷できる）
+       authors  : 参加者（複数なら「・」でつなぐ）
        desc     : 内容の紹介（任意）
        seven    : セブン-イレブンの予約番号（任意）
        network  : ネットワークプリント（ローソン等）の番号（任意）
@@ -656,9 +654,9 @@
     ------------------------------------------------------------------ */
     const NETPRINT = [
       {
-        title: '『00tanka』vol.00 テーマ「0」',
+        title: '『00tanka』vol.00',
         issued: '2026/10/11',
-        period: '2026/10/11 〜 2026/11/09',
+        until: '2026/11/09',
         desc: '二〇〇〇年生まれによる短歌ネプリ。テーマ詠「0」六首＋自由詠六首。A4・白黒・片面／1枚20円。',
         authors: '齊藤智都・田中月子',
         seven: 'QHUJJ25S',
@@ -746,8 +744,8 @@
             ${n.desc ? `<p class="np-desc">${esc(n.desc)}</p>` : ''}
             <dl class="np-meta">
               <dt>発行日</dt><dd>${esc(n.issued)}</dd>
-              <dt>配布期間</dt><dd>${esc(n.period)}</dd>
-              ${n.authors ? `<dt>著者</dt><dd>${esc(n.authors)}</dd>` : ''}
+              <dt>印刷期限</dt><dd>${esc(n.until)}</dd>
+              ${n.authors ? `<dt>参加者</dt><dd>${esc(n.authors)}</dd>` : ''}
               ${n.seven ? `<dt>セブン</dt><dd class="code">${esc(n.seven)}</dd>` : ''}
               ${n.network ? `<dt>ファミマ・ローソン</dt><dd class="code">${esc(n.network)}</dd>` : ''}
             </dl>
