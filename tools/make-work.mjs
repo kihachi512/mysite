@@ -107,10 +107,11 @@ function kansuji(n) {
   return `${hundreds > 1 ? digits[hundreds] : ''}百${rest ? kansuji(rest) : ''}`;
 }
 
-/* 縦書きの奥付では数字を漢数字にします（2026年10月号 → 二〇二六年十月号、vol.2 → vol.二） */
+/* 縦書きの奥付では、年月日の数字を漢数字にします（2026年10月号 → 二〇二六年十月号）。
+   vol.2 のような年月日でない数字はそのまま残します */
 function kanjiNumbers(text) {
   const digit = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-  return text.replace(/\d+/g, (n) => (n.length === 4
+  return text.replace(/\d+(?=[年月日])/g, (n) => (n.length === 4
     ? [...n].map((c) => digit[Number(c)]).join('')
     : Number(n) === 0 ? '〇' : kansuji(Number(n))));
 }
