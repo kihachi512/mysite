@@ -107,6 +107,14 @@ function kansuji(n) {
   return `${hundreds > 1 ? digits[hundreds] : ''}百${rest ? kansuji(rest) : ''}`;
 }
 
+/* 縦書きの奥付では数字を漢数字にします（2026年10月号 → 二〇二六年十月号、vol.2 → vol.二） */
+function kanjiNumbers(text) {
+  const digit = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  return text.replace(/\d+/g, (n) => (n.length === 4
+    ? [...n].map((c) => digit[Number(c)]).join('')
+    : Number(n) === 0 ? '〇' : kansuji(Number(n))));
+}
+
 const columns = body
   .map((l) => `      <p>${esc(l)}</p>`)
   .join('\n');
@@ -123,7 +131,7 @@ const html = template
   .replaceAll('{{SITE}}', SITE)
   .replaceAll('{{COLUMNS}}', columns)
   .replaceAll('{{ZINE}}', esc(zine))
-  .replaceAll('{{ZINE_SUFFIX}}', zine ? `${esc(zine)}寄稿<br />` : '')
+  .replaceAll('{{ZINE_SUFFIX}}', zine ? `${esc(kanjiNumbers(zine))}寄稿<br />` : '')
   .replaceAll('{{ZINE_JSONLD}}', zine
     ? `,\n        "isPartOf": { "@type": "Book", "name": "${esc(zine)}"${zineUrl ? `, "url": "${esc(zineUrl)}"` : ''} }`
     : '')
