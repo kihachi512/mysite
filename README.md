@@ -5,7 +5,9 @@
 
 ## 構成
 
-ビルドは `public/` を `dist/` にコピーするだけです。
+ビルドは `public/` を `dist/` にコピーし、トップページの作品集・ネットプリント・リンクの一覧を
+HTML に書き込みます（JavaScript を動かさない検索エンジンや AI の検索ロボットにも一覧が見えるように）。
+メールアドレスだけは書き込まず、ブラウザで表示するときに組み立てます。
 
 ```
 apps/frontend/public/index.html        ← トップページ
@@ -13,7 +15,7 @@ apps/frontend/public/works/*.html      ← 作品ごとの縦書きページ
 apps/frontend/public/404.html          ← 見つからないページ用
 apps/frontend/public/robots.txt        ← 検索エンジン向け
 apps/frontend/public/sitemap.xml       ← 検索エンジン向け
-apps/frontend/build.js                 ← public/ を dist/ にコピーするビルド
+apps/frontend/build.js                 ← public/ を dist/ にコピーし、一覧を HTML に書き込むビルド
 tools/make-work.mjs                    ← 縦書きページを作るツール
 tools/work-template.html               ← そのひな形
 tools/make-card.mjs                    ← カード画像を作るツール
