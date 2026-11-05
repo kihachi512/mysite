@@ -157,6 +157,12 @@
     nav.site a:hover,
     nav.site a:focus-visible { color: var(--ink); border-bottom-color: var(--ink); }
 
+    /* スマホでも5つの項目が一行に収まるように詰める */
+    @media (max-width: 480px) {
+      nav.site ul { gap: 14px; }
+      nav.site a { font-size: 12px; letter-spacing: 0.06em; }
+    }
+
     /* ---------- layout ---------- */
     main {
       max-width: var(--measure);
@@ -382,6 +388,15 @@
       border-radius: 4px;
     }
 
+    /* ---------- selected（掲載・入選） ---------- */
+    .sel-list { margin-top: 8px; }
+    .sel-date {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.08em;
+      color: var(--ink-faint);
+      margin-right: 12px;
+    }
+
     /* ---------- netprint ---------- */
     .np-list { display: grid; gap: 18px; }
 
@@ -496,6 +511,7 @@
         <ul>
           <li><a href="#profile">Profile</a></li>
           <li><a href="#works">Archive</a></li>
+          <li><a href="#selected">Selected</a></li>
           <li><a href="#netprint">Netprint</a></li>
           <li><a href="#links">Link</a></li>
         </ul>
@@ -554,6 +570,16 @@
     </section>
 
     <!-- ============================================================
+         掲載・入選：中身はページ末尾の SELECTED を書き換えてください
+         ============================================================ -->
+    <section id="selected">
+      <p class="kicker">Selected</p>
+      <h2>掲載・入選</h2>
+      <p class="lead">賞や誌面で選ばれた歌です。</p>
+      <div class="sel-list" id="selectedList"></div>
+    </section>
+
+    <!-- ============================================================
          ネットプリント：下部の NETPRINT 配列を編集してください
          ============================================================ -->
     <section id="netprint">
@@ -601,17 +627,6 @@
     const WORKS = [
       {
         year: '2026',
-        title: 'どしゃぶりの夜を二人で漕ぐ男子いましか出ない大声の歌',
-        venue: '短歌×写真のフリーペーパー『うたらば』vol.43（テーマ「相棒」）',
-        result: '佳作',
-        excerpt: '',
-        note: '',
-        read: '',
-        url: 'https://www.utalover.com/assets/image/fp/uta43/utalover4301.jpg',
-        linkText: '誌面を見る'
-      },
-      {
-        year: '2026',
         title: '「ネモフィラを挿す」8首',
         venue: '「かばん」2026年10月号',
         result: '',
@@ -633,17 +648,6 @@
       },
       {
         year: '2026',
-        title: '光あれ　すみませんもうお食事はラストオーダー過ぎてますので',
-        venue: '第2回 短歌アプリ『57577』短歌賞 自由詠部門',
-        result: '佳作',
-        excerpt: '',
-        note: '',
-        read: '',
-        url: 'https://tanka.one/award/2026/result',
-        linkText: '結果発表を見る'
-      },
-      {
-        year: '2026',
         title: '「五・虹・五・虹・虹」26首',
         venue: '東京文芸部ZINE vol.2（テーマ「滲」）',
         result: '',
@@ -656,12 +660,41 @@
          read     : サイト内の縦書きページ（tools/make-work.mjs で作れます）
          url      : 掲載誌や販売ページ、賞の結果発表ページ
          linkText : url のリンクの文言（省くと「掲載誌を見る」）
-         excerpt  : 一覧に出す一首（一首だけの受賞なら title に歌を書き、ここは空でよい）
+         excerpt  : 一覧に出す一首（ふだんは空）
+         一首だけの入選は、下の SELECTED（掲載・入選）に書きます
          tools/make-work.mjs が、貼り付けられる形で出力します */
     ];
 
     /* 作品欄が空のときに表示する文章 */
     const WORKS_EMPTY = 'まだ公開できる作品がありません。';
+
+    /* --- 掲載・入選（一首が選ばれたもの） ------------------------------
+       date     : 発表の年月（2026.11 の形）
+       poem     : 選ばれた一首
+       venue    : 賞・媒体の名前
+       result   : 結果（佳作・入選 など。右の札に出ます）
+       url      : 結果発表や誌面のURL（任意）
+       linkText : url のリンクの文言（省くと「結果を見る」）
+       新しいものを先頭に足します
+    ------------------------------------------------------------------ */
+    const SELECTED = [
+      {
+        date: '2026.11',
+        poem: 'どしゃぶりの夜を二人で漕ぐ男子いましか出ない大声の歌',
+        venue: '短歌×写真のフリーペーパー『うたらば』vol.43（テーマ「相棒」）',
+        result: '佳作',
+        url: 'https://www.utalover.com/assets/image/fp/uta43/utalover4301.jpg',
+        linkText: '誌面を見る'
+      },
+      {
+        date: '2026.08',
+        poem: '光あれ　すみませんもうお食事はラストオーダー過ぎてますので',
+        venue: '第2回 短歌アプリ『57577』短歌賞 自由詠部門',
+        result: '佳作',
+        url: 'https://tanka.one/award/2026/result',
+        linkText: '結果発表を見る'
+      }
+    ];
 
     /* --- ネットプリント ----------------------------------------------
        title    : 発行物のタイトル
@@ -745,6 +778,23 @@
       }).join('');
     }
 
+    function renderSelected() {
+      const host = document.getElementById('selectedList');
+      host.innerHTML = SELECTED.map((w) => {
+        const link = w.url
+          ? `<div class="work-links"><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(w.linkText || '結果を見る')}</a></div>`
+          : '';
+        return `
+          <div class="work">
+            <div class="work-title">${esc(w.poem)}</div>
+            ${w.result ? `<div class="result">${esc(w.result)}</div>` : '<div></div>'}
+            <div class="work-venue"><span class="sel-date">${esc(w.date)}</span>${esc(w.venue)}</div>
+            ${link}
+          </div>`;
+      }).join('');
+      document.getElementById('selected').hidden = !SELECTED.length;
+    }
+
     function renderNetprint() {
       const host = document.getElementById('npList');
 
@@ -798,6 +848,7 @@
 
     document.getElementById('year').textContent = new Date().getFullYear();
     renderWorks();
+    renderSelected();
     renderLinks();
 
     renderNetprint();

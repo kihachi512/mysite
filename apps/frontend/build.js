@@ -16,7 +16,7 @@ if (!fs.existsSync(publicDir)) {
 fs.cpSync(publicDir, distDir, { recursive: true });
 
 /*
- * 作品集・ネットプリント・リンクの一覧は、index.html の中の <script> がデータから組み立てます。
+ * 作品集・掲載・入選・ネットプリント・リンクの一覧は、index.html の中の <script> がデータから組み立てます。
  * ブラウザでは今まで通りそれで表示されますが、JavaScript を動かさない検索エンジンや
  * AI の検索ロボットには一覧が空に見えてしまうので、ビルドのときに同じ処理を一度だけ走らせて、
  * できあがった HTML を最初から書き込んでおきます（データの書き方は今まで通り）。
@@ -48,6 +48,7 @@ if (pageScript) {
     html = html.replace(empty, `${open}${rendered[id]}</${tag}>`);
   };
   fill('worksList', 'div', '');
+  fill('selectedList', 'div', ' class="sel-list"');
   fill('npList', 'div', ' class="np-list"');
   fill('linkList', 'ul', ' class="links"');
   fill('year', 'span', '');
