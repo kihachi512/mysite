@@ -673,26 +673,30 @@
        poem     : 選ばれた一首
        venue    : 賞・媒体の名前
        result   : 結果（佳作・入選 など。右の札に出ます）
-       url      : 結果発表や誌面のURL（任意）
-       linkText : url のリンクの文言（省くと「結果を見る」）
+       url      : 結果発表や誌面のURL（任意。リンクの文言は「結果を見る」でそろえています）
        新しいものを先頭に足します
     ------------------------------------------------------------------ */
     const SELECTED = [
       {
         date: '2026.11',
+        poem: 'ごめんね、きみは根に持つ子なんだね耳から除草剤をいれるね',
+        venue: 'NHKラジオ「文芸選評」短歌（テーマ「不気味」・選者：木下龍也）',
+        result: '入選',
+        url: 'https://x.com/nhk_radiru/status/2121427721117147626'
+      },
+      {
+        date: '2026.11',
         poem: 'どしゃぶりの夜を二人で漕ぐ男子いましか出ない大声の歌',
         venue: '短歌×写真のフリーペーパー『うたらば』vol.43（テーマ「相棒」）',
         result: '佳作',
-        url: 'https://www.utalover.com/assets/image/fp/uta43/utalover4301.jpg',
-        linkText: '誌面を見る'
+        url: 'https://www.utalover.com/assets/image/fp/uta43/utalover4301.jpg'
       },
       {
         date: '2026.08',
         poem: '光あれ　すみませんもうお食事はラストオーダー過ぎてますので',
-        venue: '第2回 短歌アプリ『57577』短歌賞 自由詠部門',
+        venue: '第2回 短歌アプリ『57577』短歌賞 自由詠部門（選者：千葉聡）',
         result: '佳作',
-        url: 'https://tanka.one/award/2026/result',
-        linkText: '結果発表を見る'
+        url: 'https://tanka.one/award/2026/result'
       }
     ];
 
@@ -782,7 +786,7 @@
       const host = document.getElementById('selectedList');
       host.innerHTML = SELECTED.map((w) => {
         const link = w.url
-          ? `<div class="work-links"><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(w.linkText || '結果を見る')}</a></div>`
+          ? `<div class="work-links"><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">結果を見る</a></div>`
           : '';
         return `
           <div class="work">
